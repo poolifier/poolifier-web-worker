@@ -20,7 +20,7 @@ on:
   # merge_group:
   #   branches: [master]
   schedule:
-    - cron: '44 9 * * 3'
+    - cron: '24 10 * * 3'
 
 jobs:
   analyze:

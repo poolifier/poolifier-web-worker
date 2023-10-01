@@ -11,7 +11,7 @@
   "github": {
     "release": true,
     "releaseName": "v${version}",
-    "tokenRef": "GITHUB_TOKEN_POOLIFIER"
+    "tokenRef": "GITHUB_TOKEN_POOLIFIER_BUN"
   },
   "plugins": {
     "@release-it/bumper": {

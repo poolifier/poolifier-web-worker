@@ -1,9 +1,4 @@
 export type { AbstractPool } from './pools/abstract-pool'
-export { DynamicClusterPool } from './pools/cluster/dynamic'
-export {
-  FixedClusterPool,
-  type ClusterPoolOptions
-} from './pools/cluster/fixed'
 export { PoolEvents, PoolTypes } from './pools/pool'
 export type {
   IPool,
@@ -48,7 +43,6 @@ export type { WorkerChoiceStrategyContext } from './pools/selection-strategies/w
 export { DynamicThreadPool } from './pools/thread/dynamic'
 export { FixedThreadPool, type ThreadPoolOptions } from './pools/thread/fixed'
 export type { AbstractWorker } from './worker/abstract-worker'
-export { ClusterWorker } from './worker/cluster-worker'
 export { ThreadWorker } from './worker/thread-worker'
 export { KillBehaviors } from './worker/worker-options'
 export type {

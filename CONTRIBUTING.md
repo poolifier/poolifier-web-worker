@@ -10,19 +10,19 @@ Please do your PR on **master** branch.
 **How to run unit tests and coverage**
 
 ```bash
-  pnpm test && pnpm coverage
+  bun run test && bun run coverage
 ```
 
 **How to check if your new code is standard JS style**
 
 ```bash
-  pnpm lint
+  bun run lint
 ```
 
 **How to format and lint to standard JS style your code**
 
 ```bash
-  pnpm format && pnpm lint:fix
+  bun run format && bun run lint:fix
 ```
 
 ### Project pillars

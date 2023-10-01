@@ -43,12 +43,12 @@ body:
       label: poolifier version
   - type: input
     attributes:
-      label: Node.js version
-      description: Output of `node -v`.
+      label: Bun version
+      description: Output of `bun -v`.
   - type: textarea
     attributes:
       label: System
-      description: Output of `npx --yes envinfo --system`.
+      description: Output of `bunx --yes envinfo --system`.
   - type: textarea
     attributes:
       label: Attachments

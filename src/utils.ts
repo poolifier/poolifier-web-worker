@@ -1,6 +1,5 @@
 import * as os from 'node:os'
 import { webcrypto } from 'node:crypto'
-import { Worker as ClusterWorker } from 'node:cluster'
 import { Worker as ThreadWorker } from 'node:worker_threads'
 import type {
   MeasurementStatisticsRequirements,
@@ -71,8 +70,6 @@ export const availableParallelism = (): number => {
 export const getWorkerType = (worker: IWorker): WorkerType | undefined => {
   if (worker instanceof ThreadWorker) {
     return WorkerTypes.thread
-  } else if (worker instanceof ClusterWorker) {
-    return WorkerTypes.cluster
   }
 }
 
@@ -86,8 +83,6 @@ export const getWorkerType = (worker: IWorker): WorkerType | undefined => {
 export const getWorkerId = (worker: IWorker): number | undefined => {
   if (worker instanceof ThreadWorker) {
     return worker.threadId
-  } else if (worker instanceof ClusterWorker) {
-    return worker.id
   }
 }
 

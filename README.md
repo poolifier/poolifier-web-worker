@@ -4,7 +4,7 @@
 
 <div align="center">
 
-# Bun Worker_Threads and Subprocesses Worker Pool
+# Bun Worker_Threads Worker Pool
 
 </div>
 
@@ -25,7 +25,7 @@
 
 ## Why Poolifier?
 
-Poolifier is used to perform CPU and/or I/O intensive tasks on Node.js servers, it implements worker pools using [worker_threads](https://nodejs.org/api/worker_threads.html) and [cluster](https://nodejs.org/api/cluster.html) Node.js modules.  
+Poolifier is used to perform CPU and/or I/O intensive tasks on Bun servers, it implements worker pools using [worker_threads](https://nodejs.org/api/worker_threads.html) Bun modules.  
 With poolifier you can improve your **performance** and resolve problems related to the event loop.  
 Moreover you can execute your tasks using an API designed to improve the **developer experience**.  
 Please consult our [general guidelines](#general-guidelines).
@@ -35,9 +35,9 @@ Please consult our [general guidelines](#general-guidelines).
 - Easy switch from a pool type to another :white_check_mark:
 - Performance [benchmarks](./benchmarks/README.md) :white_check_mark:
 - No runtime dependencies :white_check_mark:
-- Proper integration with Node.js [async_hooks](https://nodejs.org/api/async_hooks.html) :white_check_mark:
-- Support for CommonJS, ESM, and TypeScript :white_check_mark:
-- Support for [worker_threads](https://nodejs.org/api/worker_threads.html) and [cluster](https://nodejs.org/api/cluster.html) Node.js modules :white_check_mark:
+- Proper integration with Bun [async_hooks](https://nodejs.org/api/async_hooks.html) :white_check_mark:
+- Support for ESM and TypeScript :white_check_mark:
+- Support for [worker_threads](https://nodejs.org/api/worker_threads.html) Bun modules :white_check_mark:
 - Support for multiple task functions :white_check_mark:
 - Support for task functions [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations at runtime :white_check_mark:
 - Support for sync and async task functions :white_check_mark:
@@ -64,7 +64,7 @@ Please consult our [general guidelines](#general-guidelines).
 - [Overview](#overview)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Node.js versions](#nodejs-versions)
+- [Bun versions](#bun-versions)
 - [API](#api)
 - [General guidelines](#general-guidelines)
 - [Worker choice strategies](#worker-choice-strategies)
@@ -74,10 +74,10 @@ Please consult our [general guidelines](#general-guidelines).
 
 ## Overview
 
-Poolifier contains two [worker_threads](https://nodejs.org/api/worker_threads.html#class-worker)/[cluster](https://nodejs.org/api/cluster.html#cluster_class_worker) worker pool implementations, you don't have to deal with [worker_threads](https://nodejs.org/api/worker_threads.html)/[cluster](https://nodejs.org/api/cluster.html) complexity.  
+Poolifier contains two [worker_threads](https://nodejs.org/api/worker_threads.html#class-worker) worker pool implementations, you don't have to deal with [worker_threads](https://nodejs.org/api/worker_threads.html) complexity.  
 The first implementation is a fixed worker pool, with a defined number of workers that are started at creation time and will be reused.  
 The second implementation is a dynamic worker pool, with a number of worker started at creation time (these workers will be always active and reused) and other workers created when the load will increase (with an upper limit, these workers will be reused when active), the newly created workers will be stopped after a configurable period of inactivity.  
-You have to implement your worker by extending the _ThreadWorker_ or _ClusterWorker_ class.
+You have to implement your worker by extending the _ThreadWorker_ class.
 
 ## Installation
 
@@ -140,8 +140,6 @@ pool
     console.error(err)
   })
 ```
-
-You can do the same with the classes _ClusterWorker_, _FixedClusterPool_ and _DynamicClusterPool_.
 
 **See [examples](./examples/) for more details**:
 

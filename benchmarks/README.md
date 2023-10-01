@@ -9,7 +9,7 @@ The [internal](./internal) folder contains poolifier internal benchmark.
 ## Poolifier benchmark versus other worker pools
 
 To compare poolifier pools performance vs other pools performance we chose to use [hyperfine](https://github.com/sharkdp/hyperfine).  
-We chose to use this tool because it allows to run isolated Node.js processes so each pool does not impact each other.
+We chose to use this tool because it allows to run isolated Bun processes so each pool does not impact each other.
 
 - External pools with which we compare the poolifier results:
 

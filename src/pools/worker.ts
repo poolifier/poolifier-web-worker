@@ -110,8 +110,7 @@ export interface TaskStatistics {
  * Enumeration of worker types.
  */
 export const WorkerTypes = Object.freeze({
-  thread: 'thread',
-  cluster: 'cluster'
+  thread: 'thread'
 } as const)
 
 /**
@@ -187,7 +186,6 @@ export interface IWorker {
   /**
    * Worker id.
    */
-  readonly id?: number
   readonly threadId?: number
   /**
    * Registers an event listener.

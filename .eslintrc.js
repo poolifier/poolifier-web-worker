@@ -4,7 +4,6 @@ module.exports = defineConfig({
   root: true,
   env: {
     es2022: true,
-    node: true,
     mocha: true
   },
   parserOptions: {

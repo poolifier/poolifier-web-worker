@@ -3,8 +3,8 @@
 ## Table of contents
 
 - [Pool](#pool)
-  - [`pool = new FixedThreadPool/FixedClusterPool(numberOfThreads/numberOfWorkers, filePath, opts)`](#pool--new-fixedthreadpoolfixedclusterpoolnumberofthreadsnumberofworkers-filepath-opts)
-  - [`pool = new DynamicThreadPool/DynamicClusterPool(min, max, filePath, opts)`](#pool--new-dynamicthreadpooldynamicclusterpoolmin-max-filepath-opts)
+  - [`pool = new FixedThreadPool(numberOfThreads, filePath, opts)`](#pool--new-fixedthreadpoolnumberofthreads-filepath-opts)
+  - [`pool = new DynamicThreadPool(min, max, filePath, opts)`](#pool--new-dynamicthreadpoolmin-max-filepath-opts)
   - [`pool.execute(data, name, transferList)`](#poolexecutedata-name-transferlist)
   - [`pool.start()`](#poolstart)
   - [`pool.destroy()`](#pooldestroy)
@@ -15,9 +15,8 @@
   - [`pool.setDefaultTaskFunction(name)`](#poolsetdefaulttaskfunctionname)
   - [`PoolOptions`](#pooloptions)
     - [`ThreadPoolOptions extends PoolOptions`](#threadpooloptions-extends-pooloptions)
-    - [`ClusterPoolOptions extends PoolOptions`](#clusterpooloptions-extends-pooloptions)
 - [Worker](#worker)
-  - [`class YourWorker extends ThreadWorker/ClusterWorker`](#class-yourworker-extends-threadworkerclusterworker)
+  - [`class YourWorker extends ThreadWorker`](#class-yourworker-extends-threadworker)
     - [`YourWorker.hasTaskFunction(name)`](#yourworkerhastaskfunctionname)
     - [`YourWorker.addTaskFunction(name, fn)`](#yourworkeraddtaskfunctionname-fn)
     - [`YourWorker.removeTaskFunction(name)`](#yourworkerremovetaskfunctionname)
@@ -26,15 +25,15 @@
 
 ## Pool
 
-### `pool = new FixedThreadPool/FixedClusterPool(numberOfThreads/numberOfWorkers, filePath, opts)`
+### `pool = new FixedThreadPool(numberOfThreads, filePath, opts)`
 
-`numberOfThreads/numberOfWorkers` (mandatory) Number of workers for this pool.  
+`numberOfThreads` (mandatory) Number of workers for this pool.  
 `filePath` (mandatory) Path to a file with a worker implementation.  
 `opts` (optional) An object with the pool options properties described below.
 
-### `pool = new DynamicThreadPool/DynamicClusterPool(min, max, filePath, opts)`
+### `pool = new DynamicThreadPool(min, max, filePath, opts)`
 
-`min` (mandatory) Same as _FixedThreadPool_/_FixedClusterPool_ numberOfThreads/numberOfWorkers, this number of workers will be always active.  
+`min` (mandatory) Same as _FixedThreadPool_ numberOfThreads, this number of workers will be always active.  
 `max` (mandatory) Max number of workers that this pool can contain, the newly created workers will die after a threshold (default is 1 minute, you can override it in your worker implementation).  
 `filePath` (mandatory) Path to a file with a worker implementation.  
 `opts` (optional) An object with the pool options properties described below.
@@ -145,15 +144,9 @@ An object with these properties:
 
 - `workerOptions` (optional) - An object with the worker options to pass to worker. See [worker_threads](https://nodejs.org/api/worker_threads.html#worker_threads_new_worker_filename_options) for more details.
 
-#### `ClusterPoolOptions extends PoolOptions`
-
-- `env` (optional) - An object with the environment variables to pass to worker. See [cluster](https://nodejs.org/api/cluster.html#cluster_cluster_fork_env) for more details.
-
-- `settings` (optional) - An object with the cluster settings. See [cluster](https://nodejs.org/api/cluster.html#cluster_cluster_settings) for more details.
-
 ## Worker
 
-### `class YourWorker extends ThreadWorker/ClusterWorker`
+### `class YourWorker extends ThreadWorker`
 
 `taskFunctions` (mandatory) The task function or task functions object `{ name_1: fn_1, ..., name_n: fn_n }` that you want to execute on the worker.  
 `opts` (optional) An object with these properties:

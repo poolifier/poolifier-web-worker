@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/package",
   "name": "poolifier-bun",
   "version": "0.0.1",
-  "description": "Fast and small Bun Worker_Threads and Subprocesses Worker Pool",
+  "description": "Fast and small Bun Worker_Threads Worker Pool",
   "license": "MIT",
   "main": "./lib/index.js",
   "exports": {
