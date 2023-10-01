@@ -150,9 +150,12 @@ module.exports = defineConfig({
       extends: ['plugin:n/recommended', 'plugin:jsdoc/recommended', 'standard']
     },
     {
-      files: ['tests/**/*.js'],
+      files: ['tests/**/*.js', 'tests/**/*.mjs'],
       rules: {
-        'jsdoc/require-jsdoc': 'off'
+        'jsdoc/require-jsdoc': 'off',
+        // TODO: remove when tests are migrated to `bun test`
+        'import/no-unresolved': 'off',
+        'n/no-missing-import': 'off'
       }
     },
     {

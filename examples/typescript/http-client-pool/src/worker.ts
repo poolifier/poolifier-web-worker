@@ -21,7 +21,7 @@ class HttpClientWorker extends ThreadWorker<WorkerData, WorkerResponse> {
       },
       fetch: async (workerData?: WorkerData) => {
         const response = await fetch(
-          (workerData as WorkerData).input as URL | RequestInfo,
+          (workerData as WorkerData).input,
           workerData?.init as RequestInit
         )
         // The response is not structured-cloneable, so we return the response text body instead.

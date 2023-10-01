@@ -4,11 +4,11 @@
 
 <div align="center">
 
-# Node.js Worker_Threads and Cluster Worker Pool
+# Bun Worker_Threads and Cluster Worker Pool
 
 </div>
 
-<div align="center">
+<!-- <div align="center">
 
 [![GitHub commit activity (master)](https://img.shields.io/github/commit-activity/m/poolifier/poolifier/master?color=brightgreen&logo=github)](https://github.com/poolifier/poolifier/graphs/commit-activity)
 [![Weekly Downloads](https://badgen.net/npm/dw/poolifier?icon=npm)](https://www.npmjs.com/package/poolifier)
@@ -21,7 +21,7 @@
 [![PRs Welcome](https://badgen.net/static/PRs/welcome/green)](http://makeapullrequest.com)
 [![No Dependencies](<https://badgen.net/static/dependencies/no dependencies/green>)](<https://badgen.net/static/dependencies/no dependencies/green>)
 
-</div>
+</div> -->
 
 ## Why Poolifier?
 
@@ -51,13 +51,13 @@ Please consult our [general guidelines](#general-guidelines).
 - Error handling out of the box :white_check_mark:
 - Widely tested :white_check_mark:
 - Active community :white_check_mark:
-- Code quality [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=bugs)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
+<!-- - Code quality [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=bugs)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
   [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=code_smells)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
   [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
   [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
   [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
   [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=sqale_index)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
-- Code security [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=security_rating)](https://sonarcloud.io/dashboard?id=pioardi_poolifier) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
+- Code security [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=security_rating)](https://sonarcloud.io/dashboard?id=pioardi_poolifier) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=pioardi_poolifier) -->
 
 ## Table of contents
 
@@ -82,7 +82,7 @@ You have to implement your worker by extending the _ThreadWorker_ or _ClusterWor
 ## Installation
 
 ```shell
-npm install poolifier --save
+npm install poolifier-bun --save
 ```
 
 ## Usage
@@ -163,9 +163,9 @@ You can do the same with the classes _ClusterWorker_, _FixedClusterPool_ and _Dy
 
 Remember that workers can only send and receive structured-cloneable data.
 
-## Node.js versions
+## Bun versions
 
-Node.js versions >= 16.14.x are supported.
+Bun versions >= 1.0.x are supported.
 
 ## [API](./docs/api.md)
 

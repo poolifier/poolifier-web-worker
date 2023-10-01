@@ -1,4 +1,4 @@
-import { EventEmitterAsyncResource } from 'node:events'
+import { EventEmitter } from 'node:events'
 import { dirname, join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -202,7 +202,7 @@ describe('Abstract pool test suite', () => {
       numberOfWorkers,
       './tests/worker-files/thread/testWorker.mjs'
     )
-    expect(pool.emitter).toBeInstanceOf(EventEmitterAsyncResource)
+    expect(pool.emitter).toBeInstanceOf(EventEmitter)
     expect(pool.opts).toStrictEqual({
       startWorkers: true,
       enableEvents: true,
