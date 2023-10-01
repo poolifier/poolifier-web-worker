@@ -1,8 +1,6 @@
 import { expect } from 'expect'
 import {
-  DynamicClusterPool,
   DynamicThreadPool,
-  FixedClusterPool,
   FixedThreadPool,
   WorkerChoiceStrategies
 } from '../../../lib/index.js'
@@ -81,7 +79,7 @@ describe('Selection strategies test suite', () => {
       await pool.destroy()
     }
     for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
-      const pool = new DynamicClusterPool(
+      const pool = new DynamicThreadPool(
         min,
         max,
         './tests/worker-files/cluster/testWorker.js'
@@ -371,7 +369,7 @@ describe('Selection strategies test suite', () => {
 
   it('Verify ROUND_ROBIN strategy runtime behavior', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
-    let pool = new FixedClusterPool(
+    let pool = new FixedThreadPool(
       max,
       './tests/worker-files/cluster/testWorker.js',
       { workerChoiceStrategy }
