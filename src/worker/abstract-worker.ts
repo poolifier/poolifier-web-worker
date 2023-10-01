@@ -1,5 +1,4 @@
 import { AsyncResource } from 'node:async_hooks'
-import type { Worker } from 'node:cluster'
 import type { MessagePort } from 'node:worker_threads'
 import { performance } from 'node:perf_hooks'
 import type {
@@ -53,7 +52,7 @@ const DEFAULT_WORKER_OPTIONS: WorkerOptions = {
  * @typeParam Response - Type of response the worker sends back to the main worker. This can only be structured-cloneable data.
  */
 export abstract class AbstractWorker<
-  MainWorker extends Worker | MessagePort,
+  MainWorker extends MessagePort,
   Data = unknown,
   Response = unknown
 > extends AsyncResource {
