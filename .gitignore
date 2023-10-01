@@ -196,5 +196,7 @@ dist
 !.vscode/tasks.json
 
 # Project specifics
+outputs/
+reports/
 lib
 tmp
