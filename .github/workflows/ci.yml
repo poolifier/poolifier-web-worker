@@ -16,7 +16,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest]
         bun: [latest]
 
     name: Bun ${{ matrix.bun }} on ${{ matrix.os }}

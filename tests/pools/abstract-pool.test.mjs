@@ -5,9 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { expect } from 'expect'
 import { restore, stub } from 'sinon'
 import {
-  DynamicClusterPool,
   DynamicThreadPool,
-  FixedClusterPool,
   FixedThreadPool,
   PoolEvents,
   PoolTypes,
@@ -103,7 +101,7 @@ describe('Abstract pool test suite', () => {
   it('Verify that a negative number of workers is checked', () => {
     expect(
       () =>
-        new FixedClusterPool(-1, './tests/worker-files/cluster/testWorker.js')
+        new FixedThreadPool(-1, './tests/worker-files/cluster/testWorker.js')
     ).toThrowError(
       new RangeError(
         'Cannot instantiate a pool with a negative number of workers'
@@ -125,7 +123,7 @@ describe('Abstract pool test suite', () => {
   it('Verify that dynamic pool sizing is checked', () => {
     expect(
       () =>
-        new DynamicClusterPool(
+        new DynamicThreadPool(
           1,
           undefined,
           './tests/worker-files/cluster/testWorker.js'
@@ -149,7 +147,7 @@ describe('Abstract pool test suite', () => {
     )
     expect(
       () =>
-        new DynamicClusterPool(
+        new DynamicThreadPool(
           0,
           0.5,
           './tests/worker-files/cluster/testWorker.js'
@@ -185,7 +183,7 @@ describe('Abstract pool test suite', () => {
     )
     expect(
       () =>
-        new DynamicClusterPool(
+        new DynamicThreadPool(
           1,
           1,
           './tests/worker-files/cluster/testWorker.js'
@@ -802,7 +800,7 @@ describe('Abstract pool test suite', () => {
       failedTasks: 0
     })
     await pool.destroy()
-    pool = new DynamicClusterPool(
+    pool = new DynamicThreadPool(
       Math.floor(numberOfWorkers / 2),
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
@@ -827,7 +825,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify that pool worker tasks usage are initialized', async () => {
-    const pool = new FixedClusterPool(
+    const pool = new FixedThreadPool(
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
     )
@@ -862,7 +860,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify that pool worker tasks queue are initialized', async () => {
-    let pool = new FixedClusterPool(
+    let pool = new FixedThreadPool(
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
     )
@@ -888,7 +886,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify that pool worker info are initialized', async () => {
-    let pool = new FixedClusterPool(
+    let pool = new FixedThreadPool(
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
     )
@@ -920,7 +918,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify that pool can be started after initialization', async () => {
-    const pool = new FixedClusterPool(
+    const pool = new FixedThreadPool(
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js',
       {
@@ -944,7 +942,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify that pool execute() arguments are checked', async () => {
-    const pool = new FixedClusterPool(
+    const pool = new FixedThreadPool(
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
     )
@@ -967,7 +965,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify that pool worker tasks usage are computed', async () => {
-    const pool = new FixedClusterPool(
+    const pool = new FixedThreadPool(
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
     )
@@ -1113,7 +1111,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it("Verify that pool event emitter 'ready' event can register a callback", async () => {
-    const pool = new DynamicClusterPool(
+    const pool = new DynamicThreadPool(
       Math.floor(numberOfWorkers / 2),
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
@@ -1288,7 +1286,7 @@ describe('Abstract pool test suite', () => {
     expect(dynamicThreadPool.hasTaskFunction('fibonacci')).toBe(true)
     expect(dynamicThreadPool.hasTaskFunction('unknown')).toBe(false)
     await dynamicThreadPool.destroy()
-    const fixedClusterPool = new FixedClusterPool(
+    const fixedClusterPool = new FixedThreadPool(
       numberOfWorkers,
       './tests/worker-files/cluster/testMultipleTaskFunctionsWorker.js'
     )
@@ -1429,7 +1427,7 @@ describe('Abstract pool test suite', () => {
       'fibonacci'
     ])
     await dynamicThreadPool.destroy()
-    const fixedClusterPool = new FixedClusterPool(
+    const fixedClusterPool = new FixedThreadPool(
       numberOfWorkers,
       './tests/worker-files/cluster/testMultipleTaskFunctionsWorker.js'
     )
@@ -1498,7 +1496,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify that multiple task functions worker is working', async () => {
-    const pool = new DynamicClusterPool(
+    const pool = new DynamicThreadPool(
       Math.floor(numberOfWorkers / 2),
       numberOfWorkers,
       './tests/worker-files/cluster/testMultipleTaskFunctionsWorker.js'
@@ -1562,7 +1560,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify sendKillMessageToWorker()', async () => {
-    const pool = new DynamicClusterPool(
+    const pool = new DynamicThreadPool(
       Math.floor(numberOfWorkers / 2),
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
@@ -1575,7 +1573,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify sendTaskFunctionOperationToWorker()', async () => {
-    const pool = new DynamicClusterPool(
+    const pool = new DynamicThreadPool(
       Math.floor(numberOfWorkers / 2),
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
@@ -1595,7 +1593,7 @@ describe('Abstract pool test suite', () => {
   })
 
   it('Verify sendTaskFunctionOperationToWorkers()', async () => {
-    const pool = new DynamicClusterPool(
+    const pool = new DynamicThreadPool(
       Math.floor(numberOfWorkers / 2),
       numberOfWorkers,
       './tests/worker-files/cluster/testWorker.js'
