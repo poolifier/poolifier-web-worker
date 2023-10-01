@@ -1,6 +1,6 @@
 import { expect } from 'expect'
 import { restore, stub } from 'sinon'
-import { ClusterWorker, KillBehaviors, ThreadWorker } from '../../lib/index.js'
+import { KillBehaviors, ThreadWorker } from '../../lib/index.js'
 import { DEFAULT_TASK_NAME, EMPTY_FUNCTION } from '../../lib/utils.js'
 
 describe('Abstract worker test suite', () => {
@@ -25,13 +25,13 @@ describe('Abstract worker test suite', () => {
   })
 
   it('Verify that worker options are checked at worker creation', () => {
-    expect(() => new ClusterWorker(() => {}, '')).toThrowError(
+    expect(() => new ThreadWorker(() => {}, '')).toThrowError(
       new TypeError('opts worker options parameter is not a plain object')
     )
-    expect(
-      () => new ClusterWorker(() => {}, { killBehavior: '' })
-    ).toThrowError(new TypeError("killBehavior option '' is not valid"))
-    expect(() => new ClusterWorker(() => {}, { killBehavior: 0 })).toThrowError(
+    expect(() => new ThreadWorker(() => {}, { killBehavior: '' })).toThrowError(
+      new TypeError("killBehavior option '' is not valid")
+    )
+    expect(() => new ThreadWorker(() => {}, { killBehavior: 0 })).toThrowError(
       new TypeError("killBehavior option '0' is not valid")
     )
     expect(
@@ -69,7 +69,7 @@ describe('Abstract worker test suite', () => {
     const killHandler = () => {
       console.info('Worker received kill message')
     }
-    const worker = new ClusterWorker(() => {}, {
+    const worker = new ThreadWorker(() => {}, {
       killBehavior: KillBehaviors.HARD,
       maxInactiveTime: 6000,
       killHandler
@@ -82,48 +82,48 @@ describe('Abstract worker test suite', () => {
   })
 
   it('Verify that taskFunctions parameter is mandatory', () => {
-    expect(() => new ClusterWorker()).toThrowError(
+    expect(() => new ThreadWorker()).toThrowError(
       new Error('taskFunctions parameter is mandatory')
     )
   })
 
   it('Verify that taskFunctions parameter is a function or a plain object', () => {
-    expect(() => new ClusterWorker(0)).toThrowError(
+    expect(() => new ThreadWorker(0)).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ClusterWorker('')).toThrowError(
+    expect(() => new ThreadWorker('')).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ClusterWorker(true)).toThrowError(
+    expect(() => new ThreadWorker(true)).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ClusterWorker([])).toThrowError(
+    expect(() => new ThreadWorker([])).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ClusterWorker(new Map())).toThrowError(
+    expect(() => new ThreadWorker(new Map())).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ClusterWorker(new Set())).toThrowError(
+    expect(() => new ThreadWorker(new Set())).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ClusterWorker(new WeakMap())).toThrowError(
+    expect(() => new ThreadWorker(new WeakMap())).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ClusterWorker(new WeakSet())).toThrowError(
+    expect(() => new ThreadWorker(new WeakSet())).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
@@ -131,7 +131,7 @@ describe('Abstract worker test suite', () => {
   })
 
   it('Verify that taskFunctions parameter is not an empty object', () => {
-    expect(() => new ClusterWorker({})).toThrowError(
+    expect(() => new ThreadWorker({})).toThrowError(
       new Error('taskFunctions parameter object is empty')
     )
   })
@@ -166,7 +166,7 @@ describe('Abstract worker test suite', () => {
     const fn2 = () => {
       return 2
     }
-    const worker = new ClusterWorker({ fn1, fn2 })
+    const worker = new ThreadWorker({ fn1, fn2 })
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
@@ -177,7 +177,7 @@ describe('Abstract worker test suite', () => {
   })
 
   it('Verify that sync kill handler is called when worker is killed', () => {
-    const worker = new ClusterWorker(() => {}, {
+    const worker = new ThreadWorker(() => {}, {
       killHandler: stub().returns()
     })
     worker.isMain = false
@@ -192,7 +192,7 @@ describe('Abstract worker test suite', () => {
 
   it('Verify that async kill handler is called when worker is killed', () => {
     const killHandlerStub = stub().returns()
-    const worker = new ClusterWorker(() => {}, {
+    const worker = new ThreadWorker(() => {}, {
       killHandler: async () => Promise.resolve(killHandlerStub())
     })
     worker.isMain = false
@@ -202,7 +202,7 @@ describe('Abstract worker test suite', () => {
 
   it('Verify that handleError() method is working properly', () => {
     const error = new Error('Error as an error')
-    const worker = new ClusterWorker(() => {})
+    const worker = new ThreadWorker(() => {})
     expect(worker.handleError(error)).not.toBeInstanceOf(Error)
     expect(worker.handleError(error)).toStrictEqual(error.message)
     const errorMessage = 'Error as a string'
@@ -222,7 +222,7 @@ describe('Abstract worker test suite', () => {
     const fn2 = () => {
       return 2
     }
-    const worker = new ClusterWorker({ fn1, fn2 })
+    const worker = new ThreadWorker({ fn1, fn2 })
     expect(worker.hasTaskFunction(0)).toStrictEqual({
       status: false,
       error: new TypeError('name parameter is not a string')
@@ -299,7 +299,7 @@ describe('Abstract worker test suite', () => {
     const fn2 = () => {
       return 2
     }
-    const worker = new ClusterWorker({ fn1, fn2 })
+    const worker = new ThreadWorker({ fn1, fn2 })
     expect(worker.removeTaskFunction(0, fn1)).toStrictEqual({
       status: false,
       error: new TypeError('name parameter is not a string')
@@ -346,7 +346,7 @@ describe('Abstract worker test suite', () => {
     const fn2 = () => {
       return 2
     }
-    const worker = new ClusterWorker({ fn1, fn2 })
+    const worker = new ThreadWorker({ fn1, fn2 })
     expect(worker.listTaskFunctionNames()).toStrictEqual([
       DEFAULT_TASK_NAME,
       'fn1',
