@@ -176,14 +176,15 @@ describe('Abstract worker test suite', () => {
       killHandler: mock(() => {})
     })
     worker.isMain = false
-    worker.getMainWorker = mock(() => {
-      return {
-        id: 1,
-        send: mock(() => {})
-      }
-    })
+    worker.port = {
+      postMessage: mock(() => {}),
+      unref: mock(() => {}),
+      close: mock(() => {})
+    }
     worker.handleKillMessage()
-    expect(worker.getMainWorker().send).toHaveBeenCalledTimes(1)
+    expect(worker.port.postMessage).toHaveBeenCalledTimes(1)
+    expect(worker.port.unref).toHaveBeenCalledTimes(1)
+    expect(worker.port.close).toHaveBeenCalledTimes(1)
     expect(worker.opts.killHandler).toHaveBeenCalledTimes(1)
   })
 
@@ -296,12 +297,10 @@ describe('Abstract worker test suite', () => {
       status: false,
       error: new TypeError('name parameter is an empty string')
     })
-    worker.getMainWorker = mock(() => {
-      return {
-        id: 1,
-        send: mock(() => {})
-      }
-    })
+    worker.port = {
+      postMessage: mock(() => {})
+    }
+
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
@@ -326,7 +325,7 @@ describe('Abstract worker test suite', () => {
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeUndefined()
     expect(worker.taskFunctions.size).toBe(2)
-    expect(worker.getMainWorker().send.calledOnce).toBe(true)
+    expect(worker.port.postMessage).toHaveBeenCalledTimes(1)
   })
 
   test('Verify that listTaskFunctionNames() is working', () => {
