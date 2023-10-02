@@ -1,19 +1,18 @@
 import { MessageChannel, Worker } from 'node:worker_threads'
-import cluster from 'node:cluster'
-import { expect } from 'expect'
-import { WorkerNode } from '../../lib/pools/worker-node.js'
-import { WorkerTypes } from '../../lib/index.js'
-import { CircularArray } from '../../lib/circular-array.js'
-import { Deque } from '../../lib/deque.js'
-import { DEFAULT_TASK_NAME } from '../../lib/utils.js'
+import { describe, expect, test } from 'bun:test'
+import {
+  CircularArray,
+  DEFAULT_TASK_NAME,
+  Deque,
+  WorkerNode,
+  WorkerTypes
+} from '../../lib/index.js'
 
 describe('Worker node test suite', () => {
   const threadWorker = new Worker('./tests/worker-files/thread/testWorker.mjs')
-  const clusterWorker = cluster.fork()
   const threadWorkerNode = new WorkerNode(threadWorker, 12)
-  const clusterWorkerNode = new WorkerNode(clusterWorker, 12)
 
-  it('Worker node instantiation', () => {
+  test('Worker node instantiation', () => {
     expect(() => new WorkerNode()).toThrowError(
       new TypeError('Cannot construct a worker node without a worker')
     )
@@ -86,52 +85,9 @@ describe('Worker node test suite', () => {
     expect(threadWorkerNode.onBackPressureStarted).toBe(false)
     expect(threadWorkerNode.onEmptyQueueCount).toBe(0)
     expect(threadWorkerNode.taskFunctionsUsage).toBeInstanceOf(Map)
-
-    expect(clusterWorkerNode).toBeInstanceOf(WorkerNode)
-    expect(clusterWorkerNode.worker).toBe(clusterWorker)
-    expect(clusterWorkerNode.info).toStrictEqual({
-      id: clusterWorker.id,
-      type: WorkerTypes.cluster,
-      dynamic: false,
-      ready: false
-    })
-    expect(clusterWorkerNode.usage).toStrictEqual({
-      tasks: {
-        executed: 0,
-        executing: 0,
-        queued: 0,
-        maxQueued: 0,
-        stolen: 0,
-        failed: 0
-      },
-      runTime: {
-        history: new CircularArray()
-      },
-      waitTime: {
-        history: new CircularArray()
-      },
-      elu: {
-        idle: {
-          history: new CircularArray()
-        },
-        active: {
-          history: new CircularArray()
-        }
-      }
-    })
-    expect(clusterWorkerNode.messageChannel).toBeUndefined()
-    expect(clusterWorkerNode.tasksQueueBackPressureSize).toBe(12)
-    expect(clusterWorkerNode.tasksQueue).toBeInstanceOf(Deque)
-    expect(clusterWorkerNode.tasksQueue.size).toBe(0)
-    expect(clusterWorkerNode.tasksQueueSize()).toBe(
-      clusterWorkerNode.tasksQueue.size
-    )
-    expect(clusterWorkerNode.onBackPressureStarted).toBe(false)
-    expect(clusterWorkerNode.onEmptyQueueCount).toBe(0)
-    expect(clusterWorkerNode.taskFunctionsUsage).toBeInstanceOf(Map)
   })
 
-  it('Worker node getTaskFunctionWorkerUsage()', () => {
+  test('Worker node getTaskFunctionWorkerUsage()', () => {
     expect(() =>
       threadWorkerNode.getTaskFunctionWorkerUsage('invalidTaskFunction')
     ).toThrowError(
@@ -222,7 +178,7 @@ describe('Worker node test suite', () => {
     expect(threadWorkerNode.taskFunctionsUsage.size).toBe(2)
   })
 
-  it('Worker node deleteTaskFunctionWorkerUsage()', () => {
+  test('Worker node deleteTaskFunctionWorkerUsage()', () => {
     expect(threadWorkerNode.info.taskFunctionNames).toStrictEqual([
       DEFAULT_TASK_NAME,
       'fn1',

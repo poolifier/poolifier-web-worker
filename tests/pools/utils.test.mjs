@@ -1,12 +1,12 @@
-import { expect } from 'expect'
+import { describe, expect, test } from 'bun:test'
 import {
   CircularArray,
-  DEFAULT_CIRCULAR_ARRAY_SIZE
-} from '../../lib/circular-array.js'
-import { updateMeasurementStatistics } from '../../lib/pools/utils.js'
+  DEFAULT_CIRCULAR_ARRAY_SIZE,
+  updateMeasurementStatistics
+} from '../../lib/index.js'
 
 describe('Pool utils test suite', () => {
-  it('Verify updateMeasurementStatistics() behavior', () => {
+  test('Verify updateMeasurementStatistics() behavior', () => {
     const measurementStatistics = {
       history: new CircularArray()
     }

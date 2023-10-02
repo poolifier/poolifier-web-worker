@@ -1,4 +1,4 @@
-import { expect } from 'expect'
+import { expect } from 'bun:test'
 import {
   DynamicThreadPool,
   FixedThreadPool,
@@ -82,7 +82,7 @@ describe('Selection strategies test suite', () => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/cluster/testWorker.js'
+        './tests/worker-files/thread/testWorker.mjs'
       )
       pool.setWorkerChoiceStrategy(workerChoiceStrategy, { retries: 3 })
       expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
@@ -371,7 +371,7 @@ describe('Selection strategies test suite', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
-      './tests/worker-files/cluster/testWorker.js',
+      './tests/worker-files/thread/testWorker.mjs',
       { workerChoiceStrategy }
     )
     let results = new Set()

@@ -1,4 +1,4 @@
-import { expect } from 'expect'
+import { afterAll, expect } from 'bun:test'
 import { FixedThreadPool, PoolEvents } from '../../../lib/index.js'
 import { TaskFunctions } from '../../test-types.js'
 import { waitPoolEvents, waitWorkerEvents } from '../../test-utils.js'
@@ -53,7 +53,7 @@ describe('Fixed thread pool test suite', () => {
     './tests/worker-files/thread/asyncWorker.mjs'
   )
 
-  after('Destroy all pools', async () => {
+  afterAll('Destroy all pools', async () => {
     // We need to clean up the resources after our test
     await echoPool.destroy()
     await asyncPool.destroy()

@@ -1,7 +1,12 @@
-import { expect } from 'expect'
+import { afterEach, describe, expect, test } from 'bun:test'
+// TODO: switch to bun:test
 import { restore, stub } from 'sinon'
-import { KillBehaviors, ThreadWorker } from '../../lib/index.js'
-import { DEFAULT_TASK_NAME, EMPTY_FUNCTION } from '../../lib/utils.js'
+import {
+  DEFAULT_TASK_NAME,
+  EMPTY_FUNCTION,
+  KillBehaviors,
+  ThreadWorker
+} from '../../lib/index.js'
 
 describe('Abstract worker test suite', () => {
   class StubWorkerWithMainWorker extends ThreadWorker {
@@ -15,7 +20,7 @@ describe('Abstract worker test suite', () => {
     restore()
   })
 
-  it('Verify worker options default values', () => {
+  test('Verify worker options default values', () => {
     const worker = new ThreadWorker(() => {})
     expect(worker.opts).toStrictEqual({
       killBehavior: KillBehaviors.SOFT,
@@ -24,7 +29,7 @@ describe('Abstract worker test suite', () => {
     })
   })
 
-  it('Verify that worker options are checked at worker creation', () => {
+  test('Verify that worker options are checked at worker creation', () => {
     expect(() => new ThreadWorker(() => {}, '')).toThrowError(
       new TypeError('opts worker options parameter is not a plain object')
     )
@@ -65,7 +70,7 @@ describe('Abstract worker test suite', () => {
     )
   })
 
-  it('Verify that worker options are set at worker creation', () => {
+  test('Verify that worker options are set at worker creation', () => {
     const killHandler = () => {
       console.info('Worker received kill message')
     }
@@ -81,13 +86,13 @@ describe('Abstract worker test suite', () => {
     })
   })
 
-  it('Verify that taskFunctions parameter is mandatory', () => {
+  test('Verify that taskFunctions parameter is mandatory', () => {
     expect(() => new ThreadWorker()).toThrowError(
       new Error('taskFunctions parameter is mandatory')
     )
   })
 
-  it('Verify that taskFunctions parameter is a function or a plain object', () => {
+  test('Verify that taskFunctions parameter is a function or a plain object', () => {
     expect(() => new ThreadWorker(0)).toThrowError(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
@@ -130,13 +135,13 @@ describe('Abstract worker test suite', () => {
     )
   })
 
-  it('Verify that taskFunctions parameter is not an empty object', () => {
+  test('Verify that taskFunctions parameter is not an empty object', () => {
     expect(() => new ThreadWorker({})).toThrowError(
       new Error('taskFunctions parameter object is empty')
     )
   })
 
-  it('Verify that taskFunctions parameter with unique function is taken', () => {
+  test('Verify that taskFunctions parameter with unique function is taken', () => {
     const worker = new ThreadWorker(() => {})
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
@@ -146,7 +151,7 @@ describe('Abstract worker test suite', () => {
     )
   })
 
-  it('Verify that taskFunctions parameter with multiple task functions is checked', () => {
+  test('Verify that taskFunctions parameter with multiple task functions is checked', () => {
     const fn1 = () => {
       return 1
     }
@@ -159,7 +164,7 @@ describe('Abstract worker test suite', () => {
     )
   })
 
-  it('Verify that taskFunctions parameter with multiple task functions is taken', () => {
+  test('Verify that taskFunctions parameter with multiple task functions is taken', () => {
     const fn1 = () => {
       return 1
     }
@@ -176,7 +181,7 @@ describe('Abstract worker test suite', () => {
     )
   })
 
-  it('Verify that sync kill handler is called when worker is killed', () => {
+  test('Verify that sync kill handler is called when worker is killed', () => {
     const worker = new ThreadWorker(() => {}, {
       killHandler: stub().returns()
     })
@@ -190,7 +195,7 @@ describe('Abstract worker test suite', () => {
     expect(worker.opts.killHandler.calledOnce).toBe(true)
   })
 
-  it('Verify that async kill handler is called when worker is killed', () => {
+  test('Verify that async kill handler is called when worker is killed', () => {
     const killHandlerStub = stub().returns()
     const worker = new ThreadWorker(() => {}, {
       killHandler: async () => Promise.resolve(killHandlerStub())
@@ -200,7 +205,7 @@ describe('Abstract worker test suite', () => {
     expect(killHandlerStub.calledOnce).toBe(true)
   })
 
-  it('Verify that handleError() method is working properly', () => {
+  test('Verify that handleError() method is working properly', () => {
     const error = new Error('Error as an error')
     const worker = new ThreadWorker(() => {})
     expect(worker.handleError(error)).not.toBeInstanceOf(Error)
@@ -209,13 +214,13 @@ describe('Abstract worker test suite', () => {
     expect(worker.handleError(errorMessage)).toStrictEqual(errorMessage)
   })
 
-  it('Verify that getMainWorker() throw error if main worker is not set', () => {
+  test('Verify that getMainWorker() throw error if main worker is not set', () => {
     expect(() =>
       new StubWorkerWithMainWorker(() => {}).getMainWorker()
     ).toThrowError('Main worker not set')
   })
 
-  it('Verify that hasTaskFunction() is working', () => {
+  test('Verify that hasTaskFunction() is working', () => {
     const fn1 = () => {
       return 1
     }
@@ -239,7 +244,7 @@ describe('Abstract worker test suite', () => {
     expect(worker.hasTaskFunction('fn3')).toStrictEqual({ status: false })
   })
 
-  it('Verify that addTaskFunction() is working', () => {
+  test('Verify that addTaskFunction() is working', () => {
     const fn1 = () => {
       return 1
     }
@@ -292,7 +297,7 @@ describe('Abstract worker test suite', () => {
     )
   })
 
-  it('Verify that removeTaskFunction() is working', () => {
+  test('Verify that removeTaskFunction() is working', () => {
     const fn1 = () => {
       return 1
     }
@@ -339,7 +344,7 @@ describe('Abstract worker test suite', () => {
     expect(worker.getMainWorker().send.calledOnce).toBe(true)
   })
 
-  it('Verify that listTaskFunctionNames() is working', () => {
+  test('Verify that listTaskFunctionNames() is working', () => {
     const fn1 = () => {
       return 1
     }
@@ -354,7 +359,7 @@ describe('Abstract worker test suite', () => {
     ])
   })
 
-  it('Verify that setDefaultTaskFunction() is working', () => {
+  test('Verify that setDefaultTaskFunction() is working', () => {
     const fn1 = () => {
       return 1
     }

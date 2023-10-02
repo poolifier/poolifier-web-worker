@@ -8,6 +8,7 @@ export type {
   PoolType,
   TasksQueueOptions
 } from './pools/pool'
+export { updateMeasurementStatistics } from './pools/utils'
 export { WorkerTypes } from './pools/worker'
 export type {
   ErrorHandler,
@@ -66,6 +67,11 @@ export type {
   WorkerStatistics,
   Writable
 } from './utility-types'
-export type { CircularArray } from './circular-array'
-export type { Deque, Node } from './deque'
-export { availableParallelism } from './utils'
+export { CircularArray, DEFAULT_CIRCULAR_ARRAY_SIZE } from './circular-array'
+export { Deque, type Node } from './deque'
+export { WorkerNode } from './pools/worker-node'
+export {
+  DEFAULT_TASK_NAME,
+  EMPTY_FUNCTION,
+  availableParallelism
+} from './utils'

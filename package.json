@@ -8,8 +8,7 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "require": "./lib/index.js",
-      "import": "./lib/index.mjs"
+      "import": "./lib/index.js"
     }
   },
   "scripts": {
@@ -19,8 +18,8 @@
     "benchmark": "bun run build && bun benchmarks/internal/bench.mjs",
     "benchmark:prod": "bun run build:prod && bun benchmarks/internal/bench.mjs",
     "benchmark:debug": "bun run build && bun --inspect benchmarks/internal/bench.mjs",
-    "test": "bun run build && c8 mocha 'tests/**/*.test.mjs'",
-    "test:debug": "bun run build && mocha --no-parallel --inspect 'tests/**/*.test.mjs'",
+    "test": "bun run build && c8 bun test tests/**/*.test.mjs",
+    "test:debug": "bun run build && bun test --inspect tests/**/*.test.mjs",
     "coverage": "c8 report --reporter=lcov",
     "coverage:html": "c8 report --reporter=html",
     "format": "biome format . --write; ts-standard . --fix",
@@ -32,7 +31,15 @@
     "prepublishOnly": "bun run build:prod"
   },
   "ts-standard": {
-    "globals": ["describe", "it", "before", "after", "beforeEach", "afterEach"]
+    "globals": [
+      "describe",
+      "it",
+      "test",
+      "beforeAll",
+      "afterAll",
+      "beforeEach",
+      "afterEach"
+    ]
   },
   "repository": {
     "type": "git",
@@ -114,12 +121,9 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-spellcheck": "^0.0.20",
     "eslint-plugin-tsdoc": "^0.2.17",
-    "expect": "^29.7.0",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.1",
     "microtime": "^3.1.1",
-    "mocha": "^10.2.0",
-    "mochawesome": "^7.1.3",
     "prettier": "^3.0.3",
     "release-it": "^16.2.1",
     "rimraf": "^5.0.5",
