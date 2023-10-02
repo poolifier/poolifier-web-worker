@@ -1,25 +1,33 @@
-import { expect } from 'expect'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  test
+} from 'bun:test'
+// TODO: switch to bun:test
 import { createStubInstance, restore, stub } from 'sinon'
 import {
   DynamicThreadPool,
+  FairShareWorkerChoiceStrategy,
   FixedThreadPool,
-  WorkerChoiceStrategies
+  InterleavedWeightedRoundRobinWorkerChoiceStrategy,
+  LeastBusyWorkerChoiceStrategy,
+  LeastEluWorkerChoiceStrategy,
+  LeastUsedWorkerChoiceStrategy,
+  RoundRobinWorkerChoiceStrategy,
+  WeightedRoundRobinWorkerChoiceStrategy,
+  WorkerChoiceStrategies,
+  WorkerChoiceStrategyContext
 } from '../../../lib/index.js'
-import { WorkerChoiceStrategyContext } from '../../../lib/pools/selection-strategies/worker-choice-strategy-context.js'
-import { RoundRobinWorkerChoiceStrategy } from '../../../lib/pools/selection-strategies/round-robin-worker-choice-strategy.js'
-import { LeastUsedWorkerChoiceStrategy } from '../../../lib/pools/selection-strategies/least-used-worker-choice-strategy.js'
-import { LeastBusyWorkerChoiceStrategy } from '../../../lib/pools/selection-strategies/least-busy-worker-choice-strategy.js'
-import { LeastEluWorkerChoiceStrategy } from '../../../lib/pools/selection-strategies/least-elu-worker-choice-strategy.js'
-import { FairShareWorkerChoiceStrategy } from '../../../lib/pools/selection-strategies/fair-share-worker-choice-strategy.js'
-import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../lib/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.js'
-import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from '../../../lib/pools/selection-strategies/interleaved-weighted-round-robin-worker-choice-strategy.js'
 
 describe('Worker choice strategy context test suite', () => {
   const min = 1
   const max = 3
   let fixedPool, dynamicPool
 
-  before(() => {
+  beforeAll(() => {
     fixedPool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs'
@@ -35,12 +43,12 @@ describe('Worker choice strategy context test suite', () => {
     restore()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await fixedPool.destroy()
     await dynamicPool.destroy()
   })
 
-  it('Verify that constructor() initializes the context with all the available worker choice strategies', () => {
+  test('Verify that constructor() initializes the context with all the available worker choice strategies', () => {
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
     )
@@ -49,7 +57,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that execute() return the worker chosen by the strategy with fixed pool', () => {
+  test('Verify that execute() return the worker chosen by the strategy with fixed pool', () => {
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
     )
@@ -75,7 +83,7 @@ describe('Worker choice strategy context test suite', () => {
     expect(chosenWorkerKey).toBe(0)
   })
 
-  it('Verify that execute() throws error if null or undefined is returned after retries', () => {
+  test('Verify that execute() throws error if null or undefined is returned after retries', () => {
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
     )
@@ -110,7 +118,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that execute() return the worker chosen by the strategy with dynamic pool', () => {
+  test('Verify that execute() return the worker chosen by the strategy with dynamic pool', () => {
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       dynamicPool
     )
@@ -136,7 +144,7 @@ describe('Worker choice strategy context test suite', () => {
     expect(chosenWorkerKey).toBe(0)
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with ROUND_ROBIN and fixed pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with ROUND_ROBIN and fixed pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
@@ -160,7 +168,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with ROUND_ROBIN and dynamic pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with ROUND_ROBIN and dynamic pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       dynamicPool
@@ -184,7 +192,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with LEAST_USED and fixed pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with LEAST_USED and fixed pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_USED
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
@@ -200,7 +208,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with LEAST_USED and dynamic pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with LEAST_USED and dynamic pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_USED
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       dynamicPool
@@ -216,7 +224,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with LEAST_BUSY and fixed pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with LEAST_BUSY and fixed pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_BUSY
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
@@ -232,7 +240,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with LEAST_BUSY and dynamic pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with LEAST_BUSY and dynamic pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_BUSY
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       dynamicPool
@@ -248,7 +256,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with LEAST_ELU and fixed pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with LEAST_ELU and fixed pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
@@ -264,7 +272,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with LEAST_ELU and dynamic pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with LEAST_ELU and dynamic pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       dynamicPool
@@ -280,7 +288,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with FAIR_SHARE and fixed pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with FAIR_SHARE and fixed pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
@@ -296,7 +304,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with FAIR_SHARE and dynamic pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with FAIR_SHARE and dynamic pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       dynamicPool
@@ -312,7 +320,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with WEIGHTED_ROUND_ROBIN and fixed pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with WEIGHTED_ROUND_ROBIN and fixed pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool
@@ -328,7 +336,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with WEIGHTED_ROUND_ROBIN and dynamic pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with WEIGHTED_ROUND_ROBIN and dynamic pool', () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       dynamicPool
@@ -344,7 +352,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with INTERLEAVED_WEIGHTED_ROUND_ROBIN and fixed pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with INTERLEAVED_WEIGHTED_ROUND_ROBIN and fixed pool', () => {
     const workerChoiceStrategy =
       WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
@@ -361,7 +369,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that setWorkerChoiceStrategy() works with INTERLEAVED_WEIGHTED_ROUND_ROBIN and dynamic pool', () => {
+  test('Verify that setWorkerChoiceStrategy() works with INTERLEAVED_WEIGHTED_ROUND_ROBIN and dynamic pool', () => {
     const workerChoiceStrategy =
       WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
@@ -378,7 +386,7 @@ describe('Worker choice strategy context test suite', () => {
     )
   })
 
-  it('Verify that worker choice strategy options enable median runtime pool statistics', () => {
+  test('Verify that worker choice strategy options enable median runtime pool statistics', () => {
     const wwrWorkerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
     let workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
       fixedPool,

@@ -1,7 +1,8 @@
-import { expect } from 'expect'
-import { restore } from 'sinon'
-import { FixedThreadPool } from '../../../lib/index.js'
-import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../lib/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.js'
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
+import {
+  FixedThreadPool,
+  WeightedRoundRobinWorkerChoiceStrategy
+} from '../../../lib/index.js'
 import { generateRandomInteger } from '../../test-utils.js'
 
 describe('Weighted round robin strategy worker choice strategy test suite', () => {
@@ -9,22 +10,18 @@ describe('Weighted round robin strategy worker choice strategy test suite', () =
   const max = 3
   let pool
 
-  before(() => {
+  beforeAll(() => {
     pool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs'
     )
   })
 
-  afterEach(() => {
-    restore()
-  })
-
-  after(async () => {
+  afterAll(async () => {
     await pool.destroy()
   })
 
-  it('Verify that reset() resets internals', () => {
+  test('Verify that reset() resets internals', () => {
     const strategy = new WeightedRoundRobinWorkerChoiceStrategy(pool)
     strategy.currentWorkerId = generateRandomInteger(Number.MAX_SAFE_INTEGER, 1)
     strategy.workerVirtualTaskRunTime = generateRandomInteger(

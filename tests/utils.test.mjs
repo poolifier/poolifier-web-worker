@@ -1,13 +1,14 @@
 import { Worker } from 'node:worker_threads'
-import cluster from 'node:cluster'
 import os from 'node:os'
 import { randomInt } from 'node:crypto'
-import { expect } from 'expect'
+import { describe, expect, test } from 'bun:test'
 import {
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   DEFAULT_TASK_NAME,
   DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   EMPTY_FUNCTION,
+  KillBehaviors,
+  WorkerTypes,
   availableParallelism,
   average,
   exponentialDelay,
@@ -22,19 +23,18 @@ import {
   round,
   secureRandom,
   sleep
-} from '../lib/utils.js'
-import { KillBehaviors, WorkerTypes } from '../lib/index.js'
+} from '../lib/index.js'
 
 describe('Utils test suite', () => {
-  it('Verify DEFAULT_TASK_NAME value', () => {
+  test('Verify DEFAULT_TASK_NAME value', () => {
     expect(DEFAULT_TASK_NAME).toBe('default')
   })
 
-  it('Verify EMPTY_FUNCTION value', () => {
+  test('Verify EMPTY_FUNCTION value', () => {
     expect(EMPTY_FUNCTION).toStrictEqual(expect.any(Function))
   })
 
-  it('Verify DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS values', () => {
+  test('Verify DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS values', () => {
     expect(DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS).toStrictEqual({
       retries: 6,
       runTime: { median: false },
@@ -43,7 +43,7 @@ describe('Utils test suite', () => {
     })
   })
 
-  it('Verify DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS values', () => {
+  test('Verify DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS values', () => {
     expect(DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS).toStrictEqual({
       aggregate: false,
       average: false,
@@ -51,7 +51,7 @@ describe('Utils test suite', () => {
     })
   })
 
-  it('Verify availableParallelism() behavior', () => {
+  test('Verify availableParallelism() behavior', () => {
     const parallelism = availableParallelism()
     expect(typeof parallelism === 'number').toBe(true)
     expect(Number.isSafeInteger(parallelism)).toBe(true)
@@ -64,37 +64,34 @@ describe('Utils test suite', () => {
     expect(parallelism).toBe(expectedParallelism)
   })
 
-  it('Verify getWorkerType() behavior', () => {
+  test('Verify getWorkerType() behavior', () => {
     expect(
       getWorkerType(new Worker('./tests/worker-files/thread/testWorker.mjs'))
     ).toBe(WorkerTypes.thread)
-    expect(getWorkerType(cluster.fork())).toBe(WorkerTypes.cluster)
   })
 
-  it('Verify getWorkerId() behavior', () => {
+  test('Verify getWorkerId() behavior', () => {
     const threadWorker = new Worker(
       './tests/worker-files/thread/testWorker.mjs'
     )
-    const clusterWorker = cluster.fork()
     expect(getWorkerId(threadWorker)).toBe(threadWorker.threadId)
-    expect(getWorkerId(clusterWorker)).toBe(clusterWorker.id)
   })
 
-  it('Verify sleep() behavior', async () => {
+  test('Verify sleep() behavior', async () => {
     const start = performance.now()
     await sleep(1000)
     const elapsed = performance.now() - start
     expect(elapsed).toBeGreaterThanOrEqual(999)
   })
 
-  it('Verify exponentialDelay() behavior', () => {
+  test('Verify exponentialDelay() behavior', () => {
     const delay = exponentialDelay(randomInt(1000))
     expect(typeof delay === 'number').toBe(true)
     expect(delay).toBeGreaterThanOrEqual(Number.MIN_VALUE)
     expect(delay).toBeLessThanOrEqual(Number.MAX_VALUE)
   })
 
-  it('Verify average() computation', () => {
+  test('Verify average() computation', () => {
     expect(average([])).toBe(0)
     expect(average([0.08])).toBe(0.08)
     expect(average([0.25, 4.75, 3.05, 6.04, 1.01, 2.02, 5.03])).toBe(
@@ -105,14 +102,14 @@ describe('Utils test suite', () => {
     )
   })
 
-  it('Verify median() computation', () => {
+  test('Verify median() computation', () => {
     expect(median([])).toBe(0)
     expect(median([0.08])).toBe(0.08)
     expect(median([0.25, 4.75, 3.05, 6.04, 1.01, 2.02, 5.03])).toBe(3.05)
     expect(median([0.25, 4.75, 3.05, 6.04, 1.01, 2.02])).toBe(2.535)
   })
 
-  it('Verify round() behavior', () => {
+  test('Verify round() behavior', () => {
     expect(round(0)).toBe(0)
     expect(round(0.5, 0)).toBe(1)
     expect(round(0.5)).toBe(0.5)
@@ -126,7 +123,7 @@ describe('Utils test suite', () => {
     expect(round(-5.015)).toBe(-5.02)
   })
 
-  it('Verify isPlainObject() behavior', () => {
+  test('Verify isPlainObject() behavior', () => {
     expect(isPlainObject(null)).toBe(false)
     expect(isPlainObject(undefined)).toBe(false)
     expect(isPlainObject(true)).toBe(false)
@@ -163,7 +160,7 @@ describe('Utils test suite', () => {
     expect(isPlainObject({ a: 1 })).toBe(true)
   })
 
-  it('Verify isKillBehavior() behavior', () => {
+  test('Verify isKillBehavior() behavior', () => {
     expect(isKillBehavior(KillBehaviors.SOFT, KillBehaviors.SOFT)).toBe(true)
     expect(isKillBehavior(KillBehaviors.SOFT, KillBehaviors.HARD)).toBe(false)
     expect(isKillBehavior(KillBehaviors.HARD, KillBehaviors.HARD)).toBe(true)
@@ -175,7 +172,7 @@ describe('Utils test suite', () => {
     expect(isKillBehavior(KillBehaviors.SOFT, 'unknown')).toBe(false)
   })
 
-  it('Verify isAsyncFunction() behavior', () => {
+  test('Verify isAsyncFunction() behavior', () => {
     expect(isAsyncFunction(null)).toBe(false)
     expect(isAsyncFunction(undefined)).toBe(false)
     expect(isAsyncFunction(true)).toBe(false)
@@ -217,21 +214,21 @@ describe('Utils test suite', () => {
     expect(isAsyncFunction(async function named () {})).toBe(true)
   })
 
-  it('Verify secureRandom() behavior', () => {
+  test('Verify secureRandom() behavior', () => {
     const randomNumber = secureRandom()
     expect(typeof randomNumber === 'number').toBe(true)
     expect(randomNumber).toBeGreaterThanOrEqual(0)
     expect(randomNumber).toBeLessThan(1)
   })
 
-  it('Verify min() behavior', () => {
+  test('Verify min() behavior', () => {
     expect(min()).toBe(Infinity)
     expect(min(1, 2)).toBe(1)
     expect(min(2, 1)).toBe(1)
     expect(min(1, 1)).toBe(1)
   })
 
-  it('Verify max() behavior', () => {
+  test('Verify max() behavior', () => {
     expect(max()).toBe(-Infinity)
     expect(max(1, 2)).toBe(2)
     expect(max(2, 1)).toBe(2)

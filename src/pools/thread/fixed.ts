@@ -21,7 +21,17 @@ export interface ThreadPoolOptions extends PoolOptions<Worker> {
    *
    * @see https://nodejs.org/api/worker_threads.html#new-workerfilename-options
    */
-  workerOptions?: WorkerOptions
+  workerOptions?: Omit<
+  WorkerOptions,
+  | 'eval'
+  | 'argv'
+  | 'execArgv'
+  | 'stdin'
+  | 'stdout'
+  | 'stderr'
+  | 'trackedUnmanagedFds'
+  | 'resourceLimits'
+  >
 }
 
 /**

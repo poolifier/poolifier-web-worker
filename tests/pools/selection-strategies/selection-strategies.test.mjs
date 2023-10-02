@@ -1,16 +1,16 @@
-import { expect } from 'bun:test'
+import { describe, expect, test } from 'bun:test'
 import {
+  CircularArray,
   DynamicThreadPool,
   FixedThreadPool,
   WorkerChoiceStrategies
 } from '../../../lib/index.js'
-import { CircularArray } from '../../../lib/circular-array.js'
 
 describe('Selection strategies test suite', () => {
   const min = 0
   const max = 3
 
-  it('Verify that WorkerChoiceStrategies enumeration provides string values', () => {
+  test('Verify that WorkerChoiceStrategies enumeration provides string values', () => {
     expect(WorkerChoiceStrategies.ROUND_ROBIN).toBe('ROUND_ROBIN')
     expect(WorkerChoiceStrategies.LEAST_USED).toBe('LEAST_USED')
     expect(WorkerChoiceStrategies.LEAST_BUSY).toBe('LEAST_BUSY')
@@ -24,7 +24,7 @@ describe('Selection strategies test suite', () => {
     )
   })
 
-  it('Verify ROUND_ROBIN strategy is the default at pool creation', async () => {
+  test('Verify ROUND_ROBIN strategy is the default at pool creation', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -37,7 +37,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify available strategies are taken at pool creation', async () => {
+  test('Verify available strategies are taken at pool creation', async () => {
     for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
       const pool = new FixedThreadPool(
         max,
@@ -52,7 +52,7 @@ describe('Selection strategies test suite', () => {
     }
   })
 
-  it('Verify available strategies can be set after pool creation', async () => {
+  test('Verify available strategies can be set after pool creation', async () => {
     for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
       const pool = new DynamicThreadPool(
         min,
@@ -105,7 +105,7 @@ describe('Selection strategies test suite', () => {
     }
   })
 
-  it('Verify available strategies default internals at pool creation', async () => {
+  test('Verify available strategies default internals at pool creation', async () => {
     const pool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs'
@@ -172,7 +172,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify ROUND_ROBIN strategy default policy', async () => {
+  test('Verify ROUND_ROBIN strategy default policy', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
@@ -198,7 +198,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify ROUND_ROBIN strategy default tasks statistics requirements', async () => {
+  test('Verify ROUND_ROBIN strategy default tasks statistics requirements', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
@@ -254,7 +254,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify ROUND_ROBIN strategy can be run in a fixed pool', async () => {
+  test('Verify ROUND_ROBIN strategy can be run in a fixed pool', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     const pool = new FixedThreadPool(
       max,
@@ -308,7 +308,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify ROUND_ROBIN strategy can be run in a dynamic pool', async () => {
+  test('Verify ROUND_ROBIN strategy can be run in a dynamic pool', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     const pool = new DynamicThreadPool(
       min,
@@ -367,7 +367,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify ROUND_ROBIN strategy runtime behavior', async () => {
+  test('Verify ROUND_ROBIN strategy runtime behavior', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
@@ -393,7 +393,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify ROUND_ROBIN strategy internals are resets after setting it', async () => {
+  test('Verify ROUND_ROBIN strategy internals are resets after setting it', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
@@ -453,7 +453,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_USED strategy default policy', async () => {
+  test('Verify LEAST_USED strategy default policy', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_USED
     let pool = new FixedThreadPool(
       max,
@@ -479,7 +479,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_USED strategy default tasks statistics requirements', async () => {
+  test('Verify LEAST_USED strategy default tasks statistics requirements', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_USED
     let pool = new FixedThreadPool(
       max,
@@ -535,7 +535,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_USED strategy can be run in a fixed pool', async () => {
+  test('Verify LEAST_USED strategy can be run in a fixed pool', async () => {
     const pool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs',
@@ -592,7 +592,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_USED strategy can be run in a dynamic pool', async () => {
+  test('Verify LEAST_USED strategy can be run in a dynamic pool', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -650,7 +650,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_BUSY strategy default policy', async () => {
+  test('Verify LEAST_BUSY strategy default policy', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_BUSY
     let pool = new FixedThreadPool(
       max,
@@ -676,7 +676,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_BUSY strategy default tasks statistics requirements', async () => {
+  test('Verify LEAST_BUSY strategy default tasks statistics requirements', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_BUSY
     let pool = new FixedThreadPool(
       max,
@@ -732,7 +732,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_BUSY strategy can be run in a fixed pool', async () => {
+  test('Verify LEAST_BUSY strategy can be run in a fixed pool', async () => {
     const pool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs',
@@ -799,7 +799,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_BUSY strategy can be run in a dynamic pool', async () => {
+  test('Verify LEAST_BUSY strategy can be run in a dynamic pool', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -867,7 +867,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_ELU strategy default policy', async () => {
+  test('Verify LEAST_ELU strategy default policy', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
     let pool = new FixedThreadPool(
       max,
@@ -893,7 +893,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_ELU strategy default tasks statistics requirements', async () => {
+  test('Verify LEAST_ELU strategy default tasks statistics requirements', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
     let pool = new FixedThreadPool(
       max,
@@ -949,7 +949,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_ELU strategy can be run in a fixed pool', async () => {
+  test('Verify LEAST_ELU strategy can be run in a fixed pool', async () => {
     const pool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs',
@@ -1022,7 +1022,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_ELU strategy can be run in a dynamic pool', async () => {
+  test('Verify LEAST_ELU strategy can be run in a dynamic pool', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -1096,7 +1096,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify FAIR_SHARE strategy default policy', async () => {
+  test('Verify FAIR_SHARE strategy default policy', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
     let pool = new FixedThreadPool(
       max,
@@ -1122,7 +1122,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify FAIR_SHARE strategy default tasks statistics requirements', async () => {
+  test('Verify FAIR_SHARE strategy default tasks statistics requirements', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
     let pool = new FixedThreadPool(
       max,
@@ -1178,7 +1178,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify FAIR_SHARE strategy can be run in a fixed pool', async () => {
+  test('Verify FAIR_SHARE strategy can be run in a fixed pool', async () => {
     const pool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs',
@@ -1262,7 +1262,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify FAIR_SHARE strategy can be run in a dynamic pool', async () => {
+  test('Verify FAIR_SHARE strategy can be run in a dynamic pool', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -1347,7 +1347,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify FAIR_SHARE strategy can be run in a dynamic pool with median runtime statistic', async () => {
+  test('Verify FAIR_SHARE strategy can be run in a dynamic pool with median runtime statistic', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -1437,7 +1437,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify FAIR_SHARE strategy internals are resets after setting it', async () => {
+  test('Verify FAIR_SHARE strategy internals are resets after setting it', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
     let pool = new FixedThreadPool(
       max,
@@ -1471,7 +1471,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify WEIGHTED_ROUND_ROBIN strategy default policy', async () => {
+  test('Verify WEIGHTED_ROUND_ROBIN strategy default policy', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
@@ -1497,7 +1497,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify WEIGHTED_ROUND_ROBIN strategy default tasks statistics requirements', async () => {
+  test('Verify WEIGHTED_ROUND_ROBIN strategy default tasks statistics requirements', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
@@ -1553,7 +1553,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify WEIGHTED_ROUND_ROBIN strategy can be run in a fixed pool', async () => {
+  test('Verify WEIGHTED_ROUND_ROBIN strategy can be run in a fixed pool', async () => {
     const pool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs',
@@ -1630,7 +1630,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool', async () => {
+  test('Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -1708,7 +1708,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool with median runtime statistic', async () => {
+  test('Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool with median runtime statistic', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -1791,7 +1791,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify WEIGHTED_ROUND_ROBIN strategy internals are resets after setting it', async () => {
+  test('Verify WEIGHTED_ROUND_ROBIN strategy internals are resets after setting it', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
@@ -1889,7 +1889,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy default policy', async () => {
+  test('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy default policy', async () => {
     const workerChoiceStrategy =
       WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
     let pool = new FixedThreadPool(
@@ -1916,7 +1916,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy default tasks statistics requirements', async () => {
+  test('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy default tasks statistics requirements', async () => {
     const workerChoiceStrategy =
       WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
     let pool = new FixedThreadPool(
@@ -1973,7 +1973,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a fixed pool', async () => {
+  test('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a fixed pool', async () => {
     const pool = new FixedThreadPool(
       max,
       './tests/worker-files/thread/testWorker.mjs',
@@ -2057,7 +2057,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool', async () => {
+  test('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -2142,7 +2142,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy internals are resets after setting it', async () => {
+  test('Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy internals are resets after setting it', async () => {
     const workerChoiceStrategy =
       WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
     let pool = new FixedThreadPool(
@@ -2289,7 +2289,7 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify unknown strategy throw error', () => {
+  test('Verify unknown strategy throw error', () => {
     expect(
       () =>
         new DynamicThreadPool(

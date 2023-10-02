@@ -2,9 +2,7 @@ import { EventEmitter } from 'node:events'
 import { dirname, join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { afterEach, describe, expect, test } from 'bun:test'
-// TODO: switch to bun:test
-import { restore, stub } from 'sinon'
+import { describe, expect, mock, test } from 'bun:test'
 import {
   CircularArray,
   DEFAULT_TASK_NAME,
@@ -32,10 +30,6 @@ describe('Abstract pool test suite', () => {
       return false
     }
   }
-
-  afterEach(() => {
-    restore()
-  })
 
   test('Simulate pool creation from a non main thread/process', () => {
     expect(
@@ -292,7 +286,7 @@ describe('Abstract pool test suite', () => {
     await pool.destroy()
   })
 
-  test('Verify that pool options are validated', async () => {
+  test('Verify that pool options are validated', () => {
     expect(
       () =>
         new FixedThreadPool(
@@ -1221,7 +1215,7 @@ describe('Abstract pool test suite', () => {
         enableTasksQueue: true
       }
     )
-    stub(pool, 'hasBackPressure').returns(true)
+    pool.hasBackPressure = mock(() => true)
     expect(pool.emitter.eventNames()).toStrictEqual([])
     const promises = new Set()
     let poolBackPressure = 0
@@ -1256,7 +1250,7 @@ describe('Abstract pool test suite', () => {
       stolenTasks: expect.any(Number),
       failedTasks: expect.any(Number)
     })
-    expect(pool.hasBackPressure.called).toBe(true)
+    expect(pool.hasBackPressure).toHaveBeenCalledTimes(1)
     await pool.destroy()
   })
 

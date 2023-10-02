@@ -40,7 +40,6 @@ export type {
   WorkerChoiceStrategy,
   WorkerChoiceStrategyOptions
 } from './pools/selection-strategies/selection-strategies-types'
-export type { WorkerChoiceStrategyContext } from './pools/selection-strategies/worker-choice-strategy-context'
 export { DynamicThreadPool } from './pools/thread/dynamic'
 export { FixedThreadPool, type ThreadPoolOptions } from './pools/thread/fixed'
 export type { AbstractWorker } from './worker/abstract-worker'
@@ -71,7 +70,31 @@ export { CircularArray, DEFAULT_CIRCULAR_ARRAY_SIZE } from './circular-array'
 export { Deque, type Node } from './deque'
 export { WorkerNode } from './pools/worker-node'
 export {
+  DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   DEFAULT_TASK_NAME,
+  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   EMPTY_FUNCTION,
-  availableParallelism
+  availableParallelism,
+  average,
+  exponentialDelay,
+  getWorkerId,
+  getWorkerType,
+  isAsyncFunction,
+  isKillBehavior,
+  isPlainObject,
+  max,
+  median,
+  min,
+  round,
+  secureRandom,
+  sleep
 } from './utils'
+
+export { WorkerChoiceStrategyContext } from './pools/selection-strategies/worker-choice-strategy-context'
+export { RoundRobinWorkerChoiceStrategy } from './pools/selection-strategies/round-robin-worker-choice-strategy.js'
+export { LeastUsedWorkerChoiceStrategy } from './pools/selection-strategies/least-used-worker-choice-strategy.js'
+export { LeastBusyWorkerChoiceStrategy } from './pools/selection-strategies/least-busy-worker-choice-strategy.js'
+export { LeastEluWorkerChoiceStrategy } from './pools/selection-strategies/least-elu-worker-choice-strategy.js'
+export { FairShareWorkerChoiceStrategy } from './pools/selection-strategies/fair-share-worker-choice-strategy.js'
+export { WeightedRoundRobinWorkerChoiceStrategy } from './pools/selection-strategies/weighted-round-robin-worker-choice-strategy.js'
+export { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from './pools/selection-strategies/interleaved-weighted-round-robin-worker-choice-strategy.js'

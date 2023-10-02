@@ -33,12 +33,11 @@
   "ts-standard": {
     "globals": [
       "describe",
-      "it",
       "test",
-      "beforeAll",
       "afterAll",
-      "beforeEach",
-      "afterEach"
+      "beforeAll",
+      "afterEach",
+      "beforeEach"
     ]
   },
   "repository": {

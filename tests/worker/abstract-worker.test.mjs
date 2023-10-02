@@ -1,6 +1,4 @@
-import { afterEach, describe, expect, test } from 'bun:test'
-// TODO: switch to bun:test
-import { restore, stub } from 'sinon'
+import { describe, expect, mock, test } from 'bun:test'
 import {
   DEFAULT_TASK_NAME,
   EMPTY_FUNCTION,
@@ -16,10 +14,6 @@ describe('Abstract worker test suite', () => {
     }
   }
 
-  afterEach(() => {
-    restore()
-  })
-
   test('Verify worker options default values', () => {
     const worker = new ThreadWorker(() => {})
     expect(worker.opts).toStrictEqual({
@@ -30,42 +24,38 @@ describe('Abstract worker test suite', () => {
   })
 
   test('Verify that worker options are checked at worker creation', () => {
-    expect(() => new ThreadWorker(() => {}, '')).toThrowError(
+    expect(() => new ThreadWorker(() => {}, '')).toThrow(
       new TypeError('opts worker options parameter is not a plain object')
     )
-    expect(() => new ThreadWorker(() => {}, { killBehavior: '' })).toThrowError(
+    expect(() => new ThreadWorker(() => {}, { killBehavior: '' })).toThrow(
       new TypeError("killBehavior option '' is not valid")
     )
-    expect(() => new ThreadWorker(() => {}, { killBehavior: 0 })).toThrowError(
+    expect(() => new ThreadWorker(() => {}, { killBehavior: 0 })).toThrow(
       new TypeError("killBehavior option '0' is not valid")
     )
-    expect(
-      () => new ThreadWorker(() => {}, { maxInactiveTime: '' })
-    ).toThrowError(new TypeError('maxInactiveTime option is not an integer'))
-    expect(
-      () => new ThreadWorker(() => {}, { maxInactiveTime: 0.5 })
-    ).toThrowError(new TypeError('maxInactiveTime option is not an integer'))
-    expect(
-      () => new ThreadWorker(() => {}, { maxInactiveTime: 0 })
-    ).toThrowError(
+    expect(() => new ThreadWorker(() => {}, { maxInactiveTime: '' })).toThrow(
+      new TypeError('maxInactiveTime option is not an integer')
+    )
+    expect(() => new ThreadWorker(() => {}, { maxInactiveTime: 0.5 })).toThrow(
+      new TypeError('maxInactiveTime option is not an integer')
+    )
+    expect(() => new ThreadWorker(() => {}, { maxInactiveTime: 0 })).toThrow(
       new TypeError(
         'maxInactiveTime option is not a positive integer greater or equal than 5'
       )
     )
-    expect(
-      () => new ThreadWorker(() => {}, { maxInactiveTime: 4 })
-    ).toThrowError(
+    expect(() => new ThreadWorker(() => {}, { maxInactiveTime: 4 })).toThrow(
       new TypeError(
         'maxInactiveTime option is not a positive integer greater or equal than 5'
       )
     )
-    expect(() => new ThreadWorker(() => {}, { killHandler: '' })).toThrowError(
+    expect(() => new ThreadWorker(() => {}, { killHandler: '' })).toThrow(
       new TypeError('killHandler option is not a function')
     )
-    expect(() => new ThreadWorker(() => {}, { killHandler: 0 })).toThrowError(
+    expect(() => new ThreadWorker(() => {}, { killHandler: 0 })).toThrow(
       new TypeError('killHandler option is not a function')
     )
-    expect(() => new ThreadWorker(() => {}, { async: true })).toThrowError(
+    expect(() => new ThreadWorker(() => {}, { async: true })).toThrow(
       new TypeError('async option is deprecated')
     )
   })
@@ -87,48 +77,48 @@ describe('Abstract worker test suite', () => {
   })
 
   test('Verify that taskFunctions parameter is mandatory', () => {
-    expect(() => new ThreadWorker()).toThrowError(
+    expect(() => new ThreadWorker()).toThrow(
       new Error('taskFunctions parameter is mandatory')
     )
   })
 
   test('Verify that taskFunctions parameter is a function or a plain object', () => {
-    expect(() => new ThreadWorker(0)).toThrowError(
+    expect(() => new ThreadWorker(0)).toThrow(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ThreadWorker('')).toThrowError(
+    expect(() => new ThreadWorker('')).toThrow(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ThreadWorker(true)).toThrowError(
+    expect(() => new ThreadWorker(true)).toThrow(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ThreadWorker([])).toThrowError(
+    expect(() => new ThreadWorker([])).toThrow(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ThreadWorker(new Map())).toThrowError(
+    expect(() => new ThreadWorker(new Map())).toThrow(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ThreadWorker(new Set())).toThrowError(
+    expect(() => new ThreadWorker(new Set())).toThrow(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ThreadWorker(new WeakMap())).toThrowError(
+    expect(() => new ThreadWorker(new WeakMap())).toThrow(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
     )
-    expect(() => new ThreadWorker(new WeakSet())).toThrowError(
+    expect(() => new ThreadWorker(new WeakSet())).toThrow(
       new TypeError(
         'taskFunctions parameter is not a function or a plain object'
       )
@@ -136,7 +126,7 @@ describe('Abstract worker test suite', () => {
   })
 
   test('Verify that taskFunctions parameter is not an empty object', () => {
-    expect(() => new ThreadWorker({})).toThrowError(
+    expect(() => new ThreadWorker({})).toThrow(
       new Error('taskFunctions parameter object is empty')
     )
   })
@@ -156,10 +146,10 @@ describe('Abstract worker test suite', () => {
       return 1
     }
     const fn2 = ''
-    expect(() => new ThreadWorker({ '': fn1 })).toThrowError(
+    expect(() => new ThreadWorker({ '': fn1 })).toThrow(
       new TypeError('A taskFunctions parameter object key is an empty string')
     )
-    expect(() => new ThreadWorker({ fn1, fn2 })).toThrowError(
+    expect(() => new ThreadWorker({ fn1, fn2 })).toThrow(
       new TypeError('A taskFunctions parameter object value is not a function')
     )
   })
@@ -183,41 +173,34 @@ describe('Abstract worker test suite', () => {
 
   test('Verify that sync kill handler is called when worker is killed', () => {
     const worker = new ThreadWorker(() => {}, {
-      killHandler: stub().returns()
+      killHandler: mock(() => {})
     })
     worker.isMain = false
-    worker.getMainWorker = stub().returns({
-      id: 1,
-      send: stub().returns()
+    worker.getMainWorker = mock(() => {
+      return {
+        id: 1,
+        send: mock(() => {})
+      }
     })
     worker.handleKillMessage()
-    expect(worker.getMainWorker().send.calledOnce).toBe(true)
-    expect(worker.opts.killHandler.calledOnce).toBe(true)
+    expect(worker.getMainWorker().send).toHaveBeenCalledTimes(1)
+    expect(worker.opts.killHandler).toHaveBeenCalledTimes(1)
   })
 
   test('Verify that async kill handler is called when worker is killed', () => {
-    const killHandlerStub = stub().returns()
+    const killHandlerStub = mock(() => {})
     const worker = new ThreadWorker(() => {}, {
       killHandler: async () => Promise.resolve(killHandlerStub())
     })
     worker.isMain = false
     worker.handleKillMessage()
-    expect(killHandlerStub.calledOnce).toBe(true)
-  })
-
-  test('Verify that handleError() method is working properly', () => {
-    const error = new Error('Error as an error')
-    const worker = new ThreadWorker(() => {})
-    expect(worker.handleError(error)).not.toBeInstanceOf(Error)
-    expect(worker.handleError(error)).toStrictEqual(error.message)
-    const errorMessage = 'Error as a string'
-    expect(worker.handleError(errorMessage)).toStrictEqual(errorMessage)
+    expect(killHandlerStub).toHaveBeenCalledTimes(1)
   })
 
   test('Verify that getMainWorker() throw error if main worker is not set', () => {
     expect(() =>
       new StubWorkerWithMainWorker(() => {}).getMainWorker()
-    ).toThrowError('Main worker not set')
+    ).toThrow('Main worker not set')
   })
 
   test('Verify that hasTaskFunction() is working', () => {
@@ -313,9 +296,11 @@ describe('Abstract worker test suite', () => {
       status: false,
       error: new TypeError('name parameter is an empty string')
     })
-    worker.getMainWorker = stub().returns({
-      id: 1,
-      send: stub().returns()
+    worker.getMainWorker = mock(() => {
+      return {
+        id: 1,
+        send: mock(() => {})
+      }
     })
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)

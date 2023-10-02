@@ -1,8 +1,8 @@
-import { expect } from 'expect'
-import { Deque } from '../lib/deque.js'
+import { describe, expect, test } from 'bun:test'
+import { Deque } from '../lib/index.js'
 
 describe('Deque test suite', () => {
-  it('Verify push() behavior', () => {
+  test('Verify push() behavior', () => {
     const deque = new Deque()
     let rtSize = deque.push(1)
     expect(deque.size).toBe(1)
@@ -24,7 +24,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toMatchObject({ data: 3 })
   })
 
-  it('Verify unshift() behavior', () => {
+  test('Verify unshift() behavior', () => {
     const deque = new Deque()
     let rtSize = deque.unshift(1)
     expect(deque.size).toBe(1)
@@ -46,7 +46,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toMatchObject({ data: 1 })
   })
 
-  it('Verify pop() behavior', () => {
+  test('Verify pop() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -71,7 +71,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toBeUndefined()
   })
 
-  it('Verify shift() behavior', () => {
+  test('Verify shift() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -96,7 +96,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toBeUndefined()
   })
 
-  it('Verify peekFirst() behavior', () => {
+  test('Verify peekFirst() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -106,7 +106,7 @@ describe('Deque test suite', () => {
     expect(deque.size).toBe(3)
   })
 
-  it('Verify peekLast() behavior', () => {
+  test('Verify peekLast() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -116,7 +116,7 @@ describe('Deque test suite', () => {
     expect(deque.size).toBe(3)
   })
 
-  it('Verify clear() behavior', () => {
+  test('Verify clear() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -132,7 +132,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toBeUndefined()
   })
 
-  it('Verify iterator behavior', () => {
+  test('Verify iterator behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -144,7 +144,7 @@ describe('Deque test suite', () => {
     }
   })
 
-  it('Verify backward() iterator behavior', () => {
+  test('Verify backward() iterator behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)

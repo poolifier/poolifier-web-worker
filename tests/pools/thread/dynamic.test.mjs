@@ -1,4 +1,4 @@
-import { expect } from 'expect'
+import { describe, expect, test } from 'bun:test'
 import { DynamicThreadPool, PoolEvents } from '../../../lib/index.js'
 import { TaskFunctions } from '../../test-types.js'
 import { sleep, waitWorkerEvents } from '../../test-utils.js'
@@ -15,7 +15,7 @@ describe('Dynamic thread pool test suite', () => {
     }
   )
 
-  it('Verify that the function is executed in a worker thread', async () => {
+  test('Verify that the function is executed in a worker thread', async () => {
     let result = await pool.execute({
       function: TaskFunctions.fibonacci
     })
@@ -26,7 +26,7 @@ describe('Dynamic thread pool test suite', () => {
     expect(result).toBe(9.33262154439441e157)
   })
 
-  it('Verify that new workers are created when required, max size is not exceeded and that after a while new workers will die', async () => {
+  test('Verify that new workers are created when required, max size is not exceeded and that after a while new workers will die', async () => {
     let poolBusy = 0
     pool.emitter.on(PoolEvents.busy, () => ++poolBusy)
     for (let i = 0; i < max * 2; i++) {
@@ -39,7 +39,7 @@ describe('Dynamic thread pool test suite', () => {
     expect(numberOfExitEvents).toBe(max - min)
   })
 
-  it('Verify scale thread up and down is working', async () => {
+  test('Verify scale thread up and down is working', async () => {
     expect(pool.workerNodes.length).toBe(min)
     for (let i = 0; i < max * 2; i++) {
       pool.execute()
@@ -55,7 +55,7 @@ describe('Dynamic thread pool test suite', () => {
     expect(pool.workerNodes.length).toBe(min)
   })
 
-  it('Shutdown test', async () => {
+  test('Shutdown test', async () => {
     const exitPromise = waitWorkerEvents(pool, 'exit', min)
     expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.busy])
     let poolDestroy = 0
@@ -72,13 +72,13 @@ describe('Dynamic thread pool test suite', () => {
     expect(poolDestroy).toBe(1)
   })
 
-  it('Validation of inputs test', () => {
+  test('Validation of inputs test', () => {
     expect(() => new DynamicThreadPool(min)).toThrowError(
       'Please specify a file with a worker implementation'
     )
   })
 
-  it('Should work even without opts in input', async () => {
+  test('Should work even without opts in input', async () => {
     const pool = new DynamicThreadPool(
       min,
       max,
@@ -90,7 +90,7 @@ describe('Dynamic thread pool test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify scale thread up and down is working when long executing task is used:hard', async () => {
+  test('Verify scale thread up and down is working when long executing task is used:hard', async () => {
     const longRunningPool = new DynamicThreadPool(
       min,
       max,
@@ -117,7 +117,7 @@ describe('Dynamic thread pool test suite', () => {
     await longRunningPool.destroy()
   })
 
-  it('Verify scale thread up and down is working when long executing task is used:soft', async () => {
+  test('Verify scale thread up and down is working when long executing task is used:soft', async () => {
     const longRunningPool = new DynamicThreadPool(
       min,
       max,
@@ -140,7 +140,7 @@ describe('Dynamic thread pool test suite', () => {
     await longRunningPool.destroy()
   })
 
-  it('Verify that a pool with zero worker can be instantiated', async () => {
+  test('Verify that a pool with zero worker can be instantiated', async () => {
     const pool = new DynamicThreadPool(
       0,
       max,
