@@ -126,8 +126,6 @@
     "prettier": "^3.0.3",
     "release-it": "^16.2.1",
     "rimraf": "^5.0.5",
-    "sinon": "^16.0.0",
-    "source-map-support": "^0.5.21",
     "ts-standard": "^12.0.2",
     "typedoc": "^0.25.1"
   },

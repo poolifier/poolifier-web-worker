@@ -85,7 +85,6 @@ module.exports = defineConfig({
           'readonly',
           'req',
           'resize',
-          'sinon',
           'smtp',
           'threadjs',
           'threadwork',
