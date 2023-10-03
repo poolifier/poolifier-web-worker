@@ -64,6 +64,7 @@ implements IWorkerNode<Worker, Data> {
     this.usage = this.initWorkerUsage()
     if (this.info.type === WorkerTypes.thread) {
       this.messageChannel = new MessageChannel()
+      this.messageChannel.port1.start()
     }
     this.tasksQueueBackPressureSize = tasksQueueBackPressureSize
     this.tasksQueue = new Deque<Task<Data>>()

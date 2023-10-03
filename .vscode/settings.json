@@ -57,9 +57,5 @@
     "tsdoc",
     "typedoc",
     "workerpool"
-  ],
-  "sonarlint.connectedMode.project": {
-    "connectionId": "pioardi",
-    "projectKey": "pioardi_poolifier"
-  }
+  ]
 }

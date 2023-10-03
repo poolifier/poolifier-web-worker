@@ -59,6 +59,7 @@ export class ThreadWorker<
     ) {
       try {
         this.port = message.port
+        this.port.start()
         this.port.on('message', this.messageListener.bind(this))
         this.sendToMainWorker({
           ready: true,
