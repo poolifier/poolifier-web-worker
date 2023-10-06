@@ -1,13 +1,7 @@
-import {
-  type MessagePort,
-  isMainThread,
-  parentPort,
-  threadId
-} from 'node:worker_threads'
-import type { MessageValue } from '../utility-types'
-import { AbstractWorker } from './abstract-worker'
-import type { WorkerOptions } from './worker-options'
-import type { TaskFunction, TaskFunctions } from './task-functions'
+import type { MessageValue, MsgEvent } from '../utility-types.ts'
+import { AbstractWorker } from './abstract-worker.ts'
+import type { WorkerOptions } from './worker-options.ts'
+import type { TaskFunction, TaskFunctions } from './task-functions.ts'
 
 /**
  * A thread worker used by a poolifier `ThreadPool`.
@@ -25,69 +19,67 @@ import type { TaskFunction, TaskFunctions } from './task-functions'
  */
 export class ThreadWorker<
   Data = unknown,
-  Response = unknown
-> extends AbstractWorker<MessagePort, Data, Response> {
+  Response = unknown,
+> extends AbstractWorker<typeof globalThis, Data, Response> {
   /**
    * Message port used to communicate with the main worker.
    */
   private port!: MessagePort
+  /** @inheritdoc */
+  public id!: string
   /**
    * Constructs a new poolifier thread worker.
    *
    * @param taskFunctions - Task function(s) processed by the worker when the pool's `execution` function is invoked.
    * @param opts - Options for the worker.
    */
-  public constructor (
+  public constructor(
     taskFunctions: TaskFunction<Data, Response> | TaskFunctions<Data, Response>,
-    opts: WorkerOptions = {}
+    opts: WorkerOptions = {},
   ) {
     super(
       'poolifier:thread-worker',
       isMainThread,
-      parentPort as MessagePort,
+      self,
       taskFunctions,
-      opts
+      opts,
     )
   }
 
   /** @inheritDoc */
-  protected handleReadyMessage (message: MessageValue<Data>): void {
+  protected handleReadyMessage(
+    message: MsgEvent<MessageValue<Data>>,
+  ): void {
     if (
-      message.workerId === this.id &&
-      message.ready === false &&
-      message.port != null
+      message.data?.ready === false &&
+      message.data?.workerId != null &&
+      message.data?.port != null
     ) {
       try {
-        this.port = message.port
-        this.port.start()
-        this.port.on('message', this.messageListener.bind(this))
+        this.id = message.data.workerId
+        this.port = message.data.port
+        this.port.onmessage = this.messageEventListener.bind(this)
         this.sendToMainWorker({
           ready: true,
-          taskFunctionNames: this.listTaskFunctionNames()
+          taskFunctionNames: this.listTaskFunctionNames(),
         })
       } catch {
         this.sendToMainWorker({
           ready: false,
-          taskFunctionNames: this.listTaskFunctionNames()
+          taskFunctionNames: this.listTaskFunctionNames(),
         })
       }
     }
   }
 
   /** @inheritDoc */
-  protected handleKillMessage (message: MessageValue<Data>): void {
+  protected handleKillMessage(message: MessageValue<Data>): void {
     super.handleKillMessage(message)
-    this.port?.unref()
     this.port?.close()
   }
 
   /** @inheritDoc */
-  protected get id (): number {
-    return threadId
-  }
-
-  /** @inheritDoc */
-  protected sendToMainWorker (message: MessageValue<Response>): void {
+  protected sendToMainWorker(message: MessageValue<Response>): void {
     this.port.postMessage({ ...message, workerId: this.id })
   }
 
@@ -95,7 +87,7 @@ export class ThreadWorker<
    * @inheritDoc
    * @override
    */
-  protected handleError (error: Error | string): string {
+  protected handleError(error: Error | string): string {
     return error as string
   }
 }

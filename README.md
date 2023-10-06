@@ -4,7 +4,7 @@
 
 <div align="center">
 
-# Bun Worker_Threads Worker Pool
+# Deno Web Worker Pool
 
 </div>
 
@@ -25,9 +25,13 @@
 
 ## Why Poolifier?
 
-Poolifier is used to perform CPU and/or I/O intensive tasks on Bun servers, it implements worker pools using [worker_threads](https://nodejs.org/api/worker_threads.html) Bun modules.  
-With poolifier you can improve your **performance** and resolve problems related to the event loop.  
-Moreover you can execute your tasks using an API designed to improve the **developer experience**.  
+Poolifier is used to perform CPU and/or I/O intensive tasks on Bun servers, it
+implements worker pools using
+[worker_threads](https://nodejs.org/api/worker_threads.html) Deno modules.\
+With poolifier you can improve your **performance** and resolve problems related
+to the event loop.\
+Moreover you can execute your tasks using an API designed to improve the
+**developer experience**.\
 Please consult our [general guidelines](#general-guidelines).
 
 - Easy to use :white_check_mark:
@@ -35,11 +39,15 @@ Please consult our [general guidelines](#general-guidelines).
 - Easy switch from a pool type to another :white_check_mark:
 - Performance [benchmarks](./benchmarks/README.md) :white_check_mark:
 - No runtime dependencies :white_check_mark:
-- Proper integration with Bun [async_hooks](https://nodejs.org/api/async_hooks.html) :white_check_mark:
+- Proper integration with Deno
+  [async_hooks](https://nodejs.org/api/async_hooks.html) :white_check_mark:
 - Support for ESM and TypeScript :white_check_mark:
-- Support for [worker_threads](https://nodejs.org/api/worker_threads.html) Bun modules :white_check_mark:
+- Support for [worker_threads](https://nodejs.org/api/worker_threads.html) Deno
+  modules :white_check_mark:
 - Support for multiple task functions :white_check_mark:
-- Support for task functions [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations at runtime :white_check_mark:
+- Support for task functions
+  [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
+  operations at runtime :white_check_mark:
 - Support for sync and async task functions :white_check_mark:
 - Tasks distribution strategies :white_check_mark:
 - Lockless tasks queueing :white_check_mark:
@@ -51,6 +59,7 @@ Please consult our [general guidelines](#general-guidelines).
 - Error handling out of the box :white_check_mark:
 - Widely tested :white_check_mark:
 - Active community :white_check_mark:
+
 <!-- - Code quality [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=bugs)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
   [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=code_smells)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
   [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
@@ -64,7 +73,7 @@ Please consult our [general guidelines](#general-guidelines).
 - [Overview](#overview)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Bun versions](#bun-versions)
+- [Deno versions](#deno-versions)
 - [API](#api)
 - [General guidelines](#general-guidelines)
 - [Worker choice strategies](#worker-choice-strategies)
@@ -74,20 +83,30 @@ Please consult our [general guidelines](#general-guidelines).
 
 ## Overview
 
-Poolifier contains two [worker_threads](https://nodejs.org/api/worker_threads.html#class-worker) worker pool implementations, you don't have to deal with [worker_threads](https://nodejs.org/api/worker_threads.html) complexity.  
-The first implementation is a fixed worker pool, with a defined number of workers that are started at creation time and will be reused.  
-The second implementation is a dynamic worker pool, with a number of worker started at creation time (these workers will be always active and reused) and other workers created when the load will increase (with an upper limit, these workers will be reused when active), the newly created workers will be stopped after a configurable period of inactivity.  
+Poolifier contains two
+[worker_threads](https://nodejs.org/api/worker_threads.html#class-worker) worker
+pool implementations, you don't have to deal with
+[worker_threads](https://nodejs.org/api/worker_threads.html) complexity.\
+The first implementation is a fixed worker pool, with a defined number of
+workers that are started at creation time and will be reused.\
+The second implementation is a dynamic worker pool, with a number of worker
+started at creation time (these workers will be always active and reused) and
+other workers created when the load will increase (with an upper limit, these
+workers will be reused when active), the newly created workers will be stopped
+after a configurable period of inactivity.\
 You have to implement your worker by extending the _ThreadWorker_ class.
 
-## Installation
+<!-- ## Installation
 
 ```shell
-npm install poolifier-bun --save
-```
+npm install poolifier-deno --save
+``` -->
 
 ## Usage
 
-You can implement a [worker_threads](https://nodejs.org/api/worker_threads.html#class-worker) worker in a simple way by extending the class _ThreadWorker_:
+You can implement a
+[worker_threads](https://nodejs.org/api/worker_threads.html#class-worker) worker
+in a simple way by extending the class _ThreadWorker_:
 
 ```js
 'use strict'
@@ -100,7 +119,7 @@ function yourFunction(data) {
 }
 
 module.exports = new ThreadWorker(yourFunction, {
-  maxInactiveTime: 60000
+  maxInactiveTime: 60000,
 })
 ```
 
@@ -108,22 +127,28 @@ Instantiate your pool based on your needs :
 
 ```js
 'use strict'
-const { DynamicThreadPool, FixedThreadPool, PoolEvents, availableParallelism } = require('poolifier')
+const { DynamicThreadPool, FixedThreadPool, PoolEvents, availableParallelism } =
+  require('poolifier')
 
 // a fixed worker_threads pool
 const pool = new FixedThreadPool(availableParallelism(), './yourWorker.js', {
   errorHandler: (e) => console.error(e),
-  onlineHandler: () => console.info('worker is online')
+  onlineHandler: () => console.info('worker is online'),
 })
 
 pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
 pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
 
 // or a dynamic worker_threads pool
-const pool = new DynamicThreadPool(Math.floor(availableParallelism() / 2), availableParallelism(), './yourWorker.js', {
-  errorHandler: (e) => console.error(e),
-  onlineHandler: () => console.info('worker is online')
-})
+const pool = new DynamicThreadPool(
+  Math.floor(availableParallelism() / 2),
+  availableParallelism(),
+  './yourWorker.js',
+  {
+    errorHandler: (e) => console.error(e),
+    onlineHandler: () => console.info('worker is online'),
+  },
+)
 
 pool.emitter?.on(PoolEvents.full, () => console.info('Pool is full'))
 pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
@@ -161,9 +186,9 @@ pool
 
 Remember that workers can only send and receive structured-cloneable data.
 
-## Bun versions
+## Deno versions
 
-Bun versions >= 1.0.x are supported.
+Deno versions >= 1.37.x are supported.
 
 ## [API](./docs/api.md)
 
@@ -173,7 +198,8 @@ Bun versions >= 1.0.x are supported.
 
 ## Contribute
 
-Choose your task [here](https://github.com/orgs/poolifier/projects/1), propose an idea, a fix, an improvement.
+Choose your task [here](https://github.com/orgs/poolifier/projects/1), propose
+an idea, a fix, an improvement.
 
 See [CONTRIBUTING](./CONTRIBUTING.md) guidelines.
 

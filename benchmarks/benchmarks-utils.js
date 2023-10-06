@@ -10,7 +10,7 @@ const {
   Measurements,
   PoolTypes,
   WorkerChoiceStrategies,
-  WorkerTypes
+  WorkerTypes,
 } = require('../lib/index.js')
 const { TaskFunctions } = require('./benchmarks-types.js')
 
@@ -22,13 +22,13 @@ const buildPoolifierPool = (workerType, poolType, poolSize, poolOptions) => {
           return new FixedThreadPool(
             poolSize,
             './benchmarks/internal/thread-worker.mjs',
-            poolOptions
+            poolOptions,
           )
         case WorkerTypes.cluster:
           return new FixedClusterPool(
             poolSize,
             './benchmarks/internal/cluster-worker.js',
-            poolOptions
+            poolOptions,
           )
       }
       break
@@ -39,14 +39,14 @@ const buildPoolifierPool = (workerType, poolType, poolSize, poolOptions) => {
             Math.floor(poolSize / 2),
             poolSize,
             './benchmarks/internal/thread-worker.mjs',
-            poolOptions
+            poolOptions,
           )
         case WorkerTypes.cluster:
           return new DynamicClusterPool(
             Math.floor(poolSize / 2),
             poolSize,
             './benchmarks/internal/cluster-worker.js',
-            poolOptions
+            poolOptions,
           )
       }
       break
@@ -60,13 +60,13 @@ const runPoolifierPool = async (pool, { taskExecutions, workerData }) => {
       pool
         .execute(workerData)
         .then(() => {
-          ++executions
+          ;++executions
           if (executions === taskExecutions) {
             resolve({ ok: 1 })
           }
           return undefined
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err)
           reject(err)
         })
@@ -77,46 +77,50 @@ const runPoolifierPool = async (pool, { taskExecutions, workerData }) => {
 const runPoolifierPoolBenchmark = async (
   name,
   pool,
-  { taskExecutions, workerData }
+  { taskExecutions, workerData },
 ) => {
   return await new Promise((resolve, reject) => {
     try {
       const suite = new Benchmark.Suite(name)
-      for (const workerChoiceStrategy of Object.values(
-        WorkerChoiceStrategies
-      )) {
+      for (
+        const workerChoiceStrategy of Object.values(
+          WorkerChoiceStrategies,
+        )
+      ) {
         for (const enableTasksQueue of [false, true]) {
           if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
-            for (const measurement of [
-              Measurements.runTime,
-              Measurements.elu
-            ]) {
+            for (
+              const measurement of [
+                Measurements.runTime,
+                Measurements.elu,
+              ]
+            ) {
               suite.add(
                 `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
                   enableTasksQueue ? 'with' : 'without'
                 } tasks queue`,
                 async () => {
                   pool.setWorkerChoiceStrategy(workerChoiceStrategy, {
-                    measurement
+                    measurement,
                   })
                   pool.enableTasksQueue(enableTasksQueue)
                   assert.strictEqual(
                     pool.opts.workerChoiceStrategy,
-                    workerChoiceStrategy
+                    workerChoiceStrategy,
                   )
                   assert.strictEqual(
                     pool.opts.enableTasksQueue,
-                    enableTasksQueue
+                    enableTasksQueue,
                   )
                   assert.strictEqual(
                     pool.opts.workerChoiceStrategyOptions.measurement,
-                    measurement
+                    measurement,
                   )
                   await runPoolifierPool(pool, {
                     taskExecutions,
-                    workerData
+                    workerData,
                   })
-                }
+                },
               )
             }
           } else {
@@ -129,26 +133,29 @@ const runPoolifierPoolBenchmark = async (
                 pool.enableTasksQueue(enableTasksQueue)
                 assert.strictEqual(
                   pool.opts.workerChoiceStrategy,
-                  workerChoiceStrategy
+                  workerChoiceStrategy,
                 )
-                assert.strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+                assert.strictEqual(
+                  pool.opts.enableTasksQueue,
+                  enableTasksQueue,
+                )
                 await runPoolifierPool(pool, {
                   taskExecutions,
-                  workerData
+                  workerData,
                 })
-              }
+              },
             )
           }
         }
       }
       suite
-        .on('cycle', event => {
+        .on('cycle', (event) => {
           console.info(event.target.toString())
         })
         .on('complete', async function () {
           console.info(
             'Fastest is ' +
-              LIST_FORMATTER.format(this.filter('fastest').map('name'))
+              LIST_FORMATTER.format(this.filter('fastest').map('name')),
           )
           await pool.destroy()
           pool = undefined
@@ -163,7 +170,7 @@ const runPoolifierPoolBenchmark = async (
 
 const LIST_FORMATTER = new Intl.ListFormat('en-US', {
   style: 'long',
-  type: 'conjunction'
+  type: 'conjunction',
 })
 
 const generateRandomInteger = (max = Number.MAX_SAFE_INTEGER, min = 0) => {
@@ -178,10 +185,10 @@ const generateRandomInteger = (max = Number.MAX_SAFE_INTEGER, min = 0) => {
   return Math.floor(Math.random() * (max + 1))
 }
 
-const jsonIntegerSerialization = n => {
+const jsonIntegerSerialization = (n) => {
   for (let i = 0; i < n; i++) {
     const o = {
-      a: i
+      a: i,
     }
     JSON.stringify(o)
   }
@@ -193,7 +200,7 @@ const jsonIntegerSerialization = n => {
  * @param {number} n - The number of fibonacci numbers to generate.
  * @returns {number} - The nth fibonacci number.
  */
-const fibonacci = n => {
+const fibonacci = (n) => {
   if (n <= 1) return n
   return fibonacci(n - 1) + fibonacci(n - 2)
 }
@@ -203,7 +210,7 @@ const fibonacci = n => {
  * @param {number} n - The number to calculate the factorial of.
  * @returns {number} - The factorial of n.
  */
-const factorial = n => {
+const factorial = (n) => {
   if (n === 0) {
     return 1
   }
@@ -212,9 +219,11 @@ const factorial = n => {
 
 const readWriteFiles = (
   n,
-  baseDirectory = `/tmp/poolifier-benchmarks/${crypto.randomInt(
-    281474976710655
-  )}`
+  baseDirectory = `/tmp/poolifier-benchmarks/${
+    crypto.randomInt(
+      281474976710655,
+    )
+  }`,
 ) => {
   if (fs.existsSync(baseDirectory) === true) {
     fs.rmSync(baseDirectory, { recursive: true })
@@ -224,7 +233,7 @@ const readWriteFiles = (
     const filePath = `${baseDirectory}/${i}`
     fs.writeFileSync(filePath, i.toString(), {
       encoding: 'utf8',
-      flag: 'a'
+      flag: 'a',
     })
     fs.readFileSync(filePath, 'utf8')
   }
@@ -232,7 +241,7 @@ const readWriteFiles = (
   return { ok: 1 }
 }
 
-const executeTaskFunction = data => {
+const executeTaskFunction = (data) => {
   switch (data.function) {
     case TaskFunctions.jsonIntegerSerialization:
       return jsonIntegerSerialization(data.taskSize || 1000)
@@ -252,5 +261,5 @@ module.exports = {
   buildPoolifierPool,
   executeTaskFunction,
   generateRandomInteger,
-  runPoolifierPoolBenchmark
+  runPoolifierPoolBenchmark,
 }

@@ -1,15 +1,15 @@
 import { dirname, extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  availableParallelism,
   DynamicThreadPool,
   FixedThreadPool,
-  availableParallelism
 } from 'poolifier'
-import type { MyData, MyResponse } from './worker'
+import type { MyData, MyResponse } from './worker.ts'
 
 const workerFile = join(
   dirname(fileURLToPath(import.meta.url)),
-  `worker${extname(fileURLToPath(import.meta.url))}`
+  `worker${extname(fileURLToPath(import.meta.url))}`,
 )
 
 export const fixedPool = new FixedThreadPool<MyData, Promise<MyResponse>>(
@@ -21,8 +21,8 @@ export const fixedPool = new FixedThreadPool<MyData, Promise<MyResponse>>(
     },
     onlineHandler: () => {
       console.info('Worker is online')
-    }
-  }
+    },
+  },
 )
 
 export const dynamicPool = new DynamicThreadPool<MyData, Promise<MyResponse>>(
@@ -35,6 +35,6 @@ export const dynamicPool = new DynamicThreadPool<MyData, Promise<MyResponse>>(
     },
     onlineHandler: () => {
       console.info('Worker is online')
-    }
-  }
+    },
+  },
 )

@@ -1,21 +1,21 @@
-import { DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS } from '../../utils'
-import type { IPool } from '../pool'
-import type { IWorker } from '../worker'
-import { FairShareWorkerChoiceStrategy } from './fair-share-worker-choice-strategy'
-import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from './interleaved-weighted-round-robin-worker-choice-strategy'
-import { LeastBusyWorkerChoiceStrategy } from './least-busy-worker-choice-strategy'
-import { LeastUsedWorkerChoiceStrategy } from './least-used-worker-choice-strategy'
-import { LeastEluWorkerChoiceStrategy } from './least-elu-worker-choice-strategy'
-import { RoundRobinWorkerChoiceStrategy } from './round-robin-worker-choice-strategy'
+import { DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS } from '../../utils.ts'
+import type { IPool } from '../pool.ts'
+import type { IWorker } from '../worker.ts'
+import { FairShareWorkerChoiceStrategy } from './fair-share-worker-choice-strategy.ts'
+import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from './interleaved-weighted-round-robin-worker-choice-strategy.ts'
+import { LeastBusyWorkerChoiceStrategy } from './least-busy-worker-choice-strategy.ts'
+import { LeastUsedWorkerChoiceStrategy } from './least-used-worker-choice-strategy.ts'
+import { LeastEluWorkerChoiceStrategy } from './least-elu-worker-choice-strategy.ts'
+import { RoundRobinWorkerChoiceStrategy } from './round-robin-worker-choice-strategy.ts'
 import type {
   IWorkerChoiceStrategy,
   StrategyPolicy,
   TaskStatisticsRequirements,
   WorkerChoiceStrategy,
-  WorkerChoiceStrategyOptions
-} from './selection-strategies-types'
-import { WorkerChoiceStrategies } from './selection-strategies-types'
-import { WeightedRoundRobinWorkerChoiceStrategy } from './weighted-round-robin-worker-choice-strategy'
+  WorkerChoiceStrategyOptions,
+} from './selection-strategies-types.ts'
+import { WorkerChoiceStrategies } from './selection-strategies-types.ts'
+import { WeightedRoundRobinWorkerChoiceStrategy } from './weighted-round-robin-worker-choice-strategy.ts'
 
 /**
  * The worker choice strategy context.
@@ -25,13 +25,13 @@ import { WeightedRoundRobinWorkerChoiceStrategy } from './weighted-round-robin-w
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export class WorkerChoiceStrategyContext<
-  Worker extends IWorker,
+  Worker extends IWorker<Data>,
   Data = unknown,
-  Response = unknown
+  Response = unknown,
 > {
   private readonly workerChoiceStrategies: Map<
-  WorkerChoiceStrategy,
-  IWorkerChoiceStrategy
+    WorkerChoiceStrategy,
+    IWorkerChoiceStrategy
   >
 
   /**
@@ -46,68 +46,70 @@ export class WorkerChoiceStrategyContext<
    * @param workerChoiceStrategy - The worker choice strategy.
    * @param opts - The worker choice strategy options.
    */
-  public constructor (
+  public constructor(
     pool: IPool<Worker, Data, Response>,
-    private workerChoiceStrategy: WorkerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN,
-    private opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS
+    private workerChoiceStrategy: WorkerChoiceStrategy =
+      WorkerChoiceStrategies.ROUND_ROBIN,
+    private opts: WorkerChoiceStrategyOptions =
+      DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   ) {
     this.opts = { ...DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS, ...opts }
     this.execute = this.execute.bind(this)
     this.workerChoiceStrategies = new Map<
-    WorkerChoiceStrategy,
-    IWorkerChoiceStrategy
+      WorkerChoiceStrategy,
+      IWorkerChoiceStrategy
     >([
       [
         WorkerChoiceStrategies.ROUND_ROBIN,
         new (RoundRobinWorkerChoiceStrategy.bind(this))<Worker, Data, Response>(
           pool,
-          opts
-        )
+          opts,
+        ),
       ],
       [
         WorkerChoiceStrategies.LEAST_USED,
         new (LeastUsedWorkerChoiceStrategy.bind(this))<Worker, Data, Response>(
           pool,
-          opts
-        )
+          opts,
+        ),
       ],
       [
         WorkerChoiceStrategies.LEAST_BUSY,
         new (LeastBusyWorkerChoiceStrategy.bind(this))<Worker, Data, Response>(
           pool,
-          opts
-        )
+          opts,
+        ),
       ],
       [
         WorkerChoiceStrategies.LEAST_ELU,
         new (LeastEluWorkerChoiceStrategy.bind(this))<Worker, Data, Response>(
           pool,
-          opts
-        )
+          opts,
+        ),
       ],
       [
         WorkerChoiceStrategies.FAIR_SHARE,
         new (FairShareWorkerChoiceStrategy.bind(this))<Worker, Data, Response>(
           pool,
-          opts
-        )
+          opts,
+        ),
       ],
       [
         WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN,
         new (WeightedRoundRobinWorkerChoiceStrategy.bind(this))<
-        Worker,
-        Data,
-        Response
-        >(pool, opts)
+          Worker,
+          Data,
+          Response
+        >(pool, opts),
       ],
       [
         WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN,
         new (InterleavedWeightedRoundRobinWorkerChoiceStrategy.bind(this))<
-        Worker,
-        Data,
-        Response
-        >(pool, opts)
-      ]
+          Worker,
+          Data,
+          Response
+        >(pool, opts),
+      ],
     ])
   }
 
@@ -116,10 +118,10 @@ export class WorkerChoiceStrategyContext<
    *
    * @returns The strategy policy.
    */
-  public getStrategyPolicy (): StrategyPolicy {
+  public getStrategyPolicy(): StrategyPolicy {
     return (
       this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy
+        this.workerChoiceStrategy,
       ) as IWorkerChoiceStrategy
     ).strategyPolicy
   }
@@ -129,10 +131,10 @@ export class WorkerChoiceStrategyContext<
    *
    * @returns The task statistics requirements.
    */
-  public getTaskStatisticsRequirements (): TaskStatisticsRequirements {
+  public getTaskStatisticsRequirements(): TaskStatisticsRequirements {
     return (
       this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy
+        this.workerChoiceStrategy,
       ) as IWorkerChoiceStrategy
     ).taskStatisticsRequirements
   }
@@ -142,8 +144,8 @@ export class WorkerChoiceStrategyContext<
    *
    * @param workerChoiceStrategy - The worker choice strategy to set.
    */
-  public setWorkerChoiceStrategy (
-    workerChoiceStrategy: WorkerChoiceStrategy
+  public setWorkerChoiceStrategy(
+    workerChoiceStrategy: WorkerChoiceStrategy,
   ): void {
     if (this.workerChoiceStrategy !== workerChoiceStrategy) {
       this.workerChoiceStrategy = workerChoiceStrategy
@@ -156,10 +158,10 @@ export class WorkerChoiceStrategyContext<
    *
    * @returns `true` if the update is successful, `false` otherwise.
    */
-  public update (workerNodeKey: number): boolean {
+  public update(workerNodeKey: number): boolean {
     return (
       this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy
+        this.workerChoiceStrategy,
       ) as IWorkerChoiceStrategy
     ).update(workerNodeKey)
   }
@@ -170,10 +172,10 @@ export class WorkerChoiceStrategyContext<
    * @returns The key of the worker node.
    * @throws {@link https://nodejs.org/api/errors.html#class-error} If after configured retries the worker node key is null or undefined .
    */
-  public execute (): number {
+  public execute(): number {
     const workerNodeKey = (
       this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy
+        this.workerChoiceStrategy,
       ) as IWorkerChoiceStrategy
     ).choose()
     if (
@@ -184,7 +186,7 @@ export class WorkerChoiceStrategyContext<
       return this.execute()
     } else if (workerNodeKey == null) {
       throw new Error(
-        `Worker node key chosen is null or undefined after ${this.retriesCount} retries`
+        `Worker node key chosen is null or undefined after ${this.retriesCount} retries`,
       )
     }
     this.retriesCount = 0
@@ -197,10 +199,10 @@ export class WorkerChoiceStrategyContext<
    * @param workerNodeKey - The worker node key.
    * @returns `true` if the removal is successful, `false` otherwise.
    */
-  public remove (workerNodeKey: number): boolean {
+  public remove(workerNodeKey: number): boolean {
     return (
       this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy
+        this.workerChoiceStrategy,
       ) as IWorkerChoiceStrategy
     ).remove(workerNodeKey)
   }
@@ -210,7 +212,7 @@ export class WorkerChoiceStrategyContext<
    *
    * @param opts - The worker choice strategy options.
    */
-  public setOptions (opts: WorkerChoiceStrategyOptions): void {
+  public setOptions(opts: WorkerChoiceStrategyOptions): void {
     this.opts = { ...DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS, ...opts }
     for (const workerChoiceStrategy of this.workerChoiceStrategies.values()) {
       workerChoiceStrategy.setOptions(opts)

@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'bun:test'
-import { Deque } from '../lib/index.js'
+import { expect } from 'npm:expect'
+import { Deque } from '../src/index.ts'
 
-describe('Deque test suite', () => {
-  test('Verify push() behavior', () => {
+Deno.test('Deque test suite', async (t) => {
+  await t.step('Verify push() behavior', () => {
     const deque = new Deque()
     let rtSize = deque.push(1)
     expect(deque.size).toBe(1)
@@ -24,7 +24,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toMatchObject({ data: 3 })
   })
 
-  test('Verify unshift() behavior', () => {
+  await t.step('Verify unshift() behavior', () => {
     const deque = new Deque()
     let rtSize = deque.unshift(1)
     expect(deque.size).toBe(1)
@@ -46,7 +46,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toMatchObject({ data: 1 })
   })
 
-  test('Verify pop() behavior', () => {
+  await t.step('Verify pop() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -71,7 +71,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toBeUndefined()
   })
 
-  test('Verify shift() behavior', () => {
+  await t.step('Verify shift() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -96,7 +96,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toBeUndefined()
   })
 
-  test('Verify peekFirst() behavior', () => {
+  await t.step('Verify peekFirst() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -106,7 +106,7 @@ describe('Deque test suite', () => {
     expect(deque.size).toBe(3)
   })
 
-  test('Verify peekLast() behavior', () => {
+  await t.step('Verify peekLast() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -116,7 +116,7 @@ describe('Deque test suite', () => {
     expect(deque.size).toBe(3)
   })
 
-  test('Verify clear() behavior', () => {
+  await t.step('Verify clear() behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -132,7 +132,7 @@ describe('Deque test suite', () => {
     expect(deque.tail).toBeUndefined()
   })
 
-  test('Verify iterator behavior', () => {
+  await t.step('Verify iterator behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -140,11 +140,11 @@ describe('Deque test suite', () => {
     let i = 1
     for (const value of deque) {
       expect(value).toBe(i)
-      ++i
+      ;++i
     }
   })
 
-  test('Verify backward() iterator behavior', () => {
+  await t.step('Verify backward() iterator behavior', () => {
     const deque = new Deque()
     deque.push(1)
     deque.push(2)
@@ -152,7 +152,7 @@ describe('Deque test suite', () => {
     let i = deque.size
     for (const value of deque.backward()) {
       expect(value).toBe(i)
-      --i
+      ;--i
     }
   })
 })

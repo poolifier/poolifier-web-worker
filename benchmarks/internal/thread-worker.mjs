@@ -1,9 +1,9 @@
 import { isMainThread } from 'node:worker_threads'
-import { ThreadWorker } from '../../lib/index.mjs'
+import { ThreadWorker } from '../../src/index.ts'
 import { executeTaskFunction } from '../benchmarks-utils.js'
 import { TaskFunctions } from '../benchmarks-types.js'
 
-const taskFunction = data => {
+const taskFunction = (data) => {
   data = data || {}
   data.function = data.function || TaskFunctions.jsonIntegerSerialization
   data.debug = data.debug || false

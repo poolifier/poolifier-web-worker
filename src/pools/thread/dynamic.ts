@@ -1,6 +1,6 @@
-import { type PoolType, PoolTypes } from '../pool'
-import { checkDynamicPoolSize } from '../utils'
-import { FixedThreadPool, type ThreadPoolOptions } from './fixed'
+import { type PoolType, PoolTypes } from '../pool.ts'
+import { checkDynamicPoolSize } from '../utils.ts'
+import { FixedThreadPool, type ThreadPoolOptions } from './fixed.ts'
 
 /**
  * A thread pool with a dynamic number of threads, but a guaranteed minimum number of threads.
@@ -15,7 +15,7 @@ import { FixedThreadPool, type ThreadPoolOptions } from './fixed'
  */
 export class DynamicThreadPool<
   Data = unknown,
-  Response = unknown
+  Response = unknown,
 > extends FixedThreadPool<Data, Response> {
   /**
    * Constructs a new poolifier dynamic thread pool.
@@ -25,23 +25,23 @@ export class DynamicThreadPool<
    * @param filePath - Path to an implementation of a `ThreadWorker` file, which can be relative or absolute.
    * @param opts - Options for this dynamic thread pool.
    */
-  public constructor (
+  public constructor(
     min: number,
     protected readonly max: number,
     filePath: string,
-    opts: ThreadPoolOptions = {}
+    opts: ThreadPoolOptions<Data> = {},
   ) {
     super(min, filePath, opts)
     checkDynamicPoolSize(this.numberOfWorkers, this.max)
   }
 
   /** @inheritDoc */
-  protected get type (): PoolType {
+  protected get type(): PoolType {
     return PoolTypes.dynamic
   }
 
   /** @inheritDoc */
-  protected get busy (): boolean {
+  protected get busy(): boolean {
     return this.full && this.internalBusy()
   }
 }

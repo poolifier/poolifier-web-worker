@@ -1,11 +1,11 @@
-import { DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS } from '../../utils'
-import type { IPool } from '../pool'
-import type { IWorker } from '../worker'
-import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy'
+import { DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS } from '../../utils.ts'
+import type { IPool } from '../pool.ts'
+import type { IWorker } from '../worker.ts'
+import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
   IWorkerChoiceStrategy,
-  WorkerChoiceStrategyOptions
-} from './selection-strategies-types'
+  WorkerChoiceStrategyOptions,
+} from './selection-strategies-types.ts'
 
 /**
  * Selects the least used worker.
@@ -15,56 +15,55 @@ import type {
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export class LeastUsedWorkerChoiceStrategy<
-    Worker extends IWorker,
-    Data = unknown,
-    Response = unknown
-  >
-  extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
+  Worker extends IWorker<Data>,
+  Data = unknown,
+  Response = unknown,
+> extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
   implements IWorkerChoiceStrategy {
   /** @inheritDoc */
-  public constructor (
+  public constructor(
     pool: IPool<Worker, Data, Response>,
-    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS
+    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   ) {
     super(pool, opts)
     this.setTaskStatisticsRequirements(this.opts)
   }
 
   /** @inheritDoc */
-  public reset (): boolean {
+  public reset(): boolean {
     return true
   }
 
   /** @inheritDoc */
-  public update (): boolean {
+  public update(): boolean {
     return true
   }
 
   /** @inheritDoc */
-  public choose (): number | undefined {
+  public choose(): number | undefined {
     this.setPreviousWorkerNodeKey(this.nextWorkerNodeKey)
     this.nextWorkerNodeKey = this.leastUsedNextWorkerNodeKey()
     return this.nextWorkerNodeKey
   }
 
   /** @inheritDoc */
-  public remove (): boolean {
+  public remove(): boolean {
     return true
   }
 
-  private leastUsedNextWorkerNodeKey (): number | undefined {
+  private leastUsedNextWorkerNodeKey(): number | undefined {
     return this.pool.workerNodes.reduce(
       (minWorkerNodeKey, workerNode, workerNodeKey, workerNodes) => {
         return workerNode.usage.tasks.executed +
-          workerNode.usage.tasks.executing +
-          workerNode.usage.tasks.queued <
-          workerNodes[minWorkerNodeKey].usage.tasks.executed +
-            workerNodes[minWorkerNodeKey].usage.tasks.executing +
-            workerNodes[minWorkerNodeKey].usage.tasks.queued
+              workerNode.usage.tasks.executing +
+              workerNode.usage.tasks.queued <
+            workerNodes[minWorkerNodeKey].usage.tasks.executed +
+              workerNodes[minWorkerNodeKey].usage.tasks.executing +
+              workerNodes[minWorkerNodeKey].usage.tasks.queued
           ? workerNodeKey
           : minWorkerNodeKey
       },
-      0
+      0,
     )
   }
 }

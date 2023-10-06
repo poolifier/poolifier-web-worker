@@ -1,13 +1,12 @@
-import { KillBehaviors, ThreadWorker } from '../../../lib/index.js'
-import { executeTaskFunction } from '../../test-utils.js'
-import { TaskFunctions } from '../../test-types.js'
+import { KillBehaviors, ThreadWorker } from '../../../src/index.ts'
+import { executeTaskFunction } from '../../test-utils.mjs'
+import { TaskFunctions } from '../../test-types.mjs'
 
 /**
- *
  * @param data
  * @returns
  */
-function test (data) {
+function test(data) {
   data = data || {}
   data.function = data.function || TaskFunctions.jsonIntegerSerialization
   return executeTaskFunction(data)
@@ -15,5 +14,5 @@ function test (data) {
 
 export default new ThreadWorker(test, {
   killBehavior: KillBehaviors.HARD,
-  maxInactiveTime: 500
+  maxInactiveTime: 500,
 })

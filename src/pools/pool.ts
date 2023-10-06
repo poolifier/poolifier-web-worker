@@ -1,33 +1,33 @@
-import type { TransferListItem } from 'node:worker_threads'
 import type { EventEmitter } from 'node:events'
-import type { TaskFunction } from '../worker/task-functions'
+import type { TaskFunction } from '../worker/task-functions.ts'
 import type {
   ErrorHandler,
-  ExitHandler,
   IWorker,
   IWorkerNode,
+  MessageErrorHandler,
   MessageHandler,
-  OnlineHandler,
-  WorkerType
-} from './worker'
+  WorkerType,
+} from './worker.ts'
 import type {
   WorkerChoiceStrategy,
-  WorkerChoiceStrategyOptions
-} from './selection-strategies/selection-strategies-types'
+  WorkerChoiceStrategyOptions,
+} from './selection-strategies/selection-strategies-types.ts'
 
 /**
  * Enumeration of pool types.
  */
-export const PoolTypes = Object.freeze({
-  /**
-   * Fixed pool type.
-   */
-  fixed: 'fixed',
-  /**
-   * Dynamic pool type.
-   */
-  dynamic: 'dynamic'
-} as const)
+export const PoolTypes = Object.freeze(
+  {
+    /**
+     * Fixed pool type.
+     */
+    fixed: 'fixed',
+    /**
+     * Dynamic pool type.
+     */
+    dynamic: 'dynamic',
+  } as const,
+)
 
 /**
  * Pool type.
@@ -37,15 +37,17 @@ export type PoolType = keyof typeof PoolTypes
 /**
  * Enumeration of pool events.
  */
-export const PoolEvents = Object.freeze({
-  ready: 'ready',
-  busy: 'busy',
-  full: 'full',
-  destroy: 'destroy',
-  error: 'error',
-  taskError: 'taskError',
-  backPressure: 'backPressure'
-} as const)
+export const PoolEvents = Object.freeze(
+  {
+    ready: 'ready',
+    busy: 'busy',
+    full: 'full',
+    destroy: 'destroy',
+    error: 'error',
+    taskError: 'taskError',
+    backPressure: 'backPressure',
+  } as const,
+)
 
 /**
  * Pool event.
@@ -128,31 +130,25 @@ export interface TasksQueueOptions {
  *
  * @typeParam Worker - Type of worker.
  */
-export interface PoolOptions<Worker extends IWorker> {
-  /**
-   * A function that will listen for online event on each worker.
-   *
-   * @defaultValue `() => {}`
-   */
-  onlineHandler?: OnlineHandler<Worker>
+export interface PoolOptions<Data = unknown> {
   /**
    * A function that will listen for message event on each worker.
    *
    * @defaultValue `() => {}`
    */
-  messageHandler?: MessageHandler<Worker>
+  messageHandler?: MessageHandler<Data>
+  /**
+   * A function that will listen for message event processing error on each worker.
+   *
+   * @defaultValue `() => {}`
+   */
+  messageError?: MessageErrorHandler<Data>
   /**
    * A function that will listen for error event on each worker.
    *
    * @defaultValue `() => {}`
    */
-  errorHandler?: ErrorHandler<Worker>
-  /**
-   * A function that will listen for exit event on each worker.
-   *
-   * @defaultValue `() => {}`
-   */
-  exitHandler?: ExitHandler<Worker>
+  errorHandler?: ErrorHandler
   /**
    * Whether to start the minimum number of workers at pool initialization.
    *
@@ -199,9 +195,9 @@ export interface PoolOptions<Worker extends IWorker> {
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export interface IPool<
-  Worker extends IWorker,
+  Worker extends IWorker<Data>,
   Data = unknown,
-  Response = unknown
+  Response = unknown,
 > {
   /**
    * Pool information.
@@ -247,7 +243,7 @@ export interface IPool<
   readonly execute: (
     data?: Data,
     name?: string,
-    transferList?: TransferListItem[]
+    transferList?: Transferable[],
   ) => Promise<Response>
   /**
    * Starts the minimum number of workers in this pool.
@@ -276,7 +272,7 @@ export interface IPool<
    */
   readonly addTaskFunction: (
     name: string,
-    fn: TaskFunction<Data, Response>
+    fn: TaskFunction<Data, Response>,
   ) => Promise<boolean>
   /**
    * Removes a task function from this pool.
@@ -306,7 +302,7 @@ export interface IPool<
    */
   readonly setWorkerChoiceStrategy: (
     workerChoiceStrategy: WorkerChoiceStrategy,
-    workerChoiceStrategyOptions?: WorkerChoiceStrategyOptions
+    workerChoiceStrategyOptions?: WorkerChoiceStrategyOptions,
   ) => void
   /**
    * Sets the worker choice strategy options in this pool.
@@ -314,7 +310,7 @@ export interface IPool<
    * @param workerChoiceStrategyOptions - The worker choice strategy options.
    */
   readonly setWorkerChoiceStrategyOptions: (
-    workerChoiceStrategyOptions: WorkerChoiceStrategyOptions
+    workerChoiceStrategyOptions: WorkerChoiceStrategyOptions,
   ) => void
   /**
    * Enables/disables the worker node tasks queue in this pool.
@@ -324,7 +320,7 @@ export interface IPool<
    */
   readonly enableTasksQueue: (
     enable: boolean,
-    tasksQueueOptions?: TasksQueueOptions
+    tasksQueueOptions?: TasksQueueOptions,
   ) => void
   /**
    * Sets the worker node tasks queue options in this pool.

@@ -1,38 +1,40 @@
 /**
  * Enumeration of worker choice strategies.
  */
-export const WorkerChoiceStrategies = Object.freeze({
-  /**
-   * Round robin worker selection strategy.
-   */
-  ROUND_ROBIN: 'ROUND_ROBIN',
-  /**
-   * Least used worker selection strategy.
-   */
-  LEAST_USED: 'LEAST_USED',
-  /**
-   * Least busy worker selection strategy.
-   */
-  LEAST_BUSY: 'LEAST_BUSY',
-  /**
-   * Least ELU worker selection strategy.
-   */
-  LEAST_ELU: 'LEAST_ELU',
-  /**
-   * Fair share worker selection strategy.
-   */
-  FAIR_SHARE: 'FAIR_SHARE',
-  /**
-   * Weighted round robin worker selection strategy.
-   */
-  WEIGHTED_ROUND_ROBIN: 'WEIGHTED_ROUND_ROBIN',
-  /**
-   * Interleaved weighted round robin worker selection strategy.
-   *
-   * @experimental
-   */
-  INTERLEAVED_WEIGHTED_ROUND_ROBIN: 'INTERLEAVED_WEIGHTED_ROUND_ROBIN'
-} as const)
+export const WorkerChoiceStrategies = Object.freeze(
+  {
+    /**
+     * Round robin worker selection strategy.
+     */
+    ROUND_ROBIN: 'ROUND_ROBIN',
+    /**
+     * Least used worker selection strategy.
+     */
+    LEAST_USED: 'LEAST_USED',
+    /**
+     * Least busy worker selection strategy.
+     */
+    LEAST_BUSY: 'LEAST_BUSY',
+    /**
+     * Least ELU worker selection strategy.
+     */
+    LEAST_ELU: 'LEAST_ELU',
+    /**
+     * Fair share worker selection strategy.
+     */
+    FAIR_SHARE: 'FAIR_SHARE',
+    /**
+     * Weighted round robin worker selection strategy.
+     */
+    WEIGHTED_ROUND_ROBIN: 'WEIGHTED_ROUND_ROBIN',
+    /**
+     * Interleaved weighted round robin worker selection strategy.
+     *
+     * @experimental
+     */
+    INTERLEAVED_WEIGHTED_ROUND_ROBIN: 'INTERLEAVED_WEIGHTED_ROUND_ROBIN',
+  } as const,
+)
 
 /**
  * Worker choice strategy.
@@ -42,11 +44,13 @@ export type WorkerChoiceStrategy = keyof typeof WorkerChoiceStrategies
 /**
  * Enumeration of measurements.
  */
-export const Measurements = Object.freeze({
-  runTime: 'runTime',
-  waitTime: 'waitTime',
-  elu: 'elu'
-} as const)
+export const Measurements = Object.freeze(
+  {
+    runTime: 'runTime',
+    waitTime: 'waitTime',
+    elu: 'elu',
+  } as const,
+)
 
 /**
  * Measurement.

@@ -1,15 +1,15 @@
-import type { IWorker } from '../worker'
-import type { IPool } from '../pool'
+import type { IWorker } from '../worker.ts'
+import type { IPool } from '../pool.ts'
 import {
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS
-} from '../../utils'
-import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy'
+  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
+} from '../../utils.ts'
+import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
   IWorkerChoiceStrategy,
   TaskStatisticsRequirements,
-  WorkerChoiceStrategyOptions
-} from './selection-strategies-types'
+  WorkerChoiceStrategyOptions,
+} from './selection-strategies-types.ts'
 
 /**
  * Selects the next worker with an interleaved weighted round robin scheduling algorithm.
@@ -19,27 +19,26 @@ import type {
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
-    Worker extends IWorker,
-    Data = unknown,
-    Response = unknown
-  >
-  extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
+  Worker extends IWorker<Data>,
+  Data = unknown,
+  Response = unknown,
+> extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
   implements IWorkerChoiceStrategy {
   /** @inheritDoc */
   public readonly taskStatisticsRequirements: TaskStatisticsRequirements = {
     runTime: {
       aggregate: true,
       average: true,
-      median: false
+      median: false,
     },
     waitTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-    elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS
+    elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   }
 
   /**
    * Round id.
    */
-  private roundId: number = 0
+  private roundId = 0
   /**
    * Default worker weight.
    */
@@ -51,16 +50,16 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   /**
    * Worker node id.
    */
-  private workerNodeId: number = 0
+  private workerNodeId = 0
   /**
    * Worker node virtual task runtime.
    */
-  private workerNodeVirtualTaskRunTime: number = 0
+  private workerNodeVirtualTaskRunTime = 0
 
   /** @inheritDoc */
-  public constructor (
+  public constructor(
     pool: IPool<Worker, Data, Response>,
-    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS
+    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   ) {
     super(pool, opts)
     this.setTaskStatisticsRequirements(this.opts)
@@ -69,7 +68,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public reset (): boolean {
+  public reset(): boolean {
     this.resetWorkerNodeKeyProperties()
     this.roundId = 0
     this.workerNodeId = 0
@@ -78,12 +77,12 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public update (): boolean {
+  public update(): boolean {
     return true
   }
 
   /** @inheritDoc */
-  public choose (): number | undefined {
+  public choose(): number | undefined {
     for (
       let roundIndex = this.roundId;
       roundIndex < this.roundWeights.length;
@@ -102,8 +101,8 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
         ) {
           this.workerNodeVirtualTaskRunTime = 0
         }
-        const workerWeight =
-          this.opts.weights?.[workerNodeKey] ?? this.defaultWorkerWeight
+        const workerWeight = this.opts.weights?.[workerNodeKey] ??
+          this.defaultWorkerWeight
         if (
           workerWeight >= this.roundWeights[roundIndex] &&
           this.workerNodeVirtualTaskRunTime < workerWeight
@@ -120,7 +119,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
     this.interleavedWeightedRoundRobinNextWorkerNodeId()
   }
 
-  private interleavedWeightedRoundRobinNextWorkerNodeId (): void {
+  private interleavedWeightedRoundRobinNextWorkerNodeId(): void {
     if (
       this.roundId === this.roundWeights.length - 1 &&
       this.workerNodeId === this.pool.workerNodes.length - 1
@@ -136,7 +135,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public remove (workerNodeKey: number): boolean {
+  public remove(workerNodeKey: number): boolean {
     if (this.pool.workerNodes.length === 0) {
       this.reset()
     }
@@ -156,12 +155,12 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public setOptions (opts: WorkerChoiceStrategyOptions): void {
+  public setOptions(opts: WorkerChoiceStrategyOptions): void {
     super.setOptions(opts)
     this.roundWeights = this.getRoundWeights()
   }
 
-  private getRoundWeights (): number[] {
+  private getRoundWeights(): number[] {
     if (this.opts.weights == null) {
       return [this.defaultWorkerWeight]
     }
@@ -169,8 +168,8 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
       ...new Set(
         Object.values(this.opts.weights)
           .slice()
-          .sort((a, b) => a - b)
-      )
+          .sort((a, b) => a - b),
+      ),
     ]
   }
 }

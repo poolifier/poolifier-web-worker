@@ -5,7 +5,7 @@
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export type TaskSyncFunction<Data = unknown, Response = unknown> = (
-  data?: Data
+  data?: Data,
 ) => Response
 
 /**
@@ -16,7 +16,7 @@ export type TaskSyncFunction<Data = unknown, Response = unknown> = (
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export type TaskAsyncFunction<Data = unknown, Response = unknown> = (
-  data?: Data
+  data?: Data,
 ) => Promise<Response>
 
 /**
@@ -40,8 +40,8 @@ export type TaskFunction<Data = unknown, Response = unknown> =
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export type TaskFunctions<Data = unknown, Response = unknown> = Record<
-string,
-TaskFunction<Data, Response>
+  string,
+  TaskFunction<Data, Response>
 >
 
 /**

@@ -2,7 +2,7 @@
 const {
   DynamicThreadPool,
   PoolEvents,
-  availableParallelism
+  availableParallelism,
 } = require('poolifier')
 
 const pool = new DynamicThreadPool(
@@ -10,9 +10,9 @@ const pool = new DynamicThreadPool(
   availableParallelism(),
   './yourWorker.js',
   {
-    errorHandler: e => console.error(e),
-    onlineHandler: () => console.info('worker is online')
-  }
+    errorHandler: (e) => console.error(e),
+    onlineHandler: () => console.info('worker is online'),
+  },
 )
 let poolFull = 0
 let poolReady = 0
@@ -31,7 +31,7 @@ for (let i = 1; i <= iterations; i++) {
       resolved++
       if (resolved === iterations) {
         console.info(
-          `Time taken is ${(performance.now() - start).toFixed(2)}ms`
+          `Time taken is ${(performance.now() - start).toFixed(2)}ms`,
         )
         console.info(`The pool was full for ${poolFull} times`)
         console.info(`The pool was ready for ${poolReady} times`)
@@ -40,5 +40,5 @@ for (let i = 1; i <= iterations; i++) {
       }
       return undefined
     })
-    .catch(err => console.error(err))
+    .catch((err) => console.error(err))
 }

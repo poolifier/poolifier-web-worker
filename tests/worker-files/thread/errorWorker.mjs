@@ -1,13 +1,11 @@
-import { KillBehaviors, ThreadWorker } from '../../../lib/index.js'
+import { KillBehaviors, ThreadWorker } from '../../../src/index.ts'
 
-/**
- *
- */
-function error () {
+/** */
+function error() {
   throw new Error('Error Message from ThreadWorker')
 }
 
 export default new ThreadWorker(error, {
   killBehavior: KillBehaviors.HARD,
-  maxInactiveTime: 500
+  maxInactiveTime: 500,
 })

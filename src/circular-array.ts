@@ -10,7 +10,7 @@ export const DEFAULT_CIRCULAR_ARRAY_SIZE = 1024
 export class CircularArray<T> extends Array<T> {
   public size: number
 
-  constructor (size: number = DEFAULT_CIRCULAR_ARRAY_SIZE, ...items: T[]) {
+  constructor(size: number = DEFAULT_CIRCULAR_ARRAY_SIZE, ...items: T[]) {
     super()
     this.checkSize(size)
     this.size = size
@@ -20,7 +20,7 @@ export class CircularArray<T> extends Array<T> {
   }
 
   /** @inheritDoc */
-  public push (...items: T[]): number {
+  public push(...items: T[]): number {
     const length = super.push(...items)
     if (length > this.size) {
       super.splice(0, length - this.size)
@@ -29,7 +29,7 @@ export class CircularArray<T> extends Array<T> {
   }
 
   /** @inheritDoc */
-  public unshift (...items: T[]): number {
+  public unshift(...items: T[]): number {
     const length = super.unshift(...items)
     if (length > this.size) {
       super.splice(this.size, items.length)
@@ -38,22 +38,22 @@ export class CircularArray<T> extends Array<T> {
   }
 
   /** @inheritDoc */
-  public concat (...items: Array<T | ConcatArray<T>>): CircularArray<T> {
+  public concat(...items: Array<T | ConcatArray<T>>): CircularArray<T> {
     const concatenatedCircularArray = super.concat(
-      items as T[]
+      items as T[],
     ) as CircularArray<T>
     concatenatedCircularArray.size = this.size
     if (concatenatedCircularArray.length > concatenatedCircularArray.size) {
       concatenatedCircularArray.splice(
         0,
-        concatenatedCircularArray.length - concatenatedCircularArray.size
+        concatenatedCircularArray.length - concatenatedCircularArray.size,
       )
     }
     return concatenatedCircularArray
   }
 
   /** @inheritDoc */
-  public splice (
+  public splice(
     start: number,
     deleteCount?: number,
     ...items: T[]
@@ -66,7 +66,7 @@ export class CircularArray<T> extends Array<T> {
         itemsRemoved = new CircularArray<T>(
           itemsRemoved.length + itemsOverflowing.length,
           ...itemsRemoved,
-          ...itemsOverflowing
+          ...itemsOverflowing,
         )
       }
     } else if (arguments.length === 2) {
@@ -77,7 +77,7 @@ export class CircularArray<T> extends Array<T> {
     return itemsRemoved as CircularArray<T>
   }
 
-  public resize (size: number): void {
+  public resize(size: number): void {
     this.checkSize(size)
     if (size === 0) {
       this.length = 0
@@ -89,18 +89,18 @@ export class CircularArray<T> extends Array<T> {
     this.size = size
   }
 
-  public empty (): boolean {
+  public empty(): boolean {
     return this.length === 0
   }
 
-  public full (): boolean {
+  public full(): boolean {
     return this.length === this.size
   }
 
-  private checkSize (size: number): void {
+  private checkSize(size: number): void {
     if (!Number.isSafeInteger(size)) {
       throw new TypeError(
-        `Invalid circular array size: ${size} is not a safe integer`
+        `Invalid circular array size: ${size} is not a safe integer`,
       )
     }
     if (size < 0) {

@@ -1,15 +1,15 @@
-import type { IWorker } from '../worker'
-import type { IPool } from '../pool'
+import type { IWorker } from '../worker.ts'
+import type { IPool } from '../pool.ts'
 import {
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS
-} from '../../utils'
-import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy'
+  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
+} from '../../utils.ts'
+import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
   IWorkerChoiceStrategy,
   TaskStatisticsRequirements,
-  WorkerChoiceStrategyOptions
-} from './selection-strategies-types'
+  WorkerChoiceStrategyOptions,
+} from './selection-strategies-types.ts'
 
 /**
  * Selects the next worker with a weighted round robin scheduling algorithm.
@@ -20,21 +20,20 @@ import type {
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export class WeightedRoundRobinWorkerChoiceStrategy<
-    Worker extends IWorker,
-    Data = unknown,
-    Response = unknown
-  >
-  extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
+  Worker extends IWorker<Data>,
+  Data = unknown,
+  Response = unknown,
+> extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
   implements IWorkerChoiceStrategy {
   /** @inheritDoc */
   public readonly taskStatisticsRequirements: TaskStatisticsRequirements = {
     runTime: {
       aggregate: true,
       average: true,
-      median: false
+      median: false,
     },
     waitTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-    elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS
+    elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   }
 
   /**
@@ -44,12 +43,12 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   /**
    * Worker node virtual task runtime.
    */
-  private workerNodeVirtualTaskRunTime: number = 0
+  private workerNodeVirtualTaskRunTime = 0
 
   /** @inheritDoc */
-  public constructor (
+  public constructor(
     pool: IPool<Worker, Data, Response>,
-    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS
+    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   ) {
     super(pool, opts)
     this.setTaskStatisticsRequirements(this.opts)
@@ -57,25 +56,25 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public reset (): boolean {
+  public reset(): boolean {
     this.resetWorkerNodeKeyProperties()
     this.workerNodeVirtualTaskRunTime = 0
     return true
   }
 
   /** @inheritDoc */
-  public update (): boolean {
+  public update(): boolean {
     return true
   }
 
   /** @inheritDoc */
-  public choose (): number | undefined {
+  public choose(): number | undefined {
     this.setPreviousWorkerNodeKey(this.nextWorkerNodeKey)
     return this.weightedRoundRobinNextWorkerNodeKey()
   }
 
   /** @inheritDoc */
-  public remove (workerNodeKey: number): boolean {
+  public remove(workerNodeKey: number): boolean {
     if (this.pool.workerNodes.length === 0) {
       this.reset()
     }
@@ -94,16 +93,14 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
     return true
   }
 
-  private weightedRoundRobinNextWorkerNodeKey (): number | undefined {
-    const workerWeight =
-      this.opts.weights?.[
-        this.nextWorkerNodeKey ?? this.previousWorkerNodeKey
-      ] ?? this.defaultWorkerWeight
+  private weightedRoundRobinNextWorkerNodeKey(): number | undefined {
+    const workerWeight = this.opts.weights?.[
+      this.nextWorkerNodeKey ?? this.previousWorkerNodeKey
+    ] ?? this.defaultWorkerWeight
     if (this.workerNodeVirtualTaskRunTime < workerWeight) {
-      this.workerNodeVirtualTaskRunTime =
-        this.workerNodeVirtualTaskRunTime +
+      this.workerNodeVirtualTaskRunTime = this.workerNodeVirtualTaskRunTime +
         this.getWorkerNodeTaskRunTime(
-          this.nextWorkerNodeKey ?? this.previousWorkerNodeKey
+          this.nextWorkerNodeKey ?? this.previousWorkerNodeKey,
         )
     } else {
       this.nextWorkerNodeKey =

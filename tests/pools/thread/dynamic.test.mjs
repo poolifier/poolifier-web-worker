@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
-import { DynamicThreadPool, PoolEvents } from '../../../lib/index.js'
-import { TaskFunctions } from '../../test-types.js'
-import { sleep, waitWorkerEvents } from '../../test-utils.js'
+import { DynamicThreadPool, PoolEvents } from '../../../src/index.ts'
+import { TaskFunctions } from '../../test-types.mjs'
+import { sleep, waitWorkerEvents } from '../../test-utils.mjs'
 
 describe('Dynamic thread pool test suite', () => {
   const min = 1
@@ -11,17 +11,17 @@ describe('Dynamic thread pool test suite', () => {
     max,
     './tests/worker-files/thread/testWorker.mjs',
     {
-      errorHandler: e => console.error(e)
-    }
+      errorHandler: (e) => console.error(e),
+    },
   )
 
   test('Verify that the function is executed in a worker thread', async () => {
     let result = await pool.execute({
-      function: TaskFunctions.fibonacci
+      function: TaskFunctions.fibonacci,
     })
     expect(result).toBe(75025)
     result = await pool.execute({
-      function: TaskFunctions.factorial
+      function: TaskFunctions.factorial,
     })
     expect(result).toBe(9.33262154439441e157)
   })
@@ -62,7 +62,7 @@ describe('Dynamic thread pool test suite', () => {
     pool.emitter.on(PoolEvents.destroy, () => ++poolDestroy)
     expect(pool.emitter.eventNames()).toStrictEqual([
       PoolEvents.busy,
-      PoolEvents.destroy
+      PoolEvents.destroy,
     ])
     await pool.destroy()
     const numberOfExitEvents = await exitPromise
@@ -74,7 +74,7 @@ describe('Dynamic thread pool test suite', () => {
 
   test('Validation of inputs test', () => {
     expect(() => new DynamicThreadPool(min)).toThrow(
-      'Please specify a file with a worker implementation'
+      'Please specify a file with a worker implementation',
     )
   })
 
@@ -82,7 +82,7 @@ describe('Dynamic thread pool test suite', () => {
     const pool = new DynamicThreadPool(
       min,
       max,
-      './tests/worker-files/thread/testWorker.mjs'
+      './tests/worker-files/thread/testWorker.mjs',
     )
     const res = await pool.execute()
     expect(res).toStrictEqual({ ok: 1 })
@@ -96,10 +96,10 @@ describe('Dynamic thread pool test suite', () => {
       max,
       './tests/worker-files/thread/longRunningWorkerHardBehavior.mjs',
       {
-        errorHandler: e => console.error(e),
+        errorHandler: (e) => console.error(e),
         onlineHandler: () => console.info('long executing worker is online'),
-        exitHandler: () => console.info('long executing worker exited')
-      }
+        exitHandler: () => console.info('long executing worker exited'),
+      },
     )
     expect(longRunningPool.workerNodes.length).toBe(min)
     for (let i = 0; i < max * 2; i++) {
@@ -110,8 +110,8 @@ describe('Dynamic thread pool test suite', () => {
     expect(longRunningPool.workerNodes.length).toBe(min)
     expect(
       longRunningPool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-        longRunningPool.workerChoiceStrategyContext.workerChoiceStrategy
-      ).nextWorkerNodeKey
+        longRunningPool.workerChoiceStrategyContext.workerChoiceStrategy,
+      ).nextWorkerNodeKey,
     ).toBeLessThan(longRunningPool.workerNodes.length)
     // We need to clean up the resources after our test
     await longRunningPool.destroy()
@@ -123,10 +123,10 @@ describe('Dynamic thread pool test suite', () => {
       max,
       './tests/worker-files/thread/longRunningWorkerSoftBehavior.mjs',
       {
-        errorHandler: e => console.error(e),
+        errorHandler: (e) => console.error(e),
         onlineHandler: () => console.info('long executing worker is online'),
-        exitHandler: () => console.info('long executing worker exited')
-      }
+        exitHandler: () => console.info('long executing worker exited'),
+      },
     )
     expect(longRunningPool.workerNodes.length).toBe(min)
     for (let i = 0; i < max * 2; i++) {
@@ -144,7 +144,7 @@ describe('Dynamic thread pool test suite', () => {
     const pool = new DynamicThreadPool(
       0,
       max,
-      './tests/worker-files/thread/testWorker.mjs'
+      './tests/worker-files/thread/testWorker.mjs',
     )
     expect(pool).toBeInstanceOf(DynamicThreadPool)
     // We need to clean up the resources after our test

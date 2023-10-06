@@ -1,6 +1,5 @@
 import type { EventLoopUtilization } from 'node:perf_hooks'
-import type { MessagePort, TransferListItem } from 'node:worker_threads'
-import type { KillBehavior } from './worker/worker-options'
+import type { KillBehavior } from './worker/worker-options.ts'
 
 /**
  * Worker error.
@@ -63,6 +62,13 @@ export interface WorkerStatistics {
 }
 
 /**
+ * Global this message event.
+ */
+export interface MsgEvent<Data = unknown> extends Event {
+  data?: Data
+}
+
+/**
  * Message object that is passed as a task between main worker and worker.
  *
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
@@ -72,7 +78,7 @@ export interface Task<Data = unknown> {
   /**
    * Worker id.
    */
-  readonly workerId?: number
+  readonly workerId?: string
   /**
    * Task name.
    */
@@ -84,7 +90,7 @@ export interface Task<Data = unknown> {
   /**
    * Array of transferable objects.
    */
-  readonly transferList?: TransferListItem[]
+  readonly transferList?: Transferable[]
   /**
    * Timestamp.
    */

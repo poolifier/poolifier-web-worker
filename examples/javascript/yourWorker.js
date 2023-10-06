@@ -1,10 +1,10 @@
 'use strict'
 const { ThreadWorker } = require('poolifier')
 
-function yourFunction () {
+function yourFunction() {
   for (let i = 0; i <= 1000; i++) {
     const o = {
-      a: i
+      a: i,
     }
     JSON.stringify(o)
   }

@@ -1,16 +1,18 @@
 /**
  * Enumeration of kill behaviors.
  */
-export const KillBehaviors = Object.freeze({
-  /**
-   * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker **wont** be deleted.
-   */
-  SOFT: 'SOFT',
-  /**
-   * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker will be deleted.
-   */
-  HARD: 'HARD'
-} as const)
+export const KillBehaviors = Object.freeze(
+  {
+    /**
+     * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker **wont** be deleted.
+     */
+    SOFT: 'SOFT',
+    /**
+     * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker will be deleted.
+     */
+    HARD: 'HARD',
+  } as const,
+)
 
 /**
  * Kill behavior.
@@ -56,11 +58,4 @@ export interface WorkerOptions {
    * @defaultValue `() => {}`
    */
   killHandler?: KillHandler
-  /**
-   * Whether your worker will perform asynchronous or not.
-   *
-   * @defaultValue false
-   * @deprecated This option will be removed in the next major version.
-   */
-  async?: boolean
 }

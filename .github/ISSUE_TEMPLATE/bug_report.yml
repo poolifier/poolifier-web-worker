@@ -43,8 +43,8 @@ body:
       label: poolifier version
   - type: input
     attributes:
-      label: Bun version
-      description: Output of `bun -v`.
+      label: Deno version
+      description: Output of `deno --version`.
   - type: textarea
     attributes:
       label: System

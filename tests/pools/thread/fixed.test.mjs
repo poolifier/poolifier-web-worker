@@ -2,10 +2,10 @@ import { afterAll, describe, expect, test } from 'bun:test'
 import {
   DEFAULT_TASK_NAME,
   FixedThreadPool,
-  PoolEvents
-} from '../../../lib/index.js'
-import { TaskFunctions } from '../../test-types.js'
-import { waitPoolEvents, waitWorkerEvents } from '../../test-utils.js'
+  PoolEvents,
+} from '../../../src/index.ts'
+import { TaskFunctions } from '../../test-types.mjs'
+import { waitPoolEvents, waitWorkerEvents } from '../../test-utils.mjs'
 
 describe('Fixed thread pool test suite', () => {
   const numberOfThreads = 6
@@ -14,8 +14,8 @@ describe('Fixed thread pool test suite', () => {
     numberOfThreads,
     './tests/worker-files/thread/testWorker.mjs',
     {
-      errorHandler: e => console.error(e)
-    }
+      errorHandler: (e) => console.error(e),
+    },
   )
   const queuePool = new FixedThreadPool(
     numberOfThreads,
@@ -23,37 +23,37 @@ describe('Fixed thread pool test suite', () => {
     {
       enableTasksQueue: true,
       tasksQueueOptions: {
-        concurrency: tasksConcurrency
+        concurrency: tasksConcurrency,
       },
-      errorHandler: e => console.error(e)
-    }
+      errorHandler: (e) => console.error(e),
+    },
   )
   const emptyPool = new FixedThreadPool(
     numberOfThreads,
     './tests/worker-files/thread/emptyWorker.mjs',
-    { exitHandler: () => console.info('empty pool worker exited') }
+    { exitHandler: () => console.info('empty pool worker exited') },
   )
   const echoPool = new FixedThreadPool(
     numberOfThreads,
-    './tests/worker-files/thread/echoWorker.mjs'
+    './tests/worker-files/thread/echoWorker.mjs',
   )
   const errorPool = new FixedThreadPool(
     numberOfThreads,
     './tests/worker-files/thread/errorWorker.mjs',
     {
-      errorHandler: e => console.error(e)
-    }
+      errorHandler: (e) => console.error(e),
+    },
   )
   const asyncErrorPool = new FixedThreadPool(
     numberOfThreads,
     './tests/worker-files/thread/asyncErrorWorker.mjs',
     {
-      errorHandler: e => console.error(e)
-    }
+      errorHandler: (e) => console.error(e),
+    },
   )
   const asyncPool = new FixedThreadPool(
     numberOfThreads,
-    './tests/worker-files/thread/asyncWorker.mjs'
+    './tests/worker-files/thread/asyncWorker.mjs',
   )
 
   afterAll('Destroy all pools', async () => {
@@ -68,11 +68,11 @@ describe('Fixed thread pool test suite', () => {
 
   test('Verify that the function is executed in a worker thread', async () => {
     let result = await pool.execute({
-      function: TaskFunctions.fibonacci
+      function: TaskFunctions.fibonacci,
     })
     expect(result).toBe(75025)
     result = await pool.execute({
-      function: TaskFunctions.factorial
+      function: TaskFunctions.factorial,
     })
     expect(result).toBe(9.33262154439441e157)
   })
@@ -82,13 +82,13 @@ describe('Fixed thread pool test suite', () => {
     expect(result).toStrictEqual({ ok: 1 })
   })
 
-  test("Verify that 'ready' event is emitted", async () => {
+  test('Verify that \'ready\' event is emitted', async () => {
     const pool = new FixedThreadPool(
       numberOfThreads,
       './tests/worker-files/thread/testWorker.mjs',
       {
-        errorHandler: e => console.error(e)
-      }
+        errorHandler: (e) => console.error(e),
+      },
     )
     expect(pool.emitter.eventNames()).toStrictEqual([])
     let poolReady = 0
@@ -99,7 +99,7 @@ describe('Fixed thread pool test suite', () => {
     await pool.destroy()
   })
 
-  test("Verify that 'busy' event is emitted", async () => {
+  test('Verify that \'busy\' event is emitted', async () => {
     const promises = new Set()
     expect(pool.emitter.eventNames()).toStrictEqual([])
     let poolBusy = 0
@@ -124,28 +124,28 @@ describe('Fixed thread pool test suite', () => {
     for (const workerNode of queuePool.workerNodes) {
       expect(workerNode.usage.tasks.executing).toBeGreaterThanOrEqual(0)
       expect(workerNode.usage.tasks.executing).toBeLessThanOrEqual(
-        queuePool.opts.tasksQueueOptions.concurrency
+        queuePool.opts.tasksQueueOptions.concurrency,
       )
       expect(workerNode.usage.tasks.executed).toBe(0)
       expect(workerNode.usage.tasks.queued).toBe(
-        maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency
+        maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency,
       )
       expect(workerNode.usage.tasks.maxQueued).toBe(
-        maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency
+        maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency,
       )
       expect(workerNode.usage.tasks.stolen).toBe(0)
     }
     expect(queuePool.info.executedTasks).toBe(0)
     expect(queuePool.info.executingTasks).toBe(
-      numberOfThreads * queuePool.opts.tasksQueueOptions.concurrency
+      numberOfThreads * queuePool.opts.tasksQueueOptions.concurrency,
     )
     expect(queuePool.info.queuedTasks).toBe(
       numberOfThreads *
-        (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency)
+        (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency),
     )
     expect(queuePool.info.maxQueuedTasks).toBe(
       numberOfThreads *
-        (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency)
+        (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency),
     )
     expect(queuePool.info.backPressure).toBe(false)
     expect(queuePool.info.stolenTasks).toBe(0)
@@ -153,23 +153,23 @@ describe('Fixed thread pool test suite', () => {
     for (const workerNode of queuePool.workerNodes) {
       expect(workerNode.usage.tasks.executing).toBeGreaterThanOrEqual(0)
       expect(workerNode.usage.tasks.executing).toBeLessThanOrEqual(
-        numberOfThreads * maxMultiplier
+        numberOfThreads * maxMultiplier,
       )
       expect(workerNode.usage.tasks.executed).toBe(maxMultiplier)
       expect(workerNode.usage.tasks.queued).toBe(0)
       expect(workerNode.usage.tasks.maxQueued).toBe(
-        maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency
+        maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency,
       )
       expect(workerNode.usage.tasks.stolen).toBeGreaterThanOrEqual(0)
       expect(workerNode.usage.tasks.stolen).toBeLessThanOrEqual(
-        numberOfThreads * maxMultiplier
+        numberOfThreads * maxMultiplier,
       )
     }
     expect(queuePool.info.executedTasks).toBe(numberOfThreads * maxMultiplier)
     expect(queuePool.info.backPressure).toBe(false)
     expect(queuePool.info.stolenTasks).toBeGreaterThanOrEqual(0)
     expect(queuePool.info.stolenTasks).toBeLessThanOrEqual(
-      numberOfThreads * maxMultiplier
+      numberOfThreads * maxMultiplier,
     )
   })
 
@@ -190,7 +190,7 @@ describe('Fixed thread pool test suite', () => {
     try {
       result = await pool.execute(undefined, undefined, [
         new ArrayBuffer(16),
-        new MessageChannel().port1
+        new MessageChannel().port1,
       ])
     } catch (e) {
       error = e
@@ -199,14 +199,14 @@ describe('Fixed thread pool test suite', () => {
     expect(error).toBeUndefined()
     try {
       result = await pool.execute(undefined, undefined, [
-        new SharedArrayBuffer(16)
+        new SharedArrayBuffer(16),
       ])
     } catch (e) {
       error = e
     }
     expect(result).toStrictEqual({ ok: 1 })
     expect(error).toStrictEqual(
-      new TypeError('Found invalid object in transferList')
+      new TypeError('Found invalid object in transferList'),
     )
   })
 
@@ -214,10 +214,12 @@ describe('Fixed thread pool test suite', () => {
     const data = { f: 10 }
     expect(errorPool.emitter.eventNames()).toStrictEqual([])
     let taskError
-    errorPool.emitter.on(PoolEvents.taskError, e => {
+    errorPool.emitter.on(PoolEvents.taskError, (e) => {
       taskError = e
     })
-    expect(errorPool.emitter.eventNames()).toStrictEqual([PoolEvents.taskError])
+    expect(errorPool.emitter.eventNames()).toStrictEqual([
+      PoolEvents.taskError,
+    ])
     let inError
     try {
       await errorPool.execute(data)
@@ -232,12 +234,12 @@ describe('Fixed thread pool test suite', () => {
     expect(taskError).toStrictEqual({
       name: DEFAULT_TASK_NAME,
       message: new Error('Error Message from ThreadWorker'),
-      data
+      data,
     })
     expect(
       errorPool.workerNodes.some(
-        workerNode => workerNode.usage.tasks.failed === 1
-      )
+        (workerNode) => workerNode.usage.tasks.failed === 1,
+      ),
     ).toBe(true)
   })
 
@@ -245,11 +247,11 @@ describe('Fixed thread pool test suite', () => {
     const data = { f: 10 }
     expect(asyncErrorPool.emitter.eventNames()).toStrictEqual([])
     let taskError
-    asyncErrorPool.emitter.on(PoolEvents.taskError, e => {
+    asyncErrorPool.emitter.on(PoolEvents.taskError, (e) => {
       taskError = e
     })
     expect(asyncErrorPool.emitter.eventNames()).toStrictEqual([
-      PoolEvents.taskError
+      PoolEvents.taskError,
     ])
     let inError
     try {
@@ -265,12 +267,12 @@ describe('Fixed thread pool test suite', () => {
     expect(taskError).toStrictEqual({
       name: DEFAULT_TASK_NAME,
       message: new Error('Error Message from ThreadWorker:async'),
-      data
+      data,
     })
     expect(
       asyncErrorPool.workerNodes.some(
-        workerNode => workerNode.usage.tasks.failed === 1
-      )
+        (workerNode) => workerNode.usage.tasks.failed === 1,
+      ),
     ).toBe(true)
   })
 
@@ -290,7 +292,7 @@ describe('Fixed thread pool test suite', () => {
     pool.emitter.on(PoolEvents.destroy, () => ++poolDestroy)
     expect(pool.emitter.eventNames()).toStrictEqual([
       PoolEvents.busy,
-      PoolEvents.destroy
+      PoolEvents.destroy,
     ])
     await pool.destroy()
     const numberOfExitEvents = await exitPromise
@@ -308,12 +310,12 @@ describe('Fixed thread pool test suite', () => {
     pool = new FixedThreadPool(numberOfThreads, workerFilePath, {
       workerOptions: {
         env: { TEST: 'test' },
-        name: 'test'
-      }
+        name: 'test',
+      },
     })
     expect(pool.opts.workerOptions).toStrictEqual({
       env: { TEST: 'test' },
-      name: 'test'
+      name: 'test',
     })
     await pool.destroy()
   })
@@ -333,17 +335,19 @@ describe('Fixed thread pool test suite', () => {
     const workerNodeKey = 0
     let exitEvent = 0
     pool.workerNodes[workerNodeKey].worker.on('exit', () => {
-      ++exitEvent
+      ;++exitEvent
     })
-    await expect(pool.destroyWorkerNode(workerNodeKey)).resolves.toBeUndefined()
+    await expect(pool.destroyWorkerNode(workerNodeKey)).resolves
+      .toBeUndefined()
     expect(exitEvent).toBe(1)
     expect(pool.workerNodes.length).toBe(numberOfThreads - 1)
     await pool.destroy()
   })
 
-  test('Verify that a pool with zero worker fails', async () => {
+  test('Verify that a pool with zero worker fails', () => {
     expect(
-      () => new FixedThreadPool(0, './tests/worker-files/thread/testWorker.mjs')
+      () =>
+        new FixedThreadPool(0, './tests/worker-files/thread/testWorker.mjs'),
     ).toThrow('Cannot instantiate a fixed pool with zero worker')
   })
 })

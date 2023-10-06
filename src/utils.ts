@@ -1,12 +1,16 @@
 import * as os from 'node:os'
 import { webcrypto } from 'node:crypto'
-import { Worker as ThreadWorker } from 'node:worker_threads'
 import type {
   MeasurementStatisticsRequirements,
-  WorkerChoiceStrategyOptions
-} from './pools/selection-strategies/selection-strategies-types'
-import type { KillBehavior } from './worker/worker-options'
-import { type IWorker, type WorkerType, WorkerTypes } from './pools/worker'
+  WorkerChoiceStrategyOptions,
+} from './pools/selection-strategies/selection-strategies-types.ts'
+import type { KillBehavior } from './worker/worker-options.ts'
+import {
+  type IWorker,
+  IWorkerNode,
+  type WorkerType,
+  WorkerTypes,
+} from './pools/worker.ts'
 
 /**
  * Default task name.
@@ -23,22 +27,22 @@ export const EMPTY_FUNCTION: () => void = Object.freeze(() => {
 /**
  * Default worker choice strategy options.
  */
-export const DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS: WorkerChoiceStrategyOptions =
-  {
+export const DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS:
+  WorkerChoiceStrategyOptions = {
     retries: 6,
     runTime: { median: false },
     waitTime: { median: false },
-    elu: { median: false }
+    elu: { median: false },
   }
 
 /**
  * Default measurement statistics requirements.
  */
-export const DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS: MeasurementStatisticsRequirements =
-  {
+export const DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS:
+  MeasurementStatisticsRequirements = {
     aggregate: false,
     average: false,
-    median: false
+    median: false,
   }
 
 /**
@@ -67,22 +71,26 @@ export const availableParallelism = (): number => {
  * @returns The worker type of the given worker.
  * @internal
  */
-export const getWorkerType = (worker: IWorker): WorkerType | undefined => {
-  if (worker instanceof ThreadWorker) {
-    return WorkerTypes.thread
+export const getWorkerType = <Data = unknown>(
+  worker: IWorker<Data>,
+): WorkerType | undefined => {
+  if (worker instanceof Worker) {
+    return WorkerTypes.web
   }
 }
 
 /**
- * Returns the worker id of the given worker.
+ * Returns the worker node id of the given worker node.
  *
- * @param worker - The worker to get the id of.
- * @returns The worker id of the given worker.
+ * @param workerNode - The worker node to get the id of.
+ * @returns The worker node id of the given worker node.
  * @internal
  */
-export const getWorkerId = (worker: IWorker): number | undefined => {
-  if (worker instanceof ThreadWorker) {
-    return worker.threadId
+export const getWorkerNodeId = <Worker extends IWorker, Data = unknown>(
+  workerNode: IWorkerNode<Worker, Data>,
+): string | undefined => {
+  if (workerNode instanceof Worker) {
+    return workerNode.info.id
   }
 }
 
@@ -94,7 +102,7 @@ export const getWorkerId = (worker: IWorker): number | undefined => {
  * @internal
  */
 export const sleep = async (ms: number): Promise<void> => {
-  await new Promise(resolve => {
+  await new Promise((resolve) => {
     setTimeout(resolve, ms)
   })
 }
@@ -109,7 +117,7 @@ export const sleep = async (ms: number): Promise<void> => {
  */
 export const exponentialDelay = (
   retryNumber = 0,
-  delayFactor = 100
+  delayFactor = 100,
 ): number => {
   const delay = Math.pow(2, retryNumber) * delayFactor
   const randomSum = delay * 0.2 * secureRandom() // 0-20% of the delay
@@ -196,7 +204,7 @@ export const isPlainObject = (obj: unknown): boolean =>
  */
 export const isKillBehavior = <KB extends KillBehavior>(
   killBehavior: KB,
-  value: unknown
+  value: unknown,
 ): value is KB => {
   return value === killBehavior
 }
@@ -209,7 +217,7 @@ export const isKillBehavior = <KB extends KillBehavior>(
  * @internal
  */
 export const isAsyncFunction = (
-  fn: unknown
+  fn: unknown,
 ): fn is (...args: unknown[]) => Promise<unknown> => {
   return typeof fn === 'function' && fn.constructor.name === 'AsyncFunction'
 }

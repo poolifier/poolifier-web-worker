@@ -1,35 +1,22 @@
-import type { MessageChannel } from 'node:worker_threads'
-import type { CircularArray } from '../circular-array'
-import type { Task } from '../utility-types'
+import type { CircularArray } from '../circular-array.ts'
+import type { Task } from '../utility-types.ts'
 
 /**
- * Callback invoked when the worker has started successfully.
+ * Callback invoked if the worker has received a message event.
  */
-export type OnlineHandler<Worker extends IWorker> = (this: Worker) => void
+export type MessageHandler<Data = unknown> = (e: MessageEvent<Data>) => void
 
 /**
- * Callback invoked if the worker has received a message.
+ * Callback invoked if the worker raised an error at processing a message event.
  */
-export type MessageHandler<Worker extends IWorker> = (
-  this: Worker,
-  message: unknown
+export type MessageErrorHandler<Data = unknown> = (
+  e: MessageEvent<Data>,
 ) => void
 
 /**
  * Callback invoked if the worker raised an error.
  */
-export type ErrorHandler<Worker extends IWorker> = (
-  this: Worker,
-  error: Error
-) => void
-
-/**
- * Callback invoked when the worker exits successfully.
- */
-export type ExitHandler<Worker extends IWorker> = (
-  this: Worker,
-  exitCode: number
-) => void
+export type ErrorHandler = (e: ErrorEvent) => void
 
 /**
  * Measurement statistics.
@@ -109,9 +96,11 @@ export interface TaskStatistics {
 /**
  * Enumeration of worker types.
  */
-export const WorkerTypes = Object.freeze({
-  thread: 'thread'
-} as const)
+export const WorkerTypes = Object.freeze(
+  {
+    web: 'web',
+  } as const,
+)
 
 /**
  * Worker type.
@@ -127,7 +116,7 @@ export interface WorkerInfo {
   /**
    * Worker id.
    */
-  readonly id: number | undefined
+  readonly id: string | undefined
   /**
    * Worker type.
    */
@@ -182,28 +171,14 @@ export interface StrategyData {
 /**
  * Worker interface.
  */
-export interface IWorker {
-  /**
-   * Worker id.
-   */
-  readonly threadId?: number
-  /**
-   * Registers an event listener.
-   *
-   * @param event - The event.
-   * @param handler - The event handler.
-   */
-  readonly on: ((event: 'online', handler: OnlineHandler<this>) => void) &
-  ((event: 'message', handler: MessageHandler<this>) => void) &
-  ((event: 'error', handler: ErrorHandler<this>) => void) &
-  ((event: 'exit', handler: ExitHandler<this>) => void)
-  /**
-   * Registers a listener to the exit event that will only be performed once.
-   *
-   * @param event - The `'exit'` event.
-   * @param handler - The exit handler.
-   */
-  readonly once: (event: 'exit', handler: ExitHandler<this>) => void
+export interface IWorker<Data = unknown> {
+  // /**
+  //  * Worker id.
+  //  */
+  // readonly threadId?: number
+  onerror?: ErrorHandler
+  onmessage?: MessageHandler<Data>
+  onmessageerror?: MessageErrorHandler<Data>
 }
 
 /**
@@ -212,7 +187,7 @@ export interface IWorker {
  * @param workerId - The worker id.
  * @internal
  */
-export type WorkerNodeEventCallback = (workerId: number) => void
+export type WorkerNodeEventCallback = (workerId: string) => void
 
 /**
  * Worker node interface.
@@ -221,7 +196,7 @@ export type WorkerNodeEventCallback = (workerId: number) => void
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  * @internal
  */
-export interface IWorkerNode<Worker extends IWorker, Data = unknown> {
+export interface IWorkerNode<Worker extends IWorker<Data>, Data = unknown> {
   /**
    * Worker.
    */
@@ -312,7 +287,9 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown> {
    * @param name - The task function name.
    * @returns The task function worker usage statistics if the task function worker usage statistics are initialized, `undefined` otherwise.
    */
-  readonly getTaskFunctionWorkerUsage: (name: string) => WorkerUsage | undefined
+  readonly getTaskFunctionWorkerUsage: (
+    name: string,
+  ) => WorkerUsage | undefined
   /**
    * Deletes task function worker usage statistics.
    *

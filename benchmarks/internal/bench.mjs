@@ -1,39 +1,39 @@
 import {
+  availableParallelism,
   PoolTypes,
   WorkerTypes,
-  availableParallelism
-} from '../../lib/index.mjs'
+} from '../../src/index.ts'
 import { TaskFunctions } from '../benchmarks-types.js'
 import {
   buildPoolifierPool,
-  runPoolifierPoolBenchmark
+  runPoolifierPoolBenchmark,
 } from '../benchmarks-utils.js'
 
 const poolSize = availableParallelism()
 const taskExecutions = 1
 const workerData = {
   function: TaskFunctions.jsonIntegerSerialization,
-  taskSize: 1000
+  taskSize: 1000,
 }
 
 // FixedThreadPool
 await runPoolifierPoolBenchmark(
   'Poolifier FixedThreadPool',
-  buildPoolifierPool(WorkerTypes.thread, PoolTypes.fixed, poolSize),
+  buildPoolifierPool(WorkerTypes.web, PoolTypes.fixed, poolSize),
   {
     taskExecutions,
-    workerData
-  }
+    workerData,
+  },
 )
 
 // DynamicThreadPool
 await runPoolifierPoolBenchmark(
   'Poolifier DynamicThreadPool',
-  buildPoolifierPool(WorkerTypes.thread, PoolTypes.dynamic, poolSize),
+  buildPoolifierPool(WorkerTypes.web, PoolTypes.dynamic, poolSize),
   {
     taskExecutions,
-    workerData
-  }
+    workerData,
+  },
 )
 
 // FixedClusterPool
@@ -42,8 +42,8 @@ await runPoolifierPoolBenchmark(
   buildPoolifierPool(WorkerTypes.cluster, PoolTypes.fixed, poolSize),
   {
     taskExecutions,
-    workerData
-  }
+    workerData,
+  },
 )
 
 // DynamicClusterPool
@@ -52,6 +52,6 @@ await runPoolifierPoolBenchmark(
   buildPoolifierPool(WorkerTypes.cluster, PoolTypes.dynamic, poolSize),
   {
     taskExecutions,
-    workerData
-  }
+    workerData,
+  },
 )

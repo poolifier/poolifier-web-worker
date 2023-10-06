@@ -3,7 +3,7 @@ const { ClusterWorker } = require('../../lib')
 const { executeTaskFunction } = require('../benchmarks-utils.js')
 const { TaskFunctions } = require('../benchmarks-types.js')
 
-const taskFunction = data => {
+const taskFunction = (data) => {
   data = data || {}
   data.function = data.function || TaskFunctions.jsonIntegerSerialization
   data.debug = data.debug || false

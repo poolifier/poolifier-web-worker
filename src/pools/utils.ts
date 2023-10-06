@@ -1,12 +1,12 @@
 import { existsSync } from 'node:fs'
-import { average, isPlainObject, max, median, min } from '../utils'
+import { average, isPlainObject, max, median, min } from '../utils.ts'
 import {
   type MeasurementStatisticsRequirements,
   WorkerChoiceStrategies,
-  type WorkerChoiceStrategy
-} from './selection-strategies/selection-strategies-types'
-import type { TasksQueueOptions } from './pool'
-import type { IWorker, MeasurementStatistics } from './worker'
+  type WorkerChoiceStrategy,
+} from './selection-strategies/selection-strategies-types.ts'
+import type { TasksQueueOptions } from './pool.ts'
+import type { IWorker, MeasurementStatistics } from './worker.ts'
 
 export const checkFilePath = (filePath: string): void => {
   if (
@@ -24,29 +24,29 @@ export const checkFilePath = (filePath: string): void => {
 export const checkDynamicPoolSize = (min: number, max: number): void => {
   if (max == null) {
     throw new TypeError(
-      'Cannot instantiate a dynamic pool without specifying the maximum pool size'
+      'Cannot instantiate a dynamic pool without specifying the maximum pool size',
     )
   } else if (!Number.isSafeInteger(max)) {
     throw new TypeError(
-      'Cannot instantiate a dynamic pool with a non safe integer maximum pool size'
+      'Cannot instantiate a dynamic pool with a non safe integer maximum pool size',
     )
   } else if (min > max) {
     throw new RangeError(
-      'Cannot instantiate a dynamic pool with a maximum pool size inferior to the minimum pool size'
+      'Cannot instantiate a dynamic pool with a maximum pool size inferior to the minimum pool size',
     )
   } else if (max === 0) {
     throw new RangeError(
-      'Cannot instantiate a dynamic pool with a maximum pool size equal to zero'
+      'Cannot instantiate a dynamic pool with a maximum pool size equal to zero',
     )
   } else if (min === max) {
     throw new RangeError(
-      'Cannot instantiate a dynamic pool with a minimum pool size equal to the maximum pool size. Use a fixed pool instead'
+      'Cannot instantiate a dynamic pool with a minimum pool size equal to the maximum pool size. Use a fixed pool instead',
     )
   }
 }
 
 export const checkValidWorkerChoiceStrategy = (
-  workerChoiceStrategy: WorkerChoiceStrategy
+  workerChoiceStrategy: WorkerChoiceStrategy,
 ): void => {
   if (
     workerChoiceStrategy != null &&
@@ -57,7 +57,7 @@ export const checkValidWorkerChoiceStrategy = (
 }
 
 export const checkValidTasksQueueOptions = (
-  tasksQueueOptions: TasksQueueOptions
+  tasksQueueOptions: TasksQueueOptions,
 ): void => {
   if (tasksQueueOptions != null && !isPlainObject(tasksQueueOptions)) {
     throw new TypeError('Invalid tasks queue options: must be a plain object')
@@ -67,7 +67,7 @@ export const checkValidTasksQueueOptions = (
     !Number.isSafeInteger(tasksQueueOptions.concurrency)
   ) {
     throw new TypeError(
-      'Invalid worker node tasks concurrency: must be an integer'
+      'Invalid worker node tasks concurrency: must be an integer',
     )
   }
   if (
@@ -75,7 +75,7 @@ export const checkValidTasksQueueOptions = (
     tasksQueueOptions.concurrency <= 0
   ) {
     throw new RangeError(
-      `Invalid worker node tasks concurrency: ${tasksQueueOptions.concurrency} is a negative integer or zero`
+      `Invalid worker node tasks concurrency: ${tasksQueueOptions.concurrency} is a negative integer or zero`,
     )
   }
   if (
@@ -83,36 +83,39 @@ export const checkValidTasksQueueOptions = (
     !Number.isSafeInteger(tasksQueueOptions.size)
   ) {
     throw new TypeError(
-      'Invalid worker node tasks queue size: must be an integer'
+      'Invalid worker node tasks queue size: must be an integer',
     )
   }
   if (tasksQueueOptions?.size != null && tasksQueueOptions.size <= 0) {
     throw new RangeError(
-      `Invalid worker node tasks queue size: ${tasksQueueOptions.size} is a negative integer or zero`
+      `Invalid worker node tasks queue size: ${tasksQueueOptions.size} is a negative integer or zero`,
     )
   }
 }
 
-export const checkWorkerNodeArguments = <Worker extends IWorker>(
+export const checkWorkerNodeArguments = <
+  Worker extends IWorker<Data>,
+  Data = unknown,
+>(
   worker: Worker,
-  tasksQueueBackPressureSize: number
+  tasksQueueBackPressureSize: number,
 ): void => {
   if (worker == null) {
     throw new TypeError('Cannot construct a worker node without a worker')
   }
   if (tasksQueueBackPressureSize == null) {
     throw new TypeError(
-      'Cannot construct a worker node without a tasks queue back pressure size'
+      'Cannot construct a worker node without a tasks queue back pressure size',
     )
   }
   if (!Number.isSafeInteger(tasksQueueBackPressureSize)) {
     throw new TypeError(
-      'Cannot construct a worker node with a tasks queue back pressure size that is not an integer'
+      'Cannot construct a worker node with a tasks queue back pressure size that is not an integer',
     )
   }
   if (tasksQueueBackPressureSize <= 0) {
     throw new RangeError(
-      'Cannot construct a worker node with a tasks queue back pressure size that is not a positive integer'
+      'Cannot construct a worker node with a tasks queue back pressure size that is not a positive integer',
     )
   }
 }
@@ -129,18 +132,18 @@ export const checkWorkerNodeArguments = <Worker extends IWorker>(
 export const updateMeasurementStatistics = (
   measurementStatistics: MeasurementStatistics,
   measurementRequirements: MeasurementStatisticsRequirements,
-  measurementValue: number
+  measurementValue: number,
 ): void => {
   if (measurementRequirements.aggregate) {
-    measurementStatistics.aggregate =
-      (measurementStatistics.aggregate ?? 0) + measurementValue
+    measurementStatistics.aggregate = (measurementStatistics.aggregate ?? 0) +
+      measurementValue
     measurementStatistics.minimum = min(
       measurementValue,
-      measurementStatistics.minimum ?? Infinity
+      measurementStatistics.minimum ?? Infinity,
     )
     measurementStatistics.maximum = max(
       measurementValue,
-      measurementStatistics.maximum ?? -Infinity
+      measurementStatistics.maximum ?? -Infinity,
     )
     if (
       (measurementRequirements.average || measurementRequirements.median) &&

@@ -1,15 +1,14 @@
-import { MessageChannel } from 'node:worker_threads'
-import { CircularArray } from '../circular-array'
-import type { Task } from '../utility-types'
+import { CircularArray } from '../circular-array.ts'
+import type { Task } from '../utility-types.ts'
 import {
   DEFAULT_TASK_NAME,
   EMPTY_FUNCTION,
   exponentialDelay,
-  getWorkerId,
+  getWorkerNodeId,
   getWorkerType,
-  sleep
-} from '../utils'
-import { Deque } from '../deque'
+  sleep,
+} from '../utils.ts'
+import { Deque } from '../deque.ts'
 import {
   type IWorker,
   type IWorkerNode,
@@ -18,9 +17,10 @@ import {
   type WorkerNodeEventCallback,
   type WorkerType,
   WorkerTypes,
-  type WorkerUsage
-} from './worker'
-import { checkWorkerNodeArguments } from './utils'
+  type WorkerUsage,
+} from './worker.ts'
+import { checkWorkerNodeArguments } from './utils.ts'
+import { randomUUID } from 'node:crypto'
 
 /**
  * Worker node.
@@ -28,8 +28,8 @@ import { checkWorkerNodeArguments } from './utils'
  * @typeParam Worker - Type of worker.
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  */
-export class WorkerNode<Worker extends IWorker, Data = unknown>
-implements IWorkerNode<Worker, Data> {
+export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
+  implements IWorkerNode<Worker, Data> {
   /** @inheritdoc */
   public readonly worker: Worker
   /** @inheritdoc */
@@ -57,14 +57,13 @@ implements IWorkerNode<Worker, Data> {
    * @param worker - The worker.
    * @param tasksQueueBackPressureSize - The tasks queue back pressure size.
    */
-  constructor (worker: Worker, tasksQueueBackPressureSize: number) {
-    checkWorkerNodeArguments<Worker>(worker, tasksQueueBackPressureSize)
+  constructor(worker: Worker, tasksQueueBackPressureSize: number) {
+    checkWorkerNodeArguments<Worker, Data>(worker, tasksQueueBackPressureSize)
     this.worker = worker
     this.info = this.initWorkerInfo(worker)
     this.usage = this.initWorkerUsage()
-    if (this.info.type === WorkerTypes.thread) {
+    if (this.info.type === WorkerTypes.web) {
       this.messageChannel = new MessageChannel()
-      this.messageChannel.port1.start()
     }
     this.tasksQueueBackPressureSize = tasksQueueBackPressureSize
     this.tasksQueue = new Deque<Task<Data>>()
@@ -74,12 +73,12 @@ implements IWorkerNode<Worker, Data> {
   }
 
   /** @inheritdoc */
-  public tasksQueueSize (): number {
+  public tasksQueueSize(): number {
     return this.tasksQueue.size
   }
 
   /** @inheritdoc */
-  public enqueueTask (task: Task<Data>): number {
+  public enqueueTask(task: Task<Data>): number {
     const tasksQueueSize = this.tasksQueue.push(task)
     if (
       this.onBackPressure != null &&
@@ -94,7 +93,7 @@ implements IWorkerNode<Worker, Data> {
   }
 
   /** @inheritdoc */
-  public unshiftTask (task: Task<Data>): number {
+  public unshiftTask(task: Task<Data>): number {
     const tasksQueueSize = this.tasksQueue.unshift(task)
     if (
       this.onBackPressure != null &&
@@ -109,7 +108,7 @@ implements IWorkerNode<Worker, Data> {
   }
 
   /** @inheritdoc */
-  public dequeueTask (): Task<Data> | undefined {
+  public dequeueTask(): Task<Data> | undefined {
     const task = this.tasksQueue.shift()
     if (
       this.onEmptyQueue != null &&
@@ -122,7 +121,7 @@ implements IWorkerNode<Worker, Data> {
   }
 
   /** @inheritdoc */
-  public popTask (): Task<Data> | undefined {
+  public popTask(): Task<Data> | undefined {
     const task = this.tasksQueue.pop()
     if (
       this.onEmptyQueue != null &&
@@ -135,26 +134,24 @@ implements IWorkerNode<Worker, Data> {
   }
 
   /** @inheritdoc */
-  public clearTasksQueue (): void {
+  public clearTasksQueue(): void {
     this.tasksQueue.clear()
   }
 
   /** @inheritdoc */
-  public hasBackPressure (): boolean {
+  public hasBackPressure(): boolean {
     return this.tasksQueue.size >= this.tasksQueueBackPressureSize
   }
 
   /** @inheritdoc */
-  public resetUsage (): void {
+  public resetUsage(): void {
     this.usage = this.initWorkerUsage()
     this.taskFunctionsUsage.clear()
   }
 
   /** @inheritdoc */
-  public closeChannel (): void {
+  public closeChannel(): void {
     if (this.messageChannel != null) {
-      this.messageChannel?.port1.unref()
-      this.messageChannel?.port2.unref()
       this.messageChannel?.port1.close()
       this.messageChannel?.port2.close()
       delete this.messageChannel
@@ -162,10 +159,10 @@ implements IWorkerNode<Worker, Data> {
   }
 
   /** @inheritdoc */
-  public getTaskFunctionWorkerUsage (name: string): WorkerUsage | undefined {
+  public getTaskFunctionWorkerUsage(name: string): WorkerUsage | undefined {
     if (!Array.isArray(this.info.taskFunctionNames)) {
       throw new Error(
-        `Cannot get task function worker usage for task function name '${name}' when task function names list is not yet defined`
+        `Cannot get task function worker usage for task function name '${name}' when task function names list is not yet defined`,
       )
     }
     if (
@@ -173,7 +170,7 @@ implements IWorkerNode<Worker, Data> {
       this.info.taskFunctionNames.length < 3
     ) {
       throw new Error(
-        `Cannot get task function worker usage for task function name '${name}' when task function names list has less than 3 elements`
+        `Cannot get task function worker usage for task function name '${name}' when task function names list has less than 3 elements`,
       )
     }
     if (name === DEFAULT_TASK_NAME) {
@@ -186,11 +183,11 @@ implements IWorkerNode<Worker, Data> {
   }
 
   /** @inheritdoc */
-  public deleteTaskFunctionWorkerUsage (name: string): boolean {
+  public deleteTaskFunctionWorkerUsage(name: string): boolean {
     return this.taskFunctionsUsage.delete(name)
   }
 
-  private async startOnEmptyQueue (): Promise<void> {
+  private async startOnEmptyQueue(): Promise<void> {
     if (
       this.onEmptyQueueCount > 0 &&
       (this.usage.tasks.executing > 0 || this.tasksQueue.size > 0)
@@ -198,22 +195,22 @@ implements IWorkerNode<Worker, Data> {
       this.onEmptyQueueCount = 0
       return
     }
-    ++this.onEmptyQueueCount
-    this.onEmptyQueue?.(this.info.id as number)
+    ;++this.onEmptyQueueCount
+    this.onEmptyQueue?.(this.info.id as string)
     await sleep(exponentialDelay(this.onEmptyQueueCount))
     await this.startOnEmptyQueue()
   }
 
-  private initWorkerInfo (worker: Worker): WorkerInfo {
+  private initWorkerInfo(worker: Worker): WorkerInfo {
     return {
-      id: getWorkerId(worker),
-      type: getWorkerType(worker) as WorkerType,
+      id: randomUUID(),
+      type: getWorkerType<Data>(worker) as WorkerType,
       dynamic: false,
-      ready: false
+      ready: false,
     }
   }
 
-  private initWorkerUsage (): WorkerUsage {
+  private initWorkerUsage(): WorkerUsage {
     const getTasksQueueSize = (): number => {
       return this.tasksQueue.size
     }
@@ -224,33 +221,33 @@ implements IWorkerNode<Worker, Data> {
       tasks: {
         executed: 0,
         executing: 0,
-        get queued (): number {
+        get queued(): number {
           return getTasksQueueSize()
         },
-        get maxQueued (): number {
+        get maxQueued(): number {
           return getTasksQueueMaxSize()
         },
         stolen: 0,
-        failed: 0
+        failed: 0,
       },
       runTime: {
-        history: new CircularArray<number>()
+        history: new CircularArray<number>(),
       },
       waitTime: {
-        history: new CircularArray<number>()
+        history: new CircularArray<number>(),
       },
       elu: {
         idle: {
-          history: new CircularArray<number>()
+          history: new CircularArray<number>(),
         },
         active: {
-          history: new CircularArray<number>()
-        }
-      }
+          history: new CircularArray<number>(),
+        },
+      },
     }
   }
 
-  private initTaskFunctionWorkerUsage (name: string): WorkerUsage {
+  private initTaskFunctionWorkerUsage(name: string): WorkerUsage {
     const getTaskFunctionQueueSize = (): number => {
       let taskFunctionQueueSize = 0
       for (const task of this.tasksQueue) {
@@ -259,7 +256,7 @@ implements IWorkerNode<Worker, Data> {
             name === (this.info.taskFunctionNames as string[])[1]) ||
           (task.name !== DEFAULT_TASK_NAME && name === task.name)
         ) {
-          ++taskFunctionQueueSize
+          ;++taskFunctionQueueSize
         }
       }
       return taskFunctionQueueSize
@@ -268,26 +265,26 @@ implements IWorkerNode<Worker, Data> {
       tasks: {
         executed: 0,
         executing: 0,
-        get queued (): number {
+        get queued(): number {
           return getTaskFunctionQueueSize()
         },
         stolen: 0,
-        failed: 0
+        failed: 0,
       },
       runTime: {
-        history: new CircularArray<number>()
+        history: new CircularArray<number>(),
       },
       waitTime: {
-        history: new CircularArray<number>()
+        history: new CircularArray<number>(),
       },
       elu: {
         idle: {
-          history: new CircularArray<number>()
+          history: new CircularArray<number>(),
         },
         active: {
-          history: new CircularArray<number>()
-        }
-      }
+          history: new CircularArray<number>(),
+        },
+      },
     }
   }
 }

@@ -1,14 +1,18 @@
-const { TaskFunctions } = require('./test-types.js')
+import { TaskFunctions } from './test-types.mjs'
 
-const waitWorkerEvents = async (pool, workerEvent, numberOfEventsToWait) => {
-  return await new Promise(resolve => {
+export const waitWorkerEvents = async (
+  pool,
+  workerEvent,
+  numberOfEventsToWait,
+) => {
+  return await new Promise((resolve) => {
     let events = 0
     if (numberOfEventsToWait === 0) {
       resolve(events)
     }
     for (const workerNode of pool.workerNodes) {
       workerNode.worker.on(workerEvent, () => {
-        ++events
+        ;++events
         if (events === numberOfEventsToWait) {
           resolve(events)
         }
@@ -17,14 +21,14 @@ const waitWorkerEvents = async (pool, workerEvent, numberOfEventsToWait) => {
   })
 }
 
-const waitPoolEvents = async (pool, poolEvent, numberOfEventsToWait) => {
-  return await new Promise(resolve => {
+export const waitPoolEvents = async (pool, poolEvent, numberOfEventsToWait) => {
+  return await new Promise((resolve) => {
     let events = 0
     if (numberOfEventsToWait === 0) {
       resolve(events)
     }
     pool.emitter?.on(poolEvent, () => {
-      ++events
+      ;++events
       if (events === numberOfEventsToWait) {
         resolve(events)
       }
@@ -32,15 +36,15 @@ const waitPoolEvents = async (pool, poolEvent, numberOfEventsToWait) => {
   })
 }
 
-const sleep = async ms => {
-  return await new Promise(resolve => setTimeout(resolve, ms))
+export const sleep = async (ms) => {
+  return await new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-const sleepTaskFunction = async (
+export const sleepTaskFunction = async (
   data,
   ms,
   rejection = false,
-  rejectionMessage = ''
+  rejectionMessage = '',
 ) => {
   return await new Promise((resolve, reject) => {
     setTimeout(
@@ -48,12 +52,15 @@ const sleepTaskFunction = async (
         rejection === true
           ? reject(new Error(rejectionMessage))
           : resolve(data),
-      ms
+      ms,
     )
   })
 }
 
-const generateRandomInteger = (max = Number.MAX_SAFE_INTEGER, min = 0) => {
+export const generateRandomInteger = (
+  max = Number.MAX_SAFE_INTEGER,
+  min = 0,
+) => {
   if (max < min || max < 0 || min < 0) {
     throw new RangeError('Invalid interval')
   }
@@ -65,10 +72,10 @@ const generateRandomInteger = (max = Number.MAX_SAFE_INTEGER, min = 0) => {
   return Math.floor(Math.random() * (max + 1))
 }
 
-const jsonIntegerSerialization = n => {
+export const jsonIntegerSerialization = (n) => {
   for (let i = 0; i < n; i++) {
     const o = {
-      a: i
+      a: i,
     }
     JSON.stringify(o)
   }
@@ -80,7 +87,7 @@ const jsonIntegerSerialization = n => {
  * @param {number} n - The number of fibonacci numbers to generate.
  * @returns {number} - The nth fibonacci number.
  */
-const fibonacci = n => {
+export const fibonacci = (n) => {
   if (n <= 1) return n
   return fibonacci(n - 1) + fibonacci(n - 2)
 }
@@ -90,14 +97,14 @@ const fibonacci = n => {
  * @param {number} n - The number to calculate the factorial of.
  * @returns {number} - The factorial of n.
  */
-const factorial = n => {
+export const factorial = (n) => {
   if (n === 0) {
     return 1
   }
   return factorial(n - 1) * n
 }
 
-const executeTaskFunction = data => {
+export const executeTaskFunction = (data) => {
   switch (data.function) {
     case TaskFunctions.jsonIntegerSerialization:
       return jsonIntegerSerialization(data.n || 100)
@@ -108,16 +115,4 @@ const executeTaskFunction = data => {
     default:
       throw new Error('Unknown worker function')
   }
-}
-
-module.exports = {
-  executeTaskFunction,
-  factorial,
-  fibonacci,
-  generateRandomInteger,
-  jsonIntegerSerialization,
-  sleep,
-  sleepTaskFunction,
-  waitPoolEvents,
-  waitWorkerEvents
 }

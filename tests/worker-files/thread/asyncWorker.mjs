@@ -1,16 +1,15 @@
-import { KillBehaviors, ThreadWorker } from '../../../lib/index.js'
-import { sleepTaskFunction } from '../../test-utils.js'
+import { KillBehaviors, ThreadWorker } from '../../../src/index.ts'
+import { sleepTaskFunction } from '../../test-utils.mjs'
 
 /**
- *
  * @param data
  * @returns
  */
-async function sleep (data) {
-  return sleepTaskFunction(data, 2000)
+async function sleep(data) {
+  return await sleepTaskFunction(data, 2000)
 }
 
 export default new ThreadWorker(sleep, {
   killBehavior: KillBehaviors.HARD,
-  maxInactiveTime: 500
+  maxInactiveTime: 500,
 })

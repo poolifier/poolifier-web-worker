@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/denoland/deno/master/cli/schemas/config-file.v1.json",
+  "compilerOptions": {
+    "strict": true
+  },
+  "tasks": {
+    "benchmark": "bun run build && bun benchmarks/internal/bench.mjs",
+    "benchmark:prod": "bun run build:prod && bun benchmarks/internal/bench.mjs",
+    "benchmark:debug": "bun run build && bun --inspect benchmarks/internal/bench.mjs",
+    "test": "deno --coverage=coverage test",
+    "test:debug": "deno --inspect test",
+    "format": "deno fmt",
+    "lint": "deno lint",
+    "documentation": "deno doc"
+  },
+  "fmt": {
+    "semiColons": false,
+    "singleQuote": true
+  }
+}

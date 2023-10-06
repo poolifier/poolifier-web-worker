@@ -11,7 +11,7 @@ export class Node<T> {
   public next?: Node<T>
   public prev?: Node<T>
 
-  public constructor (data: T) {
+  public constructor(data: T) {
     this.data = data
   }
 }
@@ -31,7 +31,7 @@ export class Deque<T> {
   /** The maximum size of the deque. */
   public maxSize!: number
 
-  public constructor () {
+  public constructor() {
     this.clear()
   }
 
@@ -41,7 +41,7 @@ export class Deque<T> {
    * @param data - Data to append.
    * @returns The new size of the queue.
    */
-  public push (data: T): number {
+  public push(data: T): number {
     const node = new Node(data)
     if (this.tail == null) {
       this.head = this.tail = node
@@ -58,7 +58,7 @@ export class Deque<T> {
    * @param data - Data to prepend.
    * @returns The new size of the queue.
    */
-  public unshift (data: T): number {
+  public unshift(data: T): number {
     const node = new Node(data)
     if (this.head == null) {
       this.head = this.tail = node
@@ -74,7 +74,7 @@ export class Deque<T> {
    *
    * @returns The popped data or `undefined` if the deque is empty.
    */
-  public pop (): T | undefined {
+  public pop(): T | undefined {
     if (this.head == null) {
       return
     }
@@ -85,7 +85,7 @@ export class Deque<T> {
     } else {
       delete this.tail.next
     }
-    --this.size
+    ;--this.size
     return tail?.data
   }
 
@@ -94,7 +94,7 @@ export class Deque<T> {
    *
    * @returns The shifted data or `undefined` if the deque is empty.
    */
-  public shift (): T | undefined {
+  public shift(): T | undefined {
     if (this.head == null) {
       return
     }
@@ -105,7 +105,7 @@ export class Deque<T> {
     } else {
       delete this.head.prev
     }
-    --this.size
+    ;--this.size
     return head?.data
   }
 
@@ -113,7 +113,7 @@ export class Deque<T> {
    * Peeks at the first data.
    * @returns The first data or `undefined` if the deque is empty.
    */
-  public peekFirst (): T | undefined {
+  public peekFirst(): T | undefined {
     return this.head?.data
   }
 
@@ -121,14 +121,14 @@ export class Deque<T> {
    * Peeks at the last data.
    * @returns The last data or `undefined` if the deque is empty.
    */
-  public peekLast (): T | undefined {
+  public peekLast(): T | undefined {
     return this.tail?.data
   }
 
   /**
    * Clears the deque.
    */
-  public clear (): void {
+  public clear(): void {
     delete this.head
     delete this.tail
     this.size = 0
@@ -141,23 +141,23 @@ export class Deque<T> {
    * @returns An iterator for the deque.
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
    */
-  [Symbol.iterator] (): Iterator<T> {
+  [Symbol.iterator](): Iterator<T> {
     let node = this.head
     return {
       next: () => {
         if (node == null) {
           return {
             value: undefined,
-            done: true
+            done: true,
           }
         }
         const ret = {
           value: node.data,
-          done: false
+          done: false,
         }
         node = node.next as Node<T>
         return ret
-      }
+      },
     }
   }
 
@@ -167,7 +167,7 @@ export class Deque<T> {
    * @returns An backward iterator for the deque.
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
    */
-  backward (): Iterable<T> {
+  backward(): Iterable<T> {
     return {
       [Symbol.iterator]: (): Iterator<T> => {
         let node = this.tail
@@ -176,23 +176,23 @@ export class Deque<T> {
             if (node == null) {
               return {
                 value: undefined,
-                done: true
+                done: true,
               }
             }
             const ret = {
               value: node.data,
-              done: false
+              done: false,
             }
             node = node.prev as Node<T>
             return ret
-          }
+          },
         }
-      }
+      },
     }
   }
 
-  private incrementSize (): number {
-    ++this.size
+  private incrementSize(): number {
+    ;++this.size
     if (this.size > this.maxSize) {
       this.maxSize = this.size
     }

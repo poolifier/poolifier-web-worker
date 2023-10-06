@@ -1,17 +1,17 @@
 import { cpus } from 'node:os'
 import {
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS
-} from '../../utils'
-import type { IPool } from '../pool'
-import type { IWorker } from '../worker'
+  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
+} from '../../utils.ts'
+import type { IPool } from '../pool.ts'
+import type { IWorker } from '../worker.ts'
 import type {
   IWorkerChoiceStrategy,
   MeasurementStatisticsRequirements,
   StrategyPolicy,
   TaskStatisticsRequirements,
-  WorkerChoiceStrategyOptions
-} from './selection-strategies-types'
+  WorkerChoiceStrategyOptions,
+} from './selection-strategies-types.ts'
 
 /**
  * Worker choice strategy abstract base class.
@@ -21,9 +21,9 @@ import type {
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export abstract class AbstractWorkerChoiceStrategy<
-  Worker extends IWorker,
+  Worker extends IWorker<Data>,
   Data = unknown,
-  Response = unknown
+  Response = unknown,
 > implements IWorkerChoiceStrategy {
   /**
    * The next worker node key.
@@ -33,19 +33,19 @@ export abstract class AbstractWorkerChoiceStrategy<
   /**
    * The previous worker node key.
    */
-  protected previousWorkerNodeKey: number = 0
+  protected previousWorkerNodeKey = 0
 
   /** @inheritDoc */
   public readonly strategyPolicy: StrategyPolicy = {
     dynamicWorkerUsage: false,
-    dynamicWorkerReady: true
+    dynamicWorkerReady: true,
   }
 
   /** @inheritDoc */
   public readonly taskStatisticsRequirements: TaskStatisticsRequirements = {
     runTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
     waitTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-    elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS
+    elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   }
 
   /**
@@ -54,34 +54,35 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @param pool - The pool instance.
    * @param opts - The worker choice strategy options.
    */
-  public constructor (
+  public constructor(
     protected readonly pool: IPool<Worker, Data, Response>,
-    protected opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS
+    protected opts: WorkerChoiceStrategyOptions =
+      DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   ) {
     this.opts = { ...DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS, ...opts }
     this.choose = this.choose.bind(this)
   }
 
-  protected setTaskStatisticsRequirements (
-    opts: WorkerChoiceStrategyOptions
+  protected setTaskStatisticsRequirements(
+    opts: WorkerChoiceStrategyOptions,
   ): void {
     this.toggleMedianMeasurementStatisticsRequirements(
       this.taskStatisticsRequirements.runTime,
-      opts.runTime?.median as boolean
+      opts.runTime?.median as boolean,
     )
     this.toggleMedianMeasurementStatisticsRequirements(
       this.taskStatisticsRequirements.waitTime,
-      opts.waitTime?.median as boolean
+      opts.waitTime?.median as boolean,
     )
     this.toggleMedianMeasurementStatisticsRequirements(
       this.taskStatisticsRequirements.elu,
-      opts.elu?.median as boolean
+      opts.elu?.median as boolean,
     )
   }
 
-  private toggleMedianMeasurementStatisticsRequirements (
+  private toggleMedianMeasurementStatisticsRequirements(
     measurementStatisticsRequirements: MeasurementStatisticsRequirements,
-    toggleMedian: boolean
+    toggleMedian: boolean,
   ): void {
     if (measurementStatisticsRequirements.average && toggleMedian) {
       measurementStatisticsRequirements.average = false
@@ -93,25 +94,25 @@ export abstract class AbstractWorkerChoiceStrategy<
     }
   }
 
-  protected resetWorkerNodeKeyProperties (): void {
+  protected resetWorkerNodeKeyProperties(): void {
     this.nextWorkerNodeKey = 0
     this.previousWorkerNodeKey = 0
   }
 
   /** @inheritDoc */
-  public abstract reset (): boolean
+  public abstract reset(): boolean
 
   /** @inheritDoc */
-  public abstract update (workerNodeKey: number): boolean
+  public abstract update(workerNodeKey: number): boolean
 
   /** @inheritDoc */
-  public abstract choose (): number | undefined
+  public abstract choose(): number | undefined
 
   /** @inheritDoc */
-  public abstract remove (workerNodeKey: number): boolean
+  public abstract remove(workerNodeKey: number): boolean
 
   /** @inheritDoc */
-  public setOptions (opts: WorkerChoiceStrategyOptions): void {
+  public setOptions(opts: WorkerChoiceStrategyOptions): void {
     this.opts = { ...DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS, ...opts }
     this.setTaskStatisticsRequirements(this.opts)
   }
@@ -122,7 +123,7 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @param workerNodeKey - The worker node key.
    * @returns Whether the worker node is ready or not.
    */
-  private isWorkerNodeReady (workerNodeKey: number): boolean {
+  private isWorkerNodeReady(workerNodeKey: number): boolean {
     return this.pool.workerNodes[workerNodeKey].info.ready
   }
 
@@ -132,7 +133,7 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @param workerNodeKey - The worker node key.
    * @returns `true` if the worker node has back pressure, `false` otherwise.
    */
-  private hasWorkerNodeBackPressure (workerNodeKey: number): boolean {
+  private hasWorkerNodeBackPressure(workerNodeKey: number): boolean {
     return this.pool.hasWorkerNodeBackPressure(workerNodeKey)
   }
 
@@ -145,7 +146,7 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @see {@link isWorkerNodeReady}
    * @see {@link hasWorkerNodeBackPressure}
    */
-  protected isWorkerNodeEligible (workerNodeKey: number): boolean {
+  protected isWorkerNodeEligible(workerNodeKey: number): boolean {
     return (
       this.isWorkerNodeReady(workerNodeKey) &&
       !this.hasWorkerNodeBackPressure(workerNodeKey)
@@ -160,7 +161,7 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @param workerNodeKey - The worker node key.
    * @returns The worker node task runtime.
    */
-  protected getWorkerNodeTaskRunTime (workerNodeKey: number): number {
+  protected getWorkerNodeTaskRunTime(workerNodeKey: number): number {
     return this.taskStatisticsRequirements.runTime.median
       ? this.pool.workerNodes[workerNodeKey].usage.runTime.median ?? 0
       : this.pool.workerNodes[workerNodeKey].usage.runTime.average ?? 0
@@ -174,7 +175,7 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @param workerNodeKey - The worker node key.
    * @returns The worker node task wait time.
    */
-  protected getWorkerNodeTaskWaitTime (workerNodeKey: number): number {
+  protected getWorkerNodeTaskWaitTime(workerNodeKey: number): number {
     return this.taskStatisticsRequirements.waitTime.median
       ? this.pool.workerNodes[workerNodeKey].usage.waitTime.median ?? 0
       : this.pool.workerNodes[workerNodeKey].usage.waitTime.average ?? 0
@@ -188,7 +189,7 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @param workerNodeKey - The worker node key.
    * @returns The worker node task ELU.
    */
-  protected getWorkerNodeTaskElu (workerNodeKey: number): number {
+  protected getWorkerNodeTaskElu(workerNodeKey: number): number {
     return this.taskStatisticsRequirements.elu.median
       ? this.pool.workerNodes[workerNodeKey].usage.elu.active.median ?? 0
       : this.pool.workerNodes[workerNodeKey].usage.elu.active.average ?? 0
@@ -199,20 +200,20 @@ export abstract class AbstractWorkerChoiceStrategy<
    *
    * @param workerNodeKey - The worker node key.
    */
-  protected setPreviousWorkerNodeKey (workerNodeKey: number | undefined): void {
+  protected setPreviousWorkerNodeKey(workerNodeKey: number | undefined): void {
     this.previousWorkerNodeKey = workerNodeKey ?? this.previousWorkerNodeKey
   }
 
   /**
    * Check the next worker node eligibility.
    */
-  protected checkNextWorkerNodeEligibility (): void {
+  protected checkNextWorkerNodeEligibility(): void {
     if (!this.isWorkerNodeEligible(this.nextWorkerNodeKey as number)) {
       delete this.nextWorkerNodeKey
     }
   }
 
-  protected computeDefaultWorkerWeight (): number {
+  protected computeDefaultWorkerWeight(): number {
     let cpusCycleTimeWeight = 0
     for (const cpu of cpus()) {
       // CPU estimated cycle time
