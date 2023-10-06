@@ -170,19 +170,6 @@ pool
 
 - [Javascript](./examples/javascript/)
 - [Typescript](./examples/typescript/)
-  - [HTTP client pool](./examples/typescript/http-client-pool/)
-  - [SMTP client pool](./examples/typescript/smtp-client-pool/)
-  - [HTTP server pool](./examples/typescript/http-server-pool/)
-    - [Express worker_threads pool](./examples/typescript/http-server-pool/express-worker_threads/)
-    - [Express cluster pool](./examples/typescript/http-server-pool/express-cluster/)
-    - [Express hybrid pool](./examples/typescript/http-server-pool/express-hybrid/)
-    - [Fastify worker_threads pool](./examples/typescript/http-server-pool/fastify-worker_threads/)
-    - [Fastify cluster pool](./examples/typescript/http-server-pool/fastify-cluster/)
-    - [Fastify hybrid pool](./examples/typescript/http-server-pool/fastify-hybrid/)
-  - [WebSocket server pool](./examples/typescript/websocket-server-pool/)
-    - [ws worker_threads pool](./examples/typescript/websocket-server-pool/ws-worker_threads/)
-    - [ws cluster pool](./examples/typescript/websocket-server-pool/ws-cluster/)
-    - [ws hybrid pool](./examples/typescript/websocket-server-pool/ws-hybrid/)
 
 Remember that workers can only send and receive structured-cloneable data.
 

@@ -1,36 +1,36 @@
-name: Generate documentation
+# name: Generate documentation
 
-on:
-  workflow_dispatch:
+# on:
+#   workflow_dispatch:
 
-jobs:
-  generate:
-    runs-on: ubuntu-latest
+# jobs:
+#   generate:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+#       - name: Setup Bun
+#         uses: oven-sh/setup-bun@v1
 
-      - name: Generate documentation
-        run: |
-          bun install --ignore-scripts --frozen-lockfile
-          bun run typedoc
+#       - name: Generate documentation
+#         run: |
+#           bun install --ignore-scripts --frozen-lockfile
+#           bun run typedoc
 
-      - name: Commit files
-        if: github.repository == 'poolifier/poolifier-bun' && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
-        env:
-          COMMIT_MESSAGE: 'docs: generate documentation'
-          COMMIT_AUTHOR: Documentation Bot
-          COMMIT_EMAIL: documentation-bot@users.noreply.github.com
-        run: |
-          git config --local user.name "${{ env.COMMIT_AUTHOR }}"
-          git config --local user.email "${{ env.COMMIT_EMAIL }}"
-          git pull
-          git add ./docs
-          git commit -a -m "${{ env.COMMIT_MESSAGE }}"
+#       - name: Commit files
+#         if: github.repository == 'poolifier/poolifier-bun' && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
+#         env:
+#           COMMIT_MESSAGE: 'docs: generate documentation'
+#           COMMIT_AUTHOR: Documentation Bot
+#           COMMIT_EMAIL: documentation-bot@users.noreply.github.com
+#         run: |
+#           git config --local user.name "${{ env.COMMIT_AUTHOR }}"
+#           git config --local user.email "${{ env.COMMIT_EMAIL }}"
+#           git pull
+#           git add ./docs
+#           git commit -a -m "${{ env.COMMIT_MESSAGE }}"
 
       # - name: Push changes
       #   if: github.repository == 'poolifier/poolifier-bun' && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'

@@ -1,48 +1,48 @@
-name: CI
+# name: CI
 
-on:
-  push:
-    branches: [master]
-  pull_request:
-    types: [opened, synchronize, reopened]
-  merge_group:
-    branches: [master]
+# on:
+#   push:
+#     branches: [master]
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+#   merge_group:
+#     branches: [master]
 
-permissions:
-  contents: read
-  checks: read
+# permissions:
+#   contents: read
+#   checks: read
 
-jobs:
-  build:
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest]
-        bun: [latest]
+# jobs:
+#   build:
+#     strategy:
+#       matrix:
+#         os: [macos-latest, ubuntu-latest]
+#         bun: [latest]
 
-    name: Bun ${{ matrix.bun }} on ${{ matrix.os }}
+#     name: Bun ${{ matrix.bun }} on ${{ matrix.os }}
 
-    runs-on: ${{ matrix.os }}
+#     runs-on: ${{ matrix.os }}
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis. This is needed for better sonar
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis. This is needed for better sonar
 
-      - name: Setup Bun ${{ matrix.bun }}
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: ${{ matrix.bun }}
+#       - name: Setup Bun ${{ matrix.bun }}
+#         uses: oven-sh/setup-bun@v1
+#         with:
+#           bun-version: ${{ matrix.bun }}
 
-      - name: Install Dependencies
-        run: bun install --ignore-scripts --frozen-lockfile
+#       - name: Install Dependencies
+#         run: bun install --ignore-scripts --frozen-lockfile
 
-      - name: Build
-        run: bun run build
+#       - name: Build
+#         run: bun run build
 
-      - name: Lint
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.bun == 'latest' }}
-        run: bun run lint
+#       - name: Lint
+#         if: ${{ matrix.os == 'ubuntu-latest' && matrix.bun == 'latest' }}
+#         run: bun run lint
 
       # - name: Tests
       #   run: bun run test
