@@ -9,8 +9,8 @@
       "request": "launch",
       "name": "Launch Tests Debug",
       "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "test:debug"],
+      "runtimeExecutable": "deno",
+      "runtimeArgs": ["task", "test:debug"],
       "skipFiles": ["<node_internals>/**"],
       "stopOnEntry": true
     },
@@ -19,8 +19,8 @@
       "request": "launch",
       "name": "Launch Benchmarks Debug",
       "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "benchmark:debug"],
+      "runtimeExecutable": "deno",
+      "runtimeArgs": ["task", "benchmark:debug"],
       "skipFiles": ["<node_internals>/**"],
       "stopOnEntry": true
     }

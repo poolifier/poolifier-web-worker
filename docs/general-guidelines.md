@@ -2,7 +2,7 @@
 
 Performance is one of the main target of these worker pool implementations,
 poolifier team wants to have a strong focus on this.\
-Poolifier already has a [benchmarks](./../benchmarks/) folder where you can find
+Poolifier already has [benchmarks](./../benchmarks/README.md) where you can find
 some comparisons.
 
 ## Table of contents
