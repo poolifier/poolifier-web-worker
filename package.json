@@ -96,7 +96,7 @@
   },
   "dependencies": {
     "build": "^0.1.4",
-    "bun": "^1.0.3"
+    "bun": "^1.0.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.2.2",
