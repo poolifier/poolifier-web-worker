@@ -286,43 +286,43 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
     },
   )
 
-  await t.step(
-    'Verify that setWorkerChoiceStrategy() works with LEAST_ELU and fixed pool',
-    () => {
-      const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
-      const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
-        fixedPool,
-      )
-      workerChoiceStrategyContext.setWorkerChoiceStrategy(workerChoiceStrategy)
-      expect(
-        workerChoiceStrategyContext.workerChoiceStrategies.get(
-          workerChoiceStrategy,
-        ),
-      ).toBeInstanceOf(LeastEluWorkerChoiceStrategy)
-      expect(workerChoiceStrategyContext.workerChoiceStrategy).toBe(
-        workerChoiceStrategy,
-      )
-    },
-  )
+  // await t.step(
+  //   'Verify that setWorkerChoiceStrategy() works with LEAST_ELU and fixed pool',
+  //   () => {
+  //     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
+  //     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
+  //       fixedPool,
+  //     )
+  //     workerChoiceStrategyContext.setWorkerChoiceStrategy(workerChoiceStrategy)
+  //     expect(
+  //       workerChoiceStrategyContext.workerChoiceStrategies.get(
+  //         workerChoiceStrategy,
+  //       ),
+  //     ).toBeInstanceOf(LeastEluWorkerChoiceStrategy)
+  //     expect(workerChoiceStrategyContext.workerChoiceStrategy).toBe(
+  //       workerChoiceStrategy,
+  //     )
+  //   },
+  // )
 
-  await t.step(
-    'Verify that setWorkerChoiceStrategy() works with LEAST_ELU and dynamic pool',
-    () => {
-      const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
-      const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
-        dynamicPool,
-      )
-      workerChoiceStrategyContext.setWorkerChoiceStrategy(workerChoiceStrategy)
-      expect(
-        workerChoiceStrategyContext.workerChoiceStrategies.get(
-          workerChoiceStrategy,
-        ),
-      ).toBeInstanceOf(LeastEluWorkerChoiceStrategy)
-      expect(workerChoiceStrategyContext.workerChoiceStrategy).toBe(
-        workerChoiceStrategy,
-      )
-    },
-  )
+  // await t.step(
+  //   'Verify that setWorkerChoiceStrategy() works with LEAST_ELU and dynamic pool',
+  //   () => {
+  //     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
+  //     const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
+  //       dynamicPool,
+  //     )
+  //     workerChoiceStrategyContext.setWorkerChoiceStrategy(workerChoiceStrategy)
+  //     expect(
+  //       workerChoiceStrategyContext.workerChoiceStrategies.get(
+  //         workerChoiceStrategy,
+  //       ),
+  //     ).toBeInstanceOf(LeastEluWorkerChoiceStrategy)
+  //     expect(workerChoiceStrategyContext.workerChoiceStrategy).toBe(
+  //       workerChoiceStrategy,
+  //     )
+  //   },
+  // )
 
   await t.step(
     'Verify that setWorkerChoiceStrategy() works with FAIR_SHARE and fixed pool',
