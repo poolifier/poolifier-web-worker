@@ -1,34 +1,32 @@
-import { describe, expect, mock, test } from 'bun:test'
+import {
+  assertSpyCalls,
+  stub,
+} from 'https://deno.land/std@0.204.0/testing/mock.ts'
+import { expect } from 'npm:expect'
 import { DEFAULT_TASK_NAME, ThreadWorker } from '../../src/index.ts'
 
-describe('Thread worker test suite', () => {
-  class SpyWorker extends ThreadWorker {
-    constructor(fn) {
-      super(fn)
-      this.port = {
-        postMessage: mock(() => {}),
+Deno.test('Thread worker test suite', async (t) => {
+  await t.step(
+    'Verify that sync kill handler is called when worker is killed',
+    () => {
+      const worker = new ThreadWorker(() => {}, {
+        killHandler: stub(() => {}),
+      })
+      worker.port = {
+        postMessage: stub(() => {}),
+        close: stub(() => {}),
       }
-    }
-  }
+      worker.handleKillMessage()
+      assertSpyCalls(worker.port.postMessage, 1)
+      assertSpyCalls(worker.port.close, 1)
+      assertSpyCalls(worker.opts.killHandler, 1)
+      worker.opts.killHandler.restore()
+      worker.port.postMessage.restore()
+      worker.port.close.restore()
+    },
+  )
 
-  test('Verify that sync kill handler is called when worker is killed', () => {
-    const worker = new ThreadWorker(() => {}, {
-      killHandler: mock(() => {}),
-    })
-    worker.isMain = false
-    worker.port = {
-      postMessage: mock(() => {}),
-      unref: mock(() => {}),
-      close: mock(() => {}),
-    }
-    worker.handleKillMessage()
-    expect(worker.port.postMessage).toHaveBeenCalledTimes(1)
-    expect(worker.port.unref).toHaveBeenCalledTimes(1)
-    expect(worker.port.close).toHaveBeenCalledTimes(1)
-    expect(worker.opts.killHandler).toHaveBeenCalledTimes(1)
-  })
-
-  test('Verify that removeTaskFunction() is working', () => {
+  await t.step('Verify that removeTaskFunction() is working', () => {
     const fn1 = () => {
       return 1
     }
@@ -45,7 +43,7 @@ describe('Thread worker test suite', () => {
       error: new TypeError('name parameter is an empty string'),
     })
     worker.port = {
-      postMessage: mock(() => {}),
+      postMessage: stub(() => {}),
     }
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
       Function,
@@ -75,10 +73,11 @@ describe('Thread worker test suite', () => {
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeUndefined()
     expect(worker.taskFunctions.size).toBe(2)
-    expect(worker.port.postMessage).toHaveBeenCalledTimes(1)
+    assertSpyCalls(worker.port.postMessage, 1)
+    worker.port.postMessage.restore()
   })
 
-  test('Verify that handleError() method is working properly', () => {
+  await t.step('Verify that handleError() method is working properly', () => {
     const error = new Error('Error as an error')
     const worker = new ThreadWorker(() => {})
     expect(worker.handleError(error)).toBeInstanceOf(Error)
@@ -87,9 +86,21 @@ describe('Thread worker test suite', () => {
     expect(worker.handleError(errorMessage)).toStrictEqual(errorMessage)
   })
 
-  test('Verify worker invokes the postMessage() method on port property', () => {
-    const worker = new SpyWorker(() => {})
-    worker.sendToMainWorker({ ok: 1 })
-    expect(worker.port.postMessage).toHaveBeenCalledTimes(1)
-  })
+  await t.step(
+    'Verify worker invokes the postMessage() method on port property',
+    () => {
+      class SpyWorker extends ThreadWorker {
+        constructor(fn) {
+          super(fn)
+          this.port = {
+            postMessage: stub(() => {}),
+          }
+        }
+      }
+      const worker = new SpyWorker(() => {})
+      worker.sendToMainWorker({ ok: 1 })
+      assertSpyCalls(worker.port.postMessage, 1)
+      worker.port.postMessage.restore()
+    },
+  )
 })

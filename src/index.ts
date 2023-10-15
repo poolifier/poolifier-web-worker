@@ -11,12 +11,13 @@ export type {
 export { updateMeasurementStatistics } from './pools/utils.ts'
 export { WorkerTypes } from './pools/worker.ts'
 export type {
-  ErrorHandler,
+  ErrorEventHandler,
   EventLoopUtilizationMeasurementStatistics,
   IWorker,
   IWorkerNode,
   MeasurementStatistics,
-  MessageHandler,
+  MessageEventErrorHandler,
+  MessageEventHandler,
   StrategyData,
   TaskStatistics,
   WorkerInfo,
@@ -78,7 +79,6 @@ export {
   DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   EMPTY_FUNCTION,
   exponentialDelay,
-  getWorkerNodeId,
   getWorkerType,
   isAsyncFunction,
   isKillBehavior,

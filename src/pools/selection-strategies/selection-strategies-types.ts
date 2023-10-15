@@ -15,10 +15,10 @@ export const WorkerChoiceStrategies = Object.freeze(
      * Least busy worker selection strategy.
      */
     LEAST_BUSY: 'LEAST_BUSY',
-    /**
-     * Least ELU worker selection strategy.
-     */
-    LEAST_ELU: 'LEAST_ELU',
+    // /**
+    //  * Least ELU worker selection strategy.
+    //  */
+    // LEAST_ELU: 'LEAST_ELU',
     /**
      * Fair share worker selection strategy.
      */
@@ -48,7 +48,7 @@ export const Measurements = Object.freeze(
   {
     runTime: 'runTime',
     waitTime: 'waitTime',
-    elu: 'elu',
+    // elu: 'elu',
   } as const,
 )
 

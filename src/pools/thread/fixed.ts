@@ -31,20 +31,15 @@ export class FixedThreadPool<
    * Constructs a new poolifier fixed thread pool.
    *
    * @param numberOfThreads - Number of threads for this pool.
-   * @param filePath - Path to an implementation of a `ThreadWorker` file, which can be relative or absolute.
+   * @param fileURL - URL to an implementation of a `ThreadWorker` file.
    * @param opts - Options for this fixed thread pool.
    */
   public constructor(
     numberOfThreads: number,
-    filePath: string,
+    fileURL: URL,
     protected readonly opts: ThreadPoolOptions<Data> = {},
   ) {
-    super(numberOfThreads, filePath, opts)
-  }
-
-  /** @inheritDoc */
-  protected isMain(): boolean {
-    return isMainThread
+    super(numberOfThreads, fileURL, opts)
   }
 
   /** @inheritDoc */
@@ -52,16 +47,9 @@ export class FixedThreadPool<
     this.flushTasksQueue(workerNodeKey)
     // FIXME: wait for tasks to be finished
     const workerNode = this.workerNodes[workerNodeKey]
-    const worker = workerNode.worker
-    const waitWorkerExit = new Promise<void>((resolve) => {
-      worker.once('exit', () => {
-        resolve()
-      })
-    })
     await this.sendKillMessageToWorker(workerNodeKey)
-    workerNode.closeChannel()
-    worker.terminate()
-    await waitWorkerExit
+    workerNode.terminate()
+    this.removeWorkerNode(workerNodeKey)
   }
 
   /** @inheritDoc */
@@ -98,9 +86,11 @@ export class FixedThreadPool<
     workerNodeKey: number,
     listener: (message: MessageValue<Message>) => void,
   ): void {
-    ;(
-      this.workerNodes[workerNodeKey].messageChannel as MessageChannel
-    ).port1.addEventListener('message', listener)
+    this.workerNodes[workerNodeKey].addEventListener(
+      'message',
+      (messageEvent) =>
+        listener((messageEvent as CustomEvent<MessageValue<Message>>).detail),
+    )
   }
 
   /** @inheritDoc */
@@ -108,9 +98,14 @@ export class FixedThreadPool<
     workerNodeKey: number,
     listener: (message: MessageValue<Message>) => void,
   ): void {
-    ;(
-      this.workerNodes[workerNodeKey].messageChannel as MessageChannel
-    ).port1.addEventListener('message', listener, { once: true })
+    this.workerNodes[workerNodeKey].addEventListener(
+      'message',
+      (messageEvent) =>
+        listener((messageEvent as CustomEvent<MessageValue<Message>>).detail),
+      {
+        once: true,
+      },
+    )
   }
 
   /** @inheritDoc */
@@ -118,14 +113,16 @@ export class FixedThreadPool<
     workerNodeKey: number,
     listener: (message: MessageValue<Message>) => void,
   ): void {
-    ;(
-      this.workerNodes[workerNodeKey].messageChannel as MessageChannel
-    ).port1.removeEventListener('message', listener)
+    this.workerNodes[workerNodeKey].removeEventListener(
+      'message',
+      (messageEvent) =>
+        listener((messageEvent as CustomEvent<MessageValue<Message>>).detail),
+    )
   }
 
   /** @inheritDoc */
   protected createWorker(): Worker {
-    return new Worker(this.filePath, {
+    return new Worker(this.fileURL, {
       ...this.opts.workerOptions,
       type: 'module',
     })

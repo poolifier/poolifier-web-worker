@@ -1,10 +1,9 @@
 import { CircularArray } from '../circular-array.ts'
-import type { Task } from '../utility-types.ts'
+import type { MessageValue, Task } from '../utility-types.ts'
 import {
   DEFAULT_TASK_NAME,
   EMPTY_FUNCTION,
   exponentialDelay,
-  getWorkerNodeId,
   getWorkerType,
   sleep,
 } from '../utils.ts'
@@ -16,7 +15,6 @@ import {
   type WorkerInfo,
   type WorkerNodeEventCallback,
   type WorkerType,
-  WorkerTypes,
   type WorkerUsage,
 } from './worker.ts'
 import { checkWorkerNodeArguments } from './utils.ts'
@@ -29,6 +27,7 @@ import { randomUUID } from 'node:crypto'
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  */
 export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
+  extends EventTarget
   implements IWorkerNode<Worker, Data> {
   /** @inheritdoc */
   public readonly worker: Worker
@@ -58,12 +57,29 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
    * @param tasksQueueBackPressureSize - The tasks queue back pressure size.
    */
   constructor(worker: Worker, tasksQueueBackPressureSize: number) {
+    super()
     checkWorkerNodeArguments<Worker, Data>(worker, tasksQueueBackPressureSize)
     this.worker = worker
     this.info = this.initWorkerInfo(worker)
     this.usage = this.initWorkerUsage()
-    if (this.info.type === WorkerTypes.web) {
-      this.messageChannel = new MessageChannel()
+    this.messageChannel = new MessageChannel()
+    this.messageChannel.port1.onmessage = (
+      messageEvent: MessageEvent<MessageValue<Data>>,
+    ) => {
+      this.dispatchEvent(
+        new CustomEvent<MessageValue<Data>>('message', {
+          detail: messageEvent.data,
+        }),
+      )
+    }
+    this.messageChannel.port1.onmessageerror = (
+      messageEvent: MessageEvent<MessageValue<Data>>,
+    ) => {
+      this.dispatchEvent(
+        new CustomEvent<MessageValue<Data>>('messageerror', {
+          detail: messageEvent.data,
+        }),
+      )
     }
     this.tasksQueueBackPressureSize = tasksQueueBackPressureSize
     this.tasksQueue = new Deque<Task<Data>>()
@@ -86,7 +102,7 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
       !this.onBackPressureStarted
     ) {
       this.onBackPressureStarted = true
-      this.onBackPressure(this.info.id as number)
+      this.onBackPressure(this.info.id as string)
       this.onBackPressureStarted = false
     }
     return tasksQueueSize
@@ -101,7 +117,7 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
       !this.onBackPressureStarted
     ) {
       this.onBackPressureStarted = true
-      this.onBackPressure(this.info.id as number)
+      this.onBackPressure(this.info.id as string)
       this.onBackPressureStarted = false
     }
     return tasksQueueSize
@@ -150,12 +166,14 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   }
 
   /** @inheritdoc */
-  public closeChannel(): void {
+  public terminate(): void {
     if (this.messageChannel != null) {
-      this.messageChannel?.port1.close()
-      this.messageChannel?.port2.close()
+      this.messageChannel.port1.close()
+      this.messageChannel.port2.close()
       delete this.messageChannel
     }
+    this.worker.terminate()
+    this.dispatchEvent(new Event('exit'))
   }
 
   /** @inheritdoc */

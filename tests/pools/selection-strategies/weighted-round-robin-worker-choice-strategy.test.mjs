@@ -10,7 +10,7 @@ Deno.test('Weighted round robin strategy worker choice strategy test suite', asy
   const max = 3
   const pool = new FixedThreadPool(
     max,
-    './tests/worker-files/thread/testWorker.mjs',
+    new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
   )
 
   await t.step('Verify that reset() resets internals', () => {

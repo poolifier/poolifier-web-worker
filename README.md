@@ -39,8 +39,10 @@ Please consult our [general guidelines](#general-guidelines).
 - Easy switch from a pool type to another :white_check_mark:
 - Performance [benchmarks](./benchmarks/README.md) :white_check_mark:
 - No runtime dependencies :white_check_mark:
-- Proper integration with Deno
-  [async_hooks](https://nodejs.org/api/async_hooks.html) :white_check_mark:
+
+<!-- - Proper integration with Deno
+  [async_hooks](https://nodejs.org/api/async_hooks.html) :white_check_mark: -->
+
 - Support for ESM and TypeScript :white_check_mark:
 - Support for [worker_threads](https://nodejs.org/api/worker_threads.html) Deno
   modules :white_check_mark:

@@ -1,54 +1,54 @@
-# name: CI
+name: CI
 
-# on:
-#   push:
-#     branches: [master]
-#   pull_request:
-#     types: [opened, synchronize, reopened]
-#   merge_group:
-#     branches: [master]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  merge_group:
+    branches: [master]
 
-# permissions:
-#   contents: read
-#   checks: read
+permissions:
+  contents: read
+  checks: read
 
-# jobs:
-#   build:
-#     strategy:
-#       matrix:
-#         os: [macos-latest, ubuntu-latest]
-#         bun: [latest]
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        deno: [v1.x]
 
-#     name: Bun ${{ matrix.bun }} on ${{ matrix.os }}
+    name: Deno ${{ matrix.deno }} on ${{ matrix.os }}
 
-#     runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v4
-#         with:
-#           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis. This is needed for better sonar
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis. This is needed for better sonar
 
-#       - name: Setup Bun ${{ matrix.bun }}
-#         uses: oven-sh/setup-bun@v1
-#         with:
-#           bun-version: ${{ matrix.bun }}
+      - name: Setup Deno ${{ matrix.deno }}
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno }}
 
-#       - name: Install Dependencies
-#         run: bun install --ignore-scripts --frozen-lockfile
+      # - name: Install Dependencies
+      #   run: bun install --ignore-scripts --frozen-lockfile
 
-#       - name: Build
-#         run: bun run build
+      # - name: Build
+      #   run: bun run build
 
-#       - name: Lint
-#         if: ${{ matrix.os == 'ubuntu-latest' && matrix.bun == 'latest' }}
-#         run: bun run lint
+      - name: Lint
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'latest' }}
+        run: deno task lint
 
-      # - name: Tests
-      #   run: bun run test
+      - name: Tests
+        run: deno task test
 
       # - name: Coverage Report
-      #   if: ${{ matrix.os == 'ubuntu-latest' && matrix.bun == 'latest' }}
+      #   if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'latest' }}
       #   run: bun run coverage
 
       # - name: Check for SonarCloud Token Availability
@@ -62,7 +62,7 @@
       #     fi
 
       # - name: SonarCloud Code Analysis
-      #   if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-bun' && matrix.os == 'ubuntu-latest' && matrix.bun == 'latest' }}
+      #   if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-deno' && matrix.os == 'ubuntu-latest' && matrix.bun == 'latest' }}
       #   uses: sonarsource/sonarcloud-github-action@v2.0.2
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

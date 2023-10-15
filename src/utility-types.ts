@@ -62,7 +62,7 @@ export interface WorkerStatistics {
 }
 
 /**
- * Global this message event.
+ * Global `this` message event type.
  */
 export interface MsgEvent<Data = unknown> extends Event {
   data?: Data

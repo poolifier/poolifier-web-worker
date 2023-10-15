@@ -1,12 +1,12 @@
-import { describe, expect, test } from 'bun:test'
+import { expect } from 'npm:expect'
 import {
   CircularArray,
   DEFAULT_CIRCULAR_ARRAY_SIZE,
   updateMeasurementStatistics,
 } from '../../src/index.ts'
 
-describe('Pool utils test suite', () => {
-  test('Verify updateMeasurementStatistics() behavior', () => {
+Deno.test('Pool utils test suite', async (t) => {
+  await t.step('Verify updateMeasurementStatistics() behavior', () => {
     const measurementStatistics = {
       history: new CircularArray(),
     }
@@ -73,23 +73,23 @@ describe('Pool utils test suite', () => {
         0.006,
       ),
     })
-    // updateMeasurementStatistics(
-    //   measurementStatistics,
-    //   { aggregate: true, average: true, median: false },
-    //   0.01
-    // )
-    // expect(measurementStatistics).toStrictEqual({
-    //   aggregate: 0.05,
-    //   maximum: 0.02,
-    //   minimum: 0.001,
-    //   average: 0.005,
-    //   history: new CircularArray(
-    //     DEFAULT_CIRCULAR_ARRAY_SIZE,
-    //     0.001,
-    //     0.003,
-    //     0.006,
-    //     0.01
-    //   )
-    // })
+    updateMeasurementStatistics(
+      measurementStatistics,
+      { aggregate: true, average: true, median: false },
+      0.01,
+    )
+    expect(measurementStatistics).toStrictEqual({
+      aggregate: 0.05,
+      maximum: 0.02,
+      minimum: 0.001,
+      average: 0.005,
+      history: new CircularArray(
+        DEFAULT_CIRCULAR_ARRAY_SIZE,
+        0.001,
+        0.003,
+        0.006,
+        0.01,
+      ),
+    })
   })
 })

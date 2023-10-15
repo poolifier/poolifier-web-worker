@@ -5,12 +5,7 @@ import type {
   WorkerChoiceStrategyOptions,
 } from './pools/selection-strategies/selection-strategies-types.ts'
 import type { KillBehavior } from './worker/worker-options.ts'
-import {
-  type IWorker,
-  IWorkerNode,
-  type WorkerType,
-  WorkerTypes,
-} from './pools/worker.ts'
+import { type IWorker, type WorkerType, WorkerTypes } from './pools/worker.ts'
 
 /**
  * Default task name.
@@ -76,21 +71,6 @@ export const getWorkerType = <Data = unknown>(
 ): WorkerType | undefined => {
   if (worker instanceof Worker) {
     return WorkerTypes.web
-  }
-}
-
-/**
- * Returns the worker node id of the given worker node.
- *
- * @param workerNode - The worker node to get the id of.
- * @returns The worker node id of the given worker node.
- * @internal
- */
-export const getWorkerNodeId = <Worker extends IWorker, Data = unknown>(
-  workerNode: IWorkerNode<Worker, Data>,
-): string | undefined => {
-  if (workerNode instanceof Worker) {
-    return workerNode.info.id
   }
 }
 

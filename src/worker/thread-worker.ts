@@ -38,8 +38,6 @@ export class ThreadWorker<
     opts: WorkerOptions = {},
   ) {
     super(
-      'poolifier:thread-worker',
-      isMainThread,
       self,
       taskFunctions,
       opts,
@@ -47,7 +45,7 @@ export class ThreadWorker<
   }
 
   /** @inheritDoc */
-  protected handleReadyMessage(
+  protected handleReadyMessageEvent(
     message: MsgEvent<MessageValue<Data>>,
   ): void {
     if (

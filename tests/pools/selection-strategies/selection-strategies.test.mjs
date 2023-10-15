@@ -16,7 +16,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       expect(WorkerChoiceStrategies.ROUND_ROBIN).toBe('ROUND_ROBIN')
       expect(WorkerChoiceStrategies.LEAST_USED).toBe('LEAST_USED')
       expect(WorkerChoiceStrategies.LEAST_BUSY).toBe('LEAST_BUSY')
-      expect(WorkerChoiceStrategies.LEAST_ELU).toBe('LEAST_ELU')
+      // expect(WorkerChoiceStrategies.LEAST_ELU).toBe('LEAST_ELU')
       expect(WorkerChoiceStrategies.FAIR_SHARE).toBe('FAIR_SHARE')
       expect(WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN).toBe(
         'WEIGHTED_ROUND_ROBIN',
@@ -33,7 +33,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.opts.workerChoiceStrategy).toBe(
         WorkerChoiceStrategies.ROUND_ROBIN,
@@ -51,7 +51,10 @@ Deno.test('Selection strategies test suite', async (t) => {
       ) {
         const pool = new FixedThreadPool(
           max,
-          './tests/worker-files/thread/testWorker.mjs',
+          new URL(
+            './../../worker-files/thread/testWorker.mjs',
+            import.meta.url,
+          ),
           { workerChoiceStrategy },
         )
         expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
@@ -72,7 +75,10 @@ Deno.test('Selection strategies test suite', async (t) => {
         const pool = new DynamicThreadPool(
           min,
           max,
-          './tests/worker-files/thread/testWorker.mjs',
+          new URL(
+            './../../worker-files/thread/testWorker.mjs',
+            import.meta.url,
+          ),
         )
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
@@ -99,7 +105,10 @@ Deno.test('Selection strategies test suite', async (t) => {
         const pool = new DynamicThreadPool(
           min,
           max,
-          './tests/worker-files/thread/testWorker.mjs',
+          new URL(
+            './../../worker-files/thread/testWorker.mjs',
+            import.meta.url,
+          ),
         )
         pool.setWorkerChoiceStrategy(workerChoiceStrategy, { retries: 3 })
         expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
@@ -128,7 +137,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     async () => {
       const pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (
         const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
@@ -199,7 +208,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
@@ -210,7 +219,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     pool = new DynamicThreadPool(
       min,
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
@@ -227,7 +236,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -253,7 +262,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -286,7 +295,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
       const pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       // TODO: Create a better test to cover `RoundRobinWorkerChoiceStrategy#choose`
@@ -344,7 +353,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       // TODO: Create a better test to cover `RoundRobinWorkerChoiceStrategy#choose`
@@ -403,7 +412,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
     let pool = new FixedThreadPool(
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     let results = new Set()
@@ -414,7 +423,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     await pool.destroy()
     pool = new FixedThreadPool(
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     results = new Set()
@@ -431,7 +440,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN },
       )
       expect(
@@ -459,7 +468,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN },
       )
       expect(
@@ -492,7 +501,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_USED
     let pool = new FixedThreadPool(
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
@@ -503,7 +512,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     pool = new DynamicThreadPool(
       min,
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
@@ -520,7 +529,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_USED
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -546,7 +555,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -578,7 +587,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     async () => {
       const pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED },
       )
       // TODO: Create a better test to cover `LeastUsedWorkerChoiceStrategy#choose`
@@ -639,7 +648,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED },
       )
       // TODO: Create a better test to cover `LeastUsedWorkerChoiceStrategy#choose`
@@ -698,7 +707,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_BUSY
     let pool = new FixedThreadPool(
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
@@ -709,7 +718,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     pool = new DynamicThreadPool(
       min,
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
@@ -726,7 +735,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_BUSY
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -752,7 +761,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -784,7 +793,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     async () => {
       const pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_BUSY },
       )
       // TODO: Create a better test to cover `LeastBusyWorkerChoiceStrategy#choose`
@@ -855,7 +864,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_BUSY },
       )
       // TODO: Create a better test to cover `LeastBusyWorkerChoiceStrategy#choose`
@@ -920,249 +929,249 @@ Deno.test('Selection strategies test suite', async (t) => {
     },
   )
 
-  await t.step('Verify LEAST_ELU strategy default policy', async () => {
-    const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
-    let pool = new FixedThreadPool(
-      max,
-      './tests/worker-files/thread/testWorker.mjs',
-      { workerChoiceStrategy },
-    )
-    expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
-      dynamicWorkerUsage: false,
-      dynamicWorkerReady: true,
-    })
-    await pool.destroy()
-    pool = new DynamicThreadPool(
-      min,
-      max,
-      './tests/worker-files/thread/testWorker.mjs',
-      { workerChoiceStrategy },
-    )
-    expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
-      dynamicWorkerUsage: false,
-      dynamicWorkerReady: true,
-    })
-    // We need to clean up the resources after our test
-    await pool.destroy()
-  })
+  // await t.step('Verify LEAST_ELU strategy default policy', async () => {
+  //   const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
+  //   let pool = new FixedThreadPool(
+  //     max,
+  //     new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+  //     { workerChoiceStrategy },
+  //   )
+  //   expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
+  //     dynamicWorkerUsage: false,
+  //     dynamicWorkerReady: true,
+  //   })
+  //   await pool.destroy()
+  //   pool = new DynamicThreadPool(
+  //     min,
+  //     max,
+  //     new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+  //     { workerChoiceStrategy },
+  //   )
+  //   expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
+  //     dynamicWorkerUsage: false,
+  //     dynamicWorkerReady: true,
+  //   })
+  //   // We need to clean up the resources after our test
+  //   await pool.destroy()
+  // })
 
-  await t.step(
-    'Verify LEAST_ELU strategy default tasks statistics requirements',
-    async () => {
-      const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
-      let pool = new FixedThreadPool(
-        max,
-        './tests/worker-files/thread/testWorker.mjs',
-        { workerChoiceStrategy },
-      )
-      expect(
-        pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
-      ).toStrictEqual({
-        runTime: {
-          aggregate: false,
-          average: false,
-          median: false,
-        },
-        waitTime: {
-          aggregate: false,
-          average: false,
-          median: false,
-        },
-        elu: {
-          aggregate: true,
-          average: false,
-          median: false,
-        },
-      })
-      await pool.destroy()
-      pool = new DynamicThreadPool(
-        min,
-        max,
-        './tests/worker-files/thread/testWorker.mjs',
-        { workerChoiceStrategy },
-      )
-      expect(
-        pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
-      ).toStrictEqual({
-        runTime: {
-          aggregate: false,
-          average: false,
-          median: false,
-        },
-        waitTime: {
-          aggregate: false,
-          average: false,
-          median: false,
-        },
-        elu: {
-          aggregate: true,
-          average: false,
-          median: false,
-        },
-      })
-      // We need to clean up the resources after our test
-      await pool.destroy()
-    },
-  )
+  // await t.step(
+  //   'Verify LEAST_ELU strategy default tasks statistics requirements',
+  //   async () => {
+  //     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
+  //     let pool = new FixedThreadPool(
+  //       max,
+  //       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+  //       { workerChoiceStrategy },
+  //     )
+  //     expect(
+  //       pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+  //     ).toStrictEqual({
+  //       runTime: {
+  //         aggregate: false,
+  //         average: false,
+  //         median: false,
+  //       },
+  //       waitTime: {
+  //         aggregate: false,
+  //         average: false,
+  //         median: false,
+  //       },
+  //       elu: {
+  //         aggregate: true,
+  //         average: false,
+  //         median: false,
+  //       },
+  //     })
+  //     await pool.destroy()
+  //     pool = new DynamicThreadPool(
+  //       min,
+  //       max,
+  //       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+  //       { workerChoiceStrategy },
+  //     )
+  //     expect(
+  //       pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+  //     ).toStrictEqual({
+  //       runTime: {
+  //         aggregate: false,
+  //         average: false,
+  //         median: false,
+  //       },
+  //       waitTime: {
+  //         aggregate: false,
+  //         average: false,
+  //         median: false,
+  //       },
+  //       elu: {
+  //         aggregate: true,
+  //         average: false,
+  //         median: false,
+  //       },
+  //     })
+  //     // We need to clean up the resources after our test
+  //     await pool.destroy()
+  //   },
+  // )
 
-  await t.step(
-    'Verify LEAST_ELU strategy can be run in a fixed pool',
-    async () => {
-      const pool = new FixedThreadPool(
-        max,
-        './tests/worker-files/thread/testWorker.mjs',
-        { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_ELU },
-      )
-      // TODO: Create a better test to cover `LeastEluWorkerChoiceStrategy#choose`
-      const promises = new Set()
-      const maxMultiplier = 2
-      for (let i = 0; i < max * maxMultiplier; i++) {
-        promises.add(pool.execute())
-      }
-      await Promise.all(promises)
-      for (const workerNode of pool.workerNodes) {
-        expect(workerNode.usage).toStrictEqual({
-          tasks: {
-            executed: expect.any(Number),
-            executing: 0,
-            queued: 0,
-            maxQueued: 0,
-            stolen: 0,
-            failed: 0,
-          },
-          runTime: {
-            history: new CircularArray(),
-          },
-          waitTime: {
-            history: new CircularArray(),
-          },
-          elu: expect.objectContaining({
-            idle: expect.objectContaining({
-              history: expect.any(CircularArray),
-            }),
-            active: expect.objectContaining({
-              history: expect.any(CircularArray),
-            }),
-          }),
-        })
-        expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
-        expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-          max * maxMultiplier,
-        )
-        if (workerNode.usage.elu.active.aggregate == null) {
-          expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
-        } else {
-          expect(workerNode.usage.elu.active.aggregate).toBeGreaterThan(0)
-        }
-        if (workerNode.usage.elu.idle.aggregate == null) {
-          expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
-        } else {
-          expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
-        }
-        if (workerNode.usage.elu.utilization == null) {
-          expect(workerNode.usage.elu.utilization).toBeUndefined()
-        } else {
-          expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
-          expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
-        }
-      }
-      expect(
-        pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-          pool.workerChoiceStrategyContext.workerChoiceStrategy,
-        ).nextWorkerNodeKey,
-      ).toEqual(expect.any(Number))
-      expect(
-        pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-          pool.workerChoiceStrategyContext.workerChoiceStrategy,
-        ).previousWorkerNodeKey,
-      ).toEqual(expect.any(Number))
-      // We need to clean up the resources after our test
-      await pool.destroy()
-    },
-  )
+  // await t.step(
+  //   'Verify LEAST_ELU strategy can be run in a fixed pool',
+  //   async () => {
+  //     const pool = new FixedThreadPool(
+  //       max,
+  //       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+  //       { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_ELU },
+  //     )
+  //     // TODO: Create a better test to cover `LeastEluWorkerChoiceStrategy#choose`
+  //     const promises = new Set()
+  //     const maxMultiplier = 2
+  //     for (let i = 0; i < max * maxMultiplier; i++) {
+  //       promises.add(pool.execute())
+  //     }
+  //     await Promise.all(promises)
+  //     for (const workerNode of pool.workerNodes) {
+  //       expect(workerNode.usage).toStrictEqual({
+  //         tasks: {
+  //           executed: expect.any(Number),
+  //           executing: 0,
+  //           queued: 0,
+  //           maxQueued: 0,
+  //           stolen: 0,
+  //           failed: 0,
+  //         },
+  //         runTime: {
+  //           history: new CircularArray(),
+  //         },
+  //         waitTime: {
+  //           history: new CircularArray(),
+  //         },
+  //         elu: expect.objectContaining({
+  //           idle: expect.objectContaining({
+  //             history: expect.any(CircularArray),
+  //           }),
+  //           active: expect.objectContaining({
+  //             history: expect.any(CircularArray),
+  //           }),
+  //         }),
+  //       })
+  //       expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
+  //       expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
+  //         max * maxMultiplier,
+  //       )
+  //       if (workerNode.usage.elu.active.aggregate == null) {
+  //         expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
+  //       } else {
+  //         expect(workerNode.usage.elu.active.aggregate).toBeGreaterThan(0)
+  //       }
+  //       if (workerNode.usage.elu.idle.aggregate == null) {
+  //         expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
+  //       } else {
+  //         expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
+  //       }
+  //       if (workerNode.usage.elu.utilization == null) {
+  //         expect(workerNode.usage.elu.utilization).toBeUndefined()
+  //       } else {
+  //         expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
+  //         expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
+  //       }
+  //     }
+  //     expect(
+  //       pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+  //         pool.workerChoiceStrategyContext.workerChoiceStrategy,
+  //       ).nextWorkerNodeKey,
+  //     ).toEqual(expect.any(Number))
+  //     expect(
+  //       pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+  //         pool.workerChoiceStrategyContext.workerChoiceStrategy,
+  //       ).previousWorkerNodeKey,
+  //     ).toEqual(expect.any(Number))
+  //     // We need to clean up the resources after our test
+  //     await pool.destroy()
+  //   },
+  // )
 
-  await t.step(
-    'Verify LEAST_ELU strategy can be run in a dynamic pool',
-    async () => {
-      const pool = new DynamicThreadPool(
-        min,
-        max,
-        './tests/worker-files/thread/testWorker.mjs',
-        { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_ELU },
-      )
-      // TODO: Create a better test to cover `LeastEluWorkerChoiceStrategy#choose`
-      const promises = new Set()
-      const maxMultiplier = 2
-      for (let i = 0; i < max * maxMultiplier; i++) {
-        promises.add(pool.execute())
-      }
-      await Promise.all(promises)
-      for (const workerNode of pool.workerNodes) {
-        expect(workerNode.usage).toStrictEqual({
-          tasks: {
-            executed: expect.any(Number),
-            executing: 0,
-            queued: 0,
-            maxQueued: 0,
-            stolen: 0,
-            failed: 0,
-          },
-          runTime: {
-            history: new CircularArray(),
-          },
-          waitTime: {
-            history: new CircularArray(),
-          },
-          elu: expect.objectContaining({
-            idle: expect.objectContaining({
-              history: expect.any(CircularArray),
-            }),
-            active: expect.objectContaining({
-              history: expect.any(CircularArray),
-            }),
-          }),
-        })
-        expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
-        expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-          max * maxMultiplier,
-        )
-        if (workerNode.usage.elu.active.aggregate == null) {
-          expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
-        } else {
-          expect(workerNode.usage.elu.active.aggregate).toBeGreaterThan(0)
-        }
-        if (workerNode.usage.elu.idle.aggregate == null) {
-          expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
-        } else {
-          expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
-        }
-        if (workerNode.usage.elu.utilization == null) {
-          expect(workerNode.usage.elu.utilization).toBeUndefined()
-        } else {
-          expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
-          expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
-        }
-      }
-      expect(
-        pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-          pool.workerChoiceStrategyContext.workerChoiceStrategy,
-        ).nextWorkerNodeKey,
-      ).toEqual(expect.any(Number))
-      expect(
-        pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-          pool.workerChoiceStrategyContext.workerChoiceStrategy,
-        ).previousWorkerNodeKey,
-      ).toEqual(expect.any(Number))
-      // We need to clean up the resources after our test
-      await pool.destroy()
-    },
-  )
+  // await t.step(
+  //   'Verify LEAST_ELU strategy can be run in a dynamic pool',
+  //   async () => {
+  //     const pool = new DynamicThreadPool(
+  //       min,
+  //       max,
+  //       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+  //       { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_ELU },
+  //     )
+  //     // TODO: Create a better test to cover `LeastEluWorkerChoiceStrategy#choose`
+  //     const promises = new Set()
+  //     const maxMultiplier = 2
+  //     for (let i = 0; i < max * maxMultiplier; i++) {
+  //       promises.add(pool.execute())
+  //     }
+  //     await Promise.all(promises)
+  //     for (const workerNode of pool.workerNodes) {
+  //       expect(workerNode.usage).toStrictEqual({
+  //         tasks: {
+  //           executed: expect.any(Number),
+  //           executing: 0,
+  //           queued: 0,
+  //           maxQueued: 0,
+  //           stolen: 0,
+  //           failed: 0,
+  //         },
+  //         runTime: {
+  //           history: new CircularArray(),
+  //         },
+  //         waitTime: {
+  //           history: new CircularArray(),
+  //         },
+  //         elu: expect.objectContaining({
+  //           idle: expect.objectContaining({
+  //             history: expect.any(CircularArray),
+  //           }),
+  //           active: expect.objectContaining({
+  //             history: expect.any(CircularArray),
+  //           }),
+  //         }),
+  //       })
+  //       expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
+  //       expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
+  //         max * maxMultiplier,
+  //       )
+  //       if (workerNode.usage.elu.active.aggregate == null) {
+  //         expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
+  //       } else {
+  //         expect(workerNode.usage.elu.active.aggregate).toBeGreaterThan(0)
+  //       }
+  //       if (workerNode.usage.elu.idle.aggregate == null) {
+  //         expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
+  //       } else {
+  //         expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
+  //       }
+  //       if (workerNode.usage.elu.utilization == null) {
+  //         expect(workerNode.usage.elu.utilization).toBeUndefined()
+  //       } else {
+  //         expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
+  //         expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
+  //       }
+  //     }
+  //     expect(
+  //       pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+  //         pool.workerChoiceStrategyContext.workerChoiceStrategy,
+  //       ).nextWorkerNodeKey,
+  //     ).toEqual(expect.any(Number))
+  //     expect(
+  //       pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+  //         pool.workerChoiceStrategyContext.workerChoiceStrategy,
+  //       ).previousWorkerNodeKey,
+  //     ).toEqual(expect.any(Number))
+  //     // We need to clean up the resources after our test
+  //     await pool.destroy()
+  //   },
+  // )
 
   await t.step('Verify FAIR_SHARE strategy default policy', async () => {
     const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
     let pool = new FixedThreadPool(
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
@@ -1173,7 +1182,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     pool = new DynamicThreadPool(
       min,
       max,
-      './tests/worker-files/thread/testWorker.mjs',
+      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       { workerChoiceStrategy },
     )
     expect(pool.workerChoiceStrategyContext.getStrategyPolicy()).toStrictEqual({
@@ -1190,7 +1199,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -1216,7 +1225,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -1248,7 +1257,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     async () => {
       const pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE },
       )
       // TODO: Create a better test to cover `FairShareChoiceStrategy#choose`
@@ -1338,7 +1347,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE },
       )
       // TODO: Create a better test to cover `FairShareChoiceStrategy#choose`
@@ -1428,7 +1437,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         {
           workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE,
           workerChoiceStrategyOptions: {
@@ -1523,7 +1532,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         workerNode.strategyData = {
@@ -1538,7 +1547,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         workerNode.strategyData = {
@@ -1560,7 +1569,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
@@ -1572,7 +1581,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
@@ -1591,7 +1600,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -1617,7 +1626,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -1649,7 +1658,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     async () => {
       const pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN },
       )
       // TODO: Create a better test to cover `WeightedRoundRobinWorkerChoiceStrategy#choose`
@@ -1730,7 +1739,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy: WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN },
       )
       // TODO: Create a better test to cover `WeightedRoundRobinWorkerChoiceStrategy#choose`
@@ -1811,7 +1820,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         {
           workerChoiceStrategy: WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN,
           workerChoiceStrategyOptions: {
@@ -1897,7 +1906,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(
         pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -1944,7 +1953,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(
         pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -1999,7 +2008,7 @@ Deno.test('Selection strategies test suite', async (t) => {
         WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
@@ -2011,7 +2020,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
@@ -2031,7 +2040,7 @@ Deno.test('Selection strategies test suite', async (t) => {
         WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -2057,7 +2066,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
       expect(
@@ -2089,7 +2098,7 @@ Deno.test('Selection strategies test suite', async (t) => {
     async () => {
       const pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         {
           workerChoiceStrategy:
             WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN,
@@ -2177,7 +2186,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       const pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         {
           workerChoiceStrategy:
             WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN,
@@ -2266,7 +2275,7 @@ Deno.test('Selection strategies test suite', async (t) => {
         WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
       let pool = new FixedThreadPool(
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(
         pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -2337,7 +2346,7 @@ Deno.test('Selection strategies test suite', async (t) => {
       pool = new DynamicThreadPool(
         min,
         max,
-        './tests/worker-files/thread/testWorker.mjs',
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(
         pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -2415,7 +2424,10 @@ Deno.test('Selection strategies test suite', async (t) => {
         new DynamicThreadPool(
           min,
           max,
-          './tests/worker-files/thread/testWorker.mjs',
+          new URL(
+            './../../worker-files/thread/testWorker.mjs',
+            import.meta.url,
+          ),
           { workerChoiceStrategy: 'UNKNOWN_STRATEGY' },
         ),
     ).toThrow('Invalid worker choice strategy \'UNKNOWN_STRATEGY\'')

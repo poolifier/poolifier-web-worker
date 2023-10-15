@@ -80,13 +80,13 @@ export class WorkerChoiceStrategyContext<
           opts,
         ),
       ],
-      [
-        WorkerChoiceStrategies.LEAST_ELU,
-        new (LeastEluWorkerChoiceStrategy.bind(this))<Worker, Data, Response>(
-          pool,
-          opts,
-        ),
-      ],
+      // [
+      //   WorkerChoiceStrategies.LEAST_ELU,
+      //   new (LeastEluWorkerChoiceStrategy.bind(this))<Worker, Data, Response>(
+      //     pool,
+      //     opts,
+      //   ),
+      // ],
       [
         WorkerChoiceStrategies.FAIR_SHARE,
         new (FairShareWorkerChoiceStrategy.bind(this))<Worker, Data, Response>(

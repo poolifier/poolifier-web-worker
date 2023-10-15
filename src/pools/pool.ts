@@ -1,11 +1,10 @@
 import type { EventEmitter } from 'node:events'
 import type { TaskFunction } from '../worker/task-functions.ts'
 import type {
-  ErrorHandler,
   IWorker,
   IWorkerNode,
-  MessageErrorHandler,
-  MessageHandler,
+  MessageEventErrorHandler,
+  MessageEventHandler,
   WorkerType,
 } from './worker.ts'
 import type {
@@ -136,19 +135,13 @@ export interface PoolOptions<Data = unknown> {
    *
    * @defaultValue `() => {}`
    */
-  messageHandler?: MessageHandler<Data>
+  messageEventHandler?: MessageEventHandler<Data>
   /**
    * A function that will listen for message event processing error on each worker.
    *
    * @defaultValue `() => {}`
    */
-  messageError?: MessageErrorHandler<Data>
-  /**
-   * A function that will listen for error event on each worker.
-   *
-   * @defaultValue `() => {}`
-   */
-  errorHandler?: ErrorHandler
+  messageEventErrorHandler?: MessageEventErrorHandler<Data>
   /**
    * Whether to start the minimum number of workers at pool initialization.
    *

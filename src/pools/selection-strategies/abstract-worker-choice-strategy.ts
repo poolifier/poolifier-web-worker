@@ -181,19 +181,19 @@ export abstract class AbstractWorkerChoiceStrategy<
       : this.pool.workerNodes[workerNodeKey].usage.waitTime.average ?? 0
   }
 
-  /**
-   * Gets the worker node task ELU.
-   * If the task statistics require the average ELU, the average ELU is returned.
-   * If the task statistics require the median ELU, the median ELU is returned.
-   *
-   * @param workerNodeKey - The worker node key.
-   * @returns The worker node task ELU.
-   */
-  protected getWorkerNodeTaskElu(workerNodeKey: number): number {
-    return this.taskStatisticsRequirements.elu.median
-      ? this.pool.workerNodes[workerNodeKey].usage.elu.active.median ?? 0
-      : this.pool.workerNodes[workerNodeKey].usage.elu.active.average ?? 0
-  }
+  // /**
+  //  * Gets the worker node task ELU.
+  //  * If the task statistics require the average ELU, the average ELU is returned.
+  //  * If the task statistics require the median ELU, the median ELU is returned.
+  //  *
+  //  * @param workerNodeKey - The worker node key.
+  //  * @returns The worker node task ELU.
+  //  */
+  // protected getWorkerNodeTaskElu(workerNodeKey: number): number {
+  //   return this.taskStatisticsRequirements.elu.median
+  //     ? this.pool.workerNodes[workerNodeKey].usage.elu.active.median ?? 0
+  //     : this.pool.workerNodes[workerNodeKey].usage.elu.active.average ?? 0
+  // }
 
   /**
    * Sets safely the previous worker node key.

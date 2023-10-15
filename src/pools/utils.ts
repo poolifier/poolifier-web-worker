@@ -8,16 +8,9 @@ import {
 import type { TasksQueueOptions } from './pool.ts'
 import type { IWorker, MeasurementStatistics } from './worker.ts'
 
-export const checkFilePath = (filePath: string): void => {
-  if (
-    filePath == null ||
-    typeof filePath !== 'string' ||
-    (typeof filePath === 'string' && filePath.trim().length === 0)
-  ) {
-    throw new Error('Please specify a file with a worker implementation')
-  }
-  if (!existsSync(filePath)) {
-    throw new Error(`Cannot find the worker file '${filePath}'`)
+export const checkFileURL = (fileURL: URL): void => {
+  if (!existsSync(fileURL)) {
+    throw new Error(`Cannot find the worker URL '${fileURL}'`)
   }
 }
 

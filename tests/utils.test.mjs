@@ -9,7 +9,6 @@ import {
   DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   EMPTY_FUNCTION,
   exponentialDelay,
-  getWorkerNodeId,
   getWorkerType,
   isAsyncFunction,
   isKillBehavior,
@@ -67,34 +66,26 @@ Deno.test('Utils test suite', async (t) => {
   })
 
   await t.step('Verify getWorkerType() behavior', () => {
-    // expect(
-    //   getWorkerType(
-    //     new Worker(
-    //       new URL(
-    //         './tests/worker-files/thread/testWorker.mjs',
-    //         import.meta.url,
-    //       ),
-    //       {
-    //         type: 'module',
-    //       },
-    //     ),
-    //   ),
-    // ).toBe(WorkerTypes.web)
-  })
-
-  await t.step('Verify getWorkerNodeId() behavior', () => {
-    // const webWorker = new Worker(
-    //   new URL('./tests/worker-files/thread/testWorker.mjs', import.meta.url),
-    //   { type: 'module' },
-    // )
-    // expect(getWorkerId(webWorker)).toBe(webWorker.threadId)
+    const worker = new Worker(
+      new URL(
+        './../tests/worker-files/thread/testWorker.mjs',
+        import.meta.url,
+      ),
+      {
+        type: 'module',
+      },
+    )
+    expect(
+      getWorkerType(worker),
+    ).toBe(WorkerTypes.web)
+    worker.terminate()
   })
 
   await t.step('Verify sleep() behavior', async () => {
     const start = performance.now()
     await sleep(1000)
     const elapsed = performance.now() - start
-    expect(elapsed).toBeGreaterThanOrEqual(999)
+    expect(elapsed).toBeGreaterThanOrEqual(1000)
   })
 
   await t.step('Verify exponentialDelay() behavior', () => {

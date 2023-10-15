@@ -1,4 +1,3 @@
-import { AsyncResource } from 'node:async_hooks'
 import { performance } from 'node:perf_hooks'
 import type {
   MessageValue,
@@ -55,7 +54,7 @@ export abstract class AbstractWorker<
   MainWorker extends typeof globalThis,
   Data = unknown,
   Response = unknown,
-> extends AsyncResource {
+> {
   /**
    * Worker id.
    */
@@ -79,32 +78,22 @@ export abstract class AbstractWorker<
   /**
    * Constructs a new poolifier worker.
    *
-   * @param type - The type of async event.
-   * @param isMain - Whether this is the main worker or not.
    * @param mainWorker - Reference to main worker.
    * @param taskFunctions - Task function(s) processed by the worker when the pool's `execution` function is invoked. The first function is the default function.
    * @param opts - Options for the worker.
    */
   public constructor(
-    type: string,
-    protected readonly isMain: boolean,
     private readonly mainWorker: MainWorker,
     taskFunctions: TaskFunction<Data, Response> | TaskFunctions<Data, Response>,
     protected opts: WorkerOptions = DEFAULT_WORKER_OPTIONS,
   ) {
-    super(type)
-    if (this.isMain == null) {
-      throw new Error('isMain parameter is mandatory')
-    }
     this.checkTaskFunctions(taskFunctions)
     this.checkWorkerOptions(this.opts)
-    if (!this.isMain) {
-      this.getMainWorker().addEventListener(
-        'message',
-        this.handleReadyMessage.bind(this),
-        { once: true },
-      )
-    }
+    this.getMainWorker().addEventListener(
+      'message',
+      this.handleReadyMessageEvent.bind(this),
+      { once: true },
+    )
   }
 
   private checkWorkerOptions(opts: WorkerOptions): void {
@@ -295,40 +284,40 @@ export abstract class AbstractWorker<
   }
 
   /**
-   * Handles the ready message sent by the main worker.
+   * Handles the ready message event sent by the main worker.
    *
-   * @param message - The ready message.
+   * @param messageEvent - The ready message event.
    */
-  protected abstract handleReadyMessage(
-    message: MsgEvent<MessageValue<Data>>,
+  protected abstract handleReadyMessageEvent(
+    messageEvent: MsgEvent<MessageValue<Data>>,
   ): void
 
   /**
    * Worker message event listener.
    *
-   * @param message - The received message event.
+   * @param messageEvent - The received message event.
    */
   protected messageEventListener(
-    message: MessageEvent<MessageValue<Data>>,
+    messageEvent: MessageEvent<MessageValue<Data>>,
   ): void {
-    this.checkMessageWorkerId(message.data)
-    if (message.data.statistics != null) {
+    this.checkMessageWorkerId(messageEvent.data)
+    if (messageEvent.data.statistics != null) {
       // Statistics message received
-      this.statistics = message.data.statistics
-    } else if (message.data.checkActive != null) {
+      this.statistics = messageEvent.data.statistics
+    } else if (messageEvent.data.checkActive != null) {
       // Check active message received
-      message.data.checkActive
+      messageEvent.data.checkActive
         ? this.startCheckActive()
         : this.stopCheckActive()
-    } else if (message.data.taskFunctionOperation != null) {
+    } else if (messageEvent.data.taskFunctionOperation != null) {
       // Task function operation message received
-      this.handleTaskFunctionOperationMessage(message.data)
-    } else if (message.data.taskId != null && message.data != null) {
+      this.handleTaskFunctionOperationMessage(messageEvent.data)
+    } else if (messageEvent.data.taskId != null && messageEvent.data != null) {
       // Task message received
-      this.run(message.data)
-    } else if (message.data.kill === true) {
+      this.run(messageEvent.data)
+    } else if (messageEvent.data.kill === true) {
       // Kill message received
-      this.handleKillMessage(message.data)
+      this.handleKillMessage(messageEvent.data)
     }
   }
 
@@ -390,9 +379,6 @@ export abstract class AbstractWorker<
         .catch(() => {
           this.sendToMainWorker({ kill: 'failure' })
         })
-        .finally(() => {
-          this.emitDestroy()
-        })
         .catch(EMPTY_FUNCTION)
     } else {
       try {
@@ -401,8 +387,6 @@ export abstract class AbstractWorker<
         this.sendToMainWorker({ kill: 'success' })
       } catch {
         this.sendToMainWorker({ kill: 'failure' })
-      } finally {
-        this.emitDestroy()
       }
     }
   }
@@ -517,9 +501,9 @@ export abstract class AbstractWorker<
       return
     }
     if (isAsyncFunction(fn)) {
-      this.runInAsyncScope(this.runAsync.bind(this), this, fn, task)
+      this.runAsync(fn as TaskAsyncFunction<Data, Response>, task)
     } else {
-      this.runInAsyncScope(this.runSync.bind(this), this, fn, task)
+      this.runSync(fn as TaskSyncFunction<Data, Response>, task)
     }
   }
 

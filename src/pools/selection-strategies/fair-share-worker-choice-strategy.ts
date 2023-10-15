@@ -118,10 +118,11 @@ export class FairShareWorkerChoiceStrategy<
     workerNodeKey: number,
     workerNodeVirtualTaskStartTimestamp: number,
   ): number {
-    const workerNodeTaskRunTime = this.opts.measurement === Measurements.elu
-      ? this.getWorkerNodeTaskElu(workerNodeKey)
-      : this.getWorkerNodeTaskRunTime(workerNodeKey)
-    return workerNodeVirtualTaskStartTimestamp + workerNodeTaskRunTime
+    // const workerNodeTaskRunTime = this.opts.measurement === Measurements.elu
+    //   ? this.getWorkerNodeTaskElu(workerNodeKey)
+    //   : this.getWorkerNodeTaskRunTime(workerNodeKey)
+    return workerNodeVirtualTaskStartTimestamp +
+      this.getWorkerNodeTaskRunTime(workerNodeKey)
   }
 
   private getWorkerNodeVirtualTaskStartTimestamp(

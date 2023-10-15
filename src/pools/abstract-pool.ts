@@ -47,7 +47,7 @@ import { WorkerChoiceStrategyContext } from './selection-strategies/worker-choic
 import { version } from './version.ts'
 import { WorkerNode } from './worker-node.ts'
 import {
-  checkFilePath,
+  checkFileURL,
   checkValidTasksQueueOptions,
   checkValidWorkerChoiceStrategy,
   updateMeasurementStatistics,
@@ -72,6 +72,11 @@ export abstract class AbstractPool<
   public emitter?: EventEmitter
 
   /**
+   * Dynamic pool maximum size property placeholder.
+   */
+  protected readonly max?: number
+
+  /**
    * The task execution response promise map:
    * - `key`: The message id of each submitted task.
    * - `value`: An object that contains the worker, the execution response promise resolve and reject callbacks.
@@ -91,11 +96,6 @@ export abstract class AbstractPool<
   >
 
   /**
-   * Dynamic pool maximum size property placeholder.
-   */
-  protected readonly max?: number
-
-  /**
    * The task functions added at runtime map:
    * - `key`: The task function name.
    * - `value`: The task function itself.
@@ -111,6 +111,10 @@ export abstract class AbstractPool<
    */
   private starting: boolean
   /**
+   * Whether the pool is stopping or not.
+   */
+  private stopping: boolean
+  /**
    * The start timestamp of the pool.
    */
   private readonly startTimestamp
@@ -119,20 +123,15 @@ export abstract class AbstractPool<
    * Constructs a new poolifier pool.
    *
    * @param numberOfWorkers - Number of workers that this pool should manage.
-   * @param filePath - Path to the worker file.
+   * @param fileURL - URL to the worker file.
    * @param opts - Options for the pool.
    */
   public constructor(
     protected readonly numberOfWorkers: number,
-    protected readonly filePath: string,
+    protected readonly fileURL: URL,
     protected readonly opts: PoolOptions<Data>,
   ) {
-    if (!this.isMain()) {
-      throw new Error(
-        'Cannot start a pool from a worker with the same type as the pool',
-      )
-    }
-    checkFilePath(this.filePath)
+    checkFileURL(this.fileURL)
     this.checkNumberOfWorkers(this.numberOfWorkers)
     this.checkPoolOptions(this.opts)
 
@@ -159,6 +158,7 @@ export abstract class AbstractPool<
 
     this.started = false
     this.starting = false
+    this.stopping = false
     if (this.opts.startWorkers === true) {
       this.start()
     }
@@ -495,11 +495,14 @@ export abstract class AbstractPool<
     if (message.workerId == null) {
       throw new Error('Worker message received without worker id')
     } else if (
+      !this.stopping &&
       message.workerId != null &&
       this.getWorkerNodeKeyByWorkerId(message.workerId) === -1
     ) {
       throw new Error(
-        `Worker message received from unknown worker '${message.workerId}'`,
+        `Worker message received from unknown worker '${message.workerId}': ${
+          JSON.stringify(message)
+        }`,
       )
     }
   }
@@ -934,12 +937,14 @@ export abstract class AbstractPool<
 
   /** @inheritDoc */
   public async destroy(): Promise<void> {
+    this.stopping = true
     await Promise.all(
       this.workerNodes.map(async (_, workerNodeKey) => {
         await this.destroyWorkerNode(workerNodeKey)
       }),
     )
     this.emitter?.emit(PoolEvents.destroy, this.info)
+    this.stopping = false
     this.started = false
   }
 
@@ -981,11 +986,6 @@ export abstract class AbstractPool<
   protected setupHook(): void {
     /* Intentionally empty */
   }
-
-  /**
-   * Should return whether the worker is the main worker or not.
-   */
-  protected abstract isMain(): boolean
 
   /**
    * Hook executed before the worker task execution.
@@ -1200,14 +1200,14 @@ export abstract class AbstractPool<
     const worker = this.createWorker()
 
     // worker.on('online', this.opts.onlineHandler ?? EMPTY_FUNCTION)
-    worker.onmessage = this.opts.messageHandler ?? EMPTY_FUNCTION
-    worker.onerror = this.opts.errorHandler ?? EMPTY_FUNCTION
+    worker.onmessage = this.opts.messageEventHandler ?? EMPTY_FUNCTION
+    worker.onmessageerror = this.opts.messageEventErrorHandler ?? EMPTY_FUNCTION
     worker.onerror = (error) => {
       const workerNodeKey = this.getWorkerNodeKeyByWorker(worker)
       const workerInfo = this.getWorkerInfo(workerNodeKey)
       workerInfo.ready = false
-      this.workerNodes[workerNodeKey].closeChannel()
       this.emitter?.emit(PoolEvents.error, error)
+      this.workerNodes[workerNodeKey].terminate()
       if (
         this.started &&
         !this.starting &&
@@ -1336,7 +1336,10 @@ export abstract class AbstractPool<
    */
   protected afterWorkerNodeSetup(workerNodeKey: number): void {
     // Listen to worker messages.
-    this.registerWorkerMessageListener(workerNodeKey, this.workerListener())
+    this.registerWorkerMessageListener(
+      workerNodeKey,
+      this.workerMessageListener.bind(this),
+    )
     // Send the startup message to worker.
     this.sendStartupMessageToWorker(workerNodeKey)
     // Send the statistics message to worker.
@@ -1481,29 +1484,32 @@ export abstract class AbstractPool<
   }
 
   /**
-   * This method is the listener registered for each worker message.
-   *
-   * @returns The listener function to execute when a message is received from a worker.
+   * This method is the message listener registered on each worker.
    */
-  protected workerListener(): (message: MessageValue<Response>) => void {
-    return (message) => {
-      this.checkMessageWorkerId(message)
-      if (message.ready != null && message.taskFunctionNames != null) {
-        // Worker ready response received from worker
-        this.handleWorkerReadyResponse(message)
-      } else if (message.taskId != null) {
-        // Task execution response received from worker
-        this.handleTaskExecutionResponse(message)
-      } else if (message.taskFunctionNames != null) {
-        // Task function names message received from worker
-        this.getWorkerInfo(
-          this.getWorkerNodeKeyByWorkerId(message.workerId),
-        ).taskFunctionNames = message.taskFunctionNames
-      }
+  protected workerMessageListener(
+    message: MessageValue<Response>,
+  ) {
+    this.checkMessageWorkerId(message)
+    if (
+      message.ready != null && message.taskFunctionNames != null
+    ) {
+      // Worker ready response received from worker
+      this.handleWorkerReadyResponse(message)
+    } else if (message.taskId != null) {
+      // Task execution response received from worker
+      this.handleTaskExecutionResponse(message)
+    } else if (message.taskFunctionNames != null) {
+      // Task function names message received from worker
+      this.getWorkerInfo(
+        this.getWorkerNodeKeyByWorkerId(message.workerId),
+      ).taskFunctionNames = message.taskFunctionNames
     }
   }
 
   private handleWorkerReadyResponse(message: MessageValue<Response>): void {
+    if (this.stopping) {
+      return
+    }
     if (message.ready === false) {
       throw new Error(
         `Worker ${message.workerId as string} failed to initialize`,
@@ -1602,16 +1608,13 @@ export abstract class AbstractPool<
   }
 
   /**
-   * Removes the given worker from the pool worker nodes.
+   * Removes the worker node from the pool worker nodes.
    *
-   * @param worker - The worker.
+   * @param workerNodeKey - The worker node key.
    */
-  private removeWorkerNode(worker: Worker): void {
-    const workerNodeKey = this.getWorkerNodeKeyByWorker(worker)
-    if (workerNodeKey !== -1) {
-      this.workerNodes.splice(workerNodeKey, 1)
-      this.workerChoiceStrategyContext.remove(workerNodeKey)
-    }
+  protected removeWorkerNode(workerNodeKey: number): void {
+    this.workerNodes.splice(workerNodeKey, 1)
+    this.workerChoiceStrategyContext.remove(workerNodeKey)
   }
 
   /** @inheritDoc */

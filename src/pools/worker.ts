@@ -4,19 +4,21 @@ import type { Task } from '../utility-types.ts'
 /**
  * Callback invoked if the worker has received a message event.
  */
-export type MessageHandler<Data = unknown> = (e: MessageEvent<Data>) => void
-
-/**
- * Callback invoked if the worker raised an error at processing a message event.
- */
-export type MessageErrorHandler<Data = unknown> = (
+export type MessageEventHandler<Data = unknown> = (
   e: MessageEvent<Data>,
 ) => void
 
 /**
- * Callback invoked if the worker raised an error.
+ * Callback invoked if the worker raised an error at processing a message event.
  */
-export type ErrorHandler = (e: ErrorEvent) => void
+export type MessageEventErrorHandler<Data = unknown> = (
+  e: MessageEvent<Data>,
+) => void
+
+/**
+ * Callback invoked if the worker raised an error event.
+ */
+export type ErrorEventHandler = (e: ErrorEvent) => void
 
 /**
  * Measurement statistics.
@@ -172,13 +174,22 @@ export interface StrategyData {
  * Worker interface.
  */
 export interface IWorker<Data = unknown> {
-  // /**
-  //  * Worker id.
-  //  */
-  // readonly threadId?: number
-  onerror?: ErrorHandler
-  onmessage?: MessageHandler<Data>
-  onmessageerror?: MessageErrorHandler<Data>
+  /**
+   * Worker `message` event handler.
+   */
+  onmessage?: MessageEventHandler<Data>
+  /**
+   * Worker `messageerror` event handler.
+   */
+  onmessageerror?: MessageEventErrorHandler<Data>
+  /**
+   * Worker `error` event handler.
+   */
+  onerror?: ErrorEventHandler
+  /**
+   * Terminates the worker.
+   */
+  terminate: () => void
 }
 
 /**
@@ -196,7 +207,8 @@ export type WorkerNodeEventCallback = (workerId: string) => void
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  * @internal
  */
-export interface IWorkerNode<Worker extends IWorker<Data>, Data = unknown> {
+export interface IWorkerNode<Worker extends IWorker<Data>, Data = unknown>
+  extends EventTarget {
   /**
    * Worker.
    */
@@ -278,9 +290,9 @@ export interface IWorkerNode<Worker extends IWorker<Data>, Data = unknown> {
    */
   readonly resetUsage: () => void
   /**
-   * Closes communication channel.
+   * Terminates the worker node.
    */
-  readonly closeChannel: () => void
+  readonly terminate: () => void
   /**
    * Gets task function worker usage statistics.
    *
