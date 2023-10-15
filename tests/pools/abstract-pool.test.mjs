@@ -724,10 +724,6 @@ Deno.test({
         )
         expect(pool.opts.enableTasksQueue).toBe(false)
         expect(pool.opts.tasksQueueOptions).toBeUndefined()
-        for (const workerNode of pool.workerNodes) {
-          expect(workerNode.onEmptyQueue).toBeUndefined()
-          expect(workerNode.onBackPressure).toBeUndefined()
-        }
         pool.enableTasksQueue(true)
         expect(pool.opts.enableTasksQueue).toBe(true)
         expect(pool.opts.tasksQueueOptions).toStrictEqual({
@@ -736,10 +732,6 @@ Deno.test({
           taskStealing: true,
           tasksStealingOnBackPressure: true,
         })
-        for (const workerNode of pool.workerNodes) {
-          expect(workerNode.onEmptyQueue).toBeInstanceOf(Function)
-          expect(workerNode.onBackPressure).toBeInstanceOf(Function)
-        }
         pool.enableTasksQueue(true, { concurrency: 2 })
         expect(pool.opts.enableTasksQueue).toBe(true)
         expect(pool.opts.tasksQueueOptions).toStrictEqual({
@@ -748,17 +740,9 @@ Deno.test({
           taskStealing: true,
           tasksStealingOnBackPressure: true,
         })
-        for (const workerNode of pool.workerNodes) {
-          expect(workerNode.onEmptyQueue).toBeInstanceOf(Function)
-          expect(workerNode.onBackPressure).toBeInstanceOf(Function)
-        }
         pool.enableTasksQueue(false)
         expect(pool.opts.enableTasksQueue).toBe(false)
         expect(pool.opts.tasksQueueOptions).toBeUndefined()
-        for (const workerNode of pool.workerNodes) {
-          expect(workerNode.onEmptyQueue).toBeUndefined()
-          expect(workerNode.onBackPressure).toBeUndefined()
-        }
         await pool.destroy()
       },
     )
@@ -784,8 +768,6 @@ Deno.test({
           expect(workerNode.tasksQueueBackPressureSize).toBe(
             pool.opts.tasksQueueOptions.size,
           )
-          expect(workerNode.onEmptyQueue).toBeInstanceOf(Function)
-          expect(workerNode.onBackPressure).toBeInstanceOf(Function)
         }
         pool.setTasksQueueOptions({
           concurrency: 2,
@@ -803,8 +785,6 @@ Deno.test({
           expect(workerNode.tasksQueueBackPressureSize).toBe(
             pool.opts.tasksQueueOptions.size,
           )
-          expect(workerNode.onEmptyQueue).toBeUndefined()
-          expect(workerNode.onBackPressure).toBeUndefined()
         }
         pool.setTasksQueueOptions({
           concurrency: 1,
@@ -821,8 +801,6 @@ Deno.test({
           expect(workerNode.tasksQueueBackPressureSize).toBe(
             pool.opts.tasksQueueOptions.size,
           )
-          expect(workerNode.onEmptyQueue).toBeInstanceOf(Function)
-          expect(workerNode.onBackPressure).toBeInstanceOf(Function)
         }
         expect(() => pool.setTasksQueueOptions('invalidTasksQueueOptions'))
           .toThrow(

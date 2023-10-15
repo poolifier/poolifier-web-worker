@@ -193,12 +193,13 @@ export interface IWorker<Data = unknown> {
 }
 
 /**
- * Worker node event callback.
+ * Worker node event detail.
  *
- * @param workerId - The worker id.
  * @internal
  */
-export type WorkerNodeEventCallback = (workerId: string) => void
+export interface WorkerNodeEventDetail {
+  workerId: string
+}
 
 /**
  * Worker node interface.
@@ -235,14 +236,6 @@ export interface IWorkerNode<Worker extends IWorker<Data>, Data = unknown>
    * This is the number of tasks that can be enqueued before the worker node has back pressure.
    */
   tasksQueueBackPressureSize: number
-  /**
-   * Callback invoked when worker node tasks queue is back pressured.
-   */
-  onBackPressure?: WorkerNodeEventCallback
-  /**
-   * Callback invoked when worker node tasks queue is empty.
-   */
-  onEmptyQueue?: WorkerNodeEventCallback
   /**
    * Tasks queue size.
    *

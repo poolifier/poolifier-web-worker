@@ -21,7 +21,6 @@ export type {
   StrategyData,
   TaskStatistics,
   WorkerInfo,
-  WorkerNodeEventCallback,
   WorkerType,
   WorkerUsage,
 } from './pools/worker.ts'

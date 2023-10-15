@@ -13,7 +13,7 @@ import {
   type IWorkerNode,
   type StrategyData,
   type WorkerInfo,
-  type WorkerNodeEventCallback,
+  WorkerNodeEventDetail,
   type WorkerType,
   type WorkerUsage,
 } from './worker.ts'
@@ -41,10 +41,6 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   public messageChannel?: MessageChannel
   /** @inheritdoc */
   public tasksQueueBackPressureSize: number
-  /** @inheritdoc */
-  public onBackPressure?: WorkerNodeEventCallback
-  /** @inheritdoc */
-  public onEmptyQueue?: WorkerNodeEventCallback
   private readonly tasksQueue: Deque<Task<Data>>
   private onBackPressureStarted: boolean
   private onEmptyQueueCount: number
@@ -97,12 +93,15 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   public enqueueTask(task: Task<Data>): number {
     const tasksQueueSize = this.tasksQueue.push(task)
     if (
-      this.onBackPressure != null &&
       this.hasBackPressure() &&
       !this.onBackPressureStarted
     ) {
       this.onBackPressureStarted = true
-      this.onBackPressure(this.info.id as string)
+      this.dispatchEvent(
+        new CustomEvent<WorkerNodeEventDetail>('backpressure', {
+          detail: { workerId: this.info.id as string },
+        }),
+      )
       this.onBackPressureStarted = false
     }
     return tasksQueueSize
@@ -112,12 +111,15 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   public unshiftTask(task: Task<Data>): number {
     const tasksQueueSize = this.tasksQueue.unshift(task)
     if (
-      this.onBackPressure != null &&
       this.hasBackPressure() &&
       !this.onBackPressureStarted
     ) {
       this.onBackPressureStarted = true
-      this.onBackPressure(this.info.id as string)
+      this.dispatchEvent(
+        new CustomEvent<WorkerNodeEventDetail>('backpressure', {
+          detail: { workerId: this.info.id as string },
+        }),
+      )
       this.onBackPressureStarted = false
     }
     return tasksQueueSize
@@ -127,7 +129,6 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   public dequeueTask(): Task<Data> | undefined {
     const task = this.tasksQueue.shift()
     if (
-      this.onEmptyQueue != null &&
       this.tasksQueue.size === 0 &&
       this.onEmptyQueueCount === 0
     ) {
@@ -140,7 +141,6 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   public popTask(): Task<Data> | undefined {
     const task = this.tasksQueue.pop()
     if (
-      this.onEmptyQueue != null &&
       this.tasksQueue.size === 0 &&
       this.onEmptyQueueCount === 0
     ) {
@@ -214,7 +214,11 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
       return
     }
     ;++this.onEmptyQueueCount
-    this.onEmptyQueue?.(this.info.id as string)
+    this.dispatchEvent(
+      new CustomEvent<WorkerNodeEventDetail>('emptyqueue', {
+        detail: { workerId: this.info.id as string },
+      }),
+    )
     await sleep(exponentialDelay(this.onEmptyQueueCount))
     await this.startOnEmptyQueue()
   }
