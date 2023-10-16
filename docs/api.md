@@ -101,18 +101,23 @@ promise.
 
 An object with these properties:
 
-- `onlineHandler` (optional) - A function that will listen for online event on
+<!-- - `onlineHandler` (optional) - A function that will listen for online event on
   each worker.\
+  Default: `() => {}` -->
+
+- `messageEventHandler` (optional) - A function that will listen for message
+  event on each worker.\
   Default: `() => {}`
-- `messageHandler` (optional) - A function that will listen for message event on
-  each worker.\
+- `messageEventErrorHandler` (optional) - A function that will listen for
+  message event processing error on each worker.\
   Default: `() => {}`
-- `errorHandler` (optional) - A function that will listen for error event on
+
+<!-- - `errorHandler` (optional) - A function that will listen for error event on
   each worker.\
   Default: `() => {}`
 - `exitHandler` (optional) - A function that will listen for exit event on each
   worker.\
-  Default: `() => {}`
+  Default: `() => {}` -->
 
 - `workerChoiceStrategy` (optional) - The worker choice strategy to use in this
   pool:
@@ -123,8 +128,8 @@ An object with these properties:
     minimum number of executed, executing and queued tasks
   - `WorkerChoiceStrategies.LEAST_BUSY`: Submit tasks to the worker with the
     minimum tasks total execution and wait time
-  - `WorkerChoiceStrategies.LEAST_ELU`: Submit tasks to the worker with the
-    minimum event loop utilization (ELU)
+  <!-- - `WorkerChoiceStrategies.LEAST_ELU`: Submit tasks to the worker with the
+    minimum event loop utilization (ELU) -->
   - `WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN`: Submit tasks to worker by
     using a
     [weighted round robin scheduling algorithm](./worker-choice-strategies.md#weighted-round-robin)

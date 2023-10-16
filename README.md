@@ -110,8 +110,8 @@ npm install poolifier-deno --save
 ## Usage
 
 You can implement a
-[web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker)
-worker in a simple way by extending the class _ThreadWorker_:
+[web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker) in
+a simple way by extending the class _ThreadWorker_:
 
 ```js
 'use strict'
