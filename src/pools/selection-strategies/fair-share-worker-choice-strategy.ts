@@ -7,7 +7,6 @@ import type { IWorker, StrategyData } from '../worker.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import {
   type IWorkerChoiceStrategy,
-  Measurements,
   type TaskStatisticsRequirements,
   type WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'

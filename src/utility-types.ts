@@ -55,10 +55,10 @@ export interface WorkerStatistics {
    * Whether the worker computes the task runtime or not.
    */
   readonly runTime: boolean
-  /**
-   * Whether the worker computes the task event loop utilization (ELU) or not.
-   */
-  readonly elu: boolean
+  // /**
+  //  * Whether the worker computes the task event loop utilization (ELU) or not.
+  //  */
+  // readonly elu: boolean
 }
 
 /**

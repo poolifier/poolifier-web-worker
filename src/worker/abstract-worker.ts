@@ -584,7 +584,7 @@ export abstract class AbstractWorker<
     return {
       name: name ?? DEFAULT_TASK_NAME,
       timestamp: performance.now(),
-      ...(this.statistics.elu && { elu: performance.eventLoopUtilization() }),
+      // ...(this.statistics.elu && { elu: performance.eventLoopUtilization() }),
     }
   }
 
@@ -597,9 +597,9 @@ export abstract class AbstractWorker<
       ...(this.statistics.runTime && {
         runTime: performance.now() - taskPerformance.timestamp,
       }),
-      ...(this.statistics.elu && {
-        elu: performance.eventLoopUtilization(taskPerformance.elu),
-      }),
+      // ...(this.statistics.elu && {
+      //   elu: performance.eventLoopUtilization(taskPerformance.elu),
+      // }),
     }
   }
 

@@ -1258,12 +1258,12 @@ export abstract class AbstractPool<
       const localWorkerNodeKey = this.getWorkerNodeKeyByWorkerId(
         message.workerId,
       )
-      const workerUsage = this.workerNodes[localWorkerNodeKey].usage
+      const workerUsage = this.workerNodes[localWorkerNodeKey]?.usage
       // Kill message received from worker
       if (
         isKillBehavior(KillBehaviors.HARD, message.kill) ||
         (isKillBehavior(KillBehaviors.SOFT, message.kill) &&
-          ((this.opts.enableTasksQueue === false &&
+          workerUsage != null && ((this.opts.enableTasksQueue === false &&
             workerUsage.tasks.executing === 0) ||
             (this.opts.enableTasksQueue === true &&
               workerUsage.tasks.executing === 0 &&
@@ -1389,8 +1389,8 @@ export abstract class AbstractPool<
         runTime:
           this.workerChoiceStrategyContext.getTaskStatisticsRequirements()
             .runTime.aggregate,
-        elu: this.workerChoiceStrategyContext.getTaskStatisticsRequirements()
-          .elu.aggregate,
+        // elu: this.workerChoiceStrategyContext.getTaskStatisticsRequirements()
+        //   .elu.aggregate,
       },
     })
   }
@@ -1601,7 +1601,7 @@ export abstract class AbstractPool<
    * @returns The worker information.
    */
   protected getWorkerInfo(workerNodeKey: number): WorkerInfo {
-    return this.workerNodes[workerNodeKey].info
+    return this.workerNodes[workerNodeKey]?.info
   }
 
   /**
