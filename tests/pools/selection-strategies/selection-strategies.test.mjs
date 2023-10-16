@@ -78,7 +78,6 @@ Deno.test({
           const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
         ) {
           const pool = new FixedThreadPool(
-            min,
             max,
             new URL(
               './../../worker-files/thread/testWorker.mjs',
