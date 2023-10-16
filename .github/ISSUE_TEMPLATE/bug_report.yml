@@ -48,7 +48,7 @@ body:
   - type: textarea
     attributes:
       label: System
-      description: Output of `bunx --yes envinfo --system`.
+      description: Output of `npx --yes envinfo --system`.
   - type: textarea
     attributes:
       label: Attachments

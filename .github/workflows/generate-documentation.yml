@@ -20,7 +20,7 @@
 #           bun run typedoc
 
 #       - name: Commit files
-#         if: github.repository == 'poolifier/poolifier-bun' && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
+#         if: github.repository == 'poolifier/poolifier' && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
 #         env:
 #           COMMIT_MESSAGE: 'docs: generate documentation'
 #           COMMIT_AUTHOR: Documentation Bot
@@ -33,7 +33,7 @@
 #           git commit -a -m "${{ env.COMMIT_MESSAGE }}"
 
       # - name: Push changes
-      #   if: github.repository == 'poolifier/poolifier-bun' && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
+      #   if: github.repository == 'poolifier/poolifier' && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
       #   uses: CasperWA/push-protected@v2
       #   with:
       #     token: ${{ secrets.GH_TOKEN_PROTECTED }}

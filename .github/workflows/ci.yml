@@ -45,19 +45,19 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         run: deno task coverage
 
-      # - name: Check for SonarCloud Token Availability
-      #   id: sonar-token
-      #   shell: bash
-      #   run: |
-      #     if [ "${{ secrets.SONAR_TOKEN }}" != '' ]; then
-      #       echo "available=true" >> $GITHUB_OUTPUT;
-      #     else
-      #       echo "available=false" >> $GITHUB_OUTPUT;
-      #     fi
+      - name: Check for SonarCloud Token Availability
+        id: sonar-token
+        shell: bash
+        run: |
+          if [ "${{ secrets.SONAR_TOKEN }}" != '' ]; then
+            echo "available=true" >> $GITHUB_OUTPUT;
+          else
+            echo "available=false" >> $GITHUB_OUTPUT;
+          fi
 
-      # - name: SonarCloud Code Analysis
-      #   if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-deno' && matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
-      #   uses: sonarsource/sonarcloud-github-action@v2.0.2
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Code Analysis
+        if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-deno' && matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
+        uses: sonarsource/sonarcloud-github-action@v2.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

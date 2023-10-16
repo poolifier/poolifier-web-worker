@@ -85,7 +85,6 @@ export const runPoolifierPoolBenchmark = async (
             for (
               const measurement of [
                 Measurements.runTime,
-                Measurements.elu,
               ]
             ) {
               suite.add(
