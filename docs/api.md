@@ -155,7 +155,7 @@ An object with these properties:
   - `retries` (optional) - The number of retries to perform if no worker is
     eligible.
   - `measurement` (optional) - The measurement to use in worker choice
-    strategies: `runTime`, `waitTime` or `elu`.
+    strategies: `runTime`, `waitTime` <!-- or `elu`. -->
   - `runTime` (optional) - Use the tasks
     [simple moving median](./worker-choice-strategies.md#simple-moving-median)
     runtime instead of the tasks simple moving average runtime in worker choice
@@ -172,8 +172,8 @@ An object with these properties:
     worker choice strategies: `{ 0: 200, 1: 300, ..., n: 100 }`.
 
   Default:
-  <!-- `{ retries: 6, runTime: { median: false }, waitTime: { median: false }, elu: { median: false } }` -->
   `{ retries: 6, runTime: { median: false }, waitTime: { median: false } }`
+  <!-- `{ retries: 6, runTime: { median: false }, waitTime: { median: false }, elu: { median: false } }` -->
 
 - `startWorkers` (optional) - Start the minimum number of workers at pool
   initialization.\
