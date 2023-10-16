@@ -5,7 +5,7 @@ import { FairShareWorkerChoiceStrategy } from './fair-share-worker-choice-strate
 import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from './interleaved-weighted-round-robin-worker-choice-strategy.ts'
 import { LeastBusyWorkerChoiceStrategy } from './least-busy-worker-choice-strategy.ts'
 import { LeastUsedWorkerChoiceStrategy } from './least-used-worker-choice-strategy.ts'
-import { LeastEluWorkerChoiceStrategy } from './least-elu-worker-choice-strategy.ts'
+// import { LeastEluWorkerChoiceStrategy } from './least-elu-worker-choice-strategy.ts'
 import { RoundRobinWorkerChoiceStrategy } from './round-robin-worker-choice-strategy.ts'
 import type {
   IWorkerChoiceStrategy,

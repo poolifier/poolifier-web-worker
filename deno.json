@@ -8,7 +8,8 @@
     "benchmark:prod": "bun run build:prod && bun benchmarks/internal/bench.mjs",
     "benchmark:debug": "bun run build && bun --inspect benchmarks/internal/bench.mjs",
     "test": "deno test -A --parallel",
-    "test:debug": "deno -A test --parallel --inspect",
+    "test:debug": "deno test -A --inspect",
+    "coverage": "deno coverage --lcov --output=coverage/lcov.info",
     "format": "deno fmt",
     "lint": "deno lint",
     "documentation": "deno doc"

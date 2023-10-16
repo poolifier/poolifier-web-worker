@@ -10,7 +10,7 @@ import {
   FixedThreadPool,
   InterleavedWeightedRoundRobinWorkerChoiceStrategy,
   LeastBusyWorkerChoiceStrategy,
-  LeastEluWorkerChoiceStrategy,
+  // LeastEluWorkerChoiceStrategy,
   LeastUsedWorkerChoiceStrategy,
   RoundRobinWorkerChoiceStrategy,
   WeightedRoundRobinWorkerChoiceStrategy,

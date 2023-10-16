@@ -10,16 +10,16 @@ updates:
     reviewers:
       - 'pioardi'
       - 'jerome-benoit'
-  - package-ecosystem: 'npm'
-    directory: '/'
-    schedule:
-      interval: 'daily'
-    labels:
-      - 'dependencies'
-    reviewers:
-      - 'pioardi'
-      - 'jerome-benoit'
-    versioning-strategy: increase
+  # - package-ecosystem: 'npm'
+  #   directory: '/'
+  #   schedule:
+  #     interval: 'daily'
+  #   labels:
+  #     - 'dependencies'
+  #   reviewers:
+  #     - 'pioardi'
+  #     - 'jerome-benoit'
+  #   versioning-strategy: increase
   # - package-ecosystem: 'npm'
   #   directory: '/examples/typescript/http-client-pool'
   #   schedule:
