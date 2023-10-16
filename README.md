@@ -117,8 +117,7 @@ You can implement a
 a simple way by extending the class _ThreadWorker_:
 
 ```js
-'use strict'
-const { ThreadWorker } = require('poolifier')
+import { ThreadWorker } from 'https://deno.land/x/poolifier@v0.0.1/src/index.ts'
 
 function yourFunction(data) {
   // this will be executed in the worker thread,
@@ -126,7 +125,7 @@ function yourFunction(data) {
   return { ok: 1 }
 }
 
-module.exports = new ThreadWorker(yourFunction, {
+export default new ThreadWorker(yourFunction, {
   maxInactiveTime: 60000,
 })
 ```
@@ -134,15 +133,15 @@ module.exports = new ThreadWorker(yourFunction, {
 Instantiate your pool based on your needs :
 
 ```js
-'use strict'
-const { DynamicThreadPool, FixedThreadPool, PoolEvents, availableParallelism } =
-  require('poolifier')
+import {
+  availableParallelism,
+  DynamicThreadPool,
+  FixedThreadPool,
+  PoolEvents,
+} from 'https://deno.land/x/poolifier@v0.0.1/src/index.ts'
 
 // a fixed worker_threads pool
-const pool = new FixedThreadPool(availableParallelism(), './yourWorker.js', {
-  errorHandler: (e) => console.error(e),
-  onlineHandler: () => console.info('worker is online'),
-})
+const pool = new FixedThreadPool(availableParallelism(), './yourWorker.js')
 
 pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
 pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
@@ -151,11 +150,10 @@ pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
 const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
-  './yourWorker.js',
-  {
-    errorHandler: (e) => console.error(e),
-    onlineHandler: () => console.info('worker is online'),
-  },
+  new URL(
+    './yourWorker.js',
+    import.meta.url,
+  ),
 )
 
 pool.emitter?.on(PoolEvents.full, () => console.info('Pool is full'))
