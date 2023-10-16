@@ -24,7 +24,7 @@ deno task lint
 **How to format and lint to standard JS style your code**
 
 ```bash
-deno task format && deno task lint:fix
+deno task format && deno task lint
 ```
 
 ### Project pillars
