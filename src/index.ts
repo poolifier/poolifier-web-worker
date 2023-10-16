@@ -1,3 +1,4 @@
+// FIXME: cleanup exported modules
 export type { AbstractPool } from './pools/abstract-pool.ts'
 export { PoolEvents, PoolTypes } from './pools/pool.ts'
 export type {

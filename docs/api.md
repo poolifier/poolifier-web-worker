@@ -48,8 +48,9 @@ implementation.\
 `name` (optional) A string with the task function name that you want to execute
 on the worker. Default: `'default'`\
 `transferList` (optional) An array of transferable objects that you want to
-transfer to your [worker_threads](https://nodejs.org/api/worker_threads.html)
-worker implementation.
+transfer to your
+[web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker)
+implementation.
 
 This method is available on both pool implementations and returns a promise with
 the task function execution response.
@@ -158,15 +159,16 @@ An object with these properties:
     [simple moving median](./worker-choice-strategies.md#simple-moving-median)
     wait time instead of the tasks simple moving average wait time in worker
     choice strategies.
-  - `elu` (optional) - Use the tasks
+  <!-- - `elu` (optional) - Use the tasks
     [simple moving median](./worker-choice-strategies.md#simple-moving-median)
     ELU instead of the tasks simple moving average ELU in worker choice
-    strategies.
+    strategies. -->
   - `weights` (optional) - The worker weights to use in weighted round robin
     worker choice strategies: `{ 0: 200, 1: 300, ..., n: 100 }`.
 
   Default:
-  `{ retries: 6, runTime: { median: false }, waitTime: { median: false }, elu: { median: false } }`
+  <!-- `{ retries: 6, runTime: { median: false }, waitTime: { median: false }, elu: { median: false } }` -->
+  `{ retries: 6, runTime: { median: false }, waitTime: { median: false } }`
 
 - `startWorkers` (optional) - Start the minimum number of workers at pool
   initialization.\

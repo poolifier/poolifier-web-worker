@@ -77,7 +77,7 @@ Deno.test({
         for (
           const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
         ) {
-          const pool = new DynamicThreadPool(
+          const pool = new FixedThreadPool(
             min,
             max,
             new URL(

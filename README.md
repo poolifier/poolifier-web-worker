@@ -25,9 +25,10 @@
 
 ## Why Poolifier?
 
-Poolifier is used to perform CPU and/or I/O intensive tasks on Bun servers, it
+Poolifier is used to perform CPU and/or I/O intensive tasks on Deno servers, it
 implements worker pools using
-[worker_threads](https://nodejs.org/api/worker_threads.html) Deno modules.\
+[web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
+Deno module.\
 With poolifier you can improve your **performance** and resolve problems related
 to the event loop.\
 Moreover you can execute your tasks using an API designed to improve the
@@ -44,8 +45,9 @@ Please consult our [general guidelines](#general-guidelines).
   [async_hooks](https://nodejs.org/api/async_hooks.html) :white_check_mark: -->
 
 - Support for ESM and TypeScript :white_check_mark:
-- Support for [worker_threads](https://nodejs.org/api/worker_threads.html) Deno
-  modules :white_check_mark:
+- Support for
+  [web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
+  Deno module :white_check_mark:
 - Support for multiple task functions :white_check_mark:
 - Support for task functions
   [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
@@ -85,10 +87,11 @@ Please consult our [general guidelines](#general-guidelines).
 
 ## Overview
 
-Poolifier contains two
-[worker_threads](https://nodejs.org/api/worker_threads.html#class-worker) worker
-pool implementations, you don't have to deal with
-[worker_threads](https://nodejs.org/api/worker_threads.html) complexity.\
+Poolifier contains
+[web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker)
+pool implementation, you don't have to deal with
+[web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
+complexity.\
 The first implementation is a fixed worker pool, with a defined number of
 workers that are started at creation time and will be reused.\
 The second implementation is a dynamic worker pool, with a number of worker
@@ -107,8 +110,8 @@ npm install poolifier-deno --save
 ## Usage
 
 You can implement a
-[worker_threads](https://nodejs.org/api/worker_threads.html#class-worker) worker
-in a simple way by extending the class _ThreadWorker_:
+[web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker)
+worker in a simple way by extending the class _ThreadWorker_:
 
 ```js
 'use strict'
