@@ -1,23 +1,23 @@
-# name: Combine PRs
+name: Combine PRs
 
-# on:
-#   workflow_dispatch:
-#   schedule:
-#     - cron: '0 2 * * *'
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'
 
-# permissions:
-#   contents: write
-#   pull-requests: write
-#   checks: read
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
 
-# jobs:
-#   combine-prs:
-#     if: github.repository == 'poolifier/poolifier'
-#     runs-on: ubuntu-latest
+jobs:
+  combine-prs:
+    if: github.repository == 'poolifier/poolifier'
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: combine-prs
-#         id: combine-prs
-#         uses: github/combine-prs@v4.0.0
-#         with:
-#           github_token: ${{ secrets.GH_TOKEN_PROTECTED }}
+    steps:
+      - name: combine-prs
+        id: combine-prs
+        uses: github/combine-prs@v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -4,8 +4,8 @@
     "strict": true
   },
   "tasks": {
-    "benchmark": "",
-    "benchmark:debug": "",
+    "benchmark": "deno run -A benchmarks/internal/bench.mjs",
+    "benchmark:debug": "deno run -A --inspect benchmarks/internal/bench.mjs",
     "test": "deno test -A --parallel --coverage=coverage",
     "test:debug": "deno test -A --inspect",
     "coverage": "deno coverage --lcov --output=coverage/lcov.info coverage",
@@ -16,5 +16,6 @@
   "fmt": {
     "semiColons": false,
     "singleQuote": true
-  }
+  },
+  "lock": false
 }
