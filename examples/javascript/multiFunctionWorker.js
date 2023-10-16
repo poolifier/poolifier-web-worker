@@ -1,5 +1,4 @@
-'use strict'
-const { ThreadWorker } = require('poolifier')
+import { ThreadWorker } from 'https://deno.land/x/poolifier@v0.0.1/src/index.ts'
 
 function fn0(data) {
   console.info('Executing fn0')
@@ -11,4 +10,4 @@ function fn1(data) {
   return { data: `fn1 input text was '${data.text}'` }
 }
 
-module.exports = new ThreadWorker({ fn0, fn1 })
+export default new ThreadWorker({ fn0, fn1 })

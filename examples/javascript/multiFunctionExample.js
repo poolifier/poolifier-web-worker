@@ -1,9 +1,11 @@
-'use strict'
-const { FixedThreadPool, availableParallelism } = require('poolifier')
+import {
+  availableParallelism,
+  FixedThreadPool,
+} from 'https://deno.land/x/poolifier@v0.0.1/src/index.ts'
 
 const pool = new FixedThreadPool(
   availableParallelism(),
-  './multiFunctionWorker.js',
+  new URL('./multiFunctionWorker.js', import.meta.url),
   {
     errorHandler: (e) => console.error(e),
     onlineHandler: () => console.info('worker is online'),

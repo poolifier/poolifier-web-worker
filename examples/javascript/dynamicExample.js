@@ -1,18 +1,16 @@
-'use strict'
-const {
+import {
+  availableParallelism,
   DynamicThreadPool,
   PoolEvents,
-  availableParallelism,
-} = require('poolifier')
+} from 'https://deno.land/x/poolifier@v0.0.1/src/index.ts'
 
 const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
-  './yourWorker.js',
-  {
-    errorHandler: (e) => console.error(e),
-    onlineHandler: () => console.info('worker is online'),
-  },
+  new URL(
+    './yourWorker.js',
+    import.meta.url,
+  ),
 )
 let poolFull = 0
 let poolReady = 0

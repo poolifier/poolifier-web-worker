@@ -1,40 +1,22 @@
-import { dirname, extname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import {
   availableParallelism,
   DynamicThreadPool,
   FixedThreadPool,
-} from 'poolifier'
+} from 'https://deno.land/x/poolifier@v0.0.1/src/index.ts'
 import type { MyData, MyResponse } from './worker.ts'
 
-const workerFile = join(
-  dirname(fileURLToPath(import.meta.url)),
-  `worker${extname(fileURLToPath(import.meta.url))}`,
+const workerFileURL = new URL(
+  './worker.ts',
+  import.meta.url,
 )
 
 export const fixedPool = new FixedThreadPool<MyData, Promise<MyResponse>>(
   availableParallelism(),
-  workerFile,
-  {
-    errorHandler: (e: Error) => {
-      console.error(e)
-    },
-    onlineHandler: () => {
-      console.info('Worker is online')
-    },
-  },
+  workerFileURL,
 )
 
 export const dynamicPool = new DynamicThreadPool<MyData, Promise<MyResponse>>(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
-  workerFile,
-  {
-    errorHandler: (e: Error) => {
-      console.error(e)
-    },
-    onlineHandler: () => {
-      console.info('Worker is online')
-    },
-  },
+  workerFileURL,
 )

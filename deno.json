@@ -11,7 +11,7 @@
     "coverage": "deno coverage --lcov --output=coverage/lcov.info coverage",
     "format": "deno fmt",
     "lint": "deno lint",
-    "documentation": "deno doc"
+    "documentation": "deno doc src/index.ts"
   },
   "fmt": {
     "semiColons": false,
