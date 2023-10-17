@@ -1,11 +1,9 @@
 import { expect } from 'npm:expect'
-import {
-  CircularArray,
-  Deque,
-  WorkerNode,
-  WorkerTypes,
-} from '../../src/index.ts'
+import { WorkerTypes } from '../../src/index.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
+import { CircularArray } from '../../src/circular-array.ts'
+import { Deque } from '../../src/deque.ts'
+import { WorkerNode } from '../../src/pools/worker-node.ts'
 
 Deno.test({
   name: 'Worker node test suite',

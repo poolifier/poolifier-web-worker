@@ -1,4 +1,3 @@
-// FIXME: cleanup exported modules
 export type { AbstractPool } from './pools/abstract-pool.ts'
 export { PoolEvents, PoolTypes } from './pools/pool.ts'
 export type {
@@ -38,6 +37,7 @@ export type {
   WorkerChoiceStrategy,
   WorkerChoiceStrategyOptions,
 } from './pools/selection-strategies/selection-strategies-types.ts'
+export type { WorkerChoiceStrategyContext } from './pools/selection-strategies/worker-choice-strategy-context.ts'
 export { DynamicThreadPool } from './pools/thread/dynamic.ts'
 export {
   FixedThreadPool,
@@ -67,7 +67,6 @@ export type {
   WorkerStatistics,
   Writable,
 } from './utility-types.ts'
-export { CircularArray, DEFAULT_CIRCULAR_ARRAY_SIZE } from './circular-array.ts'
-export { Deque, type Node } from './deque.ts'
-export { WorkerNode } from './pools/worker-node.ts'
+export type { CircularArray } from './circular-array.ts'
+export type { Deque, Node } from './deque.ts'
 export { availableParallelism } from './utils.ts'

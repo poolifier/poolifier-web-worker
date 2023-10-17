@@ -1,5 +1,5 @@
 import { expect } from 'npm:expect'
-import { Deque } from '../src/index.ts'
+import { Deque } from '../src/deque.ts'
 
 Deno.test('Deque test suite', async (t) => {
   await t.step('Verify push() behavior', () => {

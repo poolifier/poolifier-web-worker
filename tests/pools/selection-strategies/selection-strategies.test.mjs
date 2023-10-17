@@ -1,10 +1,10 @@
 import { expect } from 'npm:expect'
 import {
-  CircularArray,
   DynamicThreadPool,
   FixedThreadPool,
   WorkerChoiceStrategies,
 } from '../../../src/index.ts'
+import { CircularArray } from '../../../src/circular-array.ts'
 
 Deno.test({
   name: 'Selection strategies test suite',

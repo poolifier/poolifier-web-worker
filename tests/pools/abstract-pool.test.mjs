@@ -6,19 +6,19 @@ import {
 import { EventEmitter } from 'node:events'
 import { expect } from 'npm:expect'
 import {
-  CircularArray,
-  Deque,
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
   PoolTypes,
   WorkerChoiceStrategies,
-  WorkerNode,
   WorkerTypes,
 } from '../../src/index.ts'
 import { waitPoolEvents } from '../test-utils.mjs'
 import { version } from '../../src/pools/version.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
+import { CircularArray } from '../../src/circular-array.ts'
+import { WorkerNode } from '../../src/pools/worker-node.ts'
+import { Deque } from '../../src/deque.ts'
 
 Deno.test({
   name: 'Abstract pool test suite',

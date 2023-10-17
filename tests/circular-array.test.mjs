@@ -1,5 +1,8 @@
 import { expect } from 'npm:expect'
-import { CircularArray, DEFAULT_CIRCULAR_ARRAY_SIZE } from '../src/index.ts'
+import {
+  CircularArray,
+  DEFAULT_CIRCULAR_ARRAY_SIZE,
+} from '../src/circular-array.ts'
 
 Deno.test('Circular array test suite', async (t) => {
   await t.step('Verify that circular array can be instantiated', () => {
