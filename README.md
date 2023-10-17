@@ -78,7 +78,9 @@ Please consult our [general guidelines](#general-guidelines).
 ## Table of contents
 
 - [Overview](#overview)
-- [Installation](#installation)
+
+<!-- - [Installation](#installation) -->
+
 - [Usage](#usage)
 - [Deno versions](#deno-versions)
 - [API](#api)
