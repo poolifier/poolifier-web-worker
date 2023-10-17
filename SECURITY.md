@@ -4,9 +4,9 @@
 
 Security matrix, currently there are no security vulnerabilities.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.x.x   | :white_check_mark: |
+| Version | Supported |
+| ------- | --------- |
+| 1.x.x   | ✔         |
 
 ## Reporting a Vulnerability
 
