@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.0.3] - 2023-10-17
+
 ### Fixed
 
 - Fix race condition at dynamic worker node task assignment and scheduled

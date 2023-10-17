@@ -1,4 +1,4 @@
-import { ThreadWorker } from 'https://deno.land/x/poolifier@v0.0.2/src/index.ts'
+import { ThreadWorker } from 'https://deno.land/x/poolifier@v0.0.3/src/index.ts'
 
 function fn0(data) {
   console.info('Executing fn0')

@@ -1,7 +1,7 @@
 import {
   availableParallelism,
   FixedThreadPool,
-} from 'https://deno.land/x/poolifier@v0.0.2/src/index.ts'
+} from 'https://deno.land/x/poolifier@v0.0.3/src/index.ts'
 
 const pool = new FixedThreadPool(
   availableParallelism(),
