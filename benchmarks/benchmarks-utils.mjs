@@ -160,7 +160,7 @@ export const runPoolifierPoolBenchmark = async (
   })
 }
 
-export const LIST_FORMATTER = new Intl.ListFormat('en-US', {
+const LIST_FORMATTER = new Intl.ListFormat('en-US', {
   style: 'long',
   type: 'conjunction',
 })

@@ -207,7 +207,7 @@ An object with these properties:
 
 - `workerOptions` (optional) - An object with the worker options to pass to
   worker. See
-  [worker_threads](https://nodejs.org/api/worker_threads.html#worker_threads_new_worker_filename_options)
+  [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker#options)
   for more details.
 
 ## Worker

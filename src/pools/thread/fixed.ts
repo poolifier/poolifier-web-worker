@@ -10,7 +10,7 @@ export interface ThreadPoolOptions<Data = unknown> extends PoolOptions<Data> {
   /**
    * Worker options.
    *
-   * @see https://nodejs.org/api/worker_threads.html#new-workerfilename-options
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker#options
    */
   workerOptions?: WorkerOptions
 }

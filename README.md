@@ -21,7 +21,7 @@
 [![Javascript Standard Style Guide](<https://badgen.net/static/code style/standard/green>)](https://standardjs.com)
 [![Discord](https://badgen.net/discord/online-members/vXxZhyb3b6?icon=discord&label=discord&color=green)](https://discord.gg/vXxZhyb3b6)
 [![Open Collective](https://opencollective.com/poolifier/tiers/badge.svg)](https://opencollective.com/poolifier)
-[![PRs Welcome](https://badgen.net/static/PRs/welcome/green)](http://makeapullrequest.com)
+[![PRs Welcome](https://badgen.net/static/PRs/welcome/green)](https://makeapullrequest.com)
 [![No Dependencies](<https://badgen.net/static/dependencies/no dependencies/green>)](https://badgen.net/static/dependencies/nodependencies/green)
 
 </div>
@@ -38,34 +38,34 @@ Moreover you can execute your tasks using an API designed to improve the
 **developer experience**.\
 Please consult our [general guidelines](#general-guidelines).
 
-- Easy to use :white_check_mark:
-- Fixed and dynamic pool size :white_check_mark:
-- Easy switch from a pool type to another :white_check_mark:
-- Performance [benchmarks](./benchmarks/README.md) :white_check_mark:
-- No runtime dependencies :white_check_mark:
+- Easy to use ✔
+- Fixed and dynamic pool size ✔
+- Easy switch from a pool type to another ✔
+- Performance [benchmarks](./benchmarks/README.md) ✔
+- No runtime dependencies ✔
 
 <!-- - Proper integration with Deno
-  [async_hooks](https://nodejs.org/api/async_hooks.html) :white_check_mark: -->
+  [async_hooks](https://nodejs.org/api/async_hooks.html) ✔ -->
 
-- Support for ESM and TypeScript :white_check_mark:
+- Support for ESM and TypeScript ✔
 - Support for
   [web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
-  Deno module :white_check_mark:
-- Support for multiple task functions :white_check_mark:
+  Deno module ✔
+- Support for multiple task functions ✔
 - Support for task functions
   [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-  operations at runtime :white_check_mark:
-- Support for sync and async task functions :white_check_mark:
-- Tasks distribution strategies :white_check_mark:
-- Lockless tasks queueing :white_check_mark:
+  operations at runtime ✔
+- Support for sync and async task functions ✔
+- Tasks distribution strategies ✔
+- Lockless tasks queueing ✔
 - Queued tasks rescheduling:
-  - Task stealing on empty queue :white_check_mark:
-  - Tasks stealing under back pressure :white_check_mark:
-  - Tasks redistribution on worker error :white_check_mark:
-- General guidelines on pool choice :white_check_mark:
-- Error handling out of the box :white_check_mark:
-- Widely tested :white_check_mark:
-- Active community :white_check_mark:
+  - Task stealing on empty queue ✔
+  - Tasks stealing under back pressure ✔
+  - Tasks redistribution on worker error ✔
+- General guidelines on pool choice ✔
+- Error handling out of the box ✔
+- Widely tested ✔
+- Active community ✔
 
 <!-- - Code quality [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=bugs)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
   [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=code_smells)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)

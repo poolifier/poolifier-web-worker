@@ -490,7 +490,7 @@ export abstract class AbstractPool<
    * Checks if the worker id sent in the received message from a worker is valid.
    *
    * @param message - The received message.
-   * @throws {@link https://nodejs.org/api/errors.html#class-error} If the worker id is invalid.
+   * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error} If the worker id is invalid.
    */
   private checkMessageWorkerId(message: MessageValue<Data | Response>): void {
     if (message.workerId == null) {
@@ -1604,7 +1604,7 @@ export abstract class AbstractPool<
    *
    * @param worker - The worker.
    * @returns The added worker node key.
-   * @throws {@link https://nodejs.org/api/errors.html#class-error} If the added worker node is not found.
+   * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error} If the added worker node is not found.
    */
   private addWorkerNode(worker: Worker): number {
     const workerNode = new WorkerNode<Worker, Data>(
