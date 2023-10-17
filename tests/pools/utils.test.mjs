@@ -1,9 +1,6 @@
 import { expect } from 'npm:expect'
-import {
-  CircularArray,
-  DEFAULT_CIRCULAR_ARRAY_SIZE,
-  updateMeasurementStatistics,
-} from '../../src/index.ts'
+import { CircularArray, DEFAULT_CIRCULAR_ARRAY_SIZE } from '../../src/index.ts'
+import { updateMeasurementStatistics } from '../../src/pools/utils.ts'
 
 Deno.test('Pool utils test suite', async (t) => {
   await t.step('Verify updateMeasurementStatistics() behavior', () => {

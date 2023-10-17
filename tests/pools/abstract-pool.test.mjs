@@ -7,7 +7,6 @@ import { EventEmitter } from 'node:events'
 import { expect } from 'npm:expect'
 import {
   CircularArray,
-  DEFAULT_TASK_NAME,
   Deque,
   DynamicThreadPool,
   FixedThreadPool,
@@ -19,6 +18,7 @@ import {
 } from '../../src/index.ts'
 import { waitPoolEvents } from '../test-utils.mjs'
 import { version } from '../../src/pools/version.ts'
+import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 
 Deno.test({
   name: 'Abstract pool test suite',

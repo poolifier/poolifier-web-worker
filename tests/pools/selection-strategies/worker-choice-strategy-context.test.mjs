@@ -6,17 +6,17 @@ import {
 import { expect } from 'npm:expect'
 import {
   DynamicThreadPool,
-  FairShareWorkerChoiceStrategy,
   FixedThreadPool,
-  InterleavedWeightedRoundRobinWorkerChoiceStrategy,
-  LeastBusyWorkerChoiceStrategy,
-  // LeastEluWorkerChoiceStrategy,
-  LeastUsedWorkerChoiceStrategy,
-  RoundRobinWorkerChoiceStrategy,
-  WeightedRoundRobinWorkerChoiceStrategy,
   WorkerChoiceStrategies,
-  WorkerChoiceStrategyContext,
 } from '../../../src/index.ts'
+import { FairShareWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/fair-share-worker-choice-strategy.ts'
+import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/interleaved-weighted-round-robin-worker-choice-strategy.ts'
+import { LeastBusyWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/least-busy-worker-choice-strategy.ts'
+// import { LeastEluWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/least-elu-worker-choice-strategy.ts'
+import { LeastUsedWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/least-used-worker-choice-strategy.ts'
+import { RoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/round-robin-worker-choice-strategy.ts'
+import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.ts'
+import { WorkerChoiceStrategyContext } from '../../../src/pools/selection-strategies/worker-choice-strategy-context.ts'
 
 Deno.test('Worker choice strategy context test suite', async (t) => {
   const min = 1

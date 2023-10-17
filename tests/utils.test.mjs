@@ -3,6 +3,10 @@ import { randomInt } from 'node:crypto'
 import { expect } from 'npm:expect'
 import {
   availableParallelism,
+  KillBehaviors,
+  WorkerTypes,
+} from '../src/index.ts'
+import {
   average,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   DEFAULT_TASK_NAME,
@@ -13,15 +17,13 @@ import {
   isAsyncFunction,
   isKillBehavior,
   isPlainObject,
-  KillBehaviors,
   max,
   median,
   min,
   round,
   secureRandom,
   sleep,
-  WorkerTypes,
-} from '../src/index.ts'
+} from '../src/utils.ts'
 
 Deno.test('Utils test suite', async (t) => {
   await t.step('Verify DEFAULT_TASK_NAME value', () => {

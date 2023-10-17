@@ -3,7 +3,8 @@ import {
   stub,
 } from 'https://deno.land/std@0.204.0/testing/mock.ts'
 import { expect } from 'npm:expect'
-import { DEFAULT_TASK_NAME, ThreadWorker } from '../../src/index.ts'
+import { ThreadWorker } from '../../src/index.ts'
+import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 
 Deno.test('Thread worker test suite', async (t) => {
   await t.step(

@@ -88,9 +88,10 @@ export class FairShareWorkerChoiceStrategy<
               .computeWorkerNodeVirtualTaskEndTimestamp(workerNodeKey),
           }
         }
-        return (workerNode.strategyData.virtualTaskEndTimestamp as number) <
-            ((workerNodes[minWorkerNodeKey].strategyData as StrategyData)
-              .virtualTaskEndTimestamp as number)
+        return this.isWorkerNodeReady(workerNodeKey) &&
+            (workerNode.strategyData.virtualTaskEndTimestamp as number) <
+              ((workerNodes[minWorkerNodeKey].strategyData as StrategyData)
+                .virtualTaskEndTimestamp as number)
           ? workerNodeKey
           : minWorkerNodeKey
       },

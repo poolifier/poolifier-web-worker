@@ -1,9 +1,7 @@
 import { expect } from 'npm:expect'
-import {
-  FixedThreadPool,
-  WeightedRoundRobinWorkerChoiceStrategy,
-} from '../../../src/index.ts'
+import { FixedThreadPool } from '../../../src/index.ts'
 import { generateRandomInteger } from '../../test-utils.mjs'
+import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.ts'
 
 Deno.test('Weighted round robin strategy worker choice strategy test suite', async (t) => {
   // const min = 1

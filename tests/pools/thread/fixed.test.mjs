@@ -1,11 +1,8 @@
 import { expect } from 'npm:expect'
-import {
-  DEFAULT_TASK_NAME,
-  FixedThreadPool,
-  PoolEvents,
-} from '../../../src/index.ts'
+import { FixedThreadPool, PoolEvents } from '../../../src/index.ts'
 import { TaskFunctions } from '../../test-types.mjs'
 import { waitPoolEvents, waitWorkerNodeEvents } from '../../test-utils.mjs'
+import { DEFAULT_TASK_NAME } from '../../../src/utils.ts'
 
 Deno.test({
   name: 'Fixed thread pool test suite',
