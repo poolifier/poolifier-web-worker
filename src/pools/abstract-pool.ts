@@ -497,7 +497,6 @@ export abstract class AbstractPool<
       throw new Error('Worker message received without worker id')
     } else if (
       !this.stopping &&
-      message.workerId != null &&
       this.getWorkerNodeKeyByWorkerId(message.workerId) === -1
     ) {
       throw new Error(
