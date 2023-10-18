@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Avoid null exception at sending message to worker.
+
 ## [0.0.3] - 2023-10-17
 
 ### Fixed

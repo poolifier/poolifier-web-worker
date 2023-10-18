@@ -3,8 +3,8 @@
 ## Table of contents
 
 - [Pool](#pool)
-  - [`pool = new FixedThreadPool(numberOfThreads, filePath, opts)`](#pool--new-fixedthreadpoolnumberofthreads-filepath-opts)
-  - [`pool = new DynamicThreadPool(min, max, filePath, opts)`](#pool--new-dynamicthreadpoolmin-max-filepath-opts)
+  - [`pool = new FixedThreadPool(numberOfThreads, fileURL, opts)`](#pool--new-fixedthreadpoolnumberofthreads-fileurl-opts)
+  - [`pool = new DynamicThreadPool(min, max, fileURL, opts)`](#pool--new-dynamicthreadpoolmin-max-fileurl-opts)
   - [`pool.execute(data, name, transferList)`](#poolexecutedata-name-transferlist)
   - [`pool.start()`](#poolstart)
   - [`pool.destroy()`](#pooldestroy)
@@ -25,20 +25,20 @@
 
 ## Pool
 
-### `pool = new FixedThreadPool(numberOfThreads, filePath, opts)`
+### `pool = new FixedThreadPool(numberOfThreads, fileURL, opts)`
 
 `numberOfThreads` (mandatory) Number of workers for this pool.\
-`filePath` (mandatory) Path to a file with a worker implementation.\
+`fileURL` (mandatory) URL to a file with a worker implementation.\
 `opts` (optional) An object with the pool options properties described below.
 
-### `pool = new DynamicThreadPool(min, max, filePath, opts)`
+### `pool = new DynamicThreadPool(min, max, fileURL, opts)`
 
 `min` (mandatory) Same as _FixedThreadPool_ numberOfThreads, this number of
 workers will be always active.\
 `max` (mandatory) Max number of workers that this pool can contain, the newly
 created workers will die after a threshold (default is 1 minute, you can
 override it in your worker implementation).\
-`filePath` (mandatory) Path to a file with a worker implementation.\
+`fileURL` (mandatory) URL to a file with a worker implementation.\
 `opts` (optional) An object with the pool options properties described below.
 
 ### `pool.execute(data, name, transferList)`
