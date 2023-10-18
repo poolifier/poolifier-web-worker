@@ -13,7 +13,7 @@
 <!-- [![GitHub commit activity (master)](https://img.shields.io/github/commit-activity/m/poolifier/poolifier/master?color=brightgreen&logo=github)](https://github.com/poolifier/poolifier/graphs/commit-activity)
 [![Weekly Downloads](https://badgen.net/npm/dw/poolifier?icon=npm)](https://www.npmjs.com/package/poolifier) -->
 
-[![CI Workflow](https://github.com/poolifier/poolifier/actions/workflows/ci.yml/badge.svg)](https://github.com/poolifier/poolifier/actions/workflows/ci.yml)
+[![CI Workflow](https://github.com/poolifier/poolifier-deno/actions/workflows/ci.yml/badge.svg)](https://github.com/poolifier/poolifier-deno/actions/workflows/ci.yml)
 
 <!-- [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=coverage)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=alert_status)](https://sonarcloud.io/dashboard?id=pioardi_poolifier) -->
@@ -45,7 +45,7 @@ Please consult our [general guidelines](#general-guidelines).
 - No runtime dependencies ✔
 
 <!-- - Proper integration with Deno
-  [async_hooks](https://nodejs.org/api/async_hooks.html) ✔ -->
+  [async_hooks]() ✔ -->
 
 - Support for ESM and TypeScript ✔
 - Support for
