@@ -56,5 +56,9 @@
     "tsdoc",
     "typedoc",
     "workerpool"
-  ]
+  ],
+  "sonarlint.connectedMode.project": {
+    "connectionId": "poolifier",
+    "projectKey": "poolifier_poolifier-deno"
+  }
 }
