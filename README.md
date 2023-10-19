@@ -10,14 +10,13 @@
 
 <div align="center">
 
-<!-- [![GitHub commit activity (master)](https://img.shields.io/github/commit-activity/m/poolifier/poolifier/master?color=brightgreen&logo=github)](https://github.com/poolifier/poolifier/graphs/commit-activity)
-[![Weekly Downloads](https://badgen.net/npm/dw/poolifier?icon=npm)](https://www.npmjs.com/package/poolifier) -->
+[![GitHub commit activity (master)](https://img.shields.io/github/commit-activity/m/poolifier/poolifier-deno/master?color=brightgreen&logo=github)](https://github.com/poolifier/poolifier-deno/graphs/commit-activity)
+
+<!-- [![Weekly Downloads](https://badgen.net/npm/dw/poolifier?icon=npm)](https://www.npmjs.com/package/poolifier) -->
 
 [![CI Workflow](https://github.com/poolifier/poolifier-deno/actions/workflows/ci.yml/badge.svg)](https://github.com/poolifier/poolifier-deno/actions/workflows/ci.yml)
-
-<!-- [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=coverage)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=alert_status)](https://sonarcloud.io/dashboard?id=pioardi_poolifier) -->
-
+[![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=coverage)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=alert_status)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
 [![Javascript Standard Style Guide](<https://badgen.net/static/code style/standard/green>)](https://standardjs.com)
 [![Discord](https://badgen.net/discord/online-members/vXxZhyb3b6?icon=discord&label=discord&color=green)](https://discord.gg/vXxZhyb3b6)
 [![Open Collective](https://opencollective.com/poolifier/tiers/badge.svg)](https://opencollective.com/poolifier)
@@ -66,21 +65,20 @@ Please consult our [general guidelines](#general-guidelines).
 - Error handling out of the box ✔
 - Widely tested ✔
 - Active community ✔
-
-<!-- - Code quality [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=bugs)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
-  [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=code_smells)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
-  [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
-  [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
-  [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
-  [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=sqale_index)](https://sonarcloud.io/dashboard?id=pioardi_poolifier)
-- Code security [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=security_rating)](https://sonarcloud.io/dashboard?id=pioardi_poolifier) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=pioardi_poolifier&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=pioardi_poolifier) -->
+- Code quality
+  [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=bugs)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+  [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=code_smells)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+  [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+  [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+  [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+  [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=sqale_index)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+- Code security
+  [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=security_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+  [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
 
 ## Table of contents
 
 - [Overview](#overview)
-
-<!-- - [Installation](#installation) -->
-
 - [Usage](#usage)
 - [Deno versions](#deno-versions)
 - [API](#api)
@@ -105,12 +103,6 @@ other workers created when the load will increase (with an upper limit, these
 workers will be reused when active), the newly created workers will be stopped
 after a configurable period of inactivity.\
 You have to implement your worker by extending the _ThreadWorker_ class.
-
-<!-- ## Installation
-
-```shell
-npm install poolifier-deno --save
-``` -->
 
 ## Usage
 
