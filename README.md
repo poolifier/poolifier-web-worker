@@ -41,10 +41,6 @@ Please consult our [general guidelines](#general-guidelines).
 - Easy switch from a pool type to another ✔
 - Performance [benchmarks](./benchmarks/README.md) ✔
 - No runtime dependencies ✔
-
-<!-- - Proper integration with Deno
-  [async_hooks]() ✔ -->
-
 - Support for ESM and TypeScript ✔
 - Support for
   [web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
