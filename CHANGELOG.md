@@ -11,6 +11,7 @@ and this project adheres to
 ### Fixed
 
 - Avoid null exception at sending message to worker.
+- Avoid null exception at checking worker node readiness.
 
 ## [0.0.3] - 2023-10-17
 
