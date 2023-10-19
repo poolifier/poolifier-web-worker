@@ -2,7 +2,7 @@ import {
   availableParallelism,
   DynamicThreadPool,
   FixedThreadPool,
-} from 'https://deno.land/x/poolifier@v0.0.3/src/index.ts'
+} from 'https://deno.land/x/poolifier@v0.0.4/src/index.ts'
 import type { MyData, MyResponse } from './worker.ts'
 
 const workerFileURL = new URL(

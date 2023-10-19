@@ -2,7 +2,7 @@ import {
   availableParallelism,
   DynamicThreadPool,
   PoolEvents,
-} from 'https://deno.land/x/poolifier@v0.0.3/src/index.ts'
+} from 'https://deno.land/x/poolifier@v0.0.4/src/index.ts'
 
 const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),

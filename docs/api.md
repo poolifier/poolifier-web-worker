@@ -1,4 +1,4 @@
-# [API](https://deno.land/x/poolifier@v0.0.3/src/index.ts)
+# [API](https://deno.land/x/poolifier@v0.0.4/src/index.ts)
 
 ## Table of contents
 
