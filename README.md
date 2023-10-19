@@ -11,12 +11,11 @@
 <div align="center">
 
 [![GitHub commit activity (master)](https://img.shields.io/github/commit-activity/m/poolifier/poolifier-deno/master?color=brightgreen&logo=github)](https://github.com/poolifier/poolifier-deno/graphs/commit-activity)
-
-<!-- [![Weekly Downloads](https://badgen.net/npm/dw/poolifier?icon=npm)](https://www.npmjs.com/package/poolifier) -->
-
+[![Custom badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fdeno-visualizer.danopia.net%2Fshields%2Flatest-version%2Fx%2Fpoolifier%2Findex.ts)](https://deno.land/x/poolifier/src/index.ts)
 [![CI Workflow](https://github.com/poolifier/poolifier-deno/actions/workflows/ci.yml/badge.svg)](https://github.com/poolifier/poolifier-deno/actions/workflows/ci.yml)
 [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=coverage)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=alert_status)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+[![deno doc](https://doc.deno.land/badge.svg)](https://deno.land/x/poolifier/src/index.ts)
 [![Javascript Standard Style Guide](<https://badgen.net/static/code style/standard/green>)](https://standardjs.com)
 [![Discord](https://badgen.net/discord/online-members/vXxZhyb3b6?icon=discord&label=discord&color=green)](https://discord.gg/vXxZhyb3b6)
 [![Open Collective](https://opencollective.com/poolifier/tiers/badge.svg)](https://opencollective.com/poolifier)
@@ -111,7 +110,7 @@ You can implement a
 a simple way by extending the class _ThreadWorker_:
 
 ```js
-import { ThreadWorker } from 'https://deno.land/x/poolifier@v0.0.4/src/index.ts'
+import { ThreadWorker } from 'https://deno.land/x/poolifier/src/index.ts'
 
 function yourFunction(data) {
   // this will be executed in the worker thread,
@@ -132,7 +131,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
-} from 'https://deno.land/x/poolifier@v0.0.4/src/index.ts'
+} from 'https://deno.land/x/poolifier/src/index.ts'
 
 // a fixed worker_threads pool
 const pool = new FixedThreadPool(availableParallelism(), './yourWorker.js')
