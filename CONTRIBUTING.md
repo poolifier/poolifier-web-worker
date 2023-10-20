@@ -12,7 +12,7 @@ Please do your PR on **master** branch.
 **How to run unit tests and coverage**
 
 ```bash
-deno task test && deno task coverage
+deno task test:coverage && deno task coverage
 ```
 
 **How to check if your new code is standard JS style**

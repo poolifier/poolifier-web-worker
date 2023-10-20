@@ -6,9 +6,11 @@
   "tasks": {
     "benchmark": "deno run -A benchmarks/internal/bench.mjs",
     "benchmark:debug": "deno run -A --inspect benchmarks/internal/bench.mjs",
-    "test": "deno test -A --parallel --coverage=coverage",
+    "test": "deno test -A --parallel",
+    "test:coverage": "deno test -A --parallel --coverage=coverage",
     "test:debug": "deno test -A --inspect",
-    "coverage": "deno coverage --lcov --output=coverage/lcov.info coverage",
+    "coverage": "deno coverage coverage",
+    "coverage:report": "deno coverage --lcov --output=coverage/lcov.info coverage",
     "format": "deno fmt",
     "lint": "deno lint",
     "documentation": "deno doc src/index.ts"

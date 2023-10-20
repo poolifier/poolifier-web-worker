@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.0.5] - 2023-10-20
+
 ### Changed
 
 - Use builtin retry mechanism in worker choice strategies instead of custom one.
