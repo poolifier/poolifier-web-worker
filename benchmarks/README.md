@@ -51,4 +51,4 @@ to run the benchmark. -->
 To run the internal benchmark, you just need to navigate to the root of
 poolifier cloned repository and run `deno task benchmark`.
 
-### [Results](https://poolifier.github.io/benchmark-results/dev/bench)
+### [Results](https://bencher.dev/perf/poolifier-deno)
