@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.0.6] - 2023-10-20
+
 ### Added
 
 - Add Bencher benchmark:
