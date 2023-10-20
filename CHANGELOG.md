@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Add Bencher benchmark:
+  [https://bencher.dev/perf/poolifier-deno](https://bencher.dev/perf/poolifier-deno).
+
 ## [0.0.5] - 2023-10-20
 
 ### Changed
