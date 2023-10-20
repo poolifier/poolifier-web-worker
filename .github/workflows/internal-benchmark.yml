@@ -32,4 +32,4 @@ jobs:
           --else-if-branch master \
           --err \
           --github-actions ${{ secrets.GITHUB_TOKEN }} \
-          "deno task benchmark"
+          "deno task benchmark:json"
