@@ -49,8 +49,8 @@ export class ThreadWorker<
     message: MsgEvent<MessageValue<Data>>,
   ): void {
     if (
-      message.data?.ready === false &&
       message.data?.workerId != null &&
+      message.data?.ready === false &&
       message.data?.port != null
     ) {
       try {
