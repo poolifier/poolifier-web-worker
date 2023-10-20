@@ -12,7 +12,7 @@ import {
 } from '../src/index.ts'
 import { TaskFunctions } from './benchmarks-types.mjs'
 
-export const buildPoolifierPool = (
+const buildPoolifierPool = (
   workerType,
   poolType,
   poolSize,
@@ -69,12 +69,15 @@ const runPoolifierPool = async (
 
 export const runPoolifierPoolBenchmark = async (
   name,
-  pool,
+  workerType,
+  poolType,
+  poolSize,
   { taskExecutions, workerData },
 ) => {
   return await new Promise((resolve, reject) => {
+    const pool = buildPoolifierPool(workerType, poolType, poolSize)
+    const suite = new Benchmark.Suite(name)
     try {
-      const suite = new Benchmark.Suite(name)
       for (
         const workerChoiceStrategy of Object.values(
           WorkerChoiceStrategies,
@@ -150,12 +153,11 @@ export const runPoolifierPoolBenchmark = async (
               LIST_FORMATTER.format(this.filter('fastest').map('name')),
           )
           await pool.destroy()
-          pool = undefined
           resolve()
         })
         .run({ async: true })
     } catch (error) {
-      reject(error)
+      pool.destroy().then(() => reject(error))
     }
   })
 }

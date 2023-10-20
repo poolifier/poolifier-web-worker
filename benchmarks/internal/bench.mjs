@@ -4,7 +4,7 @@ import {
   WorkerTypes,
 } from '../../src/index.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
-import { runPoolifierPoolDenoBenchmark } from '../benchmarks-utils.mjs'
+import { runPoolifierPoolBenchmark } from '../benchmarks-utils.mjs'
 
 const poolSize = availableParallelism()
 const taskExecutions = 1
@@ -14,7 +14,7 @@ const workerData = {
 }
 
 // FixedThreadPool
-await runPoolifierPoolDenoBenchmark(
+await runPoolifierPoolBenchmark(
   'Poolifier FixedThreadPool',
   WorkerTypes.web,
   PoolTypes.fixed,
@@ -26,7 +26,7 @@ await runPoolifierPoolDenoBenchmark(
 )
 
 // DynamicThreadPool
-await runPoolifierPoolDenoBenchmark(
+await runPoolifierPoolBenchmark(
   'Poolifier DynamicThreadPool',
   WorkerTypes.web,
   PoolTypes.dynamic,
