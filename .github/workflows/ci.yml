@@ -34,6 +34,10 @@ jobs:
         with:
           deno-version: ${{ matrix.deno }}
 
+      - name: Format Check
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
+        run: deno task format:check
+
       - name: Lint
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         run: deno task lint

@@ -160,6 +160,107 @@ export const runPoolifierPoolBenchmark = async (
   })
 }
 
+export const runPoolifierPoolDenoBenchmark = (
+  name,
+  workerType,
+  poolType,
+  poolSize,
+  { taskExecutions, workerData },
+) => {
+  try {
+    for (
+      const workerChoiceStrategy of Object.values(
+        WorkerChoiceStrategies,
+      )
+    ) {
+      for (const enableTasksQueue of [false, true]) {
+        if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
+          for (
+            const measurement of [
+              Measurements.runTime,
+            ]
+          ) {
+            Deno.bench(
+              `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
+                enableTasksQueue ? 'with' : 'without'
+              } tasks queue`,
+              { group: `${name}` },
+              async (b) => {
+                const pool = buildPoolifierPool(
+                  workerType,
+                  poolType,
+                  poolSize,
+                  {
+                    workerChoiceStrategy,
+                    workerChoiceStrategyOptions: {
+                      measurement,
+                    },
+                    enableTasksQueue,
+                  },
+                )
+                assert.strictEqual(
+                  pool.opts.workerChoiceStrategy,
+                  workerChoiceStrategy,
+                )
+                assert.strictEqual(
+                  pool.opts.enableTasksQueue,
+                  enableTasksQueue,
+                )
+                assert.strictEqual(
+                  pool.opts.workerChoiceStrategyOptions.measurement,
+                  measurement,
+                )
+                b.start()
+                await runPoolifierPool(pool, {
+                  taskExecutions,
+                  workerData,
+                })
+                b.end()
+                await pool.destroy()
+              },
+            )
+          }
+        } else {
+          Deno.bench(
+            `${name} with ${workerChoiceStrategy} and ${
+              enableTasksQueue ? 'with' : 'without'
+            } tasks queue`,
+            { group: `${name}` },
+            async (b) => {
+              const pool = buildPoolifierPool(
+                workerType,
+                poolType,
+                poolSize,
+                {
+                  workerChoiceStrategy,
+                  enableTasksQueue,
+                },
+              )
+              assert.strictEqual(
+                pool.opts.workerChoiceStrategy,
+                workerChoiceStrategy,
+              )
+              assert.strictEqual(
+                pool.opts.enableTasksQueue,
+                enableTasksQueue,
+              )
+              b.start()
+              await runPoolifierPool(pool, {
+                taskExecutions,
+                workerData,
+              })
+              b.end()
+              await pool.destroy()
+            },
+          )
+        }
+      }
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 const LIST_FORMATTER = new Intl.ListFormat('en-US', {
   style: 'long',
   type: 'conjunction',

@@ -6,15 +6,16 @@ on:
     branches:
       - master
 
-permissions:
-  contents: write
-  deployments: write
-
 jobs:
   internal-benchmark:
     if: github.repository == 'poolifier/poolifier-deno'
     # runs-on: [self-hosted, internal-benchmark]
     runs-on: [ubuntu-latest]
+    env:
+      BENCHER_PROJECT: poolifier-deno
+      BENCHER_API_TOKEN: ${{ secrets.BENCHER_API_TOKEN }}
+      BENCHER_ADAPTER: json
+      BENCHER_TESTBED: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,18 +23,13 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Run production benchmark
-        run: deno task benchmark | tee ./benchmarks/internal/output.txt
-#       - name: Store production benchmark result
-#         uses: benchmark-action/github-action-benchmark@v1
-#         with:
-#           name: Internal benchmark
-#           tool: 'benchmarkjs'
-#           output-file-path: ./benchmarks/internal/output.txt
-#           github-token: ${{ secrets.BENCHMARK_RESULTS_TOKEN }}
-#           auto-push: true
-#           alert-threshold: '200%'
-#           comment-on-alert: true
-#           fail-on-alert: true
-#           max-items-in-chart: 100
-#           gh-repository: 'github.com/poolifier/benchmark-results'
+      - uses: bencherdev/bencher@main
+      - name: Run benchmark
+        run: |
+          bencher run \\
+          --if-branch "$GITHUB_REF_NAME" \\
+          --else-if-branch "$GITHUB_BASE_REF" \\
+          --else-if-branch master \\
+          --err \\
+          --github-actions ${{ secrets.GITHUB_TOKEN }} \\
+          "deno task benchmark"
