@@ -9,8 +9,9 @@ on:
 jobs:
   internal-benchmark:
     if: github.repository == 'poolifier/poolifier-deno'
-    # runs-on: [self-hosted, internal-benchmark]
-    runs-on: [ubuntu-latest]
+    runs-on:
+      group: default
+      labels: [self-hosted, internal-benchmark]
     env:
       BENCHER_PROJECT: poolifier-deno
       BENCHER_API_TOKEN: ${{ secrets.BENCHER_API_TOKEN }}
