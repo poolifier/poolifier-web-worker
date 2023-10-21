@@ -16,7 +16,7 @@ jobs:
       BENCHER_PROJECT: poolifier-deno
       BENCHER_API_TOKEN: ${{ secrets.BENCHER_API_TOKEN }}
       BENCHER_ADAPTER: js_benchmark
-      BENCHER_TESTBED: ubuntu-latest
+      BENCHER_TESTBED: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
