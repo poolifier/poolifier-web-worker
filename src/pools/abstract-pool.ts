@@ -1213,8 +1213,8 @@ export abstract class AbstractPool<
     worker.onmessageerror = this.opts.messageEventErrorHandler ?? EMPTY_FUNCTION
     worker.onerror = (error) => {
       const workerNodeKey = this.getWorkerNodeKeyByWorker(worker)
+      this.flagWorkerNodeAsNotReady(workerNodeKey)
       const workerInfo = this.getWorkerInfo(workerNodeKey)
-      workerInfo.ready = false
       this.emitter?.emit(PoolEvents.error, error)
       this.workerNodes[workerNodeKey].terminate()
       if (
