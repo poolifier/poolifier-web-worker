@@ -15,7 +15,7 @@ const workerData = {
 
 // FixedThreadPool
 await runPoolifierPoolBenchmark(
-  'Poolifier FixedThreadPool',
+  'FixedThreadPool',
   WorkerTypes.web,
   PoolTypes.fixed,
   poolSize,
@@ -27,7 +27,7 @@ await runPoolifierPoolBenchmark(
 
 // DynamicThreadPool
 await runPoolifierPoolBenchmark(
-  'Poolifier DynamicThreadPool',
+  'DynamicThreadPool',
   WorkerTypes.web,
   PoolTypes.dynamic,
   poolSize,
