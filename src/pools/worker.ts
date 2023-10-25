@@ -172,6 +172,8 @@ export interface StrategyData {
 
 /**
  * Worker interface.
+ *
+ * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  */
 export interface IWorker<Data = unknown> {
   /**

@@ -13,6 +13,7 @@ import {
   DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   EMPTY_FUNCTION,
   exponentialDelay,
+  getWorkerId,
   getWorkerType,
   isAsyncFunction,
   isKillBehavior,
@@ -81,6 +82,22 @@ Deno.test('Utils test suite', async (t) => {
     expect(
       getWorkerType(worker),
     ).toBe(WorkerTypes.web)
+    worker.terminate()
+  })
+
+  await t.step('Verify getWorkerId() behavior', () => {
+    const worker = new Worker(
+      new URL(
+        './../tests/worker-files/thread/testWorker.mjs',
+        import.meta.url,
+      ),
+      {
+        type: 'module',
+      },
+    )
+    expect(getWorkerId(worker)).toMatch(
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+    )
     worker.terminate()
   })
 

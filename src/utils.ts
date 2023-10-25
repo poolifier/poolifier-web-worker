@@ -6,6 +6,7 @@ import type {
 } from './pools/selection-strategies/selection-strategies-types.ts'
 import type { KillBehavior } from './worker/worker-options.ts'
 import { type IWorker, type WorkerType, WorkerTypes } from './pools/worker.ts'
+import { randomUUID } from 'node:crypto'
 
 /**
  * Default task name.
@@ -64,6 +65,9 @@ export const availableParallelism = (): number => {
  *
  * @param worker - The worker to get the type of.
  * @returns The worker type of the given worker.
+ *
+ * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
+ *
  * @internal
  */
 export const getWorkerType = <Data = unknown>(
@@ -71,6 +75,24 @@ export const getWorkerType = <Data = unknown>(
 ): WorkerType | undefined => {
   if (worker instanceof Worker) {
     return WorkerTypes.web
+  }
+}
+
+/**
+ * Returns the worker id of the given worker.
+ *
+ * @param worker - The worker to get the id of.
+ * @returns The worker id of the given worker.
+ *
+ * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
+ *
+ * @internal
+ */
+export const getWorkerId = <Data = unknown>(
+  worker: IWorker<Data>,
+): string | undefined => {
+  if (worker instanceof Worker) {
+    return randomUUID()
   }
 }
 

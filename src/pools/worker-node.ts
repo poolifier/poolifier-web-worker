@@ -4,6 +4,7 @@ import {
   DEFAULT_TASK_NAME,
   EMPTY_FUNCTION,
   exponentialDelay,
+  getWorkerId,
   getWorkerType,
   sleep,
 } from '../utils.ts'
@@ -18,7 +19,6 @@ import {
   type WorkerUsage,
 } from './worker.ts'
 import { checkWorkerNodeArguments } from './utils.ts'
-import { randomUUID } from 'node:crypto'
 
 /**
  * Worker node.
@@ -225,7 +225,7 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
 
   private initWorkerInfo(worker: Worker): WorkerInfo {
     return {
-      id: randomUUID(),
+      id: getWorkerId<Data>(worker),
       type: getWorkerType<Data>(worker) as WorkerType,
       dynamic: false,
       ready: false,
