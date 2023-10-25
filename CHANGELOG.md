@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.0.7] - 2023-10-25
+
 ### Fixed
 
 - Ensure pool cannot be initialized from a worker.
