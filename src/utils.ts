@@ -242,7 +242,7 @@ export const max = (...args: number[]): number =>
  * @returns The wrapped function.
  * @internal
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// deno-lint-ignore no-explicit-any
 export const once = <T, A extends any[], R>(
   fn: (...args: A) => R,
   context: T,
