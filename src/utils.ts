@@ -1,12 +1,11 @@
 import * as os from 'node:os'
-import { webcrypto } from 'node:crypto'
+import { randomUUID, webcrypto } from 'node:crypto'
 import type {
   MeasurementStatisticsRequirements,
   WorkerChoiceStrategyOptions,
 } from './pools/selection-strategies/selection-strategies-types.ts'
 import type { KillBehavior } from './worker/worker-options.ts'
 import { type IWorker, type WorkerType, WorkerTypes } from './pools/worker.ts'
-import { randomUUID } from 'node:crypto'
 
 /**
  * Default task name.
