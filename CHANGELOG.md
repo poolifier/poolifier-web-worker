@@ -10,9 +10,8 @@ and this project adheres to
 
 ### Fixed
 
-- Ensure worker ready response can be received only once.
-
-<!-- - Ensure pool ready event can be emitted only once. -->
+- Ensure pool cannot be initialized from a worker.
+- Ensure worker initialization is done once.
 
 ## [0.0.6] - 2023-10-20
 

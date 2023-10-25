@@ -258,3 +258,10 @@ export const once = <T, A extends any[], R>(
     return result
   }
 }
+
+export const isWebWorker = () => {
+  return (
+    typeof WorkerGlobalScope !== 'undefined' &&
+    self instanceof WorkerGlobalScope
+  )
+}

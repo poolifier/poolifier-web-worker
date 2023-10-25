@@ -133,6 +133,11 @@ export abstract class AbstractPool<
     protected readonly fileURL: URL,
     protected readonly opts: PoolOptions<Data>,
   ) {
+    if (!this.isMain()) {
+      throw new Error(
+        'Cannot start a pool from a worker with the same type as the pool',
+      )
+    }
     checkFileURL(this.fileURL)
     this.checkNumberOfWorkers(this.numberOfWorkers)
     this.checkPoolOptions(this.opts)
@@ -999,6 +1004,11 @@ export abstract class AbstractPool<
   }
 
   /**
+   * Should return whether the worker is the main worker or not.
+   */
+  protected abstract isMain(): boolean
+
+  /**
    * Hook executed before the worker task execution.
    * Can be overridden.
    *
@@ -1536,11 +1546,6 @@ export abstract class AbstractPool<
     const workerInfo = this.getWorkerInfo(
       this.getWorkerNodeKeyByWorkerId(message.workerId),
     )
-    if (!this.started && workerInfo.ready) {
-      throw new Error(
-        `Ready response already received by worker ${message.workerId}`,
-      )
-    }
     workerInfo.ready = message.ready as boolean
     workerInfo.taskFunctionNames = message.taskFunctionNames
     if (this.ready) {

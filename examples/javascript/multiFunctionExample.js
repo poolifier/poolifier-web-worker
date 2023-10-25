@@ -6,10 +6,6 @@ import {
 const pool = new FixedThreadPool(
   availableParallelism(),
   new URL('./multiFunctionWorker.js', import.meta.url),
-  {
-    errorHandler: (e) => console.error(e),
-    onlineHandler: () => console.info('worker is online'),
-  },
 )
 
 pool

@@ -2,6 +2,7 @@ import type { MessageValue, MsgEvent } from '../utility-types.ts'
 import { AbstractWorker } from './abstract-worker.ts'
 import type { WorkerOptions } from './worker-options.ts'
 import type { TaskFunction, TaskFunctions } from './task-functions.ts'
+import { isWebWorker } from '../utils.ts'
 
 /**
  * A thread worker used by a poolifier `ThreadPool`.
@@ -26,7 +27,7 @@ export class ThreadWorker<
    */
   private port!: MessagePort
   /** @inheritdoc */
-  public id!: string
+  public id?: string
   /**
    * Constructs a new poolifier thread worker.
    *
@@ -38,6 +39,7 @@ export class ThreadWorker<
     opts: WorkerOptions = {},
   ) {
     super(
+      !isWebWorker(),
       self,
       taskFunctions,
       opts,
@@ -48,7 +50,9 @@ export class ThreadWorker<
   protected handleReadyMessageEvent(
     message: MsgEvent<MessageValue<Data>>,
   ): void {
-    if (
+    if (this.id != null) {
+      return
+    } else if (
       message.data?.workerId != null &&
       message.data?.ready === false &&
       message.data?.port != null

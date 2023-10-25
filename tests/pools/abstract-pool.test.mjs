@@ -24,6 +24,11 @@ Deno.test({
   name: 'Abstract pool test suite',
   fn: async (t) => {
     const numberOfWorkers = 2
+    class StubPoolWithIsMain extends FixedThreadPool {
+      isMain() {
+        return false
+      }
+    }
 
     await t.step('Verify that pool can be created and destroyed', async () => {
       const pool = new FixedThreadPool(
@@ -36,6 +41,23 @@ Deno.test({
       expect(pool).toBeInstanceOf(FixedThreadPool)
       await pool.destroy()
     })
+
+    await t.step(
+      'Verify that pool cannot be created from a non main thread/process',
+      () => {
+        expect(
+          () =>
+            new StubPoolWithIsMain(
+              numberOfWorkers,
+              './tests/worker-files/thread/testWorker.mjs',
+            ),
+        ).toThrow(
+          new Error(
+            'Cannot start a pool from a worker with the same type as the pool',
+          ),
+        )
+      },
+    )
 
     await t.step('Verify that pool statuses properties are set', async () => {
       const pool = new FixedThreadPool(

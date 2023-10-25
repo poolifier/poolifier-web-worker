@@ -1,4 +1,5 @@
 import type { MessageValue } from '../../utility-types.ts'
+import { isWebWorker } from '../../utils.ts'
 import { AbstractPool } from '../abstract-pool.ts'
 import { type PoolOptions, type PoolType, PoolTypes } from '../pool.ts'
 import { type WorkerType, WorkerTypes } from '../worker.ts'
@@ -40,6 +41,10 @@ export class FixedThreadPool<
     protected readonly opts: ThreadPoolOptions<Data> = {},
   ) {
     super(numberOfThreads, fileURL, opts)
+  }
+  /** @inheritDoc */
+  protected isMain(): boolean {
+    return !isWebWorker()
   }
 
   /** @inheritDoc */

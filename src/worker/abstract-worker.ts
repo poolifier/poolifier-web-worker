@@ -58,7 +58,7 @@ export abstract class AbstractWorker<
   /**
    * Worker id.
    */
-  protected abstract id: string
+  protected abstract id?: string
   /**
    * Task function(s) processed by the worker when the pool's `execution` function is invoked.
    */
@@ -77,23 +77,29 @@ export abstract class AbstractWorker<
   protected activeInterval?: number
   /**
    * Constructs a new poolifier worker.
-   *
+   * @param isMain - Whether this is the main worker or not.
    * @param mainWorker - Reference to main worker.
    * @param taskFunctions - Task function(s) processed by the worker when the pool's `execution` function is invoked. The first function is the default function.
    * @param opts - Options for the worker.
    */
   public constructor(
+    private readonly isMain: boolean,
     private readonly mainWorker: MainWorker,
     taskFunctions: TaskFunction<Data, Response> | TaskFunctions<Data, Response>,
     protected opts: WorkerOptions = DEFAULT_WORKER_OPTIONS,
   ) {
+    if (this.isMain == null) {
+      throw new Error('isMain parameter is mandatory')
+    }
     this.checkTaskFunctions(taskFunctions)
     this.checkWorkerOptions(this.opts)
-    this.getMainWorker().addEventListener(
-      'message',
-      this.handleReadyMessageEvent.bind(this),
-      { once: true },
-    )
+    if (!this.isMain) {
+      this.getMainWorker().addEventListener(
+        'message',
+        this.handleReadyMessageEvent.bind(this),
+        { once: true },
+      )
+    }
   }
 
   private checkWorkerOptions(opts: WorkerOptions): void {
