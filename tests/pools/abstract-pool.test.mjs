@@ -69,6 +69,7 @@ Deno.test({
       )
       expect(pool.starting).toBe(false)
       expect(pool.started).toBe(true)
+      expect(pool.stopping).toBe(false)
       await pool.destroy()
     })
 
