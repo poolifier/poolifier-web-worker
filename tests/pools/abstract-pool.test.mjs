@@ -25,6 +25,18 @@ Deno.test({
   fn: async (t) => {
     const numberOfWorkers = 2
 
+    await t.step('Verify that pool can be created and destroyed', async () => {
+      const pool = new FixedThreadPool(
+        numberOfWorkers,
+        new URL(
+          './../worker-files/thread/testWorker.mjs',
+          import.meta.url,
+        ),
+      )
+      expect(pool).toBeInstanceOf(FixedThreadPool)
+      await pool.destroy()
+    })
+
     await t.step('Verify that pool statuses properties are set', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
