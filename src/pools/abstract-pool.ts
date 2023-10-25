@@ -16,6 +16,7 @@ import {
   max,
   median,
   min,
+  once,
   round,
 } from '../utils.ts'
 import { KillBehaviors } from '../worker/worker-options.ts'
@@ -969,8 +970,7 @@ export abstract class AbstractPool<
         } else if (message.kill === 'failure') {
           reject(
             new Error(
-              `Kill message handling failed on worker ${message
-                .workerId as string}`,
+              `Kill message handling failed on worker ${message.workerId}`,
             ),
           )
         }
@@ -1530,16 +1530,25 @@ export abstract class AbstractPool<
     }
     if (message.ready === false) {
       throw new Error(
-        `Worker ${message.workerId as string} failed to initialize`,
+        `Worker ${message.workerId} failed to initialize`,
       )
     }
     const workerInfo = this.getWorkerInfo(
       this.getWorkerNodeKeyByWorkerId(message.workerId),
     )
+    if (!this.started && workerInfo.ready) {
+      throw new Error(
+        `Ready response already received by worker ${message.workerId}`,
+      )
+    }
     workerInfo.ready = message.ready as boolean
     workerInfo.taskFunctionNames = message.taskFunctionNames
     if (this.ready) {
-      this.emitter?.emit(PoolEvents.ready, this.info)
+      const emitPoolReadyEventOnce = once(
+        () => this.emitter?.emit(PoolEvents.ready, this.info),
+        this,
+      )
+      emitPoolReadyEventOnce()
     }
   }
 
