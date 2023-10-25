@@ -3,6 +3,8 @@ import type { Task } from '../utility-types.ts'
 
 /**
  * Callback invoked if the worker has received a message event.
+ *
+ * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  */
 export type MessageEventHandler<Data = unknown> = (
   e: MessageEvent<Data>,
@@ -10,6 +12,8 @@ export type MessageEventHandler<Data = unknown> = (
 
 /**
  * Callback invoked if the worker raised an error at processing a message event.
+ *
+ * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  */
 export type MessageEventErrorHandler<Data = unknown> = (
   e: MessageEvent<Data>,
