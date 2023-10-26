@@ -18,6 +18,7 @@ import {
   isAsyncFunction,
   isKillBehavior,
   isPlainObject,
+  isWebWorker,
   max,
   median,
   min,
@@ -272,5 +273,9 @@ Deno.test('Utils test suite', async (t) => {
     const result3 = onceFn()
     expect(called).toBe(1)
     expect(result3).toBe(1)
+  })
+
+  await t.step('Verify isWebWorker()', () => {
+    expect(isWebWorker()).toBe(false)
   })
 })

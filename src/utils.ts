@@ -280,6 +280,12 @@ export const once = <T, A extends any[], R>(
   }
 }
 
+/**
+ * Returns whether the current environment is a web worker or not.
+ *
+ * @returns `true` if the current environment is a web worker, `false` otherwise.
+ * @internal
+ */
 export const isWebWorker = () => {
   return (
     typeof WorkerGlobalScope !== 'undefined' &&
