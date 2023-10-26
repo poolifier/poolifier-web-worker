@@ -7,6 +7,7 @@ import {
 } from './selection-strategies/selection-strategies-types.ts'
 import type { TasksQueueOptions } from './pool.ts'
 import type { IWorker, MeasurementStatistics } from './worker.ts'
+import { MessageValue } from '../utility-types.ts'
 
 export const checkFileURL = (fileURL: URL): void => {
   if (!existsSync(fileURL)) {
@@ -156,3 +157,8 @@ export const updateMeasurementStatistics = (
     }
   }
 }
+
+export const messageListenerToEventListener = <Message = unknown>(
+  listener: (message: MessageValue<Message>) => void,
+): (event: Event) => void =>
+(event: Event) => listener((event as CustomEvent<MessageValue<Message>>).detail)

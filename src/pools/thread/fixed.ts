@@ -2,6 +2,7 @@ import type { MessageValue } from '../../utility-types.ts'
 import { isWebWorker } from '../../utils.ts'
 import { AbstractPool } from '../abstract-pool.ts'
 import { type PoolOptions, type PoolType, PoolTypes } from '../pool.ts'
+import { messageListenerToEventListener } from '../utils.ts'
 import { type WorkerType, WorkerTypes } from '../worker.ts'
 
 /**
@@ -94,8 +95,7 @@ export class FixedThreadPool<
   ): void {
     this.workerNodes[workerNodeKey].addEventListener(
       'message',
-      (messageEvent) =>
-        listener((messageEvent as CustomEvent<MessageValue<Message>>).detail),
+      messageListenerToEventListener<Message>(listener),
     )
   }
 
@@ -106,8 +106,7 @@ export class FixedThreadPool<
   ): void {
     this.workerNodes[workerNodeKey].addEventListener(
       'message',
-      (messageEvent) =>
-        listener((messageEvent as CustomEvent<MessageValue<Message>>).detail),
+      messageListenerToEventListener<Message>(listener),
       {
         once: true,
       },
@@ -121,8 +120,7 @@ export class FixedThreadPool<
   ): void {
     this.workerNodes[workerNodeKey].removeEventListener(
       'message',
-      (messageEvent) =>
-        listener((messageEvent as CustomEvent<MessageValue<Message>>).detail),
+      messageListenerToEventListener<Message>(listener),
     )
   }
 
