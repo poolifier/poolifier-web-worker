@@ -3,7 +3,7 @@ import {
   stub,
 } from 'https://deno.land/std@0.204.0/testing/mock.ts'
 import { expect } from 'npm:expect'
-import { KillBehaviors, ThreadWorker } from '../../src/index.ts'
+import { KillBehaviors, ThreadWorker } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME, EMPTY_FUNCTION } from '../../src/utils.ts'
 
 Deno.test('Abstract worker test suite', async (t) => {

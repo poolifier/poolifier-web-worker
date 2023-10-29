@@ -1,8 +1,4 @@
-import {
-  availableParallelism,
-  PoolTypes,
-  WorkerTypes,
-} from '../../src/index.ts'
+import { availableParallelism, PoolTypes, WorkerTypes } from '../../src/mod.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
 import { runPoolifierPoolBenchmark } from '../benchmarks-utils.mjs'
 

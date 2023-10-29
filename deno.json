@@ -17,7 +17,7 @@
     "format": "deno fmt",
     "format:check": "deno fmt --check",
     "lint": "deno lint",
-    "documentation": "deno doc src/index.ts"
+    "documentation": "deno doc src/mod.ts"
   },
   "fmt": {
     "semiColons": false,

@@ -1,4 +1,4 @@
-import { ThreadWorker } from '../../../src/index.ts'
+import { ThreadWorker } from '../../../src/mod.ts'
 import { sleepTaskFunction } from '../../test-utils.mjs'
 
 /**

@@ -1,4 +1,4 @@
-import { KillBehaviors, ThreadWorker } from '../../../src/index.ts'
+import { KillBehaviors, ThreadWorker } from '../../../src/mod.ts'
 
 /**
  * @param data

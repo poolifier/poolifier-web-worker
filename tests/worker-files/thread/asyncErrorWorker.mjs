@@ -1,4 +1,4 @@
-import { KillBehaviors, ThreadWorker } from '../../../src/index.ts'
+import { KillBehaviors, ThreadWorker } from '../../../src/mod.ts'
 import { sleepTaskFunction } from '../../test-utils.mjs'
 
 /**

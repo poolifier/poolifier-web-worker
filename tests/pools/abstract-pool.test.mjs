@@ -12,7 +12,7 @@ import {
   PoolTypes,
   WorkerChoiceStrategies,
   WorkerTypes,
-} from '../../src/index.ts'
+} from '../../src/mod.ts'
 import { waitPoolEvents } from '../test-utils.mjs'
 import { version } from '../../src/pools/version.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'

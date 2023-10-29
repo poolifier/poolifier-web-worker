@@ -3,7 +3,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   WorkerChoiceStrategies,
-} from '../../../src/index.ts'
+} from '../../../src/mod.ts'
 import { CircularArray } from '../../../src/circular-array.ts'
 
 Deno.test({

@@ -1,5 +1,5 @@
 import { expect } from 'npm:expect'
-import { FixedThreadPool } from '../../../src/index.ts'
+import { FixedThreadPool } from '../../../src/mod.ts'
 import { generateRandomInteger } from '../../test-utils.mjs'
 import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.ts'
 

@@ -1,4 +1,4 @@
-import { ThreadWorker } from 'https://deno.land/x/poolifier/src/index.ts'
+import { ThreadWorker } from 'https://deno.land/x/poolifier/src/mod.ts'
 
 export interface MyData {
   ok: 0 | 1

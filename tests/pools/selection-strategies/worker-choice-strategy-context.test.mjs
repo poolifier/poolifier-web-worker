@@ -8,7 +8,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   WorkerChoiceStrategies,
-} from '../../../src/index.ts'
+} from '../../../src/mod.ts'
 import { FairShareWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/fair-share-worker-choice-strategy.ts'
 import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/interleaved-weighted-round-robin-worker-choice-strategy.ts'
 import { LeastBusyWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/least-busy-worker-choice-strategy.ts'

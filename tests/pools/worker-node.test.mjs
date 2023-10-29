@@ -1,5 +1,5 @@
 import { expect } from 'npm:expect'
-import { WorkerTypes } from '../../src/index.ts'
+import { WorkerTypes } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 import { CircularArray } from '../../src/circular-array.ts'
 import { Deque } from '../../src/deque.ts'

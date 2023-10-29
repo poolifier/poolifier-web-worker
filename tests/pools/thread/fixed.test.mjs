@@ -1,5 +1,5 @@
 import { expect } from 'npm:expect'
-import { FixedThreadPool, PoolEvents } from '../../../src/index.ts'
+import { FixedThreadPool, PoolEvents } from '../../../src/mod.ts'
 import { TaskFunctions } from '../../test-types.mjs'
 import { waitPoolEvents, waitWorkerNodeEvents } from '../../test-utils.mjs'
 import { DEFAULT_TASK_NAME } from '../../../src/utils.ts'

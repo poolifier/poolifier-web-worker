@@ -9,7 +9,7 @@ import {
   PoolTypes,
   WorkerChoiceStrategies,
   WorkerTypes,
-} from '../src/index.ts'
+} from '../src/mod.ts'
 import { TaskFunctions } from './benchmarks-types.mjs'
 
 const buildPoolifierPool = (
