@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Ensure pool statuses are checked at initialization, `start()` or `destroy()`
+
 ## [0.0.9] - 2023-10-29
 
 ### Changed

@@ -113,9 +113,9 @@ export abstract class AbstractPool<
    */
   private starting: boolean
   /**
-   * Whether the pool is stopping or not.
+   * Whether the pool is destroying or not.
    */
-  private stopping: boolean
+  private destroying: boolean
   /**
    * The start timestamp of the pool.
    */
@@ -165,7 +165,7 @@ export abstract class AbstractPool<
 
     this.started = false
     this.starting = false
-    this.stopping = false
+    this.destroying = false
     if (this.opts.startWorkers === true) {
       this.start()
     }
@@ -502,7 +502,7 @@ export abstract class AbstractPool<
     if (message.workerId == null) {
       throw new Error('Worker message received without worker id')
     } else if (
-      !this.stopping &&
+      !this.destroying &&
       this.getWorkerNodeKeyByWorkerId(message.workerId) === -1
     ) {
       throw new Error(
@@ -892,6 +892,10 @@ export abstract class AbstractPool<
         reject(new Error('Cannot execute a task on not started pool'))
         return
       }
+      if (this.destroying) {
+        reject(new Error('Cannot execute a task on destroying pool'))
+        return
+      }
       if (name != null && typeof name !== 'string') {
         reject(new TypeError('name argument must be a string'))
         return
@@ -937,6 +941,15 @@ export abstract class AbstractPool<
 
   /** @inheritdoc */
   public start(): void {
+    if (this.started) {
+      throw new Error('Cannot start an already started pool')
+    }
+    if (this.starting) {
+      throw new Error('Cannot start an already starting pool')
+    }
+    if (this.destroying) {
+      throw new Error('Cannot start a destroying pool')
+    }
     this.starting = true
     while (
       this.workerNodes.reduce(
@@ -953,14 +966,23 @@ export abstract class AbstractPool<
 
   /** @inheritDoc */
   public async destroy(): Promise<void> {
-    this.stopping = true
+    if (!this.started) {
+      throw new Error('Cannot destroy an already destroyed pool')
+    }
+    if (this.starting) {
+      throw new Error('Cannot destroy an starting pool')
+    }
+    if (this.destroying) {
+      throw new Error('Cannot destroy an already destroying pool')
+    }
+    this.destroying = true
     await Promise.all(
       this.workerNodes.map(async (_, workerNodeKey) => {
         await this.destroyWorkerNode(workerNodeKey)
       }),
     )
     this.emitter?.emit(PoolEvents.destroy, this.info)
-    this.stopping = false
+    this.destroying = false
     this.started = false
   }
 
@@ -1231,6 +1253,7 @@ export abstract class AbstractPool<
       if (
         this.started &&
         !this.starting &&
+        !this.destroying &&
         this.opts.restartWorkerOnError === true
       ) {
         if (workerInfo.dynamic) {
@@ -1535,7 +1558,7 @@ export abstract class AbstractPool<
   }
 
   private handleWorkerReadyResponse(message: MessageValue<Response>): void {
-    if (this.stopping) {
+    if (this.destroying) {
       return
     }
     if (message.ready === false) {

@@ -177,8 +177,6 @@ Deno.test({
         await pool.destroy()
       },
     )
-
-    await pool.destroy()
   },
   sanitizeResources: false,
   sanitizeOps: false,

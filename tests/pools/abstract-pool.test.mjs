@@ -67,9 +67,9 @@ Deno.test({
           import.meta.url,
         ),
       )
-      expect(pool.starting).toBe(false)
       expect(pool.started).toBe(true)
-      expect(pool.stopping).toBe(false)
+      expect(pool.starting).toBe(false)
+      expect(pool.destroying).toBe(false)
       await pool.destroy()
     })
 
@@ -1042,6 +1042,30 @@ Deno.test({
       }
       await pool.destroy()
     })
+
+    await t.step(
+      'Verify that pool statuses are checked at start or destroy',
+      async () => {
+        const pool = new FixedThreadPool(
+          numberOfWorkers,
+          new URL(
+            './../worker-files/thread/testWorker.mjs',
+            import.meta.url,
+          ),
+        )
+        expect(pool.info.started).toBe(true)
+        expect(pool.info.ready).toBe(true)
+        expect(() => pool.start()).toThrow(
+          new Error('Cannot start an already started pool'),
+        )
+        await pool.destroy()
+        expect(pool.info.started).toBe(false)
+        expect(pool.info.ready).toBe(false)
+        await expect(pool.destroy()).rejects.toThrow(
+          new Error('Cannot destroy an already destroyed pool'),
+        )
+      },
+    )
 
     await t.step(
       'Verify that pool can be started after initialization',
