@@ -1660,6 +1660,27 @@ Deno.test({
           ),
         )
         await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
+        const workerId = dynamicThreadPool.workerNodes[0].info.id
+        await expect(dynamicThreadPool.setDefaultTaskFunction(0)).rejects
+          .toThrow(
+            new Error(
+              `Task function operation 'default' failed on worker ${workerId} with error: 'TypeError: name parameter is not a string'`,
+            ),
+          )
+        await expect(
+          dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME),
+        ).rejects.toThrow(
+          new Error(
+            `Task function operation 'default' failed on worker ${workerId} with error: 'Error: Cannot set the default task function reserved name as the default task function'`,
+          ),
+        )
+        await expect(
+          dynamicThreadPool.setDefaultTaskFunction('unknown'),
+        ).rejects.toThrow(
+          new Error(
+            `Task function operation 'default' failed on worker ${workerId} with error: 'Error: Cannot set the default task function to a non-existing task function'`,
+          ),
+        )
         await expect(dynamicThreadPool.setDefaultTaskFunction(0)).rejects
           .toThrow()
         await expect(
