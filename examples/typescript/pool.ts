@@ -20,3 +20,8 @@ export const dynamicPool = new DynamicThreadPool<MyData, Promise<MyResponse>>(
   availableParallelism(),
   workerFileURL,
 )
+
+setTimeout(async () => {
+  await fixedPool.destroy()
+  await dynamicPool.destroy()
+}, 3000)
