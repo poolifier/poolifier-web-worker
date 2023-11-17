@@ -78,10 +78,6 @@ export interface MsgEvent<Data = unknown> extends Event {
  */
 export interface Task<Data = unknown> {
   /**
-   * Worker id.
-   */
-  readonly workerId?: string
-  /**
    * Task name.
    */
   readonly name?: string
@@ -112,6 +108,10 @@ export interface Task<Data = unknown> {
  */
 export interface MessageValue<Data = unknown, ErrorData = unknown>
   extends Task<Data> {
+  /**
+   * Worker id.
+   */
+  readonly workerId?: string
   /**
    * Kill code.
    */
