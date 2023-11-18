@@ -630,7 +630,7 @@ export abstract class AbstractPool<
   private setTaskStealing(): void {
     for (const [workerNodeKey] of this.workerNodes.entries()) {
       this.workerNodes[workerNodeKey].addEventListener(
-        'emptyqueue',
+        'emptyQueue',
         this.handleEmptyQueueEvent as EventListener,
       )
     }
@@ -639,7 +639,7 @@ export abstract class AbstractPool<
   private unsetTaskStealing(): void {
     for (const [workerNodeKey] of this.workerNodes.entries()) {
       this.workerNodes[workerNodeKey].removeEventListener(
-        'emptyqueue',
+        'emptyQueue',
         this.handleEmptyQueueEvent as EventListener,
       )
     }
@@ -648,7 +648,7 @@ export abstract class AbstractPool<
   private setTasksStealingOnBackPressure(): void {
     for (const [workerNodeKey] of this.workerNodes.entries()) {
       this.workerNodes[workerNodeKey].addEventListener(
-        'backpressure',
+        'backPressure',
         this.handleBackPressureEvent as EventListener,
       )
     }
@@ -657,7 +657,7 @@ export abstract class AbstractPool<
   private unsetTasksStealingOnBackPressure(): void {
     for (const [workerNodeKey] of this.workerNodes.entries()) {
       this.workerNodes[workerNodeKey].removeEventListener(
-        'backpressure',
+        'backPressure',
         this.handleBackPressureEvent as EventListener,
       )
     }
@@ -1388,13 +1388,13 @@ export abstract class AbstractPool<
     if (this.opts.enableTasksQueue === true) {
       if (this.opts.tasksQueueOptions?.taskStealing === true) {
         this.workerNodes[workerNodeKey].addEventListener(
-          'emptyqueue',
+          'emptyQueue',
           this.handleEmptyQueueEvent as EventListener,
         )
       }
       if (this.opts.tasksQueueOptions?.tasksStealingOnBackPressure === true) {
         this.workerNodes[workerNodeKey].addEventListener(
-          'backpressure',
+          'backPressure',
           this.handleBackPressureEvent as EventListener,
         )
       }
