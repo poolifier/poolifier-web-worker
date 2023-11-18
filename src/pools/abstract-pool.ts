@@ -1468,8 +1468,9 @@ export abstract class AbstractPool<
   private readonly handleEmptyQueueEvent = (
     event: CustomEvent<WorkerNodeEventDetail>,
   ): void => {
+    const { workerId } = event.detail
     const destinationWorkerNodeKey = this.getWorkerNodeKeyByWorkerId(
-      event.detail.workerId,
+      workerId,
     )
     const workerNodes = this.workerNodes
       .slice()
@@ -1480,7 +1481,7 @@ export abstract class AbstractPool<
     const sourceWorkerNode = workerNodes.find(
       (workerNode) =>
         workerNode.info.ready &&
-        workerNode.info.id !== event.detail.workerId &&
+        workerNode.info.id !== workerId &&
         workerNode.usage.tasks.queued > 0,
     )
     if (sourceWorkerNode != null) {
@@ -1500,12 +1501,13 @@ export abstract class AbstractPool<
   private readonly handleBackPressureEvent = (
     event: CustomEvent<WorkerNodeEventDetail>,
   ): void => {
+    const { workerId } = event.detail
     const sizeOffset = 1
     if ((this.opts.tasksQueueOptions?.size as number) <= sizeOffset) {
       return
     }
     const sourceWorkerNode =
-      this.workerNodes[this.getWorkerNodeKeyByWorkerId(event.detail.workerId)]
+      this.workerNodes[this.getWorkerNodeKeyByWorkerId(workerId)]
     const workerNodes = this.workerNodes
       .slice()
       .sort(
@@ -1516,7 +1518,7 @@ export abstract class AbstractPool<
       if (
         sourceWorkerNode.usage.tasks.queued > 0 &&
         workerNode.info.ready &&
-        workerNode.info.id !== event.detail.workerId &&
+        workerNode.info.id !== workerId &&
         workerNode.usage.tasks.queued <
           (this.opts.tasksQueueOptions?.size as number) - sizeOffset
       ) {
