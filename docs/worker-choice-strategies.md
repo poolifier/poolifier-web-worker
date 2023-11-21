@@ -34,7 +34,7 @@ speed and theirs numbers.
 ### Interleaved weighted round robin (experimental)
 
 The worker weights are maximum tasks execution time. The rounds are the
-deduplicated worker weights.\
+deduplicated worker weights in ascending order.\
 During a round, if the worker weight is superior or equal to the current round
 weight and its tasks execution time is inferior to the current round weight, the
 task is assigned to the worker. Once all workers weight have been tested, the

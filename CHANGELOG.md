@@ -10,19 +10,19 @@ and this project adheres to
 
 ### Fixed
 
-- Ensure pool statuses are checked at initialization, `start()` or `destroy()`
+- Ensure pool statuses are checked at initialization, `start()` or `destroy()`.
 
 ## [0.0.9] - 2023-10-29
 
 ### Changed
 
-- Export via `mod.ts` instead of `index.ts`
+- Export via `mod.ts` instead of `index.ts`.
 
 ## [0.0.8] - 2023-10-27
 
 ### Changed
 
-- Improve documentation
+- Improve documentation.
 
 ## [0.0.7] - 2023-10-25
 
