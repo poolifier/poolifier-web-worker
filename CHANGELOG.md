@@ -11,6 +11,8 @@ and this project adheres to
 ### Fixed
 
 - Ensure pool statuses are checked at initialization, `start()` or `destroy()`.
+- Ensure pool `ready` event can be emitted after several `start()/destroy()`
+  cycles.
 
 ## [0.0.9] - 2023-10-29
 
