@@ -16,7 +16,6 @@ import {
   max,
   median,
   min,
-  once,
   round,
 } from '../utils.ts'
 import { KillBehaviors } from '../worker/worker-options.ts'
