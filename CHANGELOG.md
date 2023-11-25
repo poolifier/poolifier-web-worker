@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.0.11] - 2023-11-25
+
 ### Changed
 
 - Make continuous tasks stealing start at worker node idling.
