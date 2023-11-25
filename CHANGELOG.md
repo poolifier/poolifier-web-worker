@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.0.12] - 2023-11-25
+
 ### Fixed
 
 - Fix task function usage statistics handling for sequentially stolen tasks.
