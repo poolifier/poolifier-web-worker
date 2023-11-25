@@ -53,7 +53,7 @@ Please consult our [general guidelines](#general-guidelines).
 - Tasks distribution strategies ✔
 - Lockless tasks queueing ✔
 - Queued tasks rescheduling:
-  - Task stealing on empty queue ✔
+  - Task stealing on idle ✔
   - Tasks stealing under back pressure ✔
   - Tasks redistribution on worker error ✔
 - General guidelines on pool choice ✔

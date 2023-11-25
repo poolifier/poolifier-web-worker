@@ -1,13 +1,6 @@
 import { CircularArray } from '../circular-array.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
-import {
-  DEFAULT_TASK_NAME,
-  EMPTY_FUNCTION,
-  exponentialDelay,
-  getWorkerId,
-  getWorkerType,
-  sleep,
-} from '../utils.ts'
+import { DEFAULT_TASK_NAME, getWorkerId, getWorkerType } from '../utils.ts'
 import { Deque } from '../deque.ts'
 import {
   type IWorker,
@@ -43,7 +36,6 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   public tasksQueueBackPressureSize: number
   private readonly tasksQueue: Deque<Task<Data>>
   private onBackPressureStarted: boolean
-  private onEmptyQueueCount: number
   private readonly taskFunctionsUsage: Map<string, WorkerUsage>
 
   /**
@@ -80,7 +72,6 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
     this.tasksQueueBackPressureSize = tasksQueueBackPressureSize
     this.tasksQueue = new Deque<Task<Data>>()
     this.onBackPressureStarted = false
-    this.onEmptyQueueCount = 0
     this.taskFunctionsUsage = new Map<string, WorkerUsage>()
   }
 
@@ -127,26 +118,12 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
 
   /** @inheritdoc */
   public dequeueTask(): Task<Data> | undefined {
-    const task = this.tasksQueue.shift()
-    if (
-      this.tasksQueue.size === 0 &&
-      this.onEmptyQueueCount === 0
-    ) {
-      this.startOnEmptyQueue().catch(EMPTY_FUNCTION)
-    }
-    return task
+    return this.tasksQueue.shift()
   }
 
   /** @inheritdoc */
   public popTask(): Task<Data> | undefined {
-    const task = this.tasksQueue.pop()
-    if (
-      this.tasksQueue.size === 0 &&
-      this.onEmptyQueueCount === 0
-    ) {
-      this.startOnEmptyQueue().catch(EMPTY_FUNCTION)
-    }
-    return task
+    return this.tasksQueue.pop()
   }
 
   /** @inheritdoc */
@@ -205,24 +182,6 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
     return this.taskFunctionsUsage.delete(name)
   }
 
-  private async startOnEmptyQueue(): Promise<void> {
-    if (
-      this.onEmptyQueueCount > 0 &&
-      (this.usage.tasks.executing > 0 || this.tasksQueue.size > 0)
-    ) {
-      this.onEmptyQueueCount = 0
-      return
-    }
-    ;++this.onEmptyQueueCount
-    this.dispatchEvent(
-      new CustomEvent<WorkerNodeEventDetail>('emptyQueue', {
-        detail: { workerId: this.info.id as string },
-      }),
-    )
-    await sleep(exponentialDelay(this.onEmptyQueueCount))
-    await this.startOnEmptyQueue()
-  }
-
   private initWorkerInfo(worker: Worker): WorkerInfo {
     return {
       id: getWorkerId<Data>(worker),
@@ -249,6 +208,7 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
         get maxQueued(): number {
           return getTasksQueueMaxSize()
         },
+        sequentiallyStolen: 0,
         stolen: 0,
         failed: 0,
       },
@@ -290,6 +250,7 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
         get queued(): number {
           return getTaskFunctionQueueSize()
         },
+        sequentiallyStolen: 0,
         stolen: 0,
         failed: 0,
       },

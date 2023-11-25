@@ -195,7 +195,7 @@ An object with these properties:
     worker before flagging it as back pressured. It must be a positive integer.
   - `concurrency` (optional) - The maximum number of tasks that can be executed
     concurrently on a worker. It must be a positive integer.
-  - `taskStealing` (optional) - Task stealing enablement on empty queue.
+  - `taskStealing` (optional) - Task stealing enablement on idle.
   - `tasksStealingOnBackPressure` (optional) - Tasks stealing enablement under
     back pressure.
 

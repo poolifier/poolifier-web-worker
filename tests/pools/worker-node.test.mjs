@@ -61,6 +61,7 @@ Deno.test({
           executing: 0,
           queued: 0,
           maxQueued: 0,
+          sequentiallyStolen: 0,
           stolen: 0,
           failed: 0,
         },
@@ -87,7 +88,6 @@ Deno.test({
         threadWorkerNode.tasksQueue.size,
       )
       expect(threadWorkerNode.onBackPressureStarted).toBe(false)
-      expect(threadWorkerNode.onEmptyQueueCount).toBe(0)
       expect(threadWorkerNode.taskFunctionsUsage).toBeInstanceOf(Map)
     })
 
@@ -119,6 +119,7 @@ Deno.test({
           executed: 0,
           executing: 0,
           queued: 0,
+          sequentiallyStolen: 0,
           stolen: 0,
           failed: 0,
         },
@@ -142,6 +143,7 @@ Deno.test({
           executed: 0,
           executing: 0,
           queued: 0,
+          sequentiallyStolen: 0,
           stolen: 0,
           failed: 0,
         },
@@ -165,6 +167,7 @@ Deno.test({
           executed: 0,
           executing: 0,
           queued: 0,
+          sequentiallyStolen: 0,
           stolen: 0,
           failed: 0,
         },
