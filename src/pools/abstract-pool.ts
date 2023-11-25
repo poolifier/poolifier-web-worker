@@ -1555,7 +1555,10 @@ export abstract class AbstractPool<
       return
     }
     const stolenTask = this.workerNodeStealTask(workerNodeKey)
-    if (stolenTask != null) {
+    if (
+      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      stolenTask != null
+    ) {
       const taskFunctionTasksWorkerUsage = this.workerNodes[workerNodeKey]
         .getTaskFunctionWorkerUsage(
           stolenTask.name as string,
