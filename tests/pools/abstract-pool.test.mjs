@@ -2,7 +2,7 @@ import {
   // assertSpyCalls,
   returnsNext,
   stub,
-} from 'https://deno.land/std@0.204.0/testing/mock.ts'
+} from 'https://deno.land/std@0.208.0/testing/mock.ts'
 import { EventEmitter } from 'node:events'
 import { expect } from 'npm:expect'
 import {
