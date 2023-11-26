@@ -1834,7 +1834,7 @@ Deno.test({
       await expect(
         pool.sendKillMessageToWorker(workerNodeKey),
       ).resolves.toBeUndefined()
-      // FIXME: pool shall be destroyed
+      pool.destroy()
     })
 
     await t.step('Verify sendTaskFunctionOperationToWorker()', async () => {
