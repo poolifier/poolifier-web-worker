@@ -7,8 +7,8 @@
   "tasks": {
     // "benchmark": "deno bench -A benchmarks/internal/bench.mjs",
     // "benchmark:json": "deno bench -A --json benchmarks/internal/bench.mjs",
-    "benchmark:js": "deno run -A --v8-flags=--max-old-space-size=4096 benchmarks/internal/bench.mjs",
-    "benchmark:js:debug": "deno run -A --inspect --v8-flags=--max-old-space-size=4096 benchmarks/internal/bench.mjs",
+    "benchmark:js": "deno run -A --v8-flags=--max-old-space-size=8192 benchmarks/internal/bench.mjs",
+    "benchmark:js:debug": "deno run -A --inspect --v8-flags=--max-old-space-size=8192 benchmarks/internal/bench.mjs",
     "test": "deno test -A --parallel",
     "test:coverage": "deno test -A --parallel --coverage=coverage",
     "test:debug": "deno test -A --inspect",

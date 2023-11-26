@@ -1390,7 +1390,7 @@ export abstract class AbstractPool<
     // Listen to worker messages.
     this.registerWorkerMessageListener(
       workerNodeKey,
-      this.workerMessageListener.bind(this),
+      this.workerMessageListener,
     )
     // Send the startup message to worker.
     this.sendStartupMessageToWorker(workerNodeKey)
@@ -1665,9 +1665,9 @@ export abstract class AbstractPool<
   /**
    * This method is the message listener registered on each worker.
    */
-  protected workerMessageListener(
+  protected readonly workerMessageListener = (
     message: MessageValue<Response>,
-  ) {
+  ) => {
     this.checkMessageWorkerId(message)
     const { workerId, ready, taskId, taskFunctionNames } = message
     if (
