@@ -152,7 +152,6 @@ export const runPoolifierPoolBenchmark = async (
             'Fastest is ' +
               LIST_FORMATTER.format(this.filter('fastest').map('name')),
           )
-          // FIXME: destroy() hangs
           const destroyTimeout = setTimeout(() => {
             console.error('Pool destroy timeout reached (30s)')
             resolve()

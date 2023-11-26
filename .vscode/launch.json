@@ -20,7 +20,7 @@
       "name": "Launch Benchmarks Debug",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "deno",
-      "runtimeArgs": ["task", "benchmark:js:debug"],
+      "runtimeArgs": ["task", "benchmark:debug"],
       "skipFiles": ["<node_internals>/**"],
       "stopOnEntry": true
     }
