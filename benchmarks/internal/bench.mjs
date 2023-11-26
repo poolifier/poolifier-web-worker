@@ -35,6 +35,7 @@ switch (parseArgs(Deno.args).t) {
         workerData,
       },
     )
+    Deno.exit()
     break
   case 'deno':
   default:
@@ -60,4 +61,3 @@ switch (parseArgs(Deno.args).t) {
     )
     break
 }
-Deno.exit()
