@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.0.13] - 2023-11-27
+
 ### Fixed
 
 - Remove all pool events listener at pool destroying.
