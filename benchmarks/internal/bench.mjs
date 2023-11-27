@@ -39,7 +39,7 @@ switch (parseArgs(Deno.args).t) {
     break
   case 'deno':
   default:
-    await runPoolifierPoolDenoBenchmark(
+    runPoolifierPoolDenoBenchmark(
       'FixedThreadPool',
       WorkerTypes.web,
       PoolTypes.fixed,
@@ -49,7 +49,7 @@ switch (parseArgs(Deno.args).t) {
         workerData,
       },
     )
-    await runPoolifierPoolDenoBenchmark(
+    runPoolifierPoolDenoBenchmark(
       'DynamicThreadPool',
       WorkerTypes.web,
       PoolTypes.dynamic,
