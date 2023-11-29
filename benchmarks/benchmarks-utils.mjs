@@ -1,6 +1,12 @@
-import crypto from 'node:crypto'
-import assert from 'node:assert'
-import fs from 'node:fs'
+import { randomInt } from 'node:crypto'
+import { strictEqual } from 'node:assert'
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import Benchmark from 'npm:benchmark'
 import {
   DynamicThreadPool,
@@ -99,15 +105,15 @@ export const runPoolifierPoolBenchmark = async (
                     measurement,
                   })
                   pool.enableTasksQueue(enableTasksQueue)
-                  assert.strictEqual(
+                  strictEqual(
                     pool.opts.workerChoiceStrategy,
                     workerChoiceStrategy,
                   )
-                  assert.strictEqual(
+                  strictEqual(
                     pool.opts.enableTasksQueue,
                     enableTasksQueue,
                   )
-                  assert.strictEqual(
+                  strictEqual(
                     pool.opts.workerChoiceStrategyOptions.measurement,
                     measurement,
                   )
@@ -126,11 +132,11 @@ export const runPoolifierPoolBenchmark = async (
               async () => {
                 pool.setWorkerChoiceStrategy(workerChoiceStrategy)
                 pool.enableTasksQueue(enableTasksQueue)
-                assert.strictEqual(
+                strictEqual(
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                assert.strictEqual(
+                strictEqual(
                   pool.opts.enableTasksQueue,
                   enableTasksQueue,
                 )
@@ -208,15 +214,15 @@ export const runPoolifierPoolDenoBenchmark = (
                     enableTasksQueue,
                   },
                 )
-                assert.strictEqual(
+                strictEqual(
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                assert.strictEqual(
+                strictEqual(
                   pool.opts.enableTasksQueue,
                   enableTasksQueue,
                 )
-                assert.strictEqual(
+                strictEqual(
                   pool.opts.workerChoiceStrategyOptions.measurement,
                   measurement,
                 )
@@ -246,11 +252,11 @@ export const runPoolifierPoolDenoBenchmark = (
                   enableTasksQueue,
                 },
               )
-              assert.strictEqual(
+              strictEqual(
                 pool.opts.workerChoiceStrategy,
                 workerChoiceStrategy,
               )
-              assert.strictEqual(
+              strictEqual(
                 pool.opts.enableTasksQueue,
                 enableTasksQueue,
               )
@@ -326,24 +332,24 @@ const factorial = (n) => {
 const readWriteFiles = (
   n,
   baseDirectory = `/tmp/poolifier-benchmarks/${
-    crypto.randomInt(
+    randomInt(
       281474976710655,
     )
   }`,
 ) => {
-  if (fs.existsSync(baseDirectory) === true) {
-    fs.rmSync(baseDirectory, { recursive: true })
+  if (existsSync(baseDirectory) === true) {
+    rmSync(baseDirectory, { recursive: true })
   }
-  fs.mkdirSync(baseDirectory, { recursive: true })
+  mkdirSync(baseDirectory, { recursive: true })
   for (let i = 0; i < n; i++) {
     const filePath = `${baseDirectory}/${i}`
-    fs.writeFileSync(filePath, i.toString(), {
+    writeFileSync(filePath, i.toString(), {
       encoding: 'utf8',
       flag: 'a',
     })
-    fs.readFileSync(filePath, 'utf8')
+    readFileSync(filePath, 'utf8')
   }
-  fs.rmSync(baseDirectory, { recursive: true })
+  rmSync(baseDirectory, { recursive: true })
   return { ok: 1 }
 }
 
