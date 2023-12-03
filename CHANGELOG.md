@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Add a fastpath when tasks stealing or redistribution is impossible
+
 ## [0.0.13] - 2023-11-27
 
 ### Fixed
