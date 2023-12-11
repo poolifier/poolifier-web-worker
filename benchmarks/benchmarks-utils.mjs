@@ -63,7 +63,6 @@ const runPoolifierPool = async (
           if (executions === taskExecutions) {
             resolve({ ok: 1 })
           }
-          return undefined
         })
         .catch((err) => {
           console.error(err)

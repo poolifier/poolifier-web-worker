@@ -1592,7 +1592,6 @@ export abstract class AbstractPool<
     sleep(exponentialDelay(workerNodeTasksUsage.sequentiallyStolen))
       .then(() => {
         this.handleIdleWorkerNodeEvent(event, stolenTask)
-        return undefined
       })
       .catch(EMPTY_FUNCTION)
   }

@@ -380,12 +380,10 @@ export abstract class AbstractWorker<
       ;(this.opts.killHandler?.() as Promise<void>)
         .then(() => {
           this.sendToMainWorker({ kill: 'success' })
-          return undefined
         })
         .catch(() => {
           this.sendToMainWorker({ kill: 'failure' })
         })
-        .catch(EMPTY_FUNCTION)
     } else {
       try {
         // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
@@ -568,7 +566,6 @@ export abstract class AbstractWorker<
           taskPerformance,
           taskId,
         })
-        return undefined
       })
       .catch((error) => {
         this.sendToMainWorker({
