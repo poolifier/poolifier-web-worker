@@ -82,7 +82,7 @@ export class ThreadWorker<
 
   /** @inheritDoc */
   protected sendToMainWorker(message: MessageValue<Response>): void {
-    this.port.postMessage({ ...message, workerId: this.id })
+    this.port?.postMessage({ ...message, workerId: this.id })
   }
 
   /**
