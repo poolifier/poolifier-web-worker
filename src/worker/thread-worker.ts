@@ -25,7 +25,7 @@ export class ThreadWorker<
   /**
    * Message port used to communicate with the main worker.
    */
-  private port!: MessagePort
+  private port?: MessagePort
   /** @inheritdoc */
   public id?: string
   /**
@@ -81,7 +81,7 @@ export class ThreadWorker<
   }
 
   /** @inheritDoc */
-  protected sendToMainWorker(message: MessageValue<Response>): void {
+  protected sendToMainWorker = (message: MessageValue<Response>): void => {
     this.port?.postMessage({ ...message, workerId: this.id })
   }
 

@@ -490,7 +490,7 @@ export abstract class AbstractWorker<
    *
    * @param task - The task to execute.
    */
-  protected run(task: Task<Data>): void {
+  protected run = (task: Task<Data>): void => {
     const { name, taskId, data } = task
     const taskFunctionName = name ?? DEFAULT_TASK_NAME
     if (!this.taskFunctions.has(taskFunctionName)) {
@@ -518,10 +518,10 @@ export abstract class AbstractWorker<
    * @param fn - Task function that will be executed.
    * @param task - Input data for the task function.
    */
-  protected runSync(
+  protected runSync = (
     fn: TaskSyncFunction<Data, Response>,
     task: Task<Data>,
-  ): void {
+  ): void => {
     const { name, taskId, data } = task
     try {
       let taskPerformance = this.beginTaskPerformance(name)
@@ -552,10 +552,10 @@ export abstract class AbstractWorker<
    * @param fn - Task function that will be executed.
    * @param task - Input data for the task function.
    */
-  protected runAsync(
+  protected runAsync = (
     fn: TaskAsyncFunction<Data, Response>,
     task: Task<Data>,
-  ): void {
+  ): void => {
     const { name, taskId, data } = task
     let taskPerformance = this.beginTaskPerformance(name)
     fn(data)
