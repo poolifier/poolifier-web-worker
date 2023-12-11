@@ -490,7 +490,7 @@ export abstract class AbstractWorker<
    *
    * @param task - The task to execute.
    */
-  protected run = (task: Task<Data>): void => {
+  protected readonly run = (task: Task<Data>): void => {
     const { name, taskId, data } = task
     const taskFunctionName = name ?? DEFAULT_TASK_NAME
     if (!this.taskFunctions.has(taskFunctionName)) {
@@ -518,7 +518,7 @@ export abstract class AbstractWorker<
    * @param fn - Task function that will be executed.
    * @param task - Input data for the task function.
    */
-  protected runSync = (
+  protected readonly runSync = (
     fn: TaskSyncFunction<Data, Response>,
     task: Task<Data>,
   ): void => {
@@ -552,7 +552,7 @@ export abstract class AbstractWorker<
    * @param fn - Task function that will be executed.
    * @param task - Input data for the task function.
    */
-  protected runAsync = (
+  protected readonly runAsync = (
     fn: TaskAsyncFunction<Data, Response>,
     task: Task<Data>,
   ): void => {
