@@ -48,11 +48,11 @@ Deno.test({
           max - min,
         )
         expect(numberOfExitEvents).toBe(max - min)
+        expect(pool.workerNodes.length).toBe(min)
       },
     )
 
     await t.step('Verify scale thread up and down is working', async () => {
-      expect(pool.workerNodes.length).toBe(min)
       for (let i = 0; i < max * 2; i++) {
         pool.execute()
       }
