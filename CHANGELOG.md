@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.0.15] - 2023-12-13
+
 ### Fixed
 
 - Ensure worker choice strategy wait for worker nodes readiness.
