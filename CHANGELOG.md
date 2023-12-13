@@ -8,11 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Ensure worker choice strategy wait for worker nodes readiness.
+
 ## [0.0.14] - 2023-12-08
 
 ### Changed
 
-- Add a fastpath when tasks stealing or redistribution is impossible
+- Add a fastpath when tasks stealing or redistribution is impossible.
 
 ## [0.0.13] - 2023-11-27
 
