@@ -23,10 +23,10 @@ Deno.test('Abstract worker test suite', async (t) => {
         new TypeError('opts worker options parameter is not a plain object'),
       )
       expect(() => new ThreadWorker(() => {}, { killBehavior: '' })).toThrow(
-        new TypeError('killBehavior option \'\' is not valid'),
+        new TypeError("killBehavior option '' is not valid"),
       )
       expect(() => new ThreadWorker(() => {}, { killBehavior: 0 })).toThrow(
-        new TypeError('killBehavior option \'0\' is not valid'),
+        new TypeError("killBehavior option '0' is not valid"),
       )
       expect(() => new ThreadWorker(() => {}, { maxInactiveTime: '' })).toThrow(
         new TypeError('maxInactiveTime option is not an integer'),

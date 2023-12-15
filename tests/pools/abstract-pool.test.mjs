@@ -76,7 +76,7 @@ Deno.test({
     await t.step('Verify that fileURL is checked', () => {
       expect(() => new FixedThreadPool(numberOfWorkers)).toThrow(
         new Error(
-          'Cannot find the worker URL \'undefined\'',
+          "Cannot find the worker URL 'undefined'",
         ),
       )
       const dummyWorkerURL = new URL('./dummyWorker.ts', import.meta.url)
@@ -358,7 +358,7 @@ Deno.test({
               workerChoiceStrategy: 'invalidStrategy',
             },
           ),
-      ).toThrow(new Error('Invalid worker choice strategy \'invalidStrategy\''))
+      ).toThrow(new Error("Invalid worker choice strategy 'invalidStrategy'"))
       expect(
         () =>
           new FixedThreadPool(
@@ -394,7 +394,7 @@ Deno.test({
           ),
       ).toThrow(
         new RangeError(
-          'Invalid worker choice strategy options: retries \'-1\' must be greater or equal than zero',
+          "Invalid worker choice strategy options: retries '-1' must be greater or equal than zero",
         ),
       )
       expect(
@@ -430,7 +430,7 @@ Deno.test({
           ),
       ).toThrow(
         new Error(
-          'Invalid worker choice strategy options: invalid measurement \'invalidMeasurement\'',
+          "Invalid worker choice strategy options: invalid measurement 'invalidMeasurement'",
         ),
       )
       expect(
@@ -725,7 +725,7 @@ Deno.test({
         expect(() => pool.setWorkerChoiceStrategyOptions({ retries: -1 }))
           .toThrow(
             new RangeError(
-              'Invalid worker choice strategy options: retries \'-1\' must be greater or equal than zero',
+              "Invalid worker choice strategy options: retries '-1' must be greater or equal than zero",
             ),
           )
         expect(() => pool.setWorkerChoiceStrategyOptions({ weights: {} }))
@@ -740,7 +740,7 @@ Deno.test({
           })
         ).toThrow(
           new Error(
-            'Invalid worker choice strategy options: invalid measurement \'invalidMeasurement\'',
+            "Invalid worker choice strategy options: invalid measurement 'invalidMeasurement'",
           ),
         )
         await pool.destroy()
@@ -1121,7 +1121,7 @@ Deno.test({
           new TypeError('transferList argument must be an array'),
         )
         await expect(pool.execute(undefined, 'unknown')).rejects.toBe(
-          'Task function \'unknown\' not found',
+          "Task function 'unknown' not found",
         )
         await pool.destroy()
         await expect(pool.execute()).rejects.toThrow(
@@ -1293,7 +1293,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify that pool event emitter \'ready\' event can register a callback',
+      "Verify that pool event emitter 'ready' event can register a callback",
       async () => {
         const pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
@@ -1334,7 +1334,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify that pool event emitter \'busy\' event can register a callback',
+      "Verify that pool event emitter 'busy' event can register a callback",
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
@@ -1380,7 +1380,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify that pool event emitter \'full\' event can register a callback',
+      "Verify that pool event emitter 'full' event can register a callback",
       async () => {
         const pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
@@ -1425,7 +1425,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify that pool event emitter \'backPressure\' event can register a callback',
+      "Verify that pool event emitter 'backPressure' event can register a callback",
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,

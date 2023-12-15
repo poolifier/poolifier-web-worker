@@ -96,7 +96,7 @@ Deno.test({
         threadWorkerNode.getTaskFunctionWorkerUsage('invalidTaskFunction')
       ).toThrow(
         new TypeError(
-          'Cannot get task function worker usage for task function name \'invalidTaskFunction\' when task function names list is not yet defined',
+          "Cannot get task function worker usage for task function name 'invalidTaskFunction' when task function names list is not yet defined",
         ),
       )
       threadWorkerNode.info.taskFunctionNames = [DEFAULT_TASK_NAME, 'fn1']
@@ -104,7 +104,7 @@ Deno.test({
         threadWorkerNode.getTaskFunctionWorkerUsage('invalidTaskFunction')
       ).toThrow(
         new TypeError(
-          'Cannot get task function worker usage for task function name \'invalidTaskFunction\' when task function names list has less than 3 elements',
+          "Cannot get task function worker usage for task function name 'invalidTaskFunction' when task function names list has less than 3 elements",
         ),
       )
       threadWorkerNode.info.taskFunctionNames = [

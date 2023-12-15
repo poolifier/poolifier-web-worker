@@ -2577,7 +2577,7 @@ Deno.test({
             ),
             { workerChoiceStrategy: 'UNKNOWN_STRATEGY' },
           ),
-      ).toThrow('Invalid worker choice strategy \'UNKNOWN_STRATEGY\'')
+      ).toThrow("Invalid worker choice strategy 'UNKNOWN_STRATEGY'")
     })
   },
   sanitizeResources: false,

@@ -79,7 +79,7 @@ Deno.test({
       },
     )
 
-    await t.step('Verify that \'ready\' event is emitted', async () => {
+    await t.step("Verify that 'ready' event is emitted", async () => {
       const pool = new FixedThreadPool(
         numberOfThreads,
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
@@ -97,7 +97,7 @@ Deno.test({
       await pool.destroy()
     })
 
-    await t.step('Verify that \'busy\' event is emitted', async () => {
+    await t.step("Verify that 'busy' event is emitted", async () => {
       const promises = new Set()
       expect(pool.emitter.eventNames()).toStrictEqual([])
       let poolBusy = 0

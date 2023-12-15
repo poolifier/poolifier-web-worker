@@ -88,7 +88,7 @@ Deno.test({
 
     await t.step('Validation of inputs test', () => {
       expect(() => new DynamicThreadPool(min)).toThrow(
-        'Cannot find the worker URL \'undefined\'',
+        "Cannot find the worker URL 'undefined'",
       )
     })
 
