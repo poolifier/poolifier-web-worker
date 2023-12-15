@@ -1,7 +1,7 @@
 import {
   assertSpyCalls,
   stub,
-} from 'https://deno.land/std@0.208.0/testing/mock.ts'
+} from 'https://deno.land/std@0.209.0/testing/mock.ts'
 import { expect } from 'npm:expect'
 import { KillBehaviors, ThreadWorker } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME, EMPTY_FUNCTION } from '../../src/utils.ts'
