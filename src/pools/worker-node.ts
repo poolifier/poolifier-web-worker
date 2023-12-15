@@ -144,11 +144,7 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
 
   /** @inheritdoc */
   public terminate(): void {
-    if (this.messageChannel != null) {
-      this.messageChannel.port1.close()
-      this.messageChannel.port2.close()
-      delete this.messageChannel
-    }
+    this.closeMessageChannel()
     this.worker.terminate()
     this.dispatchEvent(new Event('exit'))
   }
@@ -180,6 +176,14 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   /** @inheritdoc */
   public deleteTaskFunctionWorkerUsage(name: string): boolean {
     return this.taskFunctionsUsage.delete(name)
+  }
+
+  private closeMessageChannel(): void {
+    if (this.messageChannel != null) {
+      this.messageChannel.port1.close()
+      this.messageChannel.port2.close()
+      delete this.messageChannel
+    }
   }
 
   private initWorkerInfo(worker: Worker): WorkerInfo {

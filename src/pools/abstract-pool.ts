@@ -1034,7 +1034,15 @@ export abstract class AbstractPool<
    *
    * @param workerNodeKey - The worker node key.
    */
-  protected abstract destroyWorkerNode(workerNodeKey: number): Promise<void>
+  protected async destroyWorkerNode(workerNodeKey: number): Promise<void> {
+    this.flagWorkerNodeAsNotReady(workerNodeKey)
+    this.flushTasksQueue(workerNodeKey)
+    // FIXME: wait for tasks to be finished
+    const workerNode = this.workerNodes[workerNodeKey]
+    await this.sendKillMessageToWorker(workerNodeKey)
+    workerNode.terminate()
+    this.removeWorkerNode(workerNodeKey)
+  }
 
   /**
    * Setup hook to execute code before worker nodes are created in the abstract constructor.
@@ -1270,7 +1278,6 @@ export abstract class AbstractPool<
       this.flagWorkerNodeAsNotReady(workerNodeKey)
       const workerInfo = this.getWorkerInfo(workerNodeKey)
       this.emitter?.emit(PoolEvents.error, error)
-      this.workerNodes[workerNodeKey].terminate()
       if (
         this.started &&
         !this.starting &&
@@ -1286,6 +1293,8 @@ export abstract class AbstractPool<
       if (this.started && this.opts.enableTasksQueue === true) {
         this.redistributeQueuedTasks(workerNodeKey)
       }
+      this.workerNodes[workerNodeKey].terminate()
+      this.removeWorkerNode(workerNodeKey)
     }
 
     const workerNodeKey = this.addWorkerNode(worker)
