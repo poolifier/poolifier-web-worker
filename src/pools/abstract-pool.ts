@@ -521,18 +521,6 @@ export abstract class AbstractPool<
   }
 
   /**
-   * Gets the given worker its worker node key.
-   *
-   * @param worker - The worker.
-   * @returns The worker node key if found in the pool worker nodes, `-1` otherwise.
-   */
-  private getWorkerNodeKeyByWorker(worker: Worker): number {
-    return this.workerNodes.findIndex(
-      (workerNode) => workerNode.worker === worker,
-    )
-  }
-
-  /**
    * Gets the worker node key given its worker id.
    *
    * @param workerId - The worker id.
