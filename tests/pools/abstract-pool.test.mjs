@@ -75,9 +75,12 @@ Deno.test({
 
     await t.step('Verify that fileURL is checked', () => {
       expect(() => new FixedThreadPool(numberOfWorkers)).toThrow(
-        new Error(
-          "Cannot find the worker URL 'undefined'",
+        new TypeError(
+          'The worker URL must be specified',
         ),
+      )
+      expect(() => new FixedThreadPool(numberOfWorkers, 0)).toThrow(
+        new TypeError('The worker URL must be an instance of URL'),
       )
       const dummyWorkerURL = new URL('./dummyWorker.ts', import.meta.url)
       expect(

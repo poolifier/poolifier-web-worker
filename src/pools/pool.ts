@@ -178,6 +178,12 @@ export interface PoolOptions<Data = unknown> {
    * Pool worker node tasks queue options.
    */
   tasksQueueOptions?: TasksQueueOptions
+  /**
+   * Worker options.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker#options
+   */
+  workerOptions?: WorkerOptions
 }
 
 /**

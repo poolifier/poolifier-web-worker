@@ -8,47 +8,113 @@ import { WorkerNode } from '../../src/pools/worker-node.ts'
 Deno.test({
   name: 'Worker node test suite',
   fn: async (t) => {
-    const threadWorker = new Worker(
+    const threadWorkerNode = new WorkerNode(
+      WorkerTypes.web,
       new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-      {
-        type: 'module',
-      },
+      { tasksQueueBackPressureSize: 12 },
     )
-    const threadWorkerNode = new WorkerNode(threadWorker, 12)
 
     await t.step('Worker node instantiation', () => {
       expect(() => new WorkerNode()).toThrow(
-        new TypeError('Cannot construct a worker node without a worker'),
+        new TypeError('Cannot construct a worker node without a worker type'),
       )
-      expect(() => new WorkerNode(threadWorker)).toThrow(
+      expect(
+        () =>
+          new WorkerNode(
+            'invalidWorkerType',
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            { tasksQueueBackPressureSize: 12 },
+          ),
+      ).toThrow(
         new TypeError(
-          'Cannot construct a worker node without a tasks queue back pressure size',
+          "Cannot construct a worker node with an invalid worker type 'invalidWorkerType'",
         ),
       )
       expect(
-        () => new WorkerNode(threadWorker, 'invalidTasksQueueBackPressureSize'),
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new TypeError(
-          'Cannot construct a worker node with a tasks queue back pressure size that is not an integer',
+          'Cannot construct a worker node without worker node options',
         ),
       )
-      expect(() => new WorkerNode(threadWorker, 0.2)).toThrow(
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            '',
+          ),
+      ).toThrow(
         new TypeError(
-          'Cannot construct a worker node with a tasks queue back pressure size that is not an integer',
+          'Cannot construct a worker node with invalid options: must be a plain object',
         ),
       )
-      expect(() => new WorkerNode(threadWorker, 0)).toThrow(
-        new RangeError(
-          'Cannot construct a worker node with a tasks queue back pressure size that is not a positive integer',
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {},
+          ),
+      ).toThrow(
+        new TypeError(
+          'Cannot construct a worker node without a tasks queue back pressure size option',
         ),
       )
-      expect(() => new WorkerNode(threadWorker, -1)).toThrow(
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            { tasksQueueBackPressureSize: 'invalidTasksQueueBackPressureSize' },
+          ),
+      ).toThrow(
+        new TypeError(
+          'Cannot construct a worker node with a tasks queue back pressure size option that is not an integer',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            { tasksQueueBackPressureSize: 0.2 },
+          ),
+      ).toThrow(
+        new TypeError(
+          'Cannot construct a worker node with a tasks queue back pressure size option that is not an integer',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            { tasksQueueBackPressureSize: 0 },
+          ),
+      ).toThrow(
         new RangeError(
-          'Cannot construct a worker node with a tasks queue back pressure size that is not a positive integer',
+          'Cannot construct a worker node with a tasks queue back pressure size option that is not a positive integer',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            { tasksQueueBackPressureSize: -1 },
+          ),
+      ).toThrow(
+        new RangeError(
+          'Cannot construct a worker node with a tasks queue back pressure size option that is not a positive integer',
         ),
       )
       expect(threadWorkerNode).toBeInstanceOf(WorkerNode)
-      expect(threadWorkerNode.worker).toBe(threadWorker)
+      expect(threadWorkerNode.worker).toBeInstanceOf(Worker)
       expect(threadWorkerNode.info).toStrictEqual({
         id: expect.any(String),
         type: WorkerTypes.web,

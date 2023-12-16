@@ -3,7 +3,11 @@ import {
   CircularArray,
   DEFAULT_CIRCULAR_ARRAY_SIZE,
 } from '../../src/circular-array.ts'
-import { updateMeasurementStatistics } from '../../src/pools/utils.ts'
+import {
+  createWorker,
+  updateMeasurementStatistics,
+} from '../../src/pools/utils.ts'
+import { WorkerTypes } from '../../src/mod.ts'
 
 Deno.test('Pool utils test suite', async (t) => {
   await t.step('Verify updateMeasurementStatistics() behavior', () => {
@@ -91,5 +95,14 @@ Deno.test('Pool utils test suite', async (t) => {
         0.01,
       ),
     })
+  })
+
+  await t.step('Verify createWorker() behavior', () => {
+    const worker = createWorker(
+      WorkerTypes.web,
+      new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+    )
+    expect(worker).toBeInstanceOf(Worker)
+    worker.terminate()
   })
 })

@@ -6,18 +6,6 @@ import { messageListenerToEventListener } from '../utils.ts'
 import { type WorkerType, WorkerTypes } from '../worker.ts'
 
 /**
- * Options for a poolifier thread pool.
- */
-export interface ThreadPoolOptions<Data = unknown> extends PoolOptions<Data> {
-  /**
-   * Worker options.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker#options
-   */
-  workerOptions?: WorkerOptions
-}
-
-/**
  * A thread pool with a fixed number of threads.
  *
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
@@ -39,7 +27,7 @@ export class FixedThreadPool<
   public constructor(
     numberOfThreads: number,
     fileURL: URL,
-    protected readonly opts: ThreadPoolOptions<Data> = {},
+    protected readonly opts: PoolOptions<Data> = {},
   ) {
     super(numberOfThreads, fileURL, opts)
   }
@@ -109,14 +97,6 @@ export class FixedThreadPool<
       'message',
       messageListenerToEventListener<Message>(listener),
     )
-  }
-
-  /** @inheritDoc */
-  protected createWorker(): Worker {
-    return new Worker(this.fileURL, {
-      ...this.opts.workerOptions,
-      type: 'module',
-    })
   }
 
   /** @inheritDoc */

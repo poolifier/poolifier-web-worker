@@ -8,10 +8,11 @@ import {
   type StrategyData,
   type WorkerInfo,
   WorkerNodeEventDetail,
+  WorkerNodeOptions,
   type WorkerType,
   type WorkerUsage,
 } from './worker.ts'
-import { checkWorkerNodeArguments } from './utils.ts'
+import { checkWorkerNodeArguments, createWorker } from './utils.ts'
 
 /**
  * Worker node.
@@ -41,14 +42,17 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   /**
    * Constructs a new worker node.
    *
-   * @param worker - The worker.
-   * @param tasksQueueBackPressureSize - The tasks queue back pressure size.
+   * @param type - The worker type.
+   * @param fileURL - URL to the worker file.
+   * @param opts - The worker node options.
    */
-  constructor(worker: Worker, tasksQueueBackPressureSize: number) {
+  constructor(type: WorkerType, fileURL: URL, opts: WorkerNodeOptions) {
     super()
-    checkWorkerNodeArguments<Worker, Data>(worker, tasksQueueBackPressureSize)
-    this.worker = worker
-    this.info = this.initWorkerInfo(worker)
+    checkWorkerNodeArguments(type, fileURL, opts)
+    this.worker = createWorker<Worker, Data>(type, fileURL, {
+      workerOptions: opts.workerOptions,
+    })
+    this.info = this.initWorkerInfo(this.worker)
     this.usage = this.initWorkerUsage()
     this.messageChannel = new MessageChannel()
     this.messageChannel.port1.onmessage = (
@@ -69,7 +73,7 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
         }),
       )
     }
-    this.tasksQueueBackPressureSize = tasksQueueBackPressureSize
+    this.tasksQueueBackPressureSize = opts.tasksQueueBackPressureSize
     this.tasksQueue = new Deque<Task<Data>>()
     this.onBackPressureStarted = false
     this.taskFunctionsUsage = new Map<string, WorkerUsage>()

@@ -203,13 +203,13 @@ export interface IWorker<Data = unknown> {
 }
 
 /**
- * Worker node event detail.
+ * Worker node options.
  *
  * @internal
  */
-export interface WorkerNodeEventDetail {
-  workerId: string
-  workerNodeKey?: number
+export interface WorkerNodeOptions {
+  workerOptions?: WorkerOptions
+  tasksQueueBackPressureSize: number
 }
 
 /**
@@ -239,7 +239,7 @@ export interface IWorkerNode<Worker extends IWorker<Data>, Data = unknown>
    */
   strategyData?: StrategyData
   /**
-   * Message channel (worker_threads only).
+   * Message channel (worker thread only).
    */
   readonly messageChannel?: MessageChannel
   /**
@@ -313,4 +313,14 @@ export interface IWorkerNode<Worker extends IWorker<Data>, Data = unknown>
    * @returns `true` if the task function worker usage statistics were deleted, `false` otherwise.
    */
   readonly deleteTaskFunctionWorkerUsage: (name: string) => boolean
+}
+
+/**
+ * Worker node event detail.
+ *
+ * @internal
+ */
+export interface WorkerNodeEventDetail {
+  workerId: string
+  workerNodeKey?: number
 }

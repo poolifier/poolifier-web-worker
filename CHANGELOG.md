@@ -8,6 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Ensure worker node is removed on worker error.
+
+### Changed
+
+- TypeScript breaking change: merge ThreadPoolOptions types into PoolOptions
+  type.
+
 ## [0.0.15] - 2023-12-13
 
 ### Fixed

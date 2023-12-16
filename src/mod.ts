@@ -20,6 +20,7 @@ export type {
   StrategyData,
   TaskStatistics,
   WorkerInfo,
+  WorkerNodeOptions,
   WorkerType,
   WorkerUsage,
 } from './pools/worker.ts'
@@ -39,10 +40,7 @@ export type {
 } from './pools/selection-strategies/selection-strategies-types.ts'
 export type { WorkerChoiceStrategyContext } from './pools/selection-strategies/worker-choice-strategy-context.ts'
 export { DynamicThreadPool } from './pools/thread/dynamic.ts'
-export {
-  FixedThreadPool,
-  type ThreadPoolOptions,
-} from './pools/thread/fixed.ts'
+export { FixedThreadPool } from './pools/thread/fixed.ts'
 export type { AbstractWorker } from './worker/abstract-worker.ts'
 export { ThreadWorker } from './worker/thread-worker.ts'
 export { KillBehaviors } from './worker/worker-options.ts'

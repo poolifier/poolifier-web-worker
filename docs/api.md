@@ -14,7 +14,6 @@
   - [`pool.listTaskFunctionNames()`](#poollisttaskfunctionnames)
   - [`pool.setDefaultTaskFunction(name)`](#poolsetdefaulttaskfunctionname)
   - [`PoolOptions`](#pooloptions)
-    - [`ThreadPoolOptions extends PoolOptions`](#threadpooloptions-extends-pooloptions)
 - [Worker](#worker)
   - [`class YourWorker extends ThreadWorker`](#class-yourworker-extends-threadworker)
     - [`YourWorker.hasTaskFunction(name)`](#yourworkerhastaskfunctionname)
@@ -201,8 +200,6 @@ An object with these properties:
 
   Default:
   `{ size: (pool maximum size)^2, concurrency: 1, taskStealing: true, tasksStealingOnBackPressure: true }`
-
-#### `ThreadPoolOptions extends PoolOptions`
 
 - `workerOptions` (optional) - An object with the worker options to pass to
   worker. See

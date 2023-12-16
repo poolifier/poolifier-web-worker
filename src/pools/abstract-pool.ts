@@ -1041,7 +1041,7 @@ export abstract class AbstractPool<
     const workerNode = this.workerNodes[workerNodeKey]
     await this.sendKillMessageToWorker(workerNodeKey)
     workerNode.terminate()
-    this.removeWorkerNode(workerNodeKey)
+    this.removeWorkerNode(workerNode)
   }
 
   /**
@@ -1257,26 +1257,18 @@ export abstract class AbstractPool<
   ): void
 
   /**
-   * Creates a new worker.
-   *
-   * @returns Newly created worker.
-   */
-  protected abstract createWorker(): Worker
-
-  /**
    * Creates a new, completely set up worker node.
    *
    * @returns New, completely set up worker node key.
    */
   protected createAndSetupWorkerNode(): number {
-    const worker = this.createWorker()
-
-    worker.onmessage = this.opts.messageEventHandler ?? EMPTY_FUNCTION
-    worker.onmessageerror = this.opts.messageEventErrorHandler ?? EMPTY_FUNCTION
-    worker.onerror = (error) => {
-      const workerNodeKey = this.getWorkerNodeKeyByWorker(worker)
-      this.flagWorkerNodeAsNotReady(workerNodeKey)
-      const workerInfo = this.getWorkerInfo(workerNodeKey)
+    const workerNode = this.createWorkerNode()
+    workerNode.worker.onmessage = this.opts.messageEventHandler ??
+      EMPTY_FUNCTION
+    workerNode.worker.onmessageerror = this.opts.messageEventErrorHandler ??
+      EMPTY_FUNCTION
+    workerNode.worker.onerror = (error) => {
+      workerNode.info.ready = false
       this.emitter?.emit(PoolEvents.error, error)
       if (
         this.started &&
@@ -1284,23 +1276,20 @@ export abstract class AbstractPool<
         !this.destroying &&
         this.opts.restartWorkerOnError === true
       ) {
-        if (workerInfo.dynamic) {
+        if (workerNode.info.dynamic) {
           this.createAndSetupDynamicWorkerNode()
         } else {
           this.createAndSetupWorkerNode()
         }
       }
       if (this.started && this.opts.enableTasksQueue === true) {
-        this.redistributeQueuedTasks(workerNodeKey)
+        this.redistributeQueuedTasks(this.workerNodes.indexOf(workerNode))
       }
-      this.workerNodes[workerNodeKey].terminate()
-      this.removeWorkerNode(workerNodeKey)
+      workerNode.terminate()
+      this.removeWorkerNode(workerNode)
     }
-
-    const workerNodeKey = this.addWorkerNode(worker)
-
+    const workerNodeKey = this.addWorkerNode(workerNode)
     this.afterWorkerNodeSetup(workerNodeKey)
-
     return workerNodeKey
   }
 
@@ -1804,25 +1793,39 @@ export abstract class AbstractPool<
   }
 
   /**
-   * Adds the given worker in the pool worker nodes.
+   * Creates a worker node.
    *
-   * @param worker - The worker.
-   * @returns The added worker node key.
-   * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error} If the added worker node is not found.
+   * @returns The created worker node.
    */
-  private addWorkerNode(worker: Worker): number {
+  private createWorkerNode(): IWorkerNode<Worker, Data> {
     const workerNode = new WorkerNode<Worker, Data>(
-      worker,
-      this.opts.tasksQueueOptions?.size ?? Math.pow(this.maxSize, 2),
+      this.worker,
+      this.fileURL,
+      {
+        workerOptions: this.opts.workerOptions,
+        tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
+          Math.pow(this.maxSize, 2),
+      },
     )
     // Flag the worker node as ready at pool startup.
     if (this.starting) {
       workerNode.info.ready = true
     }
+    return workerNode
+  }
+
+  /**
+   * Adds the given worker node in the pool worker nodes.
+   *
+   * @param workerNode - The worker node.
+   * @returns The added worker node key.
+   * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error} If the added worker node is not found.
+   */
+  private addWorkerNode(workerNode: IWorkerNode<Worker, Data>): number {
     this.workerNodes.push(workerNode)
-    const workerNodeKey = this.getWorkerNodeKeyByWorker(worker)
+    const workerNodeKey = this.workerNodes.indexOf(workerNode)
     if (workerNodeKey === -1) {
-      throw new Error('Worker added not found in worker nodes')
+      throw new Error('Worker node added not found in pool worker nodes')
     }
     return workerNodeKey
   }
@@ -1830,11 +1833,14 @@ export abstract class AbstractPool<
   /**
    * Removes the worker node from the pool worker nodes.
    *
-   * @param workerNodeKey - The worker node key.
+   * @param workerNode - The worker node.
    */
-  protected removeWorkerNode(workerNodeKey: number): void {
-    this.workerNodes.splice(workerNodeKey, 1)
-    this.workerChoiceStrategyContext.remove(workerNodeKey)
+  protected removeWorkerNode(workerNode: IWorkerNode<Worker, Data>): void {
+    const workerNodeKey = this.workerNodes.indexOf(workerNode)
+    if (workerNodeKey !== -1) {
+      this.workerNodes.splice(workerNodeKey, 1)
+      this.workerChoiceStrategyContext.remove(workerNodeKey)
+    }
   }
 
   protected flagWorkerNodeAsNotReady(workerNodeKey: number): void {

@@ -6,10 +6,22 @@ import {
   type WorkerChoiceStrategy,
 } from './selection-strategies/selection-strategies-types.ts'
 import type { TasksQueueOptions } from './pool.ts'
-import type { IWorker, MeasurementStatistics } from './worker.ts'
+import {
+  type IWorker,
+  type MeasurementStatistics,
+  type WorkerNodeOptions,
+  type WorkerType,
+  WorkerTypes,
+} from './worker.ts'
 import { MessageValue } from '../utility-types.ts'
 
 export const checkFileURL = (fileURL: URL): void => {
+  if (fileURL == null) {
+    throw new TypeError('The worker URL must be specified')
+  }
+  if (fileURL instanceof URL === false) {
+    throw new TypeError('The worker URL must be an instance of URL')
+  }
   if (!existsSync(fileURL)) {
     throw new Error(`Cannot find the worker URL '${fileURL}'`)
   }
@@ -87,29 +99,43 @@ export const checkValidTasksQueueOptions = (
   }
 }
 
-export const checkWorkerNodeArguments = <
-  Worker extends IWorker<Data>,
-  Data = unknown,
->(
-  worker: Worker,
-  tasksQueueBackPressureSize: number,
+export const checkWorkerNodeArguments = (
+  type: WorkerType,
+  fileURL: URL,
+  opts: WorkerNodeOptions,
 ): void => {
-  if (worker == null) {
-    throw new TypeError('Cannot construct a worker node without a worker')
+  if (type == null) {
+    throw new TypeError('Cannot construct a worker node without a worker type')
   }
-  if (tasksQueueBackPressureSize == null) {
+  if (!Object.values(WorkerTypes).includes(type)) {
     throw new TypeError(
-      'Cannot construct a worker node without a tasks queue back pressure size',
+      `Cannot construct a worker node with an invalid worker type '${type}'`,
     )
   }
-  if (!Number.isSafeInteger(tasksQueueBackPressureSize)) {
+  checkFileURL(fileURL)
+  if (opts == null) {
     throw new TypeError(
-      'Cannot construct a worker node with a tasks queue back pressure size that is not an integer',
+      'Cannot construct a worker node without worker node options',
     )
   }
-  if (tasksQueueBackPressureSize <= 0) {
+  if (!isPlainObject(opts)) {
+    throw new TypeError(
+      'Cannot construct a worker node with invalid options: must be a plain object',
+    )
+  }
+  if (opts.tasksQueueBackPressureSize == null) {
+    throw new TypeError(
+      'Cannot construct a worker node without a tasks queue back pressure size option',
+    )
+  }
+  if (!Number.isSafeInteger(opts.tasksQueueBackPressureSize)) {
+    throw new TypeError(
+      'Cannot construct a worker node with a tasks queue back pressure size option that is not an integer',
+    )
+  }
+  if (opts.tasksQueueBackPressureSize <= 0) {
     throw new RangeError(
-      'Cannot construct a worker node with a tasks queue back pressure size that is not a positive integer',
+      'Cannot construct a worker node with a tasks queue back pressure size option that is not a positive integer',
     )
   }
 }
@@ -162,3 +188,19 @@ export const messageListenerToEventListener = <Message = unknown>(
   listener: (message: MessageValue<Message>) => void,
 ): (event: Event) => void =>
 (event: Event) => listener((event as CustomEvent<MessageValue<Message>>).detail)
+
+export const createWorker = <Worker extends IWorker<Data>, Data = unknown>(
+  type: WorkerType,
+  fileURL: URL,
+  opts: { workerOptions?: WorkerOptions },
+): Worker => {
+  switch (type) {
+    case WorkerTypes.web:
+      return new Worker(fileURL, {
+        ...opts?.workerOptions,
+        type: 'module',
+      }) as unknown as Worker
+    default:
+      throw new Error(`Unknown worker type '${type}'`)
+  }
+}
