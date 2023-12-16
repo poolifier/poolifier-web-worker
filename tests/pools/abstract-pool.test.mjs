@@ -1,5 +1,5 @@
 import {
-  // assertSpyCalls,
+  assertSpyCalls,
   returnsNext,
   stub,
 } from 'https://deno.land/std@0.209.0/testing/mock.ts'
@@ -1443,7 +1443,7 @@ Deno.test({
         stub(
           pool,
           'hasBackPressure',
-          returnsNext([true, true, true, true, true, true]),
+          returnsNext(Array(5).fill(true)),
         )
         expect(pool.emitter.eventNames()).toStrictEqual([])
         const promises = new Set()
@@ -1481,8 +1481,7 @@ Deno.test({
           stolenTasks: expect.any(Number),
           failedTasks: expect.any(Number),
         })
-        // FIXME: should be 1
-        // assertSpyCalls(pool.hasBackPressure, 5)
+        assertSpyCalls(pool.hasBackPressure, 5)
         pool.hasBackPressure.restore()
         await pool.destroy()
       },
