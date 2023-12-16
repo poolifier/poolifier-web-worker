@@ -16,7 +16,7 @@ and this project adheres to
 
 ### Changed
 
-- TypeScript breaking change: merge ThreadPoolOptions types into PoolOptions
+- TypeScript breaking change: merge ThreadPoolOptions type into PoolOptions
   type.
 
 ## [0.0.15] - 2023-12-13
