@@ -92,8 +92,7 @@ Deno.test({
       pool.emitter.on(PoolEvents.ready, () => ++poolReady)
       await waitPoolEvents(pool, PoolEvents.ready, 1)
       expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.ready])
-      // FIXME: should be 1
-      // expect(poolReady).toBe(5)
+      expect(poolReady).toBe(1)
       await pool.destroy()
     })
 

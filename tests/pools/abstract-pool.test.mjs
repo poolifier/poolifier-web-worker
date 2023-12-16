@@ -1482,7 +1482,7 @@ Deno.test({
           failedTasks: expect.any(Number),
         })
         // FIXME: should be 1
-        // assertSpyCalls(pool.hasBackPressure, 6)
+        // assertSpyCalls(pool.hasBackPressure, 5)
         pool.hasBackPressure.restore()
         await pool.destroy()
       },
