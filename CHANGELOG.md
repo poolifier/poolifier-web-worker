@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.1] - 2023-12-16
+
+### Changed
+
+- Cleanup default module exports.
+
 ## [0.1.0] - 2023-12-16
 
 ### Fixed
