@@ -2,15 +2,15 @@ import { CircularArray } from '../circular-array.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import { DEFAULT_TASK_NAME, getWorkerId, getWorkerType } from '../utils.ts'
 import { Deque } from '../deque.ts'
-import {
-  type IWorker,
-  type IWorkerNode,
-  type StrategyData,
-  type WorkerInfo,
+import type {
+  IWorker,
+  IWorkerNode,
+  StrategyData,
+  WorkerInfo,
   WorkerNodeEventDetail,
   WorkerNodeOptions,
-  type WorkerType,
-  type WorkerUsage,
+  WorkerType,
+  WorkerUsage,
 } from './worker.ts'
 import { checkWorkerNodeArguments, createWorker } from './utils.ts'
 
