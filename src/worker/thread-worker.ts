@@ -28,6 +28,7 @@ export class ThreadWorker<
   private port?: MessagePort
   /** @inheritdoc */
   public id?: string
+
   /**
    * Constructs a new poolifier thread worker.
    *

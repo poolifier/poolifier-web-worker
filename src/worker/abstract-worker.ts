@@ -75,6 +75,7 @@ export abstract class AbstractWorker<
    * Handler id of the `activeInterval` worker activity check.
    */
   protected activeInterval?: number
+
   /**
    * Constructs a new poolifier worker.
    * @param isMain - Whether this is the main worker or not.
