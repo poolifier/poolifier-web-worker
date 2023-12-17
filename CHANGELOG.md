@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Wait for queued tasks to end at worker termination.
+
 ## [0.1.1] - 2023-12-16
 
 ### Changed
