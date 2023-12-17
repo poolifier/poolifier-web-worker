@@ -9,6 +9,7 @@ export const waitWorkerNodeEvents = async (
     let events = 0
     if (numberOfEventsToWait === 0) {
       resolve(events)
+      return
     }
     const eventHandler = () => {
       ;++events
@@ -39,6 +40,7 @@ export const waitPoolEvents = async (pool, poolEvent, numberOfEventsToWait) => {
     let events = 0
     if (numberOfEventsToWait === 0) {
       resolve(events)
+      return
     }
     pool.emitter?.on(poolEvent, () => {
       ;++events

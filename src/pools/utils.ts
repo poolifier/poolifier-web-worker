@@ -8,6 +8,7 @@ import {
 import type { TasksQueueOptions } from './pool.ts'
 import {
   type IWorker,
+  type IWorkerNode,
   type MeasurementStatistics,
   type WorkerNodeOptions,
   type WorkerType,
@@ -203,4 +204,27 @@ export const createWorker = <Worker extends IWorker<Data>, Data = unknown>(
     default:
       throw new Error(`Unknown worker type '${type}'`)
   }
+}
+
+export const waitWorkerNodeEvents = async <
+  Worker extends IWorker<Data>,
+  Data = unknown,
+>(
+  workerNode: IWorkerNode<Worker, Data>,
+  workerNodeEvent: string,
+  numberOfEventsToWait: number,
+): Promise<number> => {
+  return await new Promise<number>((resolve) => {
+    let events = 0
+    if (numberOfEventsToWait === 0) {
+      resolve(events)
+      return
+    }
+    workerNode.addEventListener(workerNodeEvent, () => {
+      ;++events
+      if (events === numberOfEventsToWait) {
+        resolve(events)
+      }
+    })
+  })
 }
