@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix possible null exception at handling task execution response.
+
 ## [0.1.2] - 2023-12-17
 
 ### Fixed
