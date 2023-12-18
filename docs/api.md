@@ -198,9 +198,11 @@ An object with these properties:
   - `taskStealing` (optional) - Task stealing enablement on idle.
   - `tasksStealingOnBackPressure` (optional) - Tasks stealing enablement under
     back pressure.
+  - `tasksFinishedTimeout` (optional) - Queued tasks finished timeout in
+    milliseconds at worker termination.
 
   Default:
-  `{ size: (pool maximum size)^2, concurrency: 1, taskStealing: true, tasksStealingOnBackPressure: true }`
+  `{ size: (pool maximum size)^2, concurrency: 1, taskStealing: true, tasksStealingOnBackPressure: true, tasksFinishedTimeout: 1000 }`
 
 - `workerOptions` (optional) - An object with the worker options to pass to
   worker. See

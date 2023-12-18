@@ -5,11 +5,23 @@ import {
 } from '../../src/circular-array.ts'
 import {
   createWorker,
+  getDefaultTasksQueueOptions,
   updateMeasurementStatistics,
 } from '../../src/pools/utils.ts'
 import { WorkerTypes } from '../../src/mod.ts'
 
 Deno.test('Pool utils test suite', async (t) => {
+  await t.step('Verify getDefaultTasksQueueOptions() behavior', () => {
+    const poolMaxSize = 4
+    expect(getDefaultTasksQueueOptions(poolMaxSize)).toStrictEqual({
+      concurrency: 1,
+      size: Math.pow(poolMaxSize, 2),
+      taskStealing: true,
+      tasksStealingOnBackPressure: true,
+      tasksFinishedTimeout: 1000,
+    })
+  })
+
   await t.step('Verify updateMeasurementStatistics() behavior', () => {
     const measurementStatistics = {
       history: new CircularArray(),

@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Add queued tasks end timeout support to worker node termination.
+
 ## [0.1.4] - 2023-12-18
 
 ### Fixed
@@ -25,7 +29,7 @@ and this project adheres to
 
 ### Fixed
 
-- Wait for queued tasks to end at worker termination.
+- Wait for queued tasks to end at worker node termination.
 
 ## [0.1.1] - 2023-12-16
 

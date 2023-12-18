@@ -53,6 +53,7 @@ import {
   checkFileURL,
   checkValidTasksQueueOptions,
   checkValidWorkerChoiceStrategy,
+  getDefaultTasksQueueOptions,
   updateEluWorkerUsage,
   updateRunTimeWorkerUsage,
   updateTaskStatisticsWorkerUsage,
@@ -611,12 +612,7 @@ export abstract class AbstractPool<
     tasksQueueOptions: TasksQueueOptions,
   ): TasksQueueOptions {
     return {
-      ...{
-        size: Math.pow(this.maxSize, 2),
-        concurrency: 1,
-        taskStealing: true,
-        tasksStealingOnBackPressure: true,
-      },
+      ...getDefaultTasksQueueOptions(this.maxSize),
       ...tasksQueueOptions,
     }
   }
@@ -1033,6 +1029,8 @@ export abstract class AbstractPool<
       workerNode,
       'taskFinished',
       flushedTasks,
+      this.opts.tasksQueueOptions?.tasksFinishedTimeout ??
+        getDefaultTasksQueueOptions(this.maxSize).tasksFinishedTimeout,
     )
     await this.sendKillMessageToWorker(workerNodeKey)
     workerNode.terminate()
@@ -1762,7 +1760,7 @@ export abstract class AbstractPool<
       {
         workerOptions: this.opts.workerOptions,
         tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
-          Math.pow(this.maxSize, 2),
+          getDefaultTasksQueueOptions(this.maxSize).size,
       },
     )
     // Flag the worker node as ready at pool startup.
