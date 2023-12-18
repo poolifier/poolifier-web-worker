@@ -1525,7 +1525,6 @@ Deno.test({
         const elapsedTime = performance.now() - startTime
         // expect(tasksFinished).toBe(numberOfWorkers * maxMultiplier)
         expect(elapsedTime).toBeGreaterThanOrEqual(2000)
-        // FIXME: should be tasksFinishedTimeout
         expect(elapsedTime).toBeLessThanOrEqual(tasksFinishedTimeout + 100)
       },
     )
