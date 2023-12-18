@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.6] - 2023-12-18
+
 ### Fixed
 
 - Fix pool destroying with tasks queuing enabled.
