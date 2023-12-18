@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.5] - 2023-12-18
+
 ### Added
 
 - Add queued tasks end timeout support to worker node termination.
