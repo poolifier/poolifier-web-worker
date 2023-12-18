@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { performance } from 'node:perf_hooks'
 import { EventEmitter } from 'node:events'
 import type {
@@ -926,7 +925,7 @@ export abstract class AbstractPool<
         data: data ?? ({} as Data),
         transferList,
         timestamp,
-        taskId: randomUUID(),
+        taskId: crypto.randomUUID(),
       }
       this.promiseResponseMap.set(task.taskId as string, {
         resolve,
