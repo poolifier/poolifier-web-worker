@@ -5,10 +5,10 @@ import {
 import type { IPool } from '../pool.ts'
 import type { IWorker, StrategyData } from '../worker.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
-import {
-  type IWorkerChoiceStrategy,
-  type TaskStatisticsRequirements,
-  type WorkerChoiceStrategyOptions,
+import type {
+  IWorkerChoiceStrategy,
+  TaskStatisticsRequirements,
+  WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
 
 /**
@@ -118,9 +118,6 @@ export class FairShareWorkerChoiceStrategy<
     workerNodeKey: number,
     workerNodeVirtualTaskStartTimestamp: number,
   ): number {
-    // const workerNodeTaskRunTime = this.opts.measurement === Measurements.elu
-    //   ? this.getWorkerNodeTaskElu(workerNodeKey)
-    //   : this.getWorkerNodeTaskRunTime(workerNodeKey)
     return workerNodeVirtualTaskStartTimestamp +
       this.getWorkerNodeTaskRunTime(workerNodeKey)
   }

@@ -13,8 +13,10 @@ import {
   type WorkerNodeOptions,
   type WorkerType,
   WorkerTypes,
+  type WorkerUsage,
 } from './worker.ts'
-import { MessageValue } from '../utility-types.ts'
+import type { MessageValue, Task } from '../utility-types.ts'
+import type { WorkerChoiceStrategyContext } from './selection-strategies/worker-choice-strategy-context.ts'
 
 export const checkFileURL = (fileURL: URL): void => {
   if (fileURL == null) {
@@ -150,6 +152,7 @@ export const checkWorkerNodeArguments = (
  * @param numberOfMeasurements - The number of measurements.
  * @internal
  */
+// FIXME: should not be exported
 export const updateMeasurementStatistics = (
   measurementStatistics: MeasurementStatistics,
   measurementRequirements: MeasurementStatisticsRequirements,
@@ -180,6 +183,110 @@ export const updateMeasurementStatistics = (
         measurementStatistics.median = median(measurementStatistics.history)
       } else if (measurementStatistics.median != null) {
         delete measurementStatistics.median
+      }
+    }
+  }
+}
+
+export const updateWaitTimeWorkerUsage = <
+  Worker extends IWorker<Data>,
+  Data = unknown,
+  Response = unknown,
+>(
+  workerChoiceStrategyContext: WorkerChoiceStrategyContext<
+    Worker,
+    Data,
+    Response
+  >,
+  workerUsage: WorkerUsage,
+  task: Task<Data>,
+): void => {
+  const timestamp = performance.now()
+  const taskWaitTime = timestamp - (task.timestamp ?? timestamp)
+  updateMeasurementStatistics(
+    workerUsage.waitTime,
+    workerChoiceStrategyContext.getTaskStatisticsRequirements().waitTime,
+    taskWaitTime,
+  )
+}
+
+export const updateTaskStatisticsWorkerUsage = <Response = unknown>(
+  workerUsage: WorkerUsage,
+  message: MessageValue<Response>,
+): void => {
+  const workerTaskStatistics = workerUsage.tasks
+  if (
+    workerTaskStatistics.executing != null &&
+    workerTaskStatistics.executing > 0
+  ) {
+    ;--workerTaskStatistics.executing
+  }
+  if (message.workerError == null) {
+    ;++workerTaskStatistics.executed
+  } else {
+    ;++workerTaskStatistics.failed
+  }
+}
+
+export const updateRunTimeWorkerUsage = <
+  Worker extends IWorker<Data>,
+  Data = unknown,
+  Response = unknown,
+>(
+  workerChoiceStrategyContext: WorkerChoiceStrategyContext<
+    Worker,
+    Data,
+    Response
+  >,
+  workerUsage: WorkerUsage,
+  message: MessageValue<Response>,
+): void => {
+  if (message.workerError != null) {
+    return
+  }
+  updateMeasurementStatistics(
+    workerUsage.runTime,
+    workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime,
+    message.taskPerformance?.runTime ?? 0,
+  )
+}
+
+export const updateEluWorkerUsage = <
+  Worker extends IWorker<Data>,
+  Data = unknown,
+  Response = unknown,
+>(
+  workerChoiceStrategyContext: WorkerChoiceStrategyContext<
+    Worker,
+    Data,
+    Response
+  >,
+  workerUsage: WorkerUsage,
+  message: MessageValue<Response>,
+): void => {
+  if (message.workerError != null) {
+    return
+  }
+  const eluTaskStatisticsRequirements: MeasurementStatisticsRequirements =
+    workerChoiceStrategyContext.getTaskStatisticsRequirements().elu
+  updateMeasurementStatistics(
+    workerUsage.elu.active,
+    eluTaskStatisticsRequirements,
+    message.taskPerformance?.elu?.active ?? 0,
+  )
+  updateMeasurementStatistics(
+    workerUsage.elu.idle,
+    eluTaskStatisticsRequirements,
+    message.taskPerformance?.elu?.idle ?? 0,
+  )
+  if (eluTaskStatisticsRequirements.aggregate) {
+    if (message.taskPerformance?.elu != null) {
+      if (workerUsage.elu.utilization != null) {
+        workerUsage.elu.utilization = (workerUsage.elu.utilization +
+          message.taskPerformance.elu.utilization) /
+          2
+      } else {
+        workerUsage.elu.utilization = message.taskPerformance.elu.utilization
       }
     }
   }

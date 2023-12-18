@@ -106,7 +106,7 @@ You can implement a
 a simple way by extending the class _ThreadWorker_:
 
 ```js
-import { ThreadWorker } from 'https://deno.land/x/poolifier/src/mod.ts'
+import { ThreadWorker } from 'https://deno.land/x/poolifier@$MODULE_VERSION/src/mod.ts'
 
 function yourFunction(data) {
   // this will be executed in the worker thread,
@@ -127,7 +127,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
-} from 'https://deno.land/x/poolifier/src/mod.ts'
+} from 'https://deno.land/x/poolifier@$MODULE_VERSION/src/mod.ts'
 
 // a fixed worker_threads pool
 const pool = new FixedThreadPool(availableParallelism(), './yourWorker.js')
