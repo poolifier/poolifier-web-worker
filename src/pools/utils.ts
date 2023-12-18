@@ -346,7 +346,7 @@ export const waitWorkerNodeEvents = async <
         resolve(events)
       }
     })
-    if (timeout > 0) {
+    if (timeout >= 0) {
       setTimeout(() => {
         resolve(events)
       }, timeout)
