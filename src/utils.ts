@@ -1,5 +1,4 @@
 import * as os from 'node:os'
-import { randomUUID, webcrypto } from 'node:crypto'
 import type {
   MeasurementStatisticsRequirements,
   WorkerChoiceStrategyOptions,
@@ -91,7 +90,7 @@ export const getWorkerId = <Data = unknown>(
   worker: IWorker<Data>,
 ): string | undefined => {
   if (worker instanceof Worker) {
-    return randomUUID()
+    return crypto.randomUUID()
   }
 }
 
@@ -230,7 +229,7 @@ export const isAsyncFunction = (
  * @internal
  */
 export const secureRandom = (): number => {
-  return webcrypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000
+  return crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000
 }
 
 /**
