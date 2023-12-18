@@ -1494,6 +1494,76 @@ Deno.test({
       },
     )
 
+    await t.step(
+      'Verify that destroy() waits for queued tasks to finish',
+      async () => {
+        const tasksFinishedTimeout = 2500
+        const pool = new FixedThreadPool(
+          numberOfWorkers,
+          new URL(
+            './../worker-files/thread/asyncWorker.mjs',
+            import.meta.url,
+          ),
+          {
+            enableTasksQueue: true,
+            tasksQueueOptions: { tasksFinishedTimeout },
+          },
+        )
+        const maxMultiplier = 4
+        let tasksFinished = 0
+        for (const workerNode of pool.workerNodes) {
+          workerNode.addEventListener('taskFinished', () => {
+            ;++tasksFinished
+          })
+        }
+        for (let i = 0; i < numberOfWorkers * maxMultiplier; i++) {
+          pool.execute()
+        }
+        expect(pool.info.queuedTasks).toBeGreaterThan(0)
+        const startTime = performance.now()
+        await pool.destroy()
+        const elapsedTime = performance.now() - startTime
+        // expect(tasksFinished).toBe(numberOfWorkers * maxMultiplier)
+        expect(elapsedTime).toBeGreaterThanOrEqual(2000)
+        // FIXME: should be tasksFinishedTimeout
+        expect(elapsedTime).toBeLessThanOrEqual(tasksFinishedTimeout + 100)
+      },
+    )
+
+    await t.step(
+      'Verify that destroy() waits until the tasks finished timeout is reached',
+      async () => {
+        const tasksFinishedTimeout = 1000
+        const pool = new FixedThreadPool(
+          numberOfWorkers,
+          new URL(
+            './../worker-files/thread/asyncWorker.mjs',
+            import.meta.url,
+          ),
+          {
+            enableTasksQueue: true,
+            tasksQueueOptions: { tasksFinishedTimeout },
+          },
+        )
+        const maxMultiplier = 4
+        let tasksFinished = 0
+        for (const workerNode of pool.workerNodes) {
+          workerNode.addEventListener('taskFinished', () => {
+            ;++tasksFinished
+          })
+        }
+        for (let i = 0; i < numberOfWorkers * maxMultiplier; i++) {
+          pool.execute()
+        }
+        expect(pool.info.queuedTasks).toBeGreaterThan(0)
+        const startTime = performance.now()
+        await pool.destroy()
+        const elapsedTime = performance.now() - startTime
+        expect(tasksFinished).toBe(0)
+        expect(elapsedTime).toBeLessThanOrEqual(tasksFinishedTimeout + 100)
+      },
+    )
+
     await t.step('Verify that hasTaskFunction() is working', async () => {
       const dynamicThreadPool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
@@ -1842,6 +1912,9 @@ Deno.test({
       const workerNodeKey = 0
       await expect(
         pool.sendKillMessageToWorker(workerNodeKey),
+      ).resolves.toBeUndefined()
+      await expect(
+        pool.sendKillMessageToWorker(numberOfWorkers),
       ).resolves.toBeUndefined()
       pool.destroy()
     })

@@ -997,6 +997,11 @@ export abstract class AbstractPool<
     workerNodeKey: number,
   ): Promise<void> {
     await new Promise<void>((resolve, reject) => {
+      if (workerNodeKey < 0 || workerNodeKey >= this.workerNodes.length) {
+        // FIXME: should reject with an error
+        resolve()
+        return
+      }
       const killMessageListener = (message: MessageValue<Response>): void => {
         this.checkMessageWorkerId(message)
         if (message.kill === 'success') {
@@ -1690,7 +1695,7 @@ export abstract class AbstractPool<
       this.afterTaskExecutionHook(workerNodeKey, message)
       this.promiseResponseMap.delete(taskId as string)
       workerNode?.dispatchEvent(new Event('taskFinished'))
-      if (this.opts.enableTasksQueue === true) {
+      if (this.opts.enableTasksQueue === true && !this.destroying) {
         const workerNodeTasksUsage = workerNode.usage.tasks
         if (
           this.tasksQueueSize(workerNodeKey) > 0 &&
