@@ -1,14 +1,11 @@
 import type { IWorker } from '../worker.ts'
 import type { IPool } from '../pool.ts'
-import {
-  DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
-} from '../../utils.ts'
+import { DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS } from '../../utils.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
+  InternalWorkerChoiceStrategyOptions,
   IWorkerChoiceStrategy,
   TaskStatisticsRequirements,
-  WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
 
 /**
@@ -37,10 +34,6 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /**
-   * Default worker weight.
-   */
-  private readonly defaultWorkerWeight: number
-  /**
    * Worker node virtual task runtime.
    */
   private workerNodeVirtualTaskRunTime = 0
@@ -48,11 +41,10 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   /** @inheritDoc */
   public constructor(
     pool: IPool<Worker, Data, Response>,
-    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
+    opts: InternalWorkerChoiceStrategyOptions,
   ) {
     super(pool, opts)
     this.setTaskStatisticsRequirements(this.opts)
-    this.defaultWorkerWeight = this.computeDefaultWorkerWeight()
   }
 
   /** @inheritDoc */
@@ -98,7 +90,7 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   private weightedRoundRobinNextWorkerNodeKey(): number | undefined {
     const workerWeight = this.opts.weights?.[
       this.nextWorkerNodeKey ?? this.previousWorkerNodeKey
-    ] ?? this.defaultWorkerWeight
+    ] as number
     if (this.workerNodeVirtualTaskRunTime < workerWeight) {
       this.workerNodeVirtualTaskRunTime = this.workerNodeVirtualTaskRunTime +
         this.getWorkerNodeTaskRunTime(

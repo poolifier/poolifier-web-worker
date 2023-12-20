@@ -27,9 +27,10 @@ export class FixedThreadPool<
   public constructor(
     numberOfThreads: number,
     fileURL: URL,
-    protected readonly opts: PoolOptions<Data> = {},
+    opts: PoolOptions<Data> = {},
+    maximumNumberOfWorkers?: number,
   ) {
-    super(numberOfThreads, fileURL, opts)
+    super(numberOfThreads, fileURL, opts, maximumNumberOfWorkers)
   }
   /** @inheritDoc */
   protected isMain(): boolean {

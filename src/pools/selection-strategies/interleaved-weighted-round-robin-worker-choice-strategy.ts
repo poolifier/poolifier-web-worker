@@ -1,14 +1,11 @@
 import type { IWorker } from '../worker.ts'
 import type { IPool } from '../pool.ts'
-import {
-  DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
-} from '../../utils.ts'
+import { DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS } from '../../utils.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
+  InternalWorkerChoiceStrategyOptions,
   IWorkerChoiceStrategy,
   TaskStatisticsRequirements,
-  WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
 
 /**
@@ -40,10 +37,6 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
    */
   private roundId = 0
   /**
-   * Default worker weight.
-   */
-  private readonly defaultWorkerWeight: number
-  /**
    * Round weights.
    */
   private roundWeights: number[]
@@ -59,11 +52,10 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   /** @inheritDoc */
   public constructor(
     pool: IPool<Worker, Data, Response>,
-    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
+    opts: InternalWorkerChoiceStrategyOptions,
   ) {
     super(pool, opts)
     this.setTaskStatisticsRequirements(this.opts)
-    this.defaultWorkerWeight = this.computeDefaultWorkerWeight()
     this.roundWeights = this.getRoundWeights()
   }
 
@@ -101,8 +93,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
         ) {
           this.workerNodeVirtualTaskRunTime = 0
         }
-        const workerWeight = this.opts.weights?.[workerNodeKey] ??
-          this.defaultWorkerWeight
+        const workerWeight = this.opts.weights?.[workerNodeKey] as number
         if (
           this.isWorkerNodeReady(workerNodeKey) &&
           workerWeight >= this.roundWeights[roundIndex] &&
@@ -156,18 +147,15 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public setOptions(opts: WorkerChoiceStrategyOptions): void {
+  public setOptions(opts: InternalWorkerChoiceStrategyOptions): void {
     super.setOptions(opts)
     this.roundWeights = this.getRoundWeights()
   }
 
   private getRoundWeights(): number[] {
-    if (this.opts.weights == null) {
-      return [this.defaultWorkerWeight]
-    }
     return [
       ...new Set(
-        Object.values(this.opts.weights)
+        Object.values(this.opts.weights as Record<number, number>)
           .slice()
           .sort((a, b) => a - b),
       ),

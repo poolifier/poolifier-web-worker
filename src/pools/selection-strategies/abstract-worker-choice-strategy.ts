@@ -1,11 +1,11 @@
-import { cpus } from 'node:os'
 import {
+  buildInternalWorkerChoiceStrategyOptions,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
 } from '../../utils.ts'
 import type { IPool } from '../pool.ts'
 import type { IWorker } from '../worker.ts'
 import type {
+  InternalWorkerChoiceStrategyOptions,
   IWorkerChoiceStrategy,
   MeasurementStatisticsRequirements,
   StrategyPolicy,
@@ -56,10 +56,13 @@ export abstract class AbstractWorkerChoiceStrategy<
    */
   public constructor(
     protected readonly pool: IPool<Worker, Data, Response>,
-    protected opts: WorkerChoiceStrategyOptions =
-      DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
+    protected opts: InternalWorkerChoiceStrategyOptions,
   ) {
-    this.opts = { ...DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS, ...opts }
+    this.opts = buildInternalWorkerChoiceStrategyOptions(
+      this.pool.info.maxSize,
+      this.opts,
+    )
+    this.setTaskStatisticsRequirements(this.opts)
     this.choose = this.choose.bind(this)
   }
 
@@ -112,8 +115,11 @@ export abstract class AbstractWorkerChoiceStrategy<
   public abstract remove(workerNodeKey: number): boolean
 
   /** @inheritDoc */
-  public setOptions(opts: WorkerChoiceStrategyOptions): void {
-    this.opts = { ...DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS, ...opts }
+  public setOptions(opts: InternalWorkerChoiceStrategyOptions): void {
+    this.opts = buildInternalWorkerChoiceStrategyOptions(
+      this.pool.info.maxSize,
+      opts,
+    )
     this.setTaskStatisticsRequirements(this.opts)
   }
 
@@ -190,16 +196,5 @@ export abstract class AbstractWorkerChoiceStrategy<
    */
   protected setPreviousWorkerNodeKey(workerNodeKey: number | undefined): void {
     this.previousWorkerNodeKey = workerNodeKey ?? this.previousWorkerNodeKey
-  }
-
-  protected computeDefaultWorkerWeight(): number {
-    let cpusCycleTimeWeight = 0
-    for (const cpu of cpus()) {
-      // CPU estimated cycle time
-      const numberOfDigits = cpu.speed.toString().length - 1
-      const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
-      cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
-    }
-    return Math.round(cpusCycleTimeWeight / cpus().length)
   }
 }

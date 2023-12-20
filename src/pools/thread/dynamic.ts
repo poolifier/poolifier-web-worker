@@ -27,12 +27,15 @@ export class DynamicThreadPool<
    */
   public constructor(
     min: number,
-    protected readonly max: number,
+    max: number,
     fileURL: URL,
     opts: PoolOptions<Data> = {},
   ) {
-    super(min, fileURL, opts)
-    checkDynamicPoolSize(this.numberOfWorkers, this.max)
+    super(min, fileURL, opts, max)
+    checkDynamicPoolSize(
+      this.minimumNumberOfWorkers,
+      this.maximumNumberOfWorkers as number,
+    )
   }
 
   /** @inheritDoc */

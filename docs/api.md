@@ -151,8 +151,6 @@ An object with these properties:
   object to use in this pool.\
   Properties:
 
-  - `retries` (optional) - The number of retries to perform if no worker is
-    eligible.
   - `measurement` (optional) - The measurement to use in worker choice
     strategies: `runTime`, `waitTime` <!-- or `elu`. -->
   - `runTime` (optional) - Use the tasks
@@ -170,9 +168,8 @@ An object with these properties:
   - `weights` (optional) - The worker weights to use in weighted round robin
     worker choice strategies: `{ 0: 200, 1: 300, ..., n: 100 }`.
 
-  Default:
-  `{ retries: 6, runTime: { median: false }, waitTime: { median: false } }`
-  <!-- `{ retries: 6, runTime: { median: false }, waitTime: { median: false }, elu: { median: false } }` -->
+  Default: `{ runTime: { median: false }, waitTime: { median: false } }`
+  <!-- `{ runTime: { median: false }, waitTime: { median: false }, elu: { median: false } }` -->
 
 - `startWorkers` (optional) - Start the minimum number of workers at pool
   initialization.\
