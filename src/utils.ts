@@ -55,7 +55,7 @@ export const DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS:
 export const availableParallelism = (): number => {
   let availableParallelism = 1
   try {
-    availableParallelism = os.availableParallelism()
+    availableParallelism = navigator.hardwareConcurrency
   } catch {
     const cpus = os.cpus()
     if (Array.isArray(cpus) && cpus.length > 0) {
@@ -321,8 +321,9 @@ export const buildInternalWorkerChoiceStrategyOptions = (
 
 const getDefaultWeights = (
   poolMaxSize: number,
-  defaultWorkerWeight: number = getDefaultWorkerWeight(),
+  defaultWorkerWeight?: number,
 ): Record<number, number> => {
+  defaultWorkerWeight = defaultWorkerWeight ?? getDefaultWorkerWeight()
   const weights: Record<number, number> = {}
   for (let workerNodeKey = 0; workerNodeKey < poolMaxSize; workerNodeKey++) {
     weights[workerNodeKey] = defaultWorkerWeight
@@ -333,6 +334,9 @@ const getDefaultWeights = (
 const getDefaultWorkerWeight = (): number => {
   let cpusCycleTimeWeight = 0
   for (const cpu of cpus()) {
+    if (cpu.speed == null || cpu.speed === 0) {
+      cpu.speed = 1500
+    }
     // CPU estimated cycle time
     const numberOfDigits = cpu.speed.toString().length - 1
     const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))

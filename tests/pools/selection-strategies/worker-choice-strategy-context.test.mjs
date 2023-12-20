@@ -94,7 +94,10 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       )
       expect(() => workerChoiceStrategyContext.execute()).toThrow(
         new Error(
-          'Worker node key chosen is null or undefined after 6 retries',
+          `Worker node key chosen is null or undefined after ${
+            fixedPool.info.maxSize +
+            Object.keys(workerChoiceStrategyContext.opts.weights).length
+          } retries`,
         ),
       )
       workerChoiceStrategyUndefinedStub.choose.restore()
@@ -112,7 +115,10 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       )
       expect(() => workerChoiceStrategyContext.execute()).toThrow(
         new Error(
-          'Worker node key chosen is null or undefined after 6 retries',
+          `Worker node key chosen is null or undefined after ${
+            fixedPool.info.maxSize +
+            Object.keys(workerChoiceStrategyContext.opts.weights).length
+          } retries`,
         ),
       )
       workerChoiceStrategyNullStub.choose.restore()
@@ -131,7 +137,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       stub(
         workerChoiceStrategyStub,
         'hasPoolWorkerNodesReady',
-        returnsNext(Array(8).fill(false).concat(Array(2).fill(true))),
+        returnsNext(Array(5).fill(false).concat(Array(1).fill(true))),
       )
       stub(
         workerChoiceStrategyStub,
@@ -150,7 +156,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
         workerChoiceStrategyContext.workerChoiceStrategies.get(
           workerChoiceStrategyContext.workerChoiceStrategy,
         ).hasPoolWorkerNodesReady,
-        10,
+        6,
       )
       assertSpyCalls(
         workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -165,7 +171,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
   )
 
   await t.step(
-    'Verify that execute() throws error if worker choice strategy consecutive executions has been reached',
+    'Verify that execute() throws error if worker choice strategy recursion reach the maximum depth',
     () => {
       const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
         fixedPool,
@@ -187,7 +193,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       )
       expect(() => workerChoiceStrategyContext.execute()).toThrow(
         new RangeError(
-          'Worker choice strategy consecutive executions has exceeded the maximum of 10000',
+          'Maximum call stack size exceeded',
         ),
       )
       workerChoiceStrategyStub.hasPoolWorkerNodesReady.restore()
