@@ -127,7 +127,7 @@ export abstract class AbstractPool<
   /**
    * Constructs a new poolifier pool.
    *
-   * @@param minimumNumberOfWorkers - Minimum number of workers that this pool manages.
+   * @param minimumNumberOfWorkers - Minimum number of workers that this pool manages.
    * @param fileURL - URL to the worker file.
    * @param opts - Options for the pool.
    * @param maximumNumberOfWorkers - Maximum number of workers that this pool manages.
