@@ -997,7 +997,7 @@ export abstract class AbstractPool<
     workerNodeKey: number,
   ): Promise<void> {
     await new Promise<void>((resolve, reject) => {
-      if (workerNodeKey < 0 || workerNodeKey >= this.workerNodes.length) {
+      if (this.workerNodes?.[workerNodeKey] == null) {
         // FIXME: should reject with an error
         resolve()
         return
