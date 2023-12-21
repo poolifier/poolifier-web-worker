@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.8] - 2023-12-21
+
 ### Fixed
 
 - Fix default worker weight computation.
