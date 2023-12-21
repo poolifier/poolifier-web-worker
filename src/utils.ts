@@ -337,7 +337,9 @@ const getDefaultWorkerWeight = (): number => {
   let cpusCycleTimeWeight = 0
   for (const cpu of cpus()) {
     if (cpu.speed == null || cpu.speed === 0) {
-      cpu.speed = cpuSpeed
+      cpu.speed = cpus().find((cpu) =>
+        cpu.speed != null && cpu.speed !== 0
+      )?.speed ?? cpuSpeed
     }
     // CPU estimated cycle time
     const numberOfDigits = cpu.speed.toString().length - 1
