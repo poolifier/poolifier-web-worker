@@ -971,9 +971,7 @@ export abstract class AbstractPool<
     this.started = false
   }
 
-  private async sendKillMessageToWorker(
-    workerNodeKey: number,
-  ): Promise<void> {
+  private async sendKillMessageToWorker(workerNodeKey: number): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       if (this.workerNodes?.[workerNodeKey] == null) {
         // FIXME: should reject with an error

@@ -192,9 +192,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
         workerChoiceStrategyStub,
       )
       expect(() => workerChoiceStrategyContext.execute()).toThrow(
-        new RangeError(
-          'Maximum call stack size exceeded',
-        ),
+        new RangeError('Maximum call stack size exceeded'),
       )
       workerChoiceStrategyStub.hasPoolWorkerNodesReady.restore()
     },

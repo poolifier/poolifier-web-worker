@@ -28,9 +28,9 @@ export class FixedThreadPool<
     numberOfThreads: number,
     fileURL: URL,
     opts: PoolOptions<Data> = {},
-    maximumNumberOfWorkers?: number,
+    maximumNumberOfThreads?: number,
   ) {
-    super(numberOfThreads, fileURL, opts, maximumNumberOfWorkers)
+    super(numberOfThreads, fileURL, opts, maximumNumberOfThreads)
   }
   /** @inheritDoc */
   protected isMain(): boolean {
