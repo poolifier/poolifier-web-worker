@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import * as os from 'node:os'
 import { cpus } from 'node:os'
 import type {
@@ -6,7 +7,6 @@ import type {
 } from './pools/selection-strategies/selection-strategies-types.ts'
 import type { KillBehavior } from './worker/worker-options.ts'
 import { type IWorker, type WorkerType, WorkerTypes } from './pools/worker.ts'
-import { randomInt } from 'node:crypto'
 
 /**
  * Default task name.
