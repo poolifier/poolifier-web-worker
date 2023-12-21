@@ -296,13 +296,17 @@ Deno.test({
           .workerChoiceStrategies
       ) {
         expect(workerChoiceStrategy.opts).toStrictEqual(
-          expect.objectContaining({
+          {
             retries: pool.info.maxSize +
               Object.keys(workerChoiceStrategy.opts.weights).length,
             runTime: { median: false },
             waitTime: { median: false },
             elu: { median: false },
-          }),
+            weights: expect.objectContaining({
+              0: expect.any(Number),
+              [pool.info.maxSize - 1]: expect.any(Number),
+            }),
+          },
         )
       }
       await pool.destroy()
@@ -576,13 +580,17 @@ Deno.test({
             .workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual(
-            expect.objectContaining({
+            {
               retries: pool.info.maxSize +
                 Object.keys(workerChoiceStrategy.opts.weights).length,
               runTime: { median: false },
               waitTime: { median: false },
               elu: { median: false },
-            }),
+              weights: expect.objectContaining({
+                0: expect.any(Number),
+                [pool.info.maxSize - 1]: expect.any(Number),
+              }),
+            },
           )
         }
         expect(
@@ -628,13 +636,17 @@ Deno.test({
             .workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual(
-            expect.objectContaining({
+            {
               retries: pool.info.maxSize +
                 Object.keys(workerChoiceStrategy.opts.weights).length,
               runTime: { median: true },
               waitTime: { median: false },
               elu: { median: true },
-            }),
+              weights: expect.objectContaining({
+                0: expect.any(Number),
+                [pool.info.maxSize - 1]: expect.any(Number),
+              }),
+            },
           )
         }
         expect(
@@ -680,13 +692,17 @@ Deno.test({
             .workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual(
-            expect.objectContaining({
+            {
               retries: pool.info.maxSize +
                 Object.keys(workerChoiceStrategy.opts.weights).length,
               runTime: { median: false },
               waitTime: { median: false },
               elu: { median: false },
-            }),
+              weights: expect.objectContaining({
+                0: expect.any(Number),
+                [pool.info.maxSize - 1]: expect.any(Number),
+              }),
+            },
           )
         }
         expect(
