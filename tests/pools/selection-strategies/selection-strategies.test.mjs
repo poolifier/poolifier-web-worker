@@ -191,6 +191,13 @@ Deno.test({
                 workerChoiceStrategy,
               ).roundWeights.length,
             ).toBe(1)
+            expect(
+              Number.isSafeInteger(
+                pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+                  workerChoiceStrategy,
+                ).roundWeights[0],
+              ),
+            ).toBe(true)
           }
         }
         await pool.destroy()
@@ -2279,6 +2286,13 @@ Deno.test({
             pool.workerChoiceStrategyContext.workerChoiceStrategy,
           ).roundWeights.length,
         ).toBe(1)
+        expect(
+          Number.isSafeInteger(
+            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategyContext.workerChoiceStrategy,
+            ).roundWeights[0],
+          ),
+        ).toBe(true)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
@@ -2362,6 +2376,13 @@ Deno.test({
             pool.workerChoiceStrategyContext.workerChoiceStrategy,
           ).roundWeights.length,
         ).toBe(1)
+        expect(
+          Number.isSafeInteger(
+            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategyContext.workerChoiceStrategy,
+            ).roundWeights[0],
+          ),
+        ).toBe(true)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
@@ -2430,6 +2451,13 @@ Deno.test({
             pool.workerChoiceStrategyContext.workerChoiceStrategy,
           ).roundWeights.length,
         ).toBe(1)
+        expect(
+          Number.isSafeInteger(
+            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategyContext.workerChoiceStrategy,
+            ).roundWeights[0],
+          ),
+        ).toBe(true)
         await pool.destroy()
         pool = new DynamicThreadPool(
           min,
@@ -2490,6 +2518,13 @@ Deno.test({
             pool.workerChoiceStrategyContext.workerChoiceStrategy,
           ).roundWeights.length,
         ).toBe(1)
+        expect(
+          Number.isSafeInteger(
+            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategyContext.workerChoiceStrategy,
+            ).roundWeights[0],
+          ),
+        ).toBe(true)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
