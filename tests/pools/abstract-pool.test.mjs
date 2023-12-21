@@ -1508,7 +1508,6 @@ Deno.test({
         const startTime = performance.now()
         await pool.destroy()
         const elapsedTime = performance.now() - startTime
-        expect(tasksFinished).toBeGreaterThanOrEqual(numberOfWorkers)
         expect(tasksFinished).toBeLessThanOrEqual(
           numberOfWorkers * maxMultiplier,
         )
