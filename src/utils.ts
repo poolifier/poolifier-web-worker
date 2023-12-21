@@ -6,6 +6,7 @@ import type {
 } from './pools/selection-strategies/selection-strategies-types.ts'
 import type { KillBehavior } from './worker/worker-options.ts'
 import { type IWorker, type WorkerType, WorkerTypes } from './pools/worker.ts'
+import { randomInt } from 'node:crypto'
 
 /**
  * Default task name.
@@ -332,10 +333,11 @@ const getDefaultWeights = (
 }
 
 const getDefaultWorkerWeight = (): number => {
+  const cpuSpeed = randomInt(500, 2500)
   let cpusCycleTimeWeight = 0
   for (const cpu of cpus()) {
     if (cpu.speed == null || cpu.speed === 0) {
-      cpu.speed = 1500
+      cpu.speed = cpuSpeed
     }
     // CPU estimated cycle time
     const numberOfDigits = cpu.speed.toString().length - 1
