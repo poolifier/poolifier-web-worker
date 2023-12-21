@@ -1,10 +1,9 @@
-import { DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS } from '../../utils.ts'
 import type { IPool } from '../pool.ts'
 import type { IWorker } from '../worker.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
+  InternalWorkerChoiceStrategyOptions,
   IWorkerChoiceStrategy,
-  WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
 
 /**
@@ -23,10 +22,9 @@ export class LeastUsedWorkerChoiceStrategy<
   /** @inheritDoc */
   public constructor(
     pool: IPool<Worker, Data, Response>,
-    opts: WorkerChoiceStrategyOptions = DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
+    opts: InternalWorkerChoiceStrategyOptions,
   ) {
     super(pool, opts)
-    this.setTaskStatisticsRequirements(this.opts)
   }
 
   /** @inheritDoc */

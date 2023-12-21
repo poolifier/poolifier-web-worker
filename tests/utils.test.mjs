@@ -4,9 +4,9 @@ import { expect } from 'npm:expect'
 import { availableParallelism, KillBehaviors, WorkerTypes } from '../src/mod.ts'
 import {
   average,
+  buildInternalWorkerChoiceStrategyOptions,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   DEFAULT_TASK_NAME,
-  DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS,
   EMPTY_FUNCTION,
   exponentialDelay,
   getWorkerId,
@@ -33,15 +33,6 @@ Deno.test('Utils test suite', async (t) => {
     expect(EMPTY_FUNCTION).toStrictEqual(expect.any(Function))
   })
 
-  await t.step('Verify DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS values', () => {
-    expect(DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS).toStrictEqual({
-      retries: 6,
-      runTime: { median: false },
-      waitTime: { median: false },
-      elu: { median: false },
-    })
-  })
-
   await t.step(
     'Verify DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS values',
     () => {
@@ -59,7 +50,7 @@ Deno.test('Utils test suite', async (t) => {
     expect(Number.isSafeInteger(parallelism)).toBe(true)
     let expectedParallelism = 1
     try {
-      expectedParallelism = os.availableParallelism()
+      expectedParallelism = navigator.hardwareConcurrency
     } catch {
       expectedParallelism = os.cpus().length
     }
@@ -255,6 +246,26 @@ Deno.test('Utils test suite', async (t) => {
     expect(max(2, 1)).toBe(2)
     expect(max(1, 1)).toBe(1)
   })
+
+  await t.step(
+    'Verify buildInternalWorkerChoiceStrategyOptions() behavior',
+    () => {
+      const poolMaxSize = 10
+      const internalWorkerChoiceStrategyOptions =
+        buildInternalWorkerChoiceStrategyOptions(poolMaxSize)
+      expect(internalWorkerChoiceStrategyOptions).toStrictEqual({
+        retries: poolMaxSize +
+          Object.keys(internalWorkerChoiceStrategyOptions.weights).length,
+        runTime: { median: false },
+        waitTime: { median: false },
+        elu: { median: false },
+        weights: expect.objectContaining({
+          0: expect.any(Number),
+          [poolMaxSize - 1]: expect.any(Number),
+        }),
+      })
+    },
+  )
 
   await t.step('Verify once()', () => {
     let called = 0

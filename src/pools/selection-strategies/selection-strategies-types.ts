@@ -72,12 +72,6 @@ export interface MeasurementOptions {
  */
 export interface WorkerChoiceStrategyOptions {
   /**
-   * Number of worker choice retries to perform if no worker is eligible.
-   *
-   * @defaultValue 6
-   */
-  readonly retries?: number
-  /**
    * Measurement to use in worker choice strategy supporting it.
    */
   readonly measurement?: Measurement
@@ -105,7 +99,22 @@ export interface WorkerChoiceStrategyOptions {
    *
    * @defaultValue Weights computed automatically given the CPU performance.
    */
-  readonly weights?: Record<number, number>
+  weights?: Record<number, number>
+}
+
+/**
+ * Worker choice strategy internal options.
+ *
+ * @internal
+ */
+export interface InternalWorkerChoiceStrategyOptions
+  extends WorkerChoiceStrategyOptions {
+  /**
+   * Number of worker choice retries to perform if no worker is eligible.
+   *
+   * @defaultValue pool maximum size
+   */
+  readonly retries?: number
 }
 
 /**

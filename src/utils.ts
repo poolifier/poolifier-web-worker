@@ -1,7 +1,9 @@
+import { randomInt } from 'node:crypto'
 import * as os from 'node:os'
+import { cpus } from 'node:os'
 import type {
+  InternalWorkerChoiceStrategyOptions,
   MeasurementStatisticsRequirements,
-  WorkerChoiceStrategyOptions,
 } from './pools/selection-strategies/selection-strategies-types.ts'
 import type { KillBehavior } from './worker/worker-options.ts'
 import { type IWorker, type WorkerType, WorkerTypes } from './pools/worker.ts'
@@ -19,15 +21,21 @@ export const EMPTY_FUNCTION: () => void = Object.freeze(() => {
 })
 
 /**
- * Default worker choice strategy options.
+ * Gets default worker choice strategy options.
+ *
+ * @param retries - The number of worker choice retries.
+ * @returns The default worker choice strategy options.
  */
-export const DEFAULT_WORKER_CHOICE_STRATEGY_OPTIONS:
-  WorkerChoiceStrategyOptions = {
-    retries: 6,
+const getDefaultInternalWorkerChoiceStrategyOptions = (
+  retries: number,
+): InternalWorkerChoiceStrategyOptions => {
+  return {
+    retries,
     runTime: { median: false },
     waitTime: { median: false },
     elu: { median: false },
   }
+}
 
 /**
  * Default measurement statistics requirements.
@@ -48,7 +56,7 @@ export const DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS:
 export const availableParallelism = (): number => {
   let availableParallelism = 1
   try {
-    availableParallelism = os.availableParallelism()
+    availableParallelism = navigator.hardwareConcurrency
   } catch {
     const cpus = os.cpus()
     if (Array.isArray(cpus) && cpus.length > 0) {
@@ -290,4 +298,51 @@ export const isWebWorker = () => {
     typeof WorkerGlobalScope !== 'undefined' &&
     self instanceof WorkerGlobalScope
   )
+}
+
+const clone = <T extends object>(object: T): T => {
+  return JSON.parse(JSON.stringify(object)) as T
+}
+
+export const buildInternalWorkerChoiceStrategyOptions = (
+  poolMaxSize: number,
+  opts?: InternalWorkerChoiceStrategyOptions,
+): InternalWorkerChoiceStrategyOptions => {
+  opts = clone(opts ?? {})
+  if (opts?.weights == null) {
+    opts.weights = getDefaultWeights(poolMaxSize)
+  }
+  return {
+    ...getDefaultInternalWorkerChoiceStrategyOptions(
+      poolMaxSize + Object.keys(opts.weights).length,
+    ),
+    ...opts,
+  }
+}
+
+const getDefaultWeights = (
+  poolMaxSize: number,
+  defaultWorkerWeight?: number,
+): Record<number, number> => {
+  defaultWorkerWeight = defaultWorkerWeight ?? getDefaultWorkerWeight()
+  const weights: Record<number, number> = {}
+  for (let workerNodeKey = 0; workerNodeKey < poolMaxSize; workerNodeKey++) {
+    weights[workerNodeKey] = defaultWorkerWeight
+  }
+  return weights
+}
+
+const getDefaultWorkerWeight = (): number => {
+  const cpuSpeed = randomInt(500, 2500)
+  let cpusCycleTimeWeight = 0
+  for (const cpu of cpus()) {
+    if (cpu.speed == null || cpu.speed === 0) {
+      cpu.speed = cpuSpeed
+    }
+    // CPU estimated cycle time
+    const numberOfDigits = cpu.speed.toString().length - 1
+    const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
+    cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
+  }
+  return Math.round(cpusCycleTimeWeight / cpus().length)
 }
