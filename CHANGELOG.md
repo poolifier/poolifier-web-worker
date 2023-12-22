@@ -11,6 +11,7 @@ and this project adheres to
 ### Changed
 
 - Readd ThreadPoolOptions TS type alias to PoolOptions.
+- Avoid useless branching on pool type.
 
 ## [0.1.8] - 2023-12-21
 

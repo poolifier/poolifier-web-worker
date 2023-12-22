@@ -1709,13 +1709,10 @@ export abstract class AbstractPool<
     }
   }
 
-  private checkAndEmitDynamicWorkerCreationEvents(): void {
-    if (this.type === PoolTypes.dynamic) {
-      if (this.full) {
-        this.emitter?.emit(PoolEvents.full, this.info)
-      }
-    }
-  }
+  /**
+   * Emits dynamic worker creation events.
+   */
+  protected abstract checkAndEmitDynamicWorkerCreationEvents(): void
 
   /**
    * Gets the worker information given its worker node key.
