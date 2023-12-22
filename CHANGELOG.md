@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Readd ThreadPoolOptions TS type alias to PoolOptions.
+
 ## [0.1.8] - 2023-12-21
 
 ### Fixed

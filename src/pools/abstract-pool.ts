@@ -67,7 +67,7 @@ import {
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export abstract class AbstractPool<
-  Worker extends IWorker<Data>,
+  Worker extends IWorker,
   Data = unknown,
   Response = unknown,
 > implements IPool<Worker, Data, Response> {
@@ -135,7 +135,7 @@ export abstract class AbstractPool<
   public constructor(
     protected readonly minimumNumberOfWorkers: number,
     protected readonly fileURL: URL,
-    protected readonly opts: PoolOptions<Data>,
+    protected readonly opts: PoolOptions<Worker>,
     protected readonly maximumNumberOfWorkers?: number,
   ) {
     if (!this.isMain()) {
@@ -206,7 +206,7 @@ export abstract class AbstractPool<
     }
   }
 
-  private checkPoolOptions(opts: PoolOptions<Data>): void {
+  private checkPoolOptions(opts: PoolOptions<Worker>): void {
     if (isPlainObject(opts)) {
       this.opts.startWorkers = opts.startWorkers ?? true
       checkValidWorkerChoiceStrategy(

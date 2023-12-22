@@ -4,25 +4,32 @@ import type { Task } from '../utility-types.ts'
 /**
  * Callback invoked if the worker has received a message event.
  *
- * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
+ * @typeParam Worker - Type of worker.
  */
-export type MessageEventHandler<Data = unknown> = (
-  e: MessageEvent<Data>,
+export type MessageEventHandler<Worker extends IWorker> = (
+  this: Worker,
+  e: MessageEvent,
 ) => void
 
 /**
  * Callback invoked if the worker raised an error at processing a message event.
  *
- * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
+ * @typeParam Worker - Type of worker.
  */
-export type MessageEventErrorHandler<Data = unknown> = (
-  e: MessageEvent<Data>,
+export type MessageEventErrorHandler<Worker extends IWorker> = (
+  this: Worker,
+  e: MessageEvent,
 ) => void
 
 /**
  * Callback invoked if the worker raised an error event.
+ *
+ * @typeParam Worker - Type of worker.
  */
-export type ErrorEventHandler = (e: ErrorEvent) => void
+export type ErrorEventHandler<Worker extends IWorker> = (
+  this: Worker,
+  e: ErrorEvent,
+) => void
 
 /**
  * Measurement statistics.
@@ -180,22 +187,20 @@ export interface StrategyData {
 
 /**
  * Worker interface.
- *
- * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  */
-export interface IWorker<Data = unknown> {
+export interface IWorker {
   /**
    * Worker `message` event handler.
    */
-  onmessage?: MessageEventHandler<Data>
+  onmessage?: MessageEventHandler<this>
   /**
    * Worker `messageerror` event handler.
    */
-  onmessageerror?: MessageEventErrorHandler<Data>
+  onmessageerror?: MessageEventErrorHandler<this>
   /**
    * Worker `error` event handler.
    */
-  onerror?: ErrorEventHandler
+  onerror?: ErrorEventHandler<this>
   /**
    * Terminates the worker.
    */
@@ -219,7 +224,7 @@ export interface WorkerNodeOptions {
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  * @internal
  */
-export interface IWorkerNode<Worker extends IWorker<Data>, Data = unknown>
+export interface IWorkerNode<Worker extends IWorker, Data = unknown>
   extends EventTarget {
   /**
    * Worker.

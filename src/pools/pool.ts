@@ -135,19 +135,19 @@ export interface TasksQueueOptions {
  *
  * @typeParam Worker - Type of worker.
  */
-export interface PoolOptions<Data = unknown> {
+export interface PoolOptions<Worker extends IWorker> {
   /**
    * A function that will listen for message event on each worker.
    *
    * @defaultValue `() => {}`
    */
-  messageEventHandler?: MessageEventHandler<Data>
+  messageEventHandler?: MessageEventHandler<Worker>
   /**
    * A function that will listen for message event processing error on each worker.
    *
    * @defaultValue `() => {}`
    */
-  messageEventErrorHandler?: MessageEventErrorHandler<Data>
+  messageEventErrorHandler?: MessageEventErrorHandler<Worker>
   /**
    * Whether to start the minimum number of workers at pool initialization.
    *
@@ -200,7 +200,7 @@ export interface PoolOptions<Data = unknown> {
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export interface IPool<
-  Worker extends IWorker<Data>,
+  Worker extends IWorker,
   Data = unknown,
   Response = unknown,
 > {

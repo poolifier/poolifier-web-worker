@@ -30,6 +30,7 @@ export {
   WorkerChoiceStrategies,
 } from './pools/selection-strategies/selection-strategies-types.ts'
 export type {
+  InternalWorkerChoiceStrategyOptions,
   IWorkerChoiceStrategy,
   Measurement,
   MeasurementOptions,
@@ -42,6 +43,7 @@ export type {
 export type { WorkerChoiceStrategyContext } from './pools/selection-strategies/worker-choice-strategy-context.ts'
 export { DynamicThreadPool } from './pools/thread/dynamic.ts'
 export { FixedThreadPool } from './pools/thread/fixed.ts'
+export type { ThreadPoolOptions } from './pools/thread/fixed.ts'
 export type { AbstractWorker } from './worker/abstract-worker.ts'
 export { ThreadWorker } from './worker/thread-worker.ts'
 export { KillBehaviors } from './worker/worker-options.ts'

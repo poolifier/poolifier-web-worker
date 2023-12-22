@@ -71,13 +71,10 @@ export const availableParallelism = (): number => {
  *
  * @param worker - The worker to get the type of.
  * @returns The worker type of the given worker.
- *
- * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
- *
  * @internal
  */
-export const getWorkerType = <Data = unknown>(
-  worker: IWorker<Data>,
+export const getWorkerType = (
+  worker: IWorker,
 ): WorkerType | undefined => {
   if (worker instanceof Worker) {
     return WorkerTypes.web
@@ -89,13 +86,10 @@ export const getWorkerType = <Data = unknown>(
  *
  * @param worker - The worker to get the id of.
  * @returns The worker id of the given worker.
- *
- * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
- *
  * @internal
  */
-export const getWorkerId = <Data = unknown>(
-  worker: IWorker<Data>,
+export const getWorkerId = (
+  worker: IWorker,
 ): string | undefined => {
   if (worker instanceof Worker) {
     return crypto.randomUUID()

@@ -25,7 +25,7 @@ import { WeightedRoundRobinWorkerChoiceStrategy } from './weighted-round-robin-w
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export class WorkerChoiceStrategyContext<
-  Worker extends IWorker<Data>,
+  Worker extends IWorker,
   Data = unknown,
   Response = unknown,
 > {

@@ -6,6 +6,11 @@ import { messageListenerToEventListener } from '../utils.ts'
 import { type WorkerType, WorkerTypes } from '../worker.ts'
 
 /**
+ * Options for a poolifier thread pool.
+ */
+export type ThreadPoolOptions = PoolOptions<Worker>
+
+/**
  * A thread pool with a fixed number of threads.
  *
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
@@ -27,7 +32,7 @@ export class FixedThreadPool<
   public constructor(
     numberOfThreads: number,
     fileURL: URL,
-    opts: PoolOptions<Data> = {},
+    opts: ThreadPoolOptions = {},
     maximumNumberOfThreads?: number,
   ) {
     super(numberOfThreads, fileURL, opts, maximumNumberOfThreads)

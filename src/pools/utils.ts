@@ -161,7 +161,6 @@ export const checkWorkerNodeArguments = (
  * @param measurementStatistics - The measurement statistics to update.
  * @param measurementRequirements - The measurement statistics requirements.
  * @param measurementValue - The measurement value.
- * @param numberOfMeasurements - The number of measurements.
  * @internal
  */
 // FIXME: should not be exported
@@ -201,7 +200,7 @@ export const updateMeasurementStatistics = (
 }
 
 export const updateWaitTimeWorkerUsage = <
-  Worker extends IWorker<Data>,
+  Worker extends IWorker,
   Data = unknown,
   Response = unknown,
 >(
@@ -241,7 +240,7 @@ export const updateTaskStatisticsWorkerUsage = <Response = unknown>(
 }
 
 export const updateRunTimeWorkerUsage = <
-  Worker extends IWorker<Data>,
+  Worker extends IWorker,
   Data = unknown,
   Response = unknown,
 >(
@@ -264,7 +263,7 @@ export const updateRunTimeWorkerUsage = <
 }
 
 export const updateEluWorkerUsage = <
-  Worker extends IWorker<Data>,
+  Worker extends IWorker,
   Data = unknown,
   Response = unknown,
 >(
@@ -309,7 +308,7 @@ export const messageListenerToEventListener = <Message = unknown>(
 ): (event: Event) => void =>
 (event: Event) => listener((event as CustomEvent<MessageValue<Message>>).detail)
 
-export const createWorker = <Worker extends IWorker<Data>, Data = unknown>(
+export const createWorker = <Worker extends IWorker>(
   type: WorkerType,
   fileURL: URL,
   opts: { workerOptions?: WorkerOptions },
@@ -326,7 +325,7 @@ export const createWorker = <Worker extends IWorker<Data>, Data = unknown>(
 }
 
 export const waitWorkerNodeEvents = async <
-  Worker extends IWorker<Data>,
+  Worker extends IWorker,
   Data = unknown,
 >(
   workerNode: IWorkerNode<Worker, Data>,

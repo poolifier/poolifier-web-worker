@@ -20,7 +20,7 @@ import { checkWorkerNodeArguments, createWorker } from './utils.ts'
  * @typeParam Worker - Type of worker.
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  */
-export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
+export class WorkerNode<Worker extends IWorker, Data = unknown>
   extends EventTarget
   implements IWorkerNode<Worker, Data> {
   /** @inheritdoc */
@@ -49,7 +49,7 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
   constructor(type: WorkerType, fileURL: URL, opts: WorkerNodeOptions) {
     super()
     checkWorkerNodeArguments(type, fileURL, opts)
-    this.worker = createWorker<Worker, Data>(type, fileURL, {
+    this.worker = createWorker<Worker>(type, fileURL, {
       workerOptions: opts.workerOptions,
     })
     this.info = this.initWorkerInfo(this.worker)
@@ -192,8 +192,8 @@ export class WorkerNode<Worker extends IWorker<Data>, Data = unknown>
 
   private initWorkerInfo(worker: Worker): WorkerInfo {
     return {
-      id: getWorkerId<Data>(worker),
-      type: getWorkerType<Data>(worker) as WorkerType,
+      id: getWorkerId(worker),
+      type: getWorkerType(worker) as WorkerType,
       dynamic: false,
       ready: false,
     }

@@ -21,7 +21,7 @@ import type {
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
 export abstract class AbstractWorkerChoiceStrategy<
-  Worker extends IWorker<Data>,
+  Worker extends IWorker,
   Data = unknown,
   Response = unknown,
 > implements IWorkerChoiceStrategy {

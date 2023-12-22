@@ -1,6 +1,6 @@
-import { type PoolOptions, type PoolType, PoolTypes } from '../pool.ts'
+import { type PoolType, PoolTypes } from '../pool.ts'
 import { checkDynamicPoolSize } from '../utils.ts'
-import { FixedThreadPool } from './fixed.ts'
+import { FixedThreadPool, type ThreadPoolOptions } from './fixed.ts'
 
 /**
  * A thread pool with a dynamic number of threads, but a guaranteed minimum number of threads.
@@ -29,7 +29,7 @@ export class DynamicThreadPool<
     min: number,
     max: number,
     fileURL: URL,
-    opts: PoolOptions<Data> = {},
+    opts: ThreadPoolOptions = {},
   ) {
     super(min, fileURL, opts, max)
     checkDynamicPoolSize(
