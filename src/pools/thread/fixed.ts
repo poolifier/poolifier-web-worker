@@ -106,6 +106,11 @@ export class FixedThreadPool<
   }
 
   /** @inheritDoc */
+  protected shallCreateDynamicWorker(): boolean {
+    return false
+  }
+
+  /** @inheritDoc */
   protected get type(): PoolType {
     return PoolTypes.fixed
   }
