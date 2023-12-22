@@ -2280,7 +2280,7 @@ Deno.test({
           pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
             pool.workerChoiceStrategyContext.workerChoiceStrategy,
           ).previousWorkerNodeKey,
-        ).toEqual(expect.any(Number))
+        ).toEqual(0)
         expect(
           pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
             pool.workerChoiceStrategyContext.workerChoiceStrategy,
@@ -2370,7 +2370,7 @@ Deno.test({
           pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
             pool.workerChoiceStrategyContext.workerChoiceStrategy,
           ).previousWorkerNodeKey,
-        ).toEqual(expect.any(Number))
+        ).toEqual(0)
         expect(
           pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
             pool.workerChoiceStrategyContext.workerChoiceStrategy,
