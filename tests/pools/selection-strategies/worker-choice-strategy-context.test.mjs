@@ -1,8 +1,4 @@
-import {
-  assertSpyCalls,
-  returnsNext,
-  stub,
-} from 'https://deno.land/std@0.209.0/testing/mock.ts'
+import { assertSpyCalls, returnsNext, stub } from '../../deps.mjs'
 import { expect } from 'npm:expect'
 import {
   DynamicThreadPool,

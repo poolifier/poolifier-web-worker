@@ -4,7 +4,7 @@ import {
   runPoolifierPoolBenchmark,
   runPoolifierPoolDenoBenchmark,
 } from '../benchmarks-utils.mjs'
-import { parseArgs } from 'https://deno.land/std@0.209.0/cli/parse_args.ts'
+import { parseArgs } from './deps.mjs'
 
 const poolSize = availableParallelism()
 const taskExecutions = 1

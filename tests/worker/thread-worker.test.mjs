@@ -1,7 +1,4 @@
-import {
-  assertSpyCalls,
-  stub,
-} from 'https://deno.land/std@0.209.0/testing/mock.ts'
+import { assertSpyCalls, stub } from '../deps.mjs'
 import { expect } from 'npm:expect'
 import { ThreadWorker } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
