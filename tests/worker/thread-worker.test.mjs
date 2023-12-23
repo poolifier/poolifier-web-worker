@@ -1,5 +1,5 @@
 import { assertSpyCalls, stub } from '$std/testing/mock.ts'
-import { expect } from 'npm:expect'
+import { expect } from 'expect'
 import { ThreadWorker } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 

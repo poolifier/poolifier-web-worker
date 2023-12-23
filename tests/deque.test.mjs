@@ -1,4 +1,4 @@
-import { expect } from 'npm:expect'
+import { expect } from 'expect'
 import { Deque } from '../src/deque.ts'
 
 Deno.test('Deque test suite', async (t) => {

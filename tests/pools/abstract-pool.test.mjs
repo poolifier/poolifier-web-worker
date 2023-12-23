@@ -1,6 +1,6 @@
 import { assertSpyCalls, returnsNext, stub } from '$std/testing/mock.ts'
 import { EventEmitter } from 'node:events'
-import { expect } from 'npm:expect'
+import { expect } from 'expect'
 import {
   DynamicThreadPool,
   FixedThreadPool,

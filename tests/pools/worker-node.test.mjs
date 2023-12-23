@@ -1,4 +1,4 @@
-import { expect } from 'npm:expect'
+import { expect } from 'expect'
 import { WorkerTypes } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 import { CircularArray } from '../../src/circular-array.ts'

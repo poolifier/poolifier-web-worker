@@ -1,6 +1,6 @@
 import os from 'node:os'
 import { randomInt } from 'node:crypto'
-import { expect } from 'npm:expect'
+import { expect } from 'expect'
 import { availableParallelism, KillBehaviors, WorkerTypes } from '../src/mod.ts'
 import {
   average,

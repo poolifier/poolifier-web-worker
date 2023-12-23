@@ -1,4 +1,4 @@
-import { expect } from 'npm:expect'
+import { expect } from 'expect'
 import { DynamicThreadPool, PoolEvents } from '../../../src/mod.ts'
 import { TaskFunctions } from '../../test-types.mjs'
 import { sleep, waitWorkerNodeEvents } from '../../test-utils.mjs'

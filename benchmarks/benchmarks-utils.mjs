@@ -7,7 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
-import Benchmark from 'npm:benchmark'
+import Benchmark from 'benchmark'
 import {
   DynamicThreadPool,
   FixedThreadPool,
