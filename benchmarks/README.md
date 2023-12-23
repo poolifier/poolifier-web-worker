@@ -19,13 +19,12 @@ each pool does not impact each other.
   - [tinypool](https://github.com/tinylibs/tinypool)
   - [workerpool](https://github.com/josdejong/workerpool)
   - [worker-nodes](https://github.com/allegro/node-worker-nodes)
-  - [node-worker-threads-pool](https://github.com/SUCHMOKUO/node-worker-threads-pool)
   - [nanothreads](https://github.com/snuffyDev/nanothreads)
 
   Those are our results:
 
   - CPU Intensive task with 100k operations submitted to each pool:
-    [https://poolifier.github.io/benchmark](https://poolifier.github.io/benchmark).
+    [https://bencher.dev/perf/poolifier-benchmark](https://bencher.dev/perf/poolifier-benchmark).
 
 - External pools with which we used to compare the poolifier results:
 
