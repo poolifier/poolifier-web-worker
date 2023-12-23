@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/denoland/deno/master/cli/schemas/config-file.v1.json",
   "compilerOptions": {
     "lib": ["deno.worker"],
     "strict": true
@@ -22,6 +21,9 @@
   "fmt": {
     "semiColons": false,
     "singleQuote": true
+  },
+  "imports": {
+    "$std/": "https://deno.land/std@0.210.0/"
   },
   "lock": false
 }

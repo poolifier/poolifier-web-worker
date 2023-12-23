@@ -1,4 +1,4 @@
-import { assertSpyCalls, returnsNext, stub } from '../deps.mjs'
+import { assertSpyCalls, returnsNext, stub } from '$std/testing/mock.ts'
 import { EventEmitter } from 'node:events'
 import { expect } from 'npm:expect'
 import {
