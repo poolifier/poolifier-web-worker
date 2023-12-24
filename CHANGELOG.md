@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.10] - 2023-12-24
+
 ### Fixed
 
 - Avoid worker node cross tasks stealing.
