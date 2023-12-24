@@ -1488,7 +1488,7 @@ Deno.test({
           stolenTasks: expect.any(Number),
           failedTasks: expect.any(Number),
         })
-        assertSpyCalls(pool.hasBackPressure, 7)
+        assertSpyCalls(pool.hasBackPressure, 10)
         pool.hasBackPressure.restore()
         await pool.destroy()
       },
