@@ -120,6 +120,7 @@ Deno.test({
         type: WorkerTypes.web,
         dynamic: false,
         ready: false,
+        stealing: false,
       })
       expect(threadWorkerNode.usage).toStrictEqual({
         tasks: {

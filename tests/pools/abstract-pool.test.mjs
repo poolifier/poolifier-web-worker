@@ -1028,6 +1028,7 @@ Deno.test({
           type: WorkerTypes.web,
           dynamic: false,
           ready: true,
+          stealing: false,
         })
       }
       await pool.destroy()
@@ -1046,6 +1047,7 @@ Deno.test({
           type: WorkerTypes.web,
           dynamic: false,
           ready: true,
+          stealing: false,
         })
       }
       await pool.destroy()
@@ -1447,7 +1449,7 @@ Deno.test({
         stub(
           pool,
           'hasBackPressure',
-          returnsNext(Array(5).fill(true)),
+          returnsNext(Array(7).fill(true)),
         )
         expect(pool.emitter.eventNames()).toStrictEqual([])
         const promises = new Set()
@@ -1476,6 +1478,7 @@ Deno.test({
           maxSize: expect.any(Number),
           workerNodes: expect.any(Number),
           idleWorkerNodes: expect.any(Number),
+          stealingWorkerNodes: expect.any(Number),
           busyWorkerNodes: expect.any(Number),
           executedTasks: expect.any(Number),
           executingTasks: expect.any(Number),
@@ -1485,7 +1488,7 @@ Deno.test({
           stolenTasks: expect.any(Number),
           failedTasks: expect.any(Number),
         })
-        assertSpyCalls(pool.hasBackPressure, 5)
+        assertSpyCalls(pool.hasBackPressure, 7)
         pool.hasBackPressure.restore()
         await pool.destroy()
       },

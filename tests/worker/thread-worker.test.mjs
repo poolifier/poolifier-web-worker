@@ -32,6 +32,9 @@ Deno.test('Thread worker test suite', async (t) => {
       return 2
     }
     const worker = new ThreadWorker({ fn1, fn2 })
+    worker.port = {
+      postMessage: stub(() => {}),
+    }
     expect(worker.removeTaskFunction(0, fn1)).toStrictEqual({
       status: false,
       error: new TypeError('name parameter is not a string'),
@@ -40,9 +43,6 @@ Deno.test('Thread worker test suite', async (t) => {
       status: false,
       error: new TypeError('name parameter is an empty string'),
     })
-    worker.port = {
-      postMessage: stub(() => {}),
-    }
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
       Function,
     )
@@ -85,17 +85,12 @@ Deno.test('Thread worker test suite', async (t) => {
   })
 
   await t.step(
-    'Verify worker invokes the postMessage() method on port property',
+    'Verify that sendToMainWorker() method invokes the port property postMessage() method',
     () => {
-      class SpyWorker extends ThreadWorker {
-        constructor(fn) {
-          super(fn)
-          this.port = {
-            postMessage: stub(() => {}),
-          }
-        }
+      const worker = new ThreadWorker(() => {})
+      worker.port = {
+        postMessage: stub(() => {}),
       }
-      const worker = new SpyWorker(() => {})
       worker.sendToMainWorker({ ok: 1 })
       assertSpyCalls(worker.port.postMessage, 1)
       worker.port.postMessage.restore()
