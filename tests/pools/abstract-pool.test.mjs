@@ -1449,7 +1449,7 @@ Deno.test({
         stub(
           pool,
           'hasBackPressure',
-          returnsNext(Array(7).fill(true)),
+          returnsNext(Array(8).fill(true)),
         )
         expect(pool.emitter.eventNames()).toStrictEqual([])
         const promises = new Set()
