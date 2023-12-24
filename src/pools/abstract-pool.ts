@@ -495,7 +495,6 @@ export abstract class AbstractPool<
     if (message.workerId == null) {
       throw new Error('Worker message received without worker id')
     } else if (
-      !this.destroying &&
       this.getWorkerNodeKeyByWorkerId(message.workerId) === -1
     ) {
       throw new Error(
@@ -1211,7 +1210,6 @@ export abstract class AbstractPool<
       this.emitter?.emit(PoolEvents.error, error)
       if (
         this.started &&
-        !this.starting &&
         !this.destroying &&
         this.opts.restartWorkerOnError === true
       ) {
@@ -1221,7 +1219,9 @@ export abstract class AbstractPool<
           this.createAndSetupWorkerNode()
         }
       }
-      if (this.started && this.opts.enableTasksQueue === true) {
+      if (
+        this.started && !this.destroying && this.opts.enableTasksQueue === true
+      ) {
         this.redistributeQueuedTasks(this.workerNodes.indexOf(workerNode))
       }
       workerNode.terminate()
@@ -1662,9 +1662,6 @@ export abstract class AbstractPool<
   }
 
   private handleWorkerReadyResponse(message: MessageValue<Response>): void {
-    if (this.destroying) {
-      return
-    }
     const { workerId, ready, taskFunctionNames } = message
     if (ready === false) {
       throw new Error(
