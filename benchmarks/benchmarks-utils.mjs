@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto'
-import { strictEqual } from 'node:assert'
+import { assertStrictEquals } from '$std/testing/asserts.ts'
 import {
   existsSync,
   mkdirSync,
@@ -104,15 +104,15 @@ export const runPoolifierPoolBenchmark = async (
                     measurement,
                   })
                   pool.enableTasksQueue(enableTasksQueue)
-                  strictEqual(
+                  assertStrictEquals(
                     pool.opts.workerChoiceStrategy,
                     workerChoiceStrategy,
                   )
-                  strictEqual(
+                  assertStrictEquals(
                     pool.opts.enableTasksQueue,
                     enableTasksQueue,
                   )
-                  strictEqual(
+                  assertStrictEquals(
                     pool.opts.workerChoiceStrategyOptions.measurement,
                     measurement,
                   )
@@ -131,11 +131,11 @@ export const runPoolifierPoolBenchmark = async (
               async () => {
                 pool.setWorkerChoiceStrategy(workerChoiceStrategy)
                 pool.enableTasksQueue(enableTasksQueue)
-                strictEqual(
+                assertStrictEquals(
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                strictEqual(
+                assertStrictEquals(
                   pool.opts.enableTasksQueue,
                   enableTasksQueue,
                 )
@@ -213,15 +213,15 @@ export const runPoolifierPoolDenoBenchmark = (
                     enableTasksQueue,
                   },
                 )
-                strictEqual(
+                assertStrictEquals(
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                strictEqual(
+                assertStrictEquals(
                   pool.opts.enableTasksQueue,
                   enableTasksQueue,
                 )
-                strictEqual(
+                assertStrictEquals(
                   pool.opts.workerChoiceStrategyOptions.measurement,
                   measurement,
                 )
@@ -251,11 +251,11 @@ export const runPoolifierPoolDenoBenchmark = (
                   enableTasksQueue,
                 },
               )
-              strictEqual(
+              assertStrictEquals(
                 pool.opts.workerChoiceStrategy,
                 workerChoiceStrategy,
               )
-              strictEqual(
+              assertStrictEquals(
                 pool.opts.enableTasksQueue,
                 enableTasksQueue,
               )
