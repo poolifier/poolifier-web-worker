@@ -1,6 +1,5 @@
 import { randomInt } from 'node:crypto'
-import * as os from 'node:os'
-import { cpus } from 'node:os'
+import os, { cpus } from 'node:os'
 import type {
   InternalWorkerChoiceStrategyOptions,
   MeasurementStatisticsRequirements,

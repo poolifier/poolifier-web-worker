@@ -1,4 +1,3 @@
-import { performance } from 'node:perf_hooks'
 import { EventEmitter } from 'node:events'
 import type {
   MessageValue,
