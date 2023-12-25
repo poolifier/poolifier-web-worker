@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.11] - 2023-12-25
+
 ### Fixed
 
 - Fix tasks redistribution triggers at pool destroying.
