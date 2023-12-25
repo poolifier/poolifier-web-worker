@@ -49,6 +49,12 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         run: deno task coverage:report
 
+      - name: Fix Coverage Paths
+        working-directory: ./coverage
+        run: |
+          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' lcov.info
+          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' sonar-cloud-reporter.xml
+
       - name: Check for SonarCloud Token Availability
         id: sonar-token
         shell: bash
