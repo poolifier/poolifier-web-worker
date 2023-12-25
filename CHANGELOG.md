@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix tasks redistribution triggers at pool destroying.
+- Fix code coverage related deno tasks.
+
 ## [0.1.10] - 2023-12-24
 
 ### Fixed
