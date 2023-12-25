@@ -51,9 +51,7 @@ jobs:
 
       - name: Fix Coverage Paths
         working-directory: ./coverage
-        run: |
-          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' lcov.info
-          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' sonar-cloud-reporter.xml
+        run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' lcov.info
 
       - name: Check for SonarCloud Token Availability
         id: sonar-token
