@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto'
-import { assertStrictEquals } from '$std/testing/asserts.ts'
+import { assertStrictEquals } from '$std/assert/mod.ts'
 import {
   existsSync,
   mkdirSync,
