@@ -49,7 +49,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         run: deno task coverage:report
 
-      - name: Fix Coverage Paths
+      - name: Fix Coverage Report Paths
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         working-directory: ./coverage
         run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' lcov.info
