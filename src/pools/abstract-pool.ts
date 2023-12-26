@@ -1395,10 +1395,7 @@ export abstract class AbstractPool<
   }
 
   private redistributeQueuedTasks(workerNodeKey: number): void {
-    if (workerNodeKey === -1) {
-      return
-    }
-    if (this.cannotStealTask()) {
+    if (workerNodeKey === -1 || this.cannotStealTask()) {
       return
     }
     while (this.tasksQueueSize(workerNodeKey) > 0) {
