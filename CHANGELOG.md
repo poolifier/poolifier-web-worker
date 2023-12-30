@@ -8,9 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.12] - 2023-12-30
+
 ### Changed
 
 - Reduce branching in several hot code paths.
+- Use faster object cloning implementation.
 
 ## [0.1.11] - 2023-12-25
 
