@@ -160,7 +160,7 @@ export abstract class AbstractWorker<
     try {
       checkTaskFunctionName(name)
     } catch (error) {
-      return { status: false, error: error as Error }
+      return { status: false, error }
     }
     return { status: this.taskFunctions.has(name) }
   }
@@ -198,7 +198,7 @@ export abstract class AbstractWorker<
       this.sendTaskFunctionNamesToMainWorker()
       return { status: true }
     } catch (error) {
-      return { status: false, error: error as Error }
+      return { status: false, error }
     }
   }
 
@@ -228,7 +228,7 @@ export abstract class AbstractWorker<
       this.sendTaskFunctionNamesToMainWorker()
       return { status: deleteStatus }
     } catch (error) {
-      return { status: false, error: error as Error }
+      return { status: false, error }
     }
   }
 
@@ -285,7 +285,7 @@ export abstract class AbstractWorker<
       this.sendTaskFunctionNamesToMainWorker()
       return { status: true }
     } catch (error) {
-      return { status: false, error: error as Error }
+      return { status: false, error }
     }
   }
 
@@ -335,18 +335,18 @@ export abstract class AbstractWorker<
     switch (taskFunctionOperation) {
       case 'add':
         response = this.addTaskFunction(
-          taskFunctionName as string,
-          new Function(`return ${taskFunction as string}`)() as TaskFunction<
+          taskFunctionName!,
+          new Function(`return ${taskFunction}`)() as TaskFunction<
             Data,
             Response
           >,
         )
         break
       case 'remove':
-        response = this.removeTaskFunction(taskFunctionName as string)
+        response = this.removeTaskFunction(taskFunctionName!)
         break
       case 'default':
-        response = this.setDefaultTaskFunction(taskFunctionName as string)
+        response = this.setDefaultTaskFunction(taskFunctionName!)
         break
       default:
         response = {
@@ -362,8 +362,8 @@ export abstract class AbstractWorker<
       ...(!response.status &&
         response?.error != null && {
         workerError: {
-          name: taskFunctionName as string,
-          message: this.handleError(response.error as Error | string),
+          name: taskFunctionName!,
+          message: this.handleError(response.error),
         },
       }),
     })
@@ -386,7 +386,6 @@ export abstract class AbstractWorker<
         })
     } else {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
         this.opts.killHandler?.() as void
         this.sendToMainWorker({ kill: 'success' })
       } catch {
@@ -496,8 +495,8 @@ export abstract class AbstractWorker<
     if (!this.taskFunctions.has(taskFunctionName)) {
       this.sendToMainWorker({
         workerError: {
-          name: name as string,
-          message: `Task function '${name as string}' not found`,
+          name: name!,
+          message: `Task function '${name}' not found`,
           data,
         },
         taskId,
@@ -535,8 +534,8 @@ export abstract class AbstractWorker<
     } catch (error) {
       this.sendToMainWorker({
         workerError: {
-          name: name as string,
-          message: this.handleError(error as Error | string),
+          name: name!,
+          message: this.handleError(error),
           data,
         },
         taskId,
@@ -570,8 +569,8 @@ export abstract class AbstractWorker<
       .catch((error) => {
         this.sendToMainWorker({
           workerError: {
-            name: name as string,
-            message: this.handleError(error as Error | string),
+            name: name!,
+            message: this.handleError(error),
             data,
           },
           taskId,

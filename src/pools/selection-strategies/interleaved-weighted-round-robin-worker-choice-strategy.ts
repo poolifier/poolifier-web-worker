@@ -93,7 +93,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
         ) {
           this.workerNodeVirtualTaskRunTime = 0
         }
-        const workerWeight = this.opts.weights?.[workerNodeKey] as number
+        const workerWeight = this.opts.weights![workerNodeKey]!
         if (
           this.isWorkerNodeReady(workerNodeKey) &&
           workerWeight >= this.roundWeights[roundIndex] &&
@@ -155,7 +155,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   private getRoundWeights(): number[] {
     return [
       ...new Set(
-        Object.values(this.opts.weights as Record<number, number>)
+        Object.values(this.opts.weights!)
           .slice()
           .sort((a, b) => a - b),
       ),

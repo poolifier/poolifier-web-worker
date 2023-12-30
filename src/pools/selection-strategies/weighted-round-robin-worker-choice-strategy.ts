@@ -88,9 +88,9 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   }
 
   private weightedRoundRobinNextWorkerNodeKey(): number | undefined {
-    const workerWeight = this.opts.weights?.[
+    const workerWeight = this.opts.weights![
       this.nextWorkerNodeKey ?? this.previousWorkerNodeKey
-    ] as number
+    ]
     if (this.workerNodeVirtualTaskRunTime < workerWeight) {
       this.workerNodeVirtualTaskRunTime = this.workerNodeVirtualTaskRunTime +
         this.getWorkerNodeTaskRunTime(

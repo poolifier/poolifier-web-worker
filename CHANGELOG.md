@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Reduce branching in several hot code paths.
+
 ## [0.1.11] - 2023-12-25
 
 ### Fixed

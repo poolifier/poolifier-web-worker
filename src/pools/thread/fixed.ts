@@ -57,8 +57,7 @@ export class FixedThreadPool<
   /** @inheritDoc */
   protected sendStartupMessageToWorker(workerNodeKey: number): void {
     const workerNode = this.workerNodes[workerNodeKey]
-    const port2: MessagePort = (workerNode.messageChannel as MessageChannel)
-      .port2
+    const port2: MessagePort = workerNode.messageChannel!.port2
     workerNode.worker.postMessage(
       {
         ready: false,

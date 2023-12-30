@@ -116,11 +116,8 @@ export class WorkerChoiceStrategyContext<
    * @returns The strategy policy.
    */
   public getStrategyPolicy(): StrategyPolicy {
-    return (
-      this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy,
-      ) as IWorkerChoiceStrategy
-    ).strategyPolicy
+    return this.workerChoiceStrategies.get(this.workerChoiceStrategy)!
+      .strategyPolicy
   }
 
   /**
@@ -129,11 +126,8 @@ export class WorkerChoiceStrategyContext<
    * @returns The task statistics requirements.
    */
   public getTaskStatisticsRequirements(): TaskStatisticsRequirements {
-    return (
-      this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy,
-      ) as IWorkerChoiceStrategy
-    ).taskStatisticsRequirements
+    return this.workerChoiceStrategies.get(this.workerChoiceStrategy)!
+      .taskStatisticsRequirements
   }
 
   /**
@@ -156,11 +150,9 @@ export class WorkerChoiceStrategyContext<
    * @returns `true` if the update is successful, `false` otherwise.
    */
   public update(workerNodeKey: number): boolean {
-    return (
-      this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy,
-      ) as IWorkerChoiceStrategy
-    ).update(workerNodeKey)
+    return this.workerChoiceStrategies.get(this.workerChoiceStrategy)!.update(
+      workerNodeKey,
+    )
   }
 
   /**
@@ -172,7 +164,7 @@ export class WorkerChoiceStrategyContext<
   public execute(): number {
     const workerChoiceStrategy = this.workerChoiceStrategies.get(
       this.workerChoiceStrategy,
-    ) as IWorkerChoiceStrategy
+    )!
     if (!workerChoiceStrategy.hasPoolWorkerNodesReady()) {
       return this.execute()
     }
@@ -198,7 +190,7 @@ export class WorkerChoiceStrategyContext<
       chooseCount++
     } while (
       workerNodeKey == null &&
-      retriesCount < (this.opts?.retries as number)
+      retriesCount < this.opts!.retries!
     )
     if (workerNodeKey == null) {
       throw new Error(
@@ -215,11 +207,9 @@ export class WorkerChoiceStrategyContext<
    * @returns `true` if the removal is successful, `false` otherwise.
    */
   public remove(workerNodeKey: number): boolean {
-    return (
-      this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy,
-      ) as IWorkerChoiceStrategy
-    ).remove(workerNodeKey)
+    return this.workerChoiceStrategies.get(this.workerChoiceStrategy)!.remove(
+      workerNodeKey,
+    )
   }
 
   /**

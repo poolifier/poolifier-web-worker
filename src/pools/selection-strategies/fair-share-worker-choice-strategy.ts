@@ -1,6 +1,6 @@
 import { DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS } from '../../utils.ts'
 import type { IPool } from '../pool.ts'
-import type { IWorker, StrategyData } from '../worker.ts'
+import type { IWorker } from '../worker.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
   InternalWorkerChoiceStrategyOptions,
@@ -86,9 +86,9 @@ export class FairShareWorkerChoiceStrategy<
           }
         }
         return this.isWorkerNodeReady(workerNodeKey) &&
-            (workerNode.strategyData.virtualTaskEndTimestamp as number) <
-              ((workerNodes[minWorkerNodeKey].strategyData as StrategyData)
-                .virtualTaskEndTimestamp as number)
+            workerNode.strategyData.virtualTaskEndTimestamp! <
+              workerNodes[minWorkerNodeKey].strategyData!
+                .virtualTaskEndTimestamp!
           ? workerNodeKey
           : minWorkerNodeKey
       },
@@ -127,7 +127,7 @@ export class FairShareWorkerChoiceStrategy<
       ?.virtualTaskEndTimestamp
     const now = performance.now()
     return now < (virtualTaskEndTimestamp ?? -Infinity)
-      ? (virtualTaskEndTimestamp as number)
+      ? virtualTaskEndTimestamp!
       : now
   }
 }

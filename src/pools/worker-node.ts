@@ -94,7 +94,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       this.onBackPressureStarted = true
       this.dispatchEvent(
         new CustomEvent<WorkerNodeEventDetail>('backPressure', {
-          detail: { workerId: this.info.id as string },
+          detail: { workerId: this.info.id! },
         }),
       )
       this.onBackPressureStarted = false
@@ -112,7 +112,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       this.onBackPressureStarted = true
       this.dispatchEvent(
         new CustomEvent<WorkerNodeEventDetail>('backPressure', {
-          detail: { workerId: this.info.id as string },
+          detail: { workerId: this.info.id! },
         }),
       )
       this.onBackPressureStarted = false
@@ -193,7 +193,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   private initWorkerInfo(worker: Worker): WorkerInfo {
     return {
       id: getWorkerId(worker),
-      type: getWorkerType(worker) as WorkerType,
+      type: getWorkerType(worker)!,
       dynamic: false,
       ready: false,
       stealing: false,
@@ -244,7 +244,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       for (const task of this.tasksQueue) {
         if (
           (task.name === DEFAULT_TASK_NAME &&
-            name === (this.info.taskFunctionNames as string[])[1]) ||
+            name === this.info.taskFunctionNames![1]) ||
           (task.name !== DEFAULT_TASK_NAME && name === task.name)
         ) {
           ;++taskFunctionQueueSize

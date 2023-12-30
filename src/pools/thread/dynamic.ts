@@ -34,7 +34,7 @@ export class DynamicThreadPool<
     super(min, fileURL, opts, max)
     checkDynamicPoolSize(
       this.minimumNumberOfWorkers,
-      this.maximumNumberOfWorkers as number,
+      this.maximumNumberOfWorkers!,
     )
   }
 
