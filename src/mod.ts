@@ -30,7 +30,6 @@ export {
   WorkerChoiceStrategies,
 } from './pools/selection-strategies/selection-strategies-types.ts'
 export type {
-  InternalWorkerChoiceStrategyOptions,
   IWorkerChoiceStrategy,
   Measurement,
   MeasurementOptions,

@@ -3,9 +3,9 @@ import type { IPool } from '../pool.ts'
 import { DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS } from '../../utils.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
-  InternalWorkerChoiceStrategyOptions,
   IWorkerChoiceStrategy,
   TaskStatisticsRequirements,
+  WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
 
 /**
@@ -52,7 +52,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   /** @inheritDoc */
   public constructor(
     pool: IPool<Worker, Data, Response>,
-    opts: InternalWorkerChoiceStrategyOptions,
+    opts?: WorkerChoiceStrategyOptions,
   ) {
     super(pool, opts)
     this.setTaskStatisticsRequirements(this.opts)
@@ -93,7 +93,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
         ) {
           this.workerNodeVirtualTaskRunTime = 0
         }
-        const workerWeight = this.opts.weights![workerNodeKey]!
+        const workerWeight = this.opts!.weights![workerNodeKey]!
         if (
           this.isWorkerNodeReady(workerNodeKey) &&
           workerWeight >= this.roundWeights[roundIndex] &&
@@ -147,7 +147,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public setOptions(opts: InternalWorkerChoiceStrategyOptions): void {
+  public setOptions(opts: WorkerChoiceStrategyOptions | undefined): void {
     super.setOptions(opts)
     this.roundWeights = this.getRoundWeights()
   }
@@ -155,7 +155,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   private getRoundWeights(): number[] {
     return [
       ...new Set(
-        Object.values(this.opts.weights!)
+        Object.values(this.opts!.weights!)
           .slice()
           .sort((a, b) => a - b),
       ),

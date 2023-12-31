@@ -30,11 +30,33 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
   await t.step(
     'Verify that constructor() initializes the context with all the available worker choice strategies',
     () => {
-      const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
+      let workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
         fixedPool,
       )
       expect(workerChoiceStrategyContext.workerChoiceStrategies.size).toBe(
         Object.keys(WorkerChoiceStrategies).length,
+      )
+      workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
+        dynamicPool,
+      )
+      expect(workerChoiceStrategyContext.workerChoiceStrategies.size).toBe(
+        Object.keys(WorkerChoiceStrategies).length,
+      )
+    },
+  )
+
+  await t.step(
+    'Verify that constructor() initializes the context with retries attribute properly set',
+    () => {
+      let workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
+        fixedPool,
+      )
+      expect(workerChoiceStrategyContext.retries).toBe(
+        fixedPool.info.maxSize * 2,
+      )
+      workerChoiceStrategyContext = new WorkerChoiceStrategyContext(dynamicPool)
+      expect(workerChoiceStrategyContext.retries).toBe(
+        dynamicPool.info.maxSize * 2,
       )
     },
   )
@@ -90,10 +112,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       )
       expect(() => workerChoiceStrategyContext.execute()).toThrow(
         new Error(
-          `Worker node key chosen is null or undefined after ${
-            fixedPool.info.maxSize +
-            Object.keys(workerChoiceStrategyContext.opts.weights).length
-          } retries`,
+          `Worker node key chosen is null or undefined after ${workerChoiceStrategyContext.retries} retries`,
         ),
       )
       workerChoiceStrategyUndefinedStub.choose.restore()
@@ -111,10 +130,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       )
       expect(() => workerChoiceStrategyContext.execute()).toThrow(
         new Error(
-          `Worker node key chosen is null or undefined after ${
-            fixedPool.info.maxSize +
-            Object.keys(workerChoiceStrategyContext.opts.weights).length
-          } retries`,
+          `Worker node key chosen is null or undefined after ${workerChoiceStrategyContext.retries} retries`,
         ),
       )
       workerChoiceStrategyNullStub.choose.restore()

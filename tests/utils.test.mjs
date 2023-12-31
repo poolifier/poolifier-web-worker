@@ -1,14 +1,20 @@
 import os from 'node:os'
 import { randomInt } from 'node:crypto'
 import { expect } from 'expect'
-import { availableParallelism, KillBehaviors, WorkerTypes } from '../src/mod.ts'
+import {
+  availableParallelism,
+  FixedThreadPool,
+  KillBehaviors,
+  WorkerTypes,
+} from '../src/mod.ts'
 import {
   average,
-  buildInternalWorkerChoiceStrategyOptions,
+  buildWorkerChoiceStrategyOptions,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   DEFAULT_TASK_NAME,
   EMPTY_FUNCTION,
   exponentialDelay,
+  getWorkerChoiceStrategyRetries,
   getWorkerId,
   getWorkerType,
   isAsyncFunction,
@@ -247,23 +253,34 @@ Deno.test('Utils test suite', async (t) => {
     expect(max(1, 1)).toBe(1)
   })
 
+  await t.step('Verify getWorkerChoiceStrategyRetries() behavior', async () => {
+    const numberOfThreads = 4
+    const pool = new FixedThreadPool(
+      numberOfThreads,
+      new URL('./worker-files/thread/testWorker.mjs', import.meta.url),
+    )
+    expect(getWorkerChoiceStrategyRetries(pool)).toBe(pool.info.maxSize * 2)
+    await pool.destroy()
+  })
+
   await t.step(
-    'Verify buildInternalWorkerChoiceStrategyOptions() behavior',
-    () => {
-      const poolMaxSize = 10
-      const internalWorkerChoiceStrategyOptions =
-        buildInternalWorkerChoiceStrategyOptions(poolMaxSize)
-      expect(internalWorkerChoiceStrategyOptions).toStrictEqual({
-        retries: poolMaxSize +
-          Object.keys(internalWorkerChoiceStrategyOptions.weights).length,
+    'Verify buildWorkerChoiceStrategyOptions() behavior',
+    async () => {
+      const numberOfThreads = 4
+      const pool = new FixedThreadPool(
+        numberOfThreads,
+        new URL('./worker-files/thread/testWorker.mjs', import.meta.url),
+      )
+      expect(buildWorkerChoiceStrategyOptions(pool)).toStrictEqual({
         runTime: { median: false },
         waitTime: { median: false },
         elu: { median: false },
         weights: expect.objectContaining({
           0: expect.any(Number),
-          [poolMaxSize - 1]: expect.any(Number),
+          [pool.info.maxSize - 1]: expect.any(Number),
         }),
       })
+      await pool.destroy()
     },
   )
 

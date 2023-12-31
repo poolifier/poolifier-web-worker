@@ -1,11 +1,10 @@
 import {
-  buildInternalWorkerChoiceStrategyOptions,
+  buildWorkerChoiceStrategyOptions,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
 } from '../../utils.ts'
 import type { IPool } from '../pool.ts'
 import type { IWorker } from '../worker.ts'
 import type {
-  InternalWorkerChoiceStrategyOptions,
   IWorkerChoiceStrategy,
   MeasurementStatisticsRequirements,
   StrategyPolicy,
@@ -56,10 +55,10 @@ export abstract class AbstractWorkerChoiceStrategy<
    */
   public constructor(
     protected readonly pool: IPool<Worker, Data, Response>,
-    protected opts: InternalWorkerChoiceStrategyOptions,
+    protected opts?: WorkerChoiceStrategyOptions,
   ) {
-    this.opts = buildInternalWorkerChoiceStrategyOptions(
-      this.pool.info.maxSize,
+    this.opts = buildWorkerChoiceStrategyOptions<Worker, Data, Response>(
+      this.pool,
       this.opts,
     )
     this.setTaskStatisticsRequirements(this.opts)
@@ -67,19 +66,19 @@ export abstract class AbstractWorkerChoiceStrategy<
   }
 
   protected setTaskStatisticsRequirements(
-    opts: WorkerChoiceStrategyOptions,
+    opts: WorkerChoiceStrategyOptions | undefined,
   ): void {
     this.toggleMedianMeasurementStatisticsRequirements(
       this.taskStatisticsRequirements.runTime,
-      opts.runTime!.median,
+      opts!.runTime!.median,
     )
     this.toggleMedianMeasurementStatisticsRequirements(
       this.taskStatisticsRequirements.waitTime,
-      opts.waitTime!.median,
+      opts!.waitTime!.median,
     )
     this.toggleMedianMeasurementStatisticsRequirements(
       this.taskStatisticsRequirements.elu,
-      opts.elu!.median,
+      opts!.elu!.median,
     )
   }
 
@@ -115,9 +114,9 @@ export abstract class AbstractWorkerChoiceStrategy<
   public abstract remove(workerNodeKey: number): boolean
 
   /** @inheritDoc */
-  public setOptions(opts: InternalWorkerChoiceStrategyOptions): void {
-    this.opts = buildInternalWorkerChoiceStrategyOptions(
-      this.pool.info.maxSize,
+  public setOptions(opts: WorkerChoiceStrategyOptions | undefined): void {
+    this.opts = buildWorkerChoiceStrategyOptions<Worker, Data, Response>(
+      this.pool,
       opts,
     )
     this.setTaskStatisticsRequirements(this.opts)
