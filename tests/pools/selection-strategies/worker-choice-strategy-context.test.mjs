@@ -168,7 +168,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
         workerChoiceStrategyContext.workerChoiceStrategies.get(
           workerChoiceStrategyContext.workerChoiceStrategy,
         ).hasPoolWorkerNodesReady,
-        6,
+        1,
       )
       assertSpyCalls(
         workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -179,34 +179,6 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       expect(chosenWorkerKey).toBe(1)
       workerChoiceStrategyStub.hasPoolWorkerNodesReady.restore()
       workerChoiceStrategyStub.choose.restore()
-    },
-  )
-
-  await t.step(
-    'Verify that execute() throws error if worker choice strategy recursion reach the maximum depth',
-    () => {
-      const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
-        fixedPool,
-      )
-      const workerChoiceStrategyStub = new RoundRobinWorkerChoiceStrategy(
-        fixedPool,
-      )
-      stub(
-        workerChoiceStrategyStub,
-        'hasPoolWorkerNodesReady',
-        returnsNext(Array(100000).fill(false)),
-      )
-      expect(workerChoiceStrategyContext.workerChoiceStrategy).toBe(
-        WorkerChoiceStrategies.ROUND_ROBIN,
-      )
-      workerChoiceStrategyContext.workerChoiceStrategies.set(
-        workerChoiceStrategyContext.workerChoiceStrategy,
-        workerChoiceStrategyStub,
-      )
-      expect(() => workerChoiceStrategyContext.execute()).toThrow(
-        new RangeError('Maximum call stack size exceeded'),
-      )
-      workerChoiceStrategyStub.hasPoolWorkerNodesReady.restore()
     },
   )
 

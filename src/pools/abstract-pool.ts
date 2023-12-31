@@ -1662,7 +1662,7 @@ export abstract class AbstractPool<
     const workerInfo = this.getWorkerInfo(
       this.getWorkerNodeKeyByWorkerId(workerId),
     )
-    workerInfo.ready = ready!
+    workerInfo.ready = ready ?? false
     workerInfo.taskFunctionNames = taskFunctionNames
     if (!this.readyEventEmitted && this.ready) {
       this.readyEventEmitted = true
