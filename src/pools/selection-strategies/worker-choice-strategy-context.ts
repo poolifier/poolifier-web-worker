@@ -167,27 +167,21 @@ export class WorkerChoiceStrategyContext<
    * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error} If after configured retries the worker node key is null or undefined.
    */
   public execute(): number {
-    const workerChoiceStrategy = this.workerChoiceStrategies.get(
-      this.workerChoiceStrategy,
-    )!
-    if (!workerChoiceStrategy.hasPoolWorkerNodesReady()) {
-      return this.executeStrategy(workerChoiceStrategy, true)
-    }
-    return this.executeStrategy(workerChoiceStrategy)
+    return this.executeStrategy(
+      this.workerChoiceStrategies.get(
+        this.workerChoiceStrategy,
+      )!,
+    )
   }
 
   /**
    * Executes the given worker choice strategy.
    *
    * @param workerChoiceStrategy - The worker choice strategy.
-   * @param infiniteRetries - Whether the strategy execution retries are infinite or not.
    * @returns The key of the worker node.
    * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error} If after computed retries the worker node key is null or undefined.
    */
-  private executeStrategy(
-    workerChoiceStrategy: IWorkerChoiceStrategy,
-    infiniteRetries = false,
-  ): number {
+  private executeStrategy(workerChoiceStrategy: IWorkerChoiceStrategy): number {
     let workerNodeKey: number | undefined
     let chooseCount = 0
     let retriesCount = 0
@@ -199,7 +193,7 @@ export class WorkerChoiceStrategyContext<
       chooseCount++
     } while (
       workerNodeKey == null &&
-      (retriesCount < this.retries || infiniteRetries)
+      retriesCount < this.retries
     )
     if (workerNodeKey == null) {
       throw new Error(

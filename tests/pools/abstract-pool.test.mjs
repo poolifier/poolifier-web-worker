@@ -269,6 +269,7 @@ Deno.test({
         ),
       )
       expect(pool.emitter).toBeInstanceOf(EventEmitter)
+      expect(pool.emitter.eventNames()).toStrictEqual([])
       expect(pool.opts).toStrictEqual({
         startWorkers: true,
         enableEvents: true,

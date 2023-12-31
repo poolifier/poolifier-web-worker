@@ -180,31 +180,6 @@ Deno.test({
       },
     )
 
-    await t.step(
-      'Verify strategies wait for worker node readiness in dynamic pool',
-      async () => {
-        const pool = new DynamicThreadPool(
-          min,
-          max,
-          new URL(
-            './../../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
-        )
-        expect(pool.starting).toBe(false)
-        expect(pool.workerNodes.length).toBe(min)
-        const maxMultiplier = 10000
-        const promises = new Set()
-        for (let i = 0; i < max * maxMultiplier; i++) {
-          promises.add(pool.execute())
-        }
-        await Promise.all(promises)
-        expect(pool.workerNodes.length).toBe(max)
-        // We need to clean up the resources after our test
-        await pool.destroy()
-      },
-    )
-
     await t.step('Verify ROUND_ROBIN strategy default policy', async () => {
       const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
       let pool = new FixedThreadPool(

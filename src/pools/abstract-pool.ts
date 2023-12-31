@@ -605,8 +605,8 @@ export abstract class AbstractPool<
   private setTaskStealing(): void {
     for (const [workerNodeKey] of this.workerNodes.entries()) {
       this.workerNodes[workerNodeKey].addEventListener(
-        'idleWorkerNode',
-        this.handleIdleWorkerNodeEvent as EventListener,
+        'idle',
+        this.handleWorkerNodeIdleEvent as EventListener,
       )
     }
   }
@@ -614,8 +614,8 @@ export abstract class AbstractPool<
   private unsetTaskStealing(): void {
     for (const [workerNodeKey] of this.workerNodes.entries()) {
       this.workerNodes[workerNodeKey].removeEventListener(
-        'idleWorkerNode',
-        this.handleIdleWorkerNodeEvent as EventListener,
+        'idle',
+        this.handleWorkerNodeIdleEvent as EventListener,
       )
     }
   }
@@ -624,7 +624,7 @@ export abstract class AbstractPool<
     for (const [workerNodeKey] of this.workerNodes.entries()) {
       this.workerNodes[workerNodeKey].addEventListener(
         'backPressure',
-        this.handleBackPressureEvent as EventListener,
+        this.handleWorkerNodeBackPressureEvent as EventListener,
       )
     }
   }
@@ -633,7 +633,7 @@ export abstract class AbstractPool<
     for (const [workerNodeKey] of this.workerNodes.entries()) {
       this.workerNodes[workerNodeKey].removeEventListener(
         'backPressure',
-        this.handleBackPressureEvent as EventListener,
+        this.handleWorkerNodeBackPressureEvent as EventListener,
       )
     }
   }
@@ -1256,7 +1256,6 @@ export abstract class AbstractPool<
         })
       }
     })
-    const workerInfo = this.getWorkerInfo(workerNodeKey)
     this.sendToWorker(workerNodeKey, {
       checkActive: true,
     })
@@ -1271,12 +1270,13 @@ export abstract class AbstractPool<
         })
       }
     }
-    workerInfo.dynamic = true
+    const workerNode = this.workerNodes[workerNodeKey]
+    workerNode.info.dynamic = true
     if (
       this.workerChoiceStrategyContext.getStrategyPolicy().dynamicWorkerReady ||
       this.workerChoiceStrategyContext.getStrategyPolicy().dynamicWorkerUsage
     ) {
-      workerInfo.ready = true
+      workerNode.info.ready = true
     }
     this.checkAndEmitDynamicWorkerCreationEvents()
     return workerNodeKey
@@ -1340,14 +1340,14 @@ export abstract class AbstractPool<
     if (this.opts.enableTasksQueue === true) {
       if (this.opts.tasksQueueOptions?.taskStealing === true) {
         this.workerNodes[workerNodeKey].addEventListener(
-          'idleWorkerNode',
-          this.handleIdleWorkerNodeEvent as EventListener,
+          'idle',
+          this.handleWorkerNodeIdleEvent as EventListener,
         )
       }
       if (this.opts.tasksQueueOptions?.tasksStealingOnBackPressure === true) {
         this.workerNodes[workerNodeKey].addEventListener(
           'backPressure',
-          this.handleBackPressureEvent as EventListener,
+          this.handleWorkerNodeBackPressureEvent as EventListener,
         )
       }
     }
@@ -1480,7 +1480,7 @@ export abstract class AbstractPool<
     }
   }
 
-  private readonly handleIdleWorkerNodeEvent = (
+  private readonly handleWorkerNodeIdleEvent = (
     event: CustomEvent<WorkerNodeEventDetail>,
     previousStolenTask?: Task<Data>,
   ): void => {
@@ -1550,7 +1550,7 @@ export abstract class AbstractPool<
     }
     sleep(exponentialDelay(workerNodeTasksUsage.sequentiallyStolen))
       .then(() => {
-        this.handleIdleWorkerNodeEvent(event, stolenTask)
+        this.handleWorkerNodeIdleEvent(event, stolenTask)
       })
       .catch(EMPTY_FUNCTION)
   }
@@ -1585,7 +1585,7 @@ export abstract class AbstractPool<
     }
   }
 
-  private readonly handleBackPressureEvent = (
+  private readonly handleWorkerNodeBackPressureEvent = (
     event: CustomEvent<WorkerNodeEventDetail>,
   ): void => {
     if (
@@ -1654,16 +1654,15 @@ export abstract class AbstractPool<
 
   private handleWorkerReadyResponse(message: MessageValue<Response>): void {
     const { workerId, ready, taskFunctionNames } = message
-    if (ready === false) {
+    if (ready == null || !ready) {
       throw new Error(
         `Worker ${message.workerId} failed to initialize`,
       )
     }
-    const workerInfo = this.getWorkerInfo(
-      this.getWorkerNodeKeyByWorkerId(workerId),
-    )
-    workerInfo.ready = ready ?? false
-    workerInfo.taskFunctionNames = taskFunctionNames
+    const workerNode =
+      this.workerNodes[this.getWorkerNodeKeyByWorkerId(workerId)]
+    workerNode.info.ready = ready
+    workerNode.info.taskFunctionNames = taskFunctionNames
     if (!this.readyEventEmitted && this.ready) {
       this.readyEventEmitted = true
       this.emitter?.emit(PoolEvents.ready, this.info)
@@ -1703,7 +1702,7 @@ export abstract class AbstractPool<
           workerNodeTasksUsage.sequentiallyStolen === 0
         ) {
           workerNode.dispatchEvent(
-            new CustomEvent<WorkerNodeEventDetail>('idleWorkerNode', {
+            new CustomEvent<WorkerNodeEventDetail>('idle', {
               detail: { workerId: workerId!, workerNodeKey },
             }),
           )

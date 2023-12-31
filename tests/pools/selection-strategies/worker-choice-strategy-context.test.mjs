@@ -62,35 +62,6 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
   )
 
   await t.step(
-    'Verify that execute() return the worker node key chosen by the strategy with fixed pool',
-    () => {
-      const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
-        fixedPool,
-      )
-      const workerChoiceStrategyStub = new RoundRobinWorkerChoiceStrategy(
-        fixedPool,
-      )
-      stub(workerChoiceStrategyStub, 'choose', returnsNext([0]))
-      expect(workerChoiceStrategyContext.workerChoiceStrategy).toBe(
-        WorkerChoiceStrategies.ROUND_ROBIN,
-      )
-      workerChoiceStrategyContext.workerChoiceStrategies.set(
-        workerChoiceStrategyContext.workerChoiceStrategy,
-        workerChoiceStrategyStub,
-      )
-      const chosenWorkerKey = workerChoiceStrategyContext.execute()
-      assertSpyCalls(
-        workerChoiceStrategyContext.workerChoiceStrategies.get(
-          workerChoiceStrategyContext.workerChoiceStrategy,
-        ).choose,
-        1,
-      )
-      expect(chosenWorkerKey).toBe(0)
-      workerChoiceStrategyStub.choose.restore()
-    },
-  )
-
-  await t.step(
     'Verify that execute() throws error if null or undefined is returned after retries',
     () => {
       const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
@@ -138,7 +109,7 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
   )
 
   await t.step(
-    'Verify that execute() retry until a worker node is ready and chosen',
+    'Verify that execute() retry until a worker node is chosen',
     () => {
       const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
         fixedPool,
@@ -148,13 +119,8 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       )
       stub(
         workerChoiceStrategyStub,
-        'hasPoolWorkerNodesReady',
-        returnsNext(Array(5).fill(false).concat(Array(1).fill(true))),
-      )
-      stub(
-        workerChoiceStrategyStub,
         'choose',
-        returnsNext([1]),
+        returnsNext(Array(5).fill(undefined).concat(Array(1).fill(1))),
       )
       expect(workerChoiceStrategyContext.workerChoiceStrategy).toBe(
         WorkerChoiceStrategies.ROUND_ROBIN,
@@ -167,17 +133,39 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       assertSpyCalls(
         workerChoiceStrategyContext.workerChoiceStrategies.get(
           workerChoiceStrategyContext.workerChoiceStrategy,
-        ).hasPoolWorkerNodesReady,
-        1,
+        ).choose,
+        6,
       )
+      expect(chosenWorkerKey).toBe(1)
+      workerChoiceStrategyStub.choose.restore()
+    },
+  )
+
+  await t.step(
+    'Verify that execute() return the worker node key chosen by the strategy with fixed pool',
+    () => {
+      const workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
+        fixedPool,
+      )
+      const workerChoiceStrategyStub = new RoundRobinWorkerChoiceStrategy(
+        fixedPool,
+      )
+      stub(workerChoiceStrategyStub, 'choose', returnsNext([0]))
+      expect(workerChoiceStrategyContext.workerChoiceStrategy).toBe(
+        WorkerChoiceStrategies.ROUND_ROBIN,
+      )
+      workerChoiceStrategyContext.workerChoiceStrategies.set(
+        workerChoiceStrategyContext.workerChoiceStrategy,
+        workerChoiceStrategyStub,
+      )
+      const chosenWorkerKey = workerChoiceStrategyContext.execute()
       assertSpyCalls(
         workerChoiceStrategyContext.workerChoiceStrategies.get(
           workerChoiceStrategyContext.workerChoiceStrategy,
         ).choose,
         1,
       )
-      expect(chosenWorkerKey).toBe(1)
-      workerChoiceStrategyStub.hasPoolWorkerNodesReady.restore()
+      expect(chosenWorkerKey).toBe(0)
       workerChoiceStrategyStub.choose.restore()
     },
   )
