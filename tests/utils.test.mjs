@@ -260,6 +260,21 @@ Deno.test('Utils test suite', async (t) => {
       new URL('./worker-files/thread/testWorker.mjs', import.meta.url),
     )
     expect(getWorkerChoiceStrategyRetries(pool)).toBe(pool.info.maxSize * 2)
+    const workerChoiceStrategyOptions = {
+      runTime: { median: true },
+      waitTime: { median: true },
+      elu: { median: true },
+      weights: {
+        0: 100,
+        1: 100,
+      },
+    }
+    expect(
+      getWorkerChoiceStrategyRetries(pool, workerChoiceStrategyOptions),
+    ).toBe(
+      pool.info.maxSize +
+        Object.keys(workerChoiceStrategyOptions.weights).length,
+    )
     await pool.destroy()
   })
 
@@ -280,6 +295,18 @@ Deno.test('Utils test suite', async (t) => {
           [pool.info.maxSize - 1]: expect.any(Number),
         }),
       })
+      const workerChoiceStrategyOptions = {
+        runTime: { median: true },
+        waitTime: { median: true },
+        elu: { median: true },
+        weights: {
+          0: 100,
+          1: 100,
+        },
+      }
+      expect(
+        buildWorkerChoiceStrategyOptions(pool, workerChoiceStrategyOptions),
+      ).toStrictEqual(workerChoiceStrategyOptions)
       await pool.destroy()
     },
   )
