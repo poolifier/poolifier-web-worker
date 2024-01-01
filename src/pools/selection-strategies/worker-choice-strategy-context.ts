@@ -164,7 +164,7 @@ export class WorkerChoiceStrategyContext<
    * Executes the worker choice strategy in the context algorithm.
    *
    * @returns The key of the worker node.
-   * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error} If after configured retries the worker node key is null or undefined.
+   * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error} If after computed retries the worker node key is null or undefined.
    */
   public execute(): number {
     return this.executeStrategy(
