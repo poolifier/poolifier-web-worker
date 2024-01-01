@@ -1,6 +1,6 @@
+import { randomInt } from 'node:crypto'
 import { expect } from 'expect'
 import { FixedThreadPool } from '../../../src/mod.ts'
-import { generateRandomInteger } from '../../test-utils.mjs'
 import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.ts'
 
 Deno.test('Weighted round robin strategy worker choice strategy test suite', async (t) => {
@@ -13,14 +13,8 @@ Deno.test('Weighted round robin strategy worker choice strategy test suite', asy
 
   await t.step('Verify that reset() resets internals', () => {
     const strategy = new WeightedRoundRobinWorkerChoiceStrategy(pool)
-    strategy.currentWorkerId = generateRandomInteger(
-      Number.MAX_SAFE_INTEGER,
-      1,
-    )
-    strategy.workerVirtualTaskRunTime = generateRandomInteger(
-      Number.MAX_SAFE_INTEGER,
-      1,
-    )
+    strategy.currentWorkerId = randomInt(281474976710656)
+    strategy.workerVirtualTaskRunTime = randomInt(281474976710656)
     expect(strategy.reset()).toBe(true)
     expect(strategy.nextWorkerNodeKey).toBe(0)
     expect(strategy.previousWorkerNodeKey).toBe(0)

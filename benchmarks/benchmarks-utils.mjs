@@ -315,11 +315,7 @@ const factorial = (n) => {
 
 const readWriteFiles = (
   n,
-  baseDirectory = `/tmp/poolifier-benchmarks/${
-    randomInt(
-      281474976710655,
-    )
-  }`,
+  baseDirectory = `/tmp/poolifier-benchmarks/${randomInt(281474976710656)}`,
 ) => {
   if (existsSync(baseDirectory) === true) {
     rmSync(baseDirectory, { recursive: true })
