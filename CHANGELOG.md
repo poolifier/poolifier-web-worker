@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.13] - 2024-01-01
+
 ### Fixed
 
 - Properly handle dynamic pool with zero minimum size.
