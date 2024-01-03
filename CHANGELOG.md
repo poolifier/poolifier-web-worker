@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.14] - 2024-01-03
+
+### Changed
+
+- Removed wrongly exposed pool public method.
+
 ## [0.1.13] - 2024-01-01
 
 ### Fixed
