@@ -113,6 +113,7 @@ Deno.test('Pool utils test suite', async (t) => {
     const worker = createWorker(
       WorkerTypes.web,
       new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+      {},
     )
     expect(worker).toBeInstanceOf(Worker)
     worker.terminate()

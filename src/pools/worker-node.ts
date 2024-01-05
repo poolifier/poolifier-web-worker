@@ -73,7 +73,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
         }),
       )
     }
-    this.tasksQueueBackPressureSize = opts.tasksQueueBackPressureSize
+    this.tasksQueueBackPressureSize = opts.tasksQueueBackPressureSize!
     this.tasksQueue = new Deque<Task<Data>>()
     this.onBackPressureStarted = false
     this.taskFunctionsUsage = new Map<string, WorkerUsage>()
@@ -94,7 +94,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       this.onBackPressureStarted = true
       this.dispatchEvent(
         new CustomEvent<WorkerNodeEventDetail>('backPressure', {
-          detail: { workerId: this.info.id! },
+          detail: { workerId: this.info.id },
         }),
       )
       this.onBackPressureStarted = false
@@ -112,7 +112,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       this.onBackPressureStarted = true
       this.dispatchEvent(
         new CustomEvent<WorkerNodeEventDetail>('backPressure', {
-          detail: { workerId: this.info.id! },
+          detail: { workerId: this.info.id },
         }),
       )
       this.onBackPressureStarted = false

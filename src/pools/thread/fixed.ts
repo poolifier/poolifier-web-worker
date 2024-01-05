@@ -48,8 +48,11 @@ export class FixedThreadPool<
     message: MessageValue<Data>,
     transferList?: Transferable[],
   ): void {
-    this.workerNodes[workerNodeKey].messageChannel?.port1?.postMessage(
-      { ...message, workerId: this.getWorkerInfo(workerNodeKey).id },
+    this.workerNodes[workerNodeKey].messageChannel?.port1.postMessage(
+      {
+        ...message,
+        workerId: this.getWorkerInfo(workerNodeKey)?.id,
+      } satisfies MessageValue<Data>,
       transferList as Transferable[],
     )
   }
@@ -57,13 +60,13 @@ export class FixedThreadPool<
   /** @inheritDoc */
   protected sendStartupMessageToWorker(workerNodeKey: number): void {
     const workerNode = this.workerNodes[workerNodeKey]
-    const port2: MessagePort = workerNode.messageChannel!.port2
+    const port2 = workerNode.messageChannel!.port2
     workerNode.worker.postMessage(
       {
         ready: false,
-        workerId: this.getWorkerInfo(workerNodeKey).id,
+        workerId: this.getWorkerInfo(workerNodeKey)?.id,
         port: port2,
-      },
+      } satisfies MessageValue<Data>,
       [port2],
     )
   }

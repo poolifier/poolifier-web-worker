@@ -2,7 +2,9 @@ import { isPlainObject } from '../utils.ts'
 import type { TaskFunction } from './task-functions.ts'
 import { KillBehaviors, type WorkerOptions } from './worker-options.ts'
 
-export const checkValidWorkerOptions = (opts: WorkerOptions): void => {
+export const checkValidWorkerOptions = (
+  opts: WorkerOptions | undefined,
+): void => {
   if (opts != null && !isPlainObject(opts)) {
     throw new TypeError('opts worker options parameter is not a plain object')
   }

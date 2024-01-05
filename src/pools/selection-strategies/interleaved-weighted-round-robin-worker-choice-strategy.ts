@@ -93,7 +93,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
         ) {
           this.workerNodeVirtualTaskRunTime = 0
         }
-        const workerWeight = this.opts!.weights![workerNodeKey]!
+        const workerWeight = this.opts!.weights![workerNodeKey]
         if (
           this.isWorkerNodeReady(workerNodeKey) &&
           workerWeight >= this.roundWeights[roundIndex] &&

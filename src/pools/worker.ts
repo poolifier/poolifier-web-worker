@@ -219,7 +219,7 @@ export interface IWorker {
  */
 export interface WorkerNodeOptions {
   workerOptions?: WorkerOptions
-  tasksQueueBackPressureSize: number
+  tasksQueueBackPressureSize: number | undefined
 }
 
 /**
@@ -331,6 +331,6 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
  * @internal
  */
 export interface WorkerNodeEventDetail {
-  workerId: string
+  workerId?: string
   workerNodeKey?: number
 }

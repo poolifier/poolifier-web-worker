@@ -175,7 +175,7 @@ export const round = (num: number, scale = 2): number => {
 export const isPlainObject = (obj: unknown): boolean =>
   typeof obj === 'object' &&
   obj !== null &&
-  obj?.constructor === Object &&
+  obj.constructor === Object &&
   Object.prototype.toString.call(obj) === '[object Object]'
 
 /**
@@ -304,7 +304,7 @@ export const buildWorkerChoiceStrategyOptions = <
   opts?: WorkerChoiceStrategyOptions,
 ): WorkerChoiceStrategyOptions => {
   opts = clone(opts ?? {})
-  opts.weights = opts?.weights ?? getDefaultWeights(pool.info.maxSize)
+  opts.weights = opts.weights ?? getDefaultWeights(pool.info.maxSize)
   return {
     ...{
       runTime: { median: false },

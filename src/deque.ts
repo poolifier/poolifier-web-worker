@@ -79,7 +79,7 @@ export class Deque<T> {
       return
     }
     const tail = this.tail
-    this.tail = this.tail!.prev
+    this.tail = this.tail?.prev
     if (this.tail == null) {
       delete this.head
     } else {
@@ -106,7 +106,7 @@ export class Deque<T> {
       delete this.head.prev
     }
     ;--this.size
-    return head?.data
+    return head.data
   }
 
   /**
