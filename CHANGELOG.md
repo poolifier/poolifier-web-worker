@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix dynamic pool with minimum number of workers set to zero:
+  [#1748](https://github.com/poolifier/poolifier/issues/1748).
+
 ## [0.1.15] - 2024-01-05
 
 ### Changed

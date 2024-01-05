@@ -43,7 +43,7 @@ export class RoundRobinWorkerChoiceStrategy<
     const chosenWorkerNodeKey = this.nextWorkerNodeKey
     this.setPreviousWorkerNodeKey(chosenWorkerNodeKey)
     this.roundRobinNextWorkerNodeKey()
-    this.checkNextWorkerNodeReadiness()
+    this.checkNextWorkerNodeKey()
     return chosenWorkerNodeKey
   }
 

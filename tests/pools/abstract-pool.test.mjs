@@ -1031,8 +1031,8 @@ Deno.test({
         )
         expect(pool.info.started).toBe(false)
         expect(pool.info.ready).toBe(false)
-        expect(pool.readyEventEmitted).toBe(false)
         expect(pool.workerNodes).toStrictEqual([])
+        expect(pool.readyEventEmitted).toBe(false)
         await expect(pool.execute()).rejects.toThrow(
           new Error('Cannot execute a task on not started pool'),
         )

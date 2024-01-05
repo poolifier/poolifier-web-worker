@@ -1,7 +1,15 @@
 import { expect } from 'expect'
-import { DynamicThreadPool, PoolEvents } from '../../../src/mod.ts'
+import {
+  DynamicThreadPool,
+  PoolEvents,
+  WorkerChoiceStrategies,
+} from '../../../src/mod.ts'
 import { TaskFunctions } from '../../test-types.mjs'
-import { sleep, waitWorkerNodeEvents } from '../../test-utils.mjs'
+import {
+  sleep,
+  waitPoolEvents,
+  waitWorkerNodeEvents,
+} from '../../test-utils.mjs'
 
 Deno.test({
   name: 'Dynamic thread pool test suite',
@@ -183,25 +191,43 @@ Deno.test({
     await t.step(
       'Verify that a pool with zero worker works',
       async () => {
-        const pool = new DynamicThreadPool(
-          0,
-          max,
-          new URL(
-            './../../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
-        )
-        expect(pool.starting).toBe(false)
-        expect(pool.workerNodes.length).toBe(pool.info.minSize)
-        const maxMultiplier = 10000
-        const promises = new Set()
-        for (let i = 0; i < max * maxMultiplier; i++) {
-          promises.add(pool.execute())
+        for (
+          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+        ) {
+          const pool = new DynamicThreadPool(
+            0,
+            max,
+            new URL(
+              './../../worker-files/thread/testWorker.mjs',
+              import.meta.url,
+            ),
+            {
+              workerChoiceStrategy,
+            },
+          )
+          expect(pool.starting).toBe(false)
+          expect(pool.readyEventEmitted).toBe(false)
+          for (let run = 0; run < 2; run++) {
+            run % 2 !== 0 && pool.enableTasksQueue(true)
+            const maxMultiplier = 4
+            const promises = new Set()
+            expect(pool.workerNodes.length).toBe(pool.info.minSize)
+            for (let i = 0; i < max * maxMultiplier; i++) {
+              promises.add(pool.execute())
+            }
+            await Promise.all(promises)
+            expect(pool.readyEventEmitted).toBe(true)
+            expect(pool.workerNodes.length).toBeGreaterThan(pool.info.minSize)
+            expect(pool.workerNodes.length).toBeLessThanOrEqual(
+              pool.info.maxSize,
+            )
+            await waitPoolEvents(pool, PoolEvents.empty, 1)
+            expect(pool.readyEventEmitted).toBe(false)
+            expect(pool.workerNodes.length).toBe(pool.info.minSize)
+          }
+          // We need to clean up the resources after our test
+          await pool.destroy()
         }
-        await Promise.all(promises)
-        expect(pool.workerNodes.length).toBe(max)
-        // We need to clean up the resources after our test
-        await pool.destroy()
       },
     )
   },
