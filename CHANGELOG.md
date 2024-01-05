@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.15] - 2024-01-05
+
+### Changed
+
+- Improve performance by clean up unneeded condition checks on hot code paths.
+
 ## [0.1.14] - 2024-01-03
 
 ### Changed
