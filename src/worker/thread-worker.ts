@@ -51,9 +51,7 @@ export class ThreadWorker<
   protected handleReadyMessageEvent(
     message: MsgEvent<MessageValue<Data>>,
   ): void {
-    if (this.id != null) {
-      return
-    } else if (
+    if (
       message.data?.workerId != null &&
       message.data?.ready === false &&
       message.data?.port != null
