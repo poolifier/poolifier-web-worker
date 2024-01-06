@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.16] - 2024-01-06
+
 ### Fixed
 
 - Fix dynamic pool with minimum number of workers set to zero:
