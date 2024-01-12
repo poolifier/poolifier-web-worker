@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        deno: [v1.x]
+        deno: [v1.x, 43d2ecd4f056bf38fe5f5656e550061c68c717f0]
 
     name: Deno ${{ matrix.deno }} on ${{ matrix.os }}
 
