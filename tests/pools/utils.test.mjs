@@ -4,13 +4,28 @@ import {
   DEFAULT_CIRCULAR_ARRAY_SIZE,
 } from '../../src/circular-array.ts'
 import {
+  buildWorkerChoiceStrategyOptions,
   createWorker,
+  DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   getDefaultTasksQueueOptions,
+  getWorkerChoiceStrategyRetries,
+  getWorkerId,
+  getWorkerType,
   updateMeasurementStatistics,
 } from '../../src/pools/utils.ts'
-import { WorkerTypes } from '../../src/mod.ts'
+import { FixedThreadPool, WorkerTypes } from '../../src/mod.ts'
 
 Deno.test('Pool utils test suite', async (t) => {
+  await t.step(
+    'Verify DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS values',
+    () => {
+      expect(DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS).toStrictEqual({
+        aggregate: false,
+        average: false,
+        median: false,
+      })
+    },
+  )
   await t.step('Verify getDefaultTasksQueueOptions() behavior', () => {
     const poolMaxSize = 4
     expect(getDefaultTasksQueueOptions(poolMaxSize)).toStrictEqual({
@@ -21,6 +36,64 @@ Deno.test('Pool utils test suite', async (t) => {
       tasksFinishedTimeout: 2000,
     })
   })
+
+  await t.step('Verify getWorkerChoiceStrategyRetries() behavior', async () => {
+    const numberOfThreads = 4
+    const pool = new FixedThreadPool(
+      numberOfThreads,
+      new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+    )
+    expect(getWorkerChoiceStrategyRetries(pool)).toBe(pool.info.maxSize * 2)
+    const workerChoiceStrategyOptions = {
+      runTime: { median: true },
+      waitTime: { median: true },
+      elu: { median: true },
+      weights: {
+        0: 100,
+        1: 100,
+      },
+    }
+    expect(
+      getWorkerChoiceStrategyRetries(pool, workerChoiceStrategyOptions),
+    ).toBe(
+      pool.info.maxSize +
+        Object.keys(workerChoiceStrategyOptions.weights).length,
+    )
+    await pool.destroy()
+  })
+
+  await t.step(
+    'Verify buildWorkerChoiceStrategyOptions() behavior',
+    async () => {
+      const numberOfThreads = 4
+      const pool = new FixedThreadPool(
+        numberOfThreads,
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+      )
+      expect(buildWorkerChoiceStrategyOptions(pool)).toStrictEqual({
+        runTime: { median: false },
+        waitTime: { median: false },
+        elu: { median: false },
+        weights: expect.objectContaining({
+          0: expect.any(Number),
+          [pool.info.maxSize - 1]: expect.any(Number),
+        }),
+      })
+      const workerChoiceStrategyOptions = {
+        runTime: { median: true },
+        waitTime: { median: true },
+        elu: { median: true },
+        weights: {
+          0: 100,
+          1: 100,
+        },
+      }
+      expect(
+        buildWorkerChoiceStrategyOptions(pool, workerChoiceStrategyOptions),
+      ).toStrictEqual(workerChoiceStrategyOptions)
+      await pool.destroy()
+    },
+  )
 
   await t.step('Verify updateMeasurementStatistics() behavior', () => {
     const measurementStatistics = {
@@ -116,6 +189,38 @@ Deno.test('Pool utils test suite', async (t) => {
       {},
     )
     expect(worker).toBeInstanceOf(Worker)
+    worker.terminate()
+  })
+
+  await t.step('Verify getWorkerType() behavior', () => {
+    const worker = new Worker(
+      new URL(
+        './../worker-files/thread/testWorker.mjs',
+        import.meta.url,
+      ),
+      {
+        type: 'module',
+      },
+    )
+    expect(
+      getWorkerType(worker),
+    ).toBe(WorkerTypes.web)
+    worker.terminate()
+  })
+
+  await t.step('Verify getWorkerId() behavior', () => {
+    const worker = new Worker(
+      new URL(
+        './../worker-files/thread/testWorker.mjs',
+        import.meta.url,
+      ),
+      {
+        type: 'module',
+      },
+    )
+    expect(getWorkerId(worker)).toMatch(
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+    )
     worker.terminate()
   })
 })

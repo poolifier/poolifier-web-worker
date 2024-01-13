@@ -1,22 +1,12 @@
 import os from 'node:os'
 import { randomInt } from 'node:crypto'
 import { expect } from 'expect'
-import {
-  availableParallelism,
-  FixedThreadPool,
-  KillBehaviors,
-  WorkerTypes,
-} from '../src/mod.ts'
+import { availableParallelism, KillBehaviors } from '../src/mod.ts'
 import {
   average,
-  buildWorkerChoiceStrategyOptions,
-  DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   DEFAULT_TASK_NAME,
   EMPTY_FUNCTION,
   exponentialDelay,
-  getWorkerChoiceStrategyRetries,
-  getWorkerId,
-  getWorkerType,
   isAsyncFunction,
   isKillBehavior,
   isPlainObject,
@@ -39,17 +29,6 @@ Deno.test('Utils test suite', async (t) => {
     expect(EMPTY_FUNCTION).toStrictEqual(expect.any(Function))
   })
 
-  await t.step(
-    'Verify DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS values',
-    () => {
-      expect(DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS).toStrictEqual({
-        aggregate: false,
-        average: false,
-        median: false,
-      })
-    },
-  )
-
   await t.step('Verify availableParallelism() behavior', () => {
     const parallelism = availableParallelism()
     expect(typeof parallelism === 'number').toBe(true)
@@ -61,38 +40,6 @@ Deno.test('Utils test suite', async (t) => {
       expectedParallelism = os.cpus().length
     }
     expect(parallelism).toBe(expectedParallelism)
-  })
-
-  await t.step('Verify getWorkerType() behavior', () => {
-    const worker = new Worker(
-      new URL(
-        './../tests/worker-files/thread/testWorker.mjs',
-        import.meta.url,
-      ),
-      {
-        type: 'module',
-      },
-    )
-    expect(
-      getWorkerType(worker),
-    ).toBe(WorkerTypes.web)
-    worker.terminate()
-  })
-
-  await t.step('Verify getWorkerId() behavior', () => {
-    const worker = new Worker(
-      new URL(
-        './../tests/worker-files/thread/testWorker.mjs',
-        import.meta.url,
-      ),
-      {
-        type: 'module',
-      },
-    )
-    expect(getWorkerId(worker)).toMatch(
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
-    )
-    worker.terminate()
   })
 
   await t.step('Verify sleep() behavior', async () => {
@@ -252,64 +199,6 @@ Deno.test('Utils test suite', async (t) => {
     expect(max(2, 1)).toBe(2)
     expect(max(1, 1)).toBe(1)
   })
-
-  await t.step('Verify getWorkerChoiceStrategyRetries() behavior', async () => {
-    const numberOfThreads = 4
-    const pool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./worker-files/thread/testWorker.mjs', import.meta.url),
-    )
-    expect(getWorkerChoiceStrategyRetries(pool)).toBe(pool.info.maxSize * 2)
-    const workerChoiceStrategyOptions = {
-      runTime: { median: true },
-      waitTime: { median: true },
-      elu: { median: true },
-      weights: {
-        0: 100,
-        1: 100,
-      },
-    }
-    expect(
-      getWorkerChoiceStrategyRetries(pool, workerChoiceStrategyOptions),
-    ).toBe(
-      pool.info.maxSize +
-        Object.keys(workerChoiceStrategyOptions.weights).length,
-    )
-    await pool.destroy()
-  })
-
-  await t.step(
-    'Verify buildWorkerChoiceStrategyOptions() behavior',
-    async () => {
-      const numberOfThreads = 4
-      const pool = new FixedThreadPool(
-        numberOfThreads,
-        new URL('./worker-files/thread/testWorker.mjs', import.meta.url),
-      )
-      expect(buildWorkerChoiceStrategyOptions(pool)).toStrictEqual({
-        runTime: { median: false },
-        waitTime: { median: false },
-        elu: { median: false },
-        weights: expect.objectContaining({
-          0: expect.any(Number),
-          [pool.info.maxSize - 1]: expect.any(Number),
-        }),
-      })
-      const workerChoiceStrategyOptions = {
-        runTime: { median: true },
-        waitTime: { median: true },
-        elu: { median: true },
-        weights: {
-          0: 100,
-          1: 100,
-        },
-      }
-      expect(
-        buildWorkerChoiceStrategyOptions(pool, workerChoiceStrategyOptions),
-      ).toStrictEqual(workerChoiceStrategyOptions)
-      await pool.destroy()
-    },
-  )
 
   await t.step('Verify once()', () => {
     let called = 0

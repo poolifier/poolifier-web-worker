@@ -1,5 +1,5 @@
-import { getWorkerChoiceStrategyRetries } from '../../utils.ts'
 import type { IPool } from '../pool.ts'
+import { getWorkerChoiceStrategyRetries } from '../utils.ts'
 import type { IWorker } from '../worker.ts'
 import { FairShareWorkerChoiceStrategy } from './fair-share-worker-choice-strategy.ts'
 import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from './interleaved-weighted-round-robin-worker-choice-strategy.ts'

@@ -1,8 +1,8 @@
+import type { IPool } from '../pool.ts'
 import {
   buildWorkerChoiceStrategyOptions,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-} from '../../utils.ts'
-import type { IPool } from '../pool.ts'
+} from '../utils.ts'
 import type { IWorker } from '../worker.ts'
 import type {
   IWorkerChoiceStrategy,
