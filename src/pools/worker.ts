@@ -6,30 +6,27 @@ import type { Task } from '../utility-types.ts'
  *
  * @typeParam Worker - Type of worker.
  */
-export type MessageEventHandler<Worker extends IWorker> = (
-  this: Worker,
-  e: MessageEvent,
-) => void
+export type MessageEventHandler<Worker extends IWorker> =
+  | ((this: Worker, ev: MessageEvent) => any)
+  | null
 
 /**
  * Callback invoked if the worker raised an error at processing a message event.
  *
  * @typeParam Worker - Type of worker.
  */
-export type MessageEventErrorHandler<Worker extends IWorker> = (
-  this: Worker,
-  e: MessageEvent,
-) => void
+export type MessageEventErrorHandler<Worker extends IWorker> =
+  | ((this: Worker, ev: MessageEvent) => any)
+  | null
 
 /**
  * Callback invoked if the worker raised an error event.
  *
  * @typeParam Worker - Type of worker.
  */
-export type ErrorEventHandler<Worker extends IWorker> = (
-  this: Worker,
-  e: ErrorEvent,
-) => void
+export type ErrorEventHandler<Worker extends IWorker> =
+  | ((this: Worker, ev: ErrorEvent) => any)
+  | null
 
 /**
  * Measurement statistics.
@@ -193,7 +190,7 @@ export interface StrategyData {
 /**
  * Worker interface.
  */
-export interface IWorker {
+export interface IWorker extends EventTarget {
   /**
    * Worker `message` event handler.
    */
@@ -207,9 +204,36 @@ export interface IWorker {
    */
   onerror?: ErrorEventHandler<this>
   /**
+   * Clones message and transmits it to worker's global environment. transfer can be passed as a list of objects that are to be transferred rather than cloned.
+   *
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Worker/postMessage)
+   */
+  postMessage(message: any, transfer: Transferable[]): void
+  postMessage(message: any, options?: StructuredSerializeOptions): void
+  /**
    * Terminates the worker.
    */
   terminate: () => void
+  addEventListener<K extends keyof WorkerEventMap>(
+    type: K,
+    listener: (this: Worker, ev: WorkerEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions,
+  ): void
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void
+  removeEventListener<K extends keyof WorkerEventMap>(
+    type: K,
+    listener: (this: Worker, ev: WorkerEventMap[K]) => any,
+    options?: boolean | EventListenerOptions,
+  ): void
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions,
+  ): void
 }
 
 /**
