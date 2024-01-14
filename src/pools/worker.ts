@@ -222,7 +222,7 @@ export interface IWorker extends EventTarget {
   addEventListener<K extends keyof WorkerEventMap>(
     type: K,
     // deno-lint-ignore no-explicit-any
-    listener: (this: Worker, ev: WorkerEventMap[K]) => any,
+    listener: (this: this, ev: WorkerEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions,
   ): void
   addEventListener(
@@ -233,7 +233,7 @@ export interface IWorker extends EventTarget {
   removeEventListener<K extends keyof WorkerEventMap>(
     type: K,
     // deno-lint-ignore no-explicit-any
-    listener: (this: Worker, ev: WorkerEventMap[K]) => any,
+    listener: (this: this, ev: WorkerEventMap[K]) => any,
     options?: boolean | EventListenerOptions,
   ): void
   removeEventListener(
