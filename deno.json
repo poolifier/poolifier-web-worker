@@ -19,7 +19,7 @@
     "documentation": "deno doc src/mod.ts"
   },
   "test": {
-    "include": ["tests/**/*.test.mjs"]
+    "include": ["./tests/**/*.test.mjs"]
   },
   "fmt": {
     "semiColons": false,
