@@ -7,6 +7,7 @@ import type { Task } from '../utility-types.ts'
  * @typeParam Worker - Type of worker.
  */
 export type MessageEventHandler<Worker extends IWorker> =
+  // deno-lint-ignore no-explicit-any
   | ((this: Worker, ev: MessageEvent) => any)
   | null
 
@@ -16,6 +17,7 @@ export type MessageEventHandler<Worker extends IWorker> =
  * @typeParam Worker - Type of worker.
  */
 export type MessageEventErrorHandler<Worker extends IWorker> =
+  // deno-lint-ignore no-explicit-any
   | ((this: Worker, ev: MessageEvent) => any)
   | null
 
@@ -25,6 +27,7 @@ export type MessageEventErrorHandler<Worker extends IWorker> =
  * @typeParam Worker - Type of worker.
  */
 export type ErrorEventHandler<Worker extends IWorker> =
+  // deno-lint-ignore no-explicit-any
   | ((this: Worker, ev: ErrorEvent) => any)
   | null
 
@@ -208,7 +211,9 @@ export interface IWorker extends EventTarget {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Worker/postMessage)
    */
+  // deno-lint-ignore no-explicit-any
   postMessage(message: any, transfer: Transferable[]): void
+  // deno-lint-ignore no-explicit-any
   postMessage(message: any, options?: StructuredSerializeOptions): void
   /**
    * Terminates the worker.
@@ -216,6 +221,7 @@ export interface IWorker extends EventTarget {
   terminate: () => void
   addEventListener<K extends keyof WorkerEventMap>(
     type: K,
+    // deno-lint-ignore no-explicit-any
     listener: (this: Worker, ev: WorkerEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions,
   ): void
@@ -226,6 +232,7 @@ export interface IWorker extends EventTarget {
   ): void
   removeEventListener<K extends keyof WorkerEventMap>(
     type: K,
+    // deno-lint-ignore no-explicit-any
     listener: (this: Worker, ev: WorkerEventMap[K]) => any,
     options?: boolean | EventListenerOptions,
   ): void
