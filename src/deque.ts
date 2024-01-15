@@ -3,7 +3,7 @@
 /**
  * Linked list node.
  *
- * @typeParam T - Type of node data.
+ * @typeParam T - Type of linked list node data.
  * @internal
  */
 export class LinkedListNode<T> {
