@@ -12,6 +12,10 @@ and this project adheres to
 
 - Fix possible null exception at task finishing handling.
 
+### Changed
+
+- Optimize Deque implementation to improve tasks queueing performance.
+
 ## [0.1.16] - 2024-01-06
 
 ### Fixed
