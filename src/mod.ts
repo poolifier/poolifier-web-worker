@@ -68,5 +68,5 @@ export type {
   Writable,
 } from './utility-types.ts'
 export type { CircularArray } from './circular-array.ts'
-export type { Deque, LinkedListNode } from './deque.ts'
+export type { Deque, ILinkedListNode } from './deque.ts'
 export { availableParallelism } from './utils.ts'
