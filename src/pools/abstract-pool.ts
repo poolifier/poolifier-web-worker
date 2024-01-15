@@ -1721,7 +1721,10 @@ export abstract class AbstractPool<
       this.afterTaskExecutionHook(workerNodeKey, message)
       this.promiseResponseMap.delete(taskId!)
       workerNode?.dispatchEvent(new Event('taskFinished'))
-      if (this.opts.enableTasksQueue === true && !this.destroying) {
+      if (
+        this.opts.enableTasksQueue === true && !this.destroying &&
+        workerNode != null
+      ) {
         const workerNodeTasksUsage = workerNode.usage.tasks
         if (
           this.tasksQueueSize(workerNodeKey) > 0 &&
