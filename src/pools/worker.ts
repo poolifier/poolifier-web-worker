@@ -3,30 +3,24 @@ import type { Task } from '../utility-types.ts'
 
 /**
  * Callback invoked if the worker has received a message event.
- *
- * @typeParam Worker - Type of worker.
  */
-export type MessageEventHandler<Worker extends IWorker> =
+export type MessageEventHandler =
   // deno-lint-ignore no-explicit-any
   | ((ev: MessageEvent<any>) => any)
   | null
 
 /**
  * Callback invoked if the worker raised an error at processing a message event.
- *
- * @typeParam Worker - Type of worker.
  */
-export type MessageEventErrorHandler<Worker extends IWorker> =
+export type MessageEventErrorHandler =
   // deno-lint-ignore no-explicit-any
   | ((ev: MessageEvent<any>) => any)
   | null
 
 /**
  * Callback invoked if the worker raised an error event.
- *
- * @typeParam Worker - Type of worker.
  */
-export type ErrorEventHandler<Worker extends IWorker> =
+export type ErrorEventHandler =
   // deno-lint-ignore no-explicit-any
   | ((ev: ErrorEvent) => any)
   | null
@@ -197,15 +191,15 @@ export interface IWorker extends EventTarget {
   /**
    * Worker `message` event handler.
    */
-  onmessage: MessageEventHandler<this>
+  onmessage: MessageEventHandler
   /**
    * Worker `messageerror` event handler.
    */
-  onmessageerror: MessageEventErrorHandler<this>
+  onmessageerror: MessageEventErrorHandler
   /**
    * Worker `error` event handler.
    */
-  onerror: ErrorEventHandler<this>
+  onerror: ErrorEventHandler
   /**
    * Clones message and transmits it to worker's global environment. transfer can be passed as a list of objects that are to be transferred rather than cloned.
    *
