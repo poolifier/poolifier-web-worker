@@ -8,7 +8,7 @@ import { type WorkerType, WorkerTypes } from '../worker.ts'
 /**
  * Options for a poolifier thread pool.
  */
-export type ThreadPoolOptions = PoolOptions<Worker>
+export type ThreadPoolOptions = PoolOptions
 
 /**
  * A thread pool with a fixed number of threads.

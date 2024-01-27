@@ -136,22 +136,20 @@ export interface TasksQueueOptions {
 
 /**
  * Options for a poolifier pool.
- *
- * @typeParam Worker - Type of worker.
  */
-export interface PoolOptions<Worker extends IWorker> {
+export interface PoolOptions {
   /**
    * A function that will listen for message event on each worker.
    *
    * @defaultValue `() => {}`
    */
-  messageEventHandler?: MessageEventHandler<Worker>
+  messageEventHandler?: MessageEventHandler
   /**
    * A function that will listen for message event processing error on each worker.
    *
    * @defaultValue `() => {}`
    */
-  messageEventErrorHandler?: MessageEventErrorHandler<Worker>
+  messageEventErrorHandler?: MessageEventErrorHandler
   /**
    * Whether to start the minimum number of workers at pool initialization.
    *

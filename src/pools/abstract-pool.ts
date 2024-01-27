@@ -132,7 +132,7 @@ export abstract class AbstractPool<
   public constructor(
     protected readonly minimumNumberOfWorkers: number,
     protected readonly fileURL: URL,
-    protected readonly opts: PoolOptions<Worker>,
+    protected readonly opts: PoolOptions,
     protected readonly maximumNumberOfWorkers?: number,
   ) {
     if (!this.isMain()) {
@@ -205,7 +205,7 @@ export abstract class AbstractPool<
     }
   }
 
-  private checkPoolOptions(opts: PoolOptions<Worker>): void {
+  private checkPoolOptions(opts: PoolOptions): void {
     if (isPlainObject(opts)) {
       this.opts.startWorkers = opts.startWorkers ?? true
       checkValidWorkerChoiceStrategy(
