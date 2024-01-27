@@ -8,7 +8,7 @@ import type { Task } from '../utility-types.ts'
  */
 export type MessageEventHandler<Worker extends IWorker> =
   // deno-lint-ignore no-explicit-any
-  | ((this: Worker, ev: MessageEvent) => any)
+  | ((ev: MessageEvent<any>) => any)
   | null
 
 /**
@@ -18,7 +18,7 @@ export type MessageEventHandler<Worker extends IWorker> =
  */
 export type MessageEventErrorHandler<Worker extends IWorker> =
   // deno-lint-ignore no-explicit-any
-  | ((this: Worker, ev: MessageEvent) => any)
+  | ((ev: MessageEvent<any>) => any)
   | null
 
 /**
@@ -28,7 +28,7 @@ export type MessageEventErrorHandler<Worker extends IWorker> =
  */
 export type ErrorEventHandler<Worker extends IWorker> =
   // deno-lint-ignore no-explicit-any
-  | ((this: Worker, ev: ErrorEvent) => any)
+  | ((ev: ErrorEvent) => any)
   | null
 
 /**
@@ -197,15 +197,15 @@ export interface IWorker extends EventTarget {
   /**
    * Worker `message` event handler.
    */
-  onmessage?: MessageEventHandler<this>
+  onmessage: MessageEventHandler<this>
   /**
    * Worker `messageerror` event handler.
    */
-  onmessageerror?: MessageEventErrorHandler<this>
+  onmessageerror: MessageEventErrorHandler<this>
   /**
    * Worker `error` event handler.
    */
-  onerror?: ErrorEventHandler<this>
+  onerror: ErrorEventHandler<this>
   /**
    * Clones message and transmits it to worker's global environment. transfer can be passed as a list of objects that are to be transferred rather than cloned.
    *
