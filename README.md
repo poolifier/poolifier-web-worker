@@ -170,7 +170,7 @@ Remember that workers can only send and receive structured-cloneable data.
 
 ## Deno versions
 
-Deno versions >= 1.37.x are supported.
+Deno versions >= 1.40.x are supported.
 
 ## [API](./docs/api.md)
 
