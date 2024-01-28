@@ -8,10 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-01-28
+
 ### Changed
 
-- Make `IWorker` interface compatible with Deno 1.40.x web worker type
-  definition.
+- Drop support for Deno version < 1.40.0: make `IWorker` interface compatible
+  with Deno 1.40.x web worker type definition.
 
 ## [0.1.17] - 2024-01-16
 
