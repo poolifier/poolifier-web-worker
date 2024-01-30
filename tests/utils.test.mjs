@@ -146,7 +146,7 @@ Deno.test('Utils test suite', async (t) => {
     expect(isAsyncFunction('')).toBe(false)
     expect(isAsyncFunction([])).toBe(false)
     expect(isAsyncFunction(new Date())).toBe(false)
-    expect(isAsyncFunction(new RegExp())).toBe(false)
+    expect(isAsyncFunction(new RegExp('[a-z]', 'i'))).toBe(false)
     expect(isAsyncFunction(new Error())).toBe(false)
     expect(isAsyncFunction(new Map())).toBe(false)
     expect(isAsyncFunction(new Set())).toBe(false)
@@ -166,9 +166,9 @@ Deno.test('Utils test suite', async (t) => {
     expect(isAsyncFunction(new Promise(() => {}))).toBe(false)
     expect(isAsyncFunction(new WeakRef({}))).toBe(false)
     expect(isAsyncFunction(new FinalizationRegistry(() => {}))).toBe(false)
-    expect(isAsyncFunction(new ArrayBuffer())).toBe(false)
-    expect(isAsyncFunction(new SharedArrayBuffer())).toBe(false)
-    expect(isAsyncFunction(new DataView(new ArrayBuffer()))).toBe(false)
+    expect(isAsyncFunction(new ArrayBuffer(16))).toBe(false)
+    expect(isAsyncFunction(new SharedArrayBuffer(16))).toBe(false)
+    expect(isAsyncFunction(new DataView(new ArrayBuffer(16)))).toBe(false)
     expect(isAsyncFunction({})).toBe(false)
     expect(isAsyncFunction({ a: 1 })).toBe(false)
     expect(isAsyncFunction(() => {})).toBe(false)
@@ -177,6 +177,21 @@ Deno.test('Utils test suite', async (t) => {
     expect(isAsyncFunction(async () => {})).toBe(true)
     expect(isAsyncFunction(async function () {})).toBe(true)
     expect(isAsyncFunction(async function named() {})).toBe(true)
+    class TestClass {
+      testSync() {}
+      async testAsync() {}
+      testArrowSync = () => {}
+      testArrowAsync = async () => {}
+      static testStaticSync() {}
+      static async testStaticAsync() {}
+    }
+    const testClass = new TestClass()
+    expect(isAsyncFunction(testClass.testSync)).toBe(false)
+    expect(isAsyncFunction(testClass.testAsync)).toBe(true)
+    expect(isAsyncFunction(testClass.testArrowSync)).toBe(false)
+    expect(isAsyncFunction(testClass.testArrowAsync)).toBe(true)
+    expect(isAsyncFunction(TestClass.testStaticSync)).toBe(false)
+    expect(isAsyncFunction(TestClass.testStaticAsync)).toBe(true)
   })
 
   await t.step('Verify secureRandom() behavior', () => {
