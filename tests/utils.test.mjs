@@ -215,7 +215,7 @@ Deno.test('Utils test suite', async (t) => {
     expect(max(1, 1)).toBe(1)
   })
 
-  await t.step('Verify once()', () => {
+  await t.step('Verify once() behavior', () => {
     let called = 0
     const fn = () => ++called
     const onceFn = once(fn, this)
@@ -230,7 +230,7 @@ Deno.test('Utils test suite', async (t) => {
     expect(result3).toBe(1)
   })
 
-  await t.step('Verify isWebWorker()', () => {
+  await t.step('Verify isWebWorker() behavior', () => {
     expect(isWebWorker()).toBe(false)
   })
 })
