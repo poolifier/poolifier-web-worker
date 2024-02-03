@@ -23,6 +23,7 @@
     "deregisters",
     "eventloop",
     "Fastify",
+    "fastpath",
     "FOSS",
     "Gitter",
     "inheritDoc",
