@@ -10,7 +10,8 @@ and this project adheres to
 
 ### Fixed
 
-- Fix null exception regression: [#1496](https://github.com/poolifier/poolifier/issues/1496).
+- Fix null exception regression:
+  [#1496](https://github.com/poolifier/poolifier/issues/1496).
 
 ## [0.2.0] - 2024-01-28
 
