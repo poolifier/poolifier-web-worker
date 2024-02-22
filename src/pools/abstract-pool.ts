@@ -1525,8 +1525,7 @@ export abstract class AbstractPool<
     ) {
       workerInfo.stealing = false
       for (
-        const taskName of this.workerNodes[workerNodeKey].info
-          .taskFunctionNames!
+        const taskName of workerInfo.taskFunctionNames!
       ) {
         this.resetTaskSequentiallyStolenStatisticsTaskFunctionWorkerUsage(
           workerNodeKey,
