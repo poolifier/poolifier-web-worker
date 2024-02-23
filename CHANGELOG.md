@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.2.1] - 2024-02-23
+
 ### Fixed
 
 - Fix null exception regression:
