@@ -41,6 +41,13 @@ body:
   - type: input
     attributes:
       label: poolifier version
+  - type: dropdown
+    attributes:
+      label: Javascript runtime
+      options:
+        - Deno
+        - Bun
+        - Browser
   - type: input
     attributes:
       label: Deno, Bun or browser version

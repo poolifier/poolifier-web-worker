@@ -101,7 +101,9 @@ You have to implement your worker by extending the _ThreadWorker_ class.
 
 ## Usage
 
-You can implement a
+### Deno
+
+You can implement a poolifier
 [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker) in
 a simple way by extending the class _ThreadWorker_:
 
@@ -161,10 +163,18 @@ pool
   })
 ```
 
-**See [examples](./examples/) for more details**:
+**See Deno [examples](./examples/deno/) for more details**:
 
-- [Javascript](./examples/javascript/)
-- [Typescript](./examples/typescript/)
+- [Javascript](./examples/deno/javascript/)
+- [Typescript](./examples/deno/typescript/)
+
+### Bun
+
+TODO
+
+### Browser
+
+TODO
 
 Remember that workers can only send and receive structured-cloneable data.
 
