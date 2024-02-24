@@ -6,13 +6,17 @@ await emptyDir('./npm')
 await build({
   entryPoints: ['./src/mod.ts'],
   outDir: './npm',
-  typeCheck: false,
   test: false,
-  declaration: false,
   importMap: './deno.json',
   shims: {
     deno: 'dev',
+    timers: true,
     crypto: true,
+  },
+  compilerOptions: {
+    target: 'ES2022',
+    lib: ['ES2022', 'WebWorker'],
+    sourceMap: true,
   },
   package: {
     name: 'poolifier-web-worker',
