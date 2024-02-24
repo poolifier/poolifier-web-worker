@@ -4,10 +4,10 @@
     "strict": true
   },
   "tasks": {
-    "benchmark:deno": "deno bench -A benchmarks/internal/bench.mjs",
-    "benchmark:deno:json": "deno bench -A --json benchmarks/internal/bench.mjs",
-    "benchmark": "deno run -A --v8-flags=--max-old-space-size=8192 benchmarks/internal/bench.mjs -t javascript",
-    "benchmark:debug": "deno run -A --inspect --v8-flags=--max-old-space-size=8192 benchmarks/internal/bench.mjs -t javascript",
+    "benchmark:deno": "deno bench -A ./benchmarks/internal/bench.mjs",
+    "benchmark:deno:json": "deno bench -A --json ./benchmarks/internal/bench.mjs",
+    "benchmark": "deno run -A --v8-flags=--max-old-space-size=8192 ./benchmarks/internal/bench.mjs -t javascript",
+    "benchmark:debug": "deno run -A --inspect --v8-flags=--max-old-space-size=8192 ./benchmarks/internal/bench.mjs -t javascript",
     "build:npm": "deno run -A ./scripts/build_npm.ts",
     "test": "deno test -A --parallel",
     "test:coverage": "deno test -A --parallel --coverage=./coverage",
@@ -17,7 +17,7 @@
     "format": "deno fmt",
     "format:check": "deno fmt --check",
     "lint": "deno lint",
-    "documentation": "deno doc src/mod.ts"
+    "documentation": "deno doc ./src/mod.ts"
   },
   "test": {
     "include": ["./tests/**/*.test.mjs"]
