@@ -8,6 +8,17 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.2.2] - 2024-02-24
+
+### Fixed
+
+- Fix npm package publication GitHub action.
+
+### Changed
+
+- Add GitHub action to publish `poolifier-web-worker` package to npm packages
+  registry.
+
 ## [0.2.2-beta3] - 2024-02-24
 
 ### Fixed
