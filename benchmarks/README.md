@@ -10,7 +10,7 @@ The [internal](./internal) folder contains poolifier internal benchmark.
 
 To compare poolifier pools performance vs other pools performance we chose to
 use [hyperfine](https://github.com/sharkdp/hyperfine).\
-We chose to use this tool because it allows to run isolated Deno processes so
+We chose to use this tool because it allows to run isolated processes so
 each pool does not impact each other.
 
 - External pools with which we compare the poolifier results:
@@ -51,4 +51,4 @@ To run the internal benchmark, you just need to navigate to the root of
 poolifier cloned repository and run `deno task benchmark` or
 `deno task benchmark:deno`.
 
-### [Results](https://bencher.dev/perf/poolifier-deno)
+### [Results](https://bencher.dev/perf/poolifier-web-worker)

@@ -65,7 +65,7 @@ jobs:
           fi
 
       - name: SonarCloud Code Analysis
-        if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-deno' && matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
+        if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-web-worker' && matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         uses: sonarsource/sonarcloud-github-action@v2.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

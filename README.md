@@ -4,17 +4,17 @@
 
 <div align="center">
 
-# Deno Web Worker Pool
+# Deno, Bun and browser Web Worker Pool
 
 </div>
 
 <div align="center">
 
-[![GitHub commit activity (master)](https://img.shields.io/github/commit-activity/m/poolifier/poolifier-deno/master?color=brightgreen&logo=github)](https://github.com/poolifier/poolifier-deno/graphs/commit-activity)
+[![GitHub commit activity (master)](https://img.shields.io/github/commit-activity/m/poolifier/poolifier-web-worker/master?color=brightgreen&logo=github)](https://github.com/poolifier/poolifier-web-worker/graphs/commit-activity)
 [![Custom badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fdeno-visualizer.danopia.net%2Fshields%2Flatest-version%2Fx%2Fpoolifier%2Fmod.ts)](https://deno.land/x/poolifier/src/mod.ts)
-[![CI Workflow](https://github.com/poolifier/poolifier-deno/actions/workflows/ci.yml/badge.svg)](https://github.com/poolifier/poolifier-deno/actions/workflows/ci.yml)
-[![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=coverage)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=alert_status)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+[![CI Workflow](https://github.com/poolifier/poolifier-web-worker/actions/workflows/ci.yml/badge.svg)](https://github.com/poolifier/poolifier-web-worker/actions/workflows/ci.yml)
+[![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=coverage)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=alert_status)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
 [![Deno doc](https://doc.deno.land/badge.svg)](https://deno.land/x/poolifier/src/mod.ts)
 [![Javascript Standard Style Guide](<https://badgen.net/static/code style/standard/green>)](https://standardjs.com)
 [![Discord](https://badgen.net/discord/online-members/vXxZhyb3b6?icon=discord&label=discord&color=green)](https://discord.gg/vXxZhyb3b6)
@@ -26,10 +26,10 @@
 
 ## Why Poolifier?
 
-Poolifier is used to perform CPU and/or I/O intensive tasks on Deno servers, it
-implements worker pools using
+Poolifier is used to perform CPU and/or I/O intensive tasks on Deno, Bun or
+browser, it implements worker pools using
 [web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
-Deno module.\
+module.\
 With poolifier you can improve your **performance** and resolve problems related
 to the event loop.\
 Moreover you can execute your tasks using an API designed to improve the
@@ -44,7 +44,7 @@ Please consult our [general guidelines](#general-guidelines).
 - Support for ESM and TypeScript ✔
 - Support for
   [web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
-  Deno module ✔
+  module ✔
 - Support for multiple task functions ✔
 - Support for task functions
   [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
@@ -61,21 +61,21 @@ Please consult our [general guidelines](#general-guidelines).
 - Widely tested ✔
 - Active community ✔
 - Code quality
-  [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=bugs)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
-  [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=code_smells)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
-  [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
-  [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
-  [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
-  [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=sqale_index)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+  [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=bugs)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
+  [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=code_smells)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
+  [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
+  [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
+  [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
+  [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=sqale_index)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
 - Code security
-  [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=security_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
-  [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-deno&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-deno)
+  [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=security_rating)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
+  [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
 
 ## Table of contents
 
 - [Overview](#overview)
 - [Usage](#usage)
-- [Deno versions](#deno-versions)
+- [Deno and Bun versions](#deno-and-bun-versions)
 - [API](#api)
 - [General guidelines](#general-guidelines)
 - [Worker choice strategies](#worker-choice-strategies)
@@ -168,9 +168,10 @@ pool
 
 Remember that workers can only send and receive structured-cloneable data.
 
-## Deno versions
+## Deno and Bun versions
 
-Deno versions >= 1.40.x are supported.
+- Deno versions >= 1.40.x are supported.
+- Bun version >= 1.x are supported.
 
 ## [API](./docs/api.md)
 

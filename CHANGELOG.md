@@ -207,7 +207,7 @@ and this project adheres to
 ### Added
 
 - Add Bencher benchmark:
-  [https://bencher.dev/perf/poolifier-deno](https://bencher.dev/perf/poolifier-deno).
+  [https://bencher.dev/perf/poolifier-web-worker](https://bencher.dev/perf/poolifier-web-worker).
 
 ## [0.0.5] - 2023-10-20
 

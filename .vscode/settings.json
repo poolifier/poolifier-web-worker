@@ -61,6 +61,6 @@
   ],
   "sonarlint.connectedMode.project": {
     "connectionId": "poolifier",
-    "projectKey": "poolifier_poolifier-deno"
+    "projectKey": "poolifier_poolifier-web-worker"
   }
 }

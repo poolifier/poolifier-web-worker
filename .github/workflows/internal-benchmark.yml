@@ -8,12 +8,12 @@ on:
 
 jobs:
   internal-benchmark:
-    if: github.repository == 'poolifier/poolifier-deno'
+    if: github.repository == 'poolifier/poolifier-web-worker'
     runs-on:
       group: default
       labels: [self-hosted, internal-benchmark]
     env:
-      BENCHER_PROJECT: poolifier-deno
+      BENCHER_PROJECT: poolifier-web-worker
       BENCHER_API_TOKEN: ${{ secrets.BENCHER_API_TOKEN }}
       BENCHER_ADAPTER: js_benchmark
       BENCHER_TESTBED: self-hosted
