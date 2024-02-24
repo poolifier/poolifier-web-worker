@@ -14,8 +14,8 @@ await build({
     crypto: true,
   },
   compilerOptions: {
-    target: 'ES2022',
-    lib: ['ES2022', 'WebWorker'],
+    target: 'Latest',
+    lib: ['ESNext', 'WebWorker'],
     sourceMap: true,
   },
   package: {
