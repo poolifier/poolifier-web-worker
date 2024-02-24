@@ -42,7 +42,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         run: deno task lint
 
-      - name: Tests
+      - name: Tests with Coverage
         run: deno task test:coverage
 
       - name: Coverage Report

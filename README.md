@@ -166,7 +166,7 @@ pool
   })
 ```
 
-**See Deno [examples](./examples/deno/) for more details**:
+**See [Deno examples](./examples/deno/) for more details**:
 
 - [Javascript](./examples/deno/javascript/)
 - [Typescript](./examples/deno/typescript/)
@@ -184,7 +184,7 @@ Remember that workers can only send and receive structured-cloneable data.
 ## Deno and Bun versions
 
 - Deno versions >= 1.40.x are supported.
-- Bun version >= 1.x are supported.
+- Bun versions >= 1.x are supported.
 
 ## [API](./docs/api.md)
 

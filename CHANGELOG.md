@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.2.2-beta1] - 2024-02-24
+
+### Changed
+
+- Add poolifier-web-worker package to npm packages registry.
+
 ## [0.2.1] - 2024-02-23
 
 ### Fixed
