@@ -77,7 +77,7 @@ Please consult our [general guidelines](#general-guidelines).
 - [Usage](#usage)
   - [Deno](#deno)
   - [Bun](#bun)
-  - [Browser](#bun)
+  - [Browser](#browser)
 - [Deno and Bun versions](#deno-and-bun-versions)
 - [API](#api)
 - [General guidelines](#general-guidelines)
