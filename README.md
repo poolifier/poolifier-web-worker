@@ -137,7 +137,10 @@ import {
 } from 'https://deno.land/x/poolifier@$MODULE_VERSION/src/mod.ts'
 
 // a fixed worker_threads pool
-const pool = new FixedThreadPool(availableParallelism(), './yourWorker.js')
+const pool = new FixedThreadPool(
+  availableParallelism(),
+  new URL('./yourWorker.js', import.meta.url),
+)
 
 pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
 pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
@@ -208,7 +211,10 @@ import {
 } from 'poolifier'
 
 // a fixed worker_threads pool
-const pool = new FixedThreadPool(availableParallelism(), './yourWorker.js')
+const pool = new FixedThreadPool(
+  availableParallelism(),
+  new URL('./yourWorker.js', import.meta.url),
+)
 
 pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
 pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
