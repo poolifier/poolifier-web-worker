@@ -1,4 +1,6 @@
 {
+  "name": "poolifier-web-worker",
+  "version": "0.2.3",
   "compilerOptions": {
     "lib": ["deno.worker"],
     "strict": true
