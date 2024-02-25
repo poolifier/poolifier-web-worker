@@ -175,7 +175,74 @@ pool
 
 ### Bun
 
-TODO
+```shell
+bun install poolifier-web-worker
+```
+
+You can implement a poolifier
+[web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker) in
+a simple way by extending the class _ThreadWorker_:
+
+```js
+import { ThreadWorker } from 'poolifier'
+
+function yourFunction(data) {
+  // this will be executed in the worker thread,
+  // the data will be received by using the execute method
+  return { ok: 1 }
+}
+
+export default new ThreadWorker(yourFunction, {
+  maxInactiveTime: 60000,
+})
+```
+
+Instantiate your pool based on your needs :
+
+```js
+import {
+  availableParallelism,
+  DynamicThreadPool,
+  FixedThreadPool,
+  PoolEvents,
+} from 'poolifier'
+
+// a fixed worker_threads pool
+const pool = new FixedThreadPool(availableParallelism(), './yourWorker.js')
+
+pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
+pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
+
+// or a dynamic worker_threads pool
+const pool = new DynamicThreadPool(
+  Math.floor(availableParallelism() / 2),
+  availableParallelism(),
+  new URL(
+    './yourWorker.js',
+    import.meta.url,
+  ),
+)
+
+pool.emitter?.on(PoolEvents.full, () => console.info('Pool is full'))
+pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
+pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
+
+// the execute method signature is the same for both implementations,
+// so you can easily switch from one to another
+pool
+  .execute()
+  .then((res) => {
+    console.info(res)
+  })
+  .catch((err) => {
+    console.error(err)
+  })
+```
+
+<!-- **See [Bun examples](./examples/bun/) for more details**:
+
+- [Javascript](./examples/bun/javascript/)
+- [Typescript](./examples/bun/typescript/) -->
 
 ### Browser
 
