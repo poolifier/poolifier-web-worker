@@ -22,7 +22,8 @@
 [![Discord](https://badgen.net/discord/online-members/vXxZhyb3b6?icon=discord&label=discord&color=green)](https://discord.gg/vXxZhyb3b6)
 [![Open Collective](https://opencollective.com/poolifier/tiers/badge.svg)](https://opencollective.com/poolifier)
 [![PRs Welcome](https://badgen.net/static/PRs/welcome/green)](https://makeapullrequest.com)
-[![No Dependencies](<https://badgen.net/static/dependencies/no dependencies/green>)](https://badgen.net/static/dependencies/nodependencies/green)
+
+<!-- [![No Dependencies](<https://badgen.net/static/dependencies/no dependencies/green>)](https://badgen.net/static/dependencies/nodependencies/green) -->
 
 </div>
 
@@ -42,7 +43,9 @@ Please consult our [general guidelines](#general-guidelines).
 - Fixed and dynamic pool size ✔
 - Easy switch from a pool type to another ✔
 - Performance [benchmarks](./benchmarks/README.md) ✔
-- No runtime dependencies ✔
+
+<!-- - No runtime dependencies ✔ -->
+
 - Support for ESM and TypeScript ✔
 - Support for
   [web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
