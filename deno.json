@@ -36,7 +36,7 @@
     "benchmark": "npm:benchmark@^2.1.4",
     "expect": "npm:expect@^29.7.0",
     "$dnt/": "https://deno.land/x/dnt@0.40.0/",
-    "$std/": "https://deno.land/std@0.217.0/"
+    "$std/": "https://deno.land/std@0.218.2/"
   },
   "lock": false
 }
