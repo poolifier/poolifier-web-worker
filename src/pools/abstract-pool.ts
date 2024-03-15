@@ -1,4 +1,3 @@
-import { EventEmitter } from 'node:events'
 import type {
   MessageValue,
   PromiseResponseWrapper,
@@ -72,7 +71,7 @@ export abstract class AbstractPool<
   public readonly workerNodes: Array<IWorkerNode<Worker, Data>> = []
 
   /** @inheritDoc */
-  public emitter?: EventEmitter
+  public eventTarget?: EventTarget
 
   /**
    * The task execution response promise map:
@@ -150,7 +149,7 @@ export abstract class AbstractPool<
     this.enqueueTask = this.enqueueTask.bind(this)
 
     if (this.opts.enableEvents === true) {
-      this.initializeEventEmitter()
+      this.initializeEventTarget()
     }
     this.workerChoiceStrategyContext = new WorkerChoiceStrategyContext<
       Worker,
@@ -267,8 +266,8 @@ export abstract class AbstractPool<
     }
   }
 
-  private initializeEventEmitter(): void {
-    this.emitter = new EventEmitter()
+  private initializeEventTarget(): void {
+    this.eventTarget = new EventTarget()
   }
 
   /** @inheritDoc */
@@ -976,8 +975,9 @@ export abstract class AbstractPool<
         await this.destroyWorkerNode(workerNodeKey)
       }),
     )
-    this.emitter?.emit(PoolEvents.destroy, this.info)
-    this.emitter?.removeAllListeners()
+    this.eventTarget?.dispatchEvent(
+      new CustomEvent<PoolInfo>(PoolEvents.destroy, { detail: this.info }),
+    )
     this.readyEventEmitted = false
     this.destroying = false
     this.started = false
@@ -1213,7 +1213,9 @@ export abstract class AbstractPool<
       EMPTY_FUNCTION
     workerNode.worker.onerror = (error) => {
       workerNode.info.ready = false
-      this.emitter?.emit(PoolEvents.error, error)
+      this.eventTarget?.dispatchEvent(
+        new ErrorEvent(PoolEvents.error, { error }),
+      )
       if (
         this.started &&
         !this.destroying &&
@@ -1264,7 +1266,9 @@ export abstract class AbstractPool<
         // Flag the worker node as not ready immediately
         this.flagWorkerNodeAsNotReady(localWorkerNodeKey)
         this.destroyWorkerNode(localWorkerNodeKey).catch((error) => {
-          this.emitter?.emit(PoolEvents.error, error)
+          this.eventTarget?.dispatchEvent(
+            new ErrorEvent(PoolEvents.error, { error }),
+          )
         })
       }
     })
@@ -1278,7 +1282,9 @@ export abstract class AbstractPool<
           taskFunctionName,
           taskFunction: taskFunction.toString(),
         }).catch((error) => {
-          this.emitter?.emit(PoolEvents.error, error)
+          this.eventTarget?.dispatchEvent(
+            new ErrorEvent(PoolEvents.error, { error }),
+          )
         })
       }
     }
@@ -1574,7 +1580,9 @@ export abstract class AbstractPool<
         this.handleWorkerNodeIdleEvent(event, stolenTask)
       })
       .catch((error) => {
-        this.emitter?.emit(PoolEvents.error, error)
+        this.eventTarget?.dispatchEvent(
+          new ErrorEvent(PoolEvents.error, { error }),
+        )
       })
   }
 
@@ -1686,7 +1694,9 @@ export abstract class AbstractPool<
 
   private checkAndEmitReadyEvent(): void {
     if (!this.readyEventEmitted && this.ready) {
-      this.emitter?.emit(PoolEvents.ready, this.info)
+      this.eventTarget?.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.ready, { detail: this.info }),
+      )
       this.readyEventEmitted = true
     }
   }
@@ -1712,7 +1722,9 @@ export abstract class AbstractPool<
       const { resolve, reject, workerNodeKey } = promiseResponse
       const workerNode = this.workerNodes[workerNodeKey]
       if (workerError != null) {
-        this.emitter?.emit(PoolEvents.taskError, workerError)
+        this.eventTarget?.dispatchEvent(
+          new ErrorEvent(PoolEvents.taskError, { error: workerError }),
+        )
         reject(workerError.message)
       } else {
         resolve(data!)
@@ -1752,13 +1764,19 @@ export abstract class AbstractPool<
 
   private checkAndEmitTaskExecutionEvents(): void {
     if (this.busy) {
-      this.emitter?.emit(PoolEvents.busy, this.info)
+      this.eventTarget?.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.busy, { detail: this.info }),
+      )
     }
   }
 
   private checkAndEmitTaskQueuingEvents(): void {
     if (this.hasBackPressure()) {
-      this.emitter?.emit(PoolEvents.backPressure, this.info)
+      this.eventTarget?.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.backPressure, {
+          detail: this.info,
+        }),
+      )
     }
   }
 
@@ -1819,7 +1837,9 @@ export abstract class AbstractPool<
 
   private checkAndEmitEmptyEvent(): void {
     if (this.empty) {
-      this.emitter?.emit(PoolEvents.empty, this.info)
+      this.eventTarget?.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.empty, { detail: this.info }),
+      )
       this.readyEventEmitted = false
     }
   }

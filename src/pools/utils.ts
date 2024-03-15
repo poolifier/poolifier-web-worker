@@ -1,6 +1,4 @@
-import { existsSync } from 'node:fs'
-import { randomInt } from 'node:crypto'
-import { cpus } from 'node:os'
+// import { cpus } from 'node:os'
 import { average, isPlainObject, max, median, min } from '../utils.ts'
 import {
   type MeasurementStatisticsRequirements,
@@ -94,20 +92,21 @@ const getDefaultWeights = (
 }
 
 const getDefaultWorkerWeight = (): number => {
-  const cpuSpeed = randomInt(500, 2500)
-  let cpusCycleTimeWeight = 0
-  for (const cpu of cpus()) {
-    if (cpu.speed == null || cpu.speed === 0) {
-      cpu.speed = cpus().find((cpu) =>
-        cpu.speed != null && cpu.speed !== 0
-      )?.speed ?? cpuSpeed
-    }
-    // CPU estimated cycle time
-    const numberOfDigits = cpu.speed.toString().length - 1
-    const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
-    cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
-  }
-  return Math.round(cpusCycleTimeWeight / cpus().length)
+  // const cpuSpeed = randomInt(500, 2500)
+  // let cpusCycleTimeWeight = 0
+  // for (const cpu of cpus()) {
+  //   if (cpu.speed == null || cpu.speed === 0) {
+  //     cpu.speed = cpus().find((cpu) =>
+  //       cpu.speed != null && cpu.speed !== 0
+  //     )?.speed ?? cpuSpeed
+  //   }
+  //   // CPU estimated cycle time
+  //   const numberOfDigits = cpu.speed.toString().length - 1
+  //   const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
+  //   cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
+  // }
+  // return Math.round(cpusCycleTimeWeight / cpus().length)
+  return 500
 }
 
 export const checkFileURL = (fileURL: URL | undefined): void => {
@@ -116,9 +115,6 @@ export const checkFileURL = (fileURL: URL | undefined): void => {
   }
   if (fileURL instanceof URL === false) {
     throw new TypeError('The worker URL must be an instance of URL')
-  }
-  if (!existsSync(fileURL)) {
-    throw new Error(`Cannot find the worker URL '${fileURL}'`)
   }
 }
 
@@ -472,3 +468,15 @@ export const waitWorkerNodeEvents = async <
     }
   })
 }
+
+// const randomInt = (max = Number.MAX_SAFE_INTEGER, min = 0) => {
+//   if (max < min || max < 0 || min < 0) {
+//     throw new RangeError('Invalid interval')
+//   }
+//   max = Math.floor(max)
+//   if (min !== 0) {
+//     min = Math.ceil(min)
+//     return Math.floor(Math.random() * (max - min + 1)) + min
+//   }
+//   return Math.floor(Math.random() * (max + 1))
+// }

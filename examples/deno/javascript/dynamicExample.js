@@ -15,9 +15,9 @@ const pool = new DynamicThreadPool(
 let poolFull = 0
 let poolReady = 0
 let poolBusy = 0
-pool.emitter?.on(PoolEvents.full, () => poolFull++)
-pool.emitter?.on(PoolEvents.ready, () => poolReady++)
-pool.emitter?.on(PoolEvents.busy, () => poolBusy++)
+pool.eventTarget?.addEventListener(PoolEvents.full, () => poolFull++)
+pool.eventTarget?.addEventListener(PoolEvents.ready, () => poolReady++)
+pool.eventTarget?.addEventListener(PoolEvents.busy, () => poolBusy++)
 
 let resolved = 0
 const start = performance.now()

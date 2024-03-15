@@ -145,8 +145,14 @@ const pool = new FixedThreadPool(
   new URL('./yourWorker.js', import.meta.url),
 )
 
-pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
-pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
+pool.eventTarget?.addEventListener(
+  PoolEvents.ready,
+  () => console.info('Pool is ready'),
+)
+pool.eventTarget?.addEventListener(
+  PoolEvents.busy,
+  () => console.info('Pool is busy'),
+)
 
 // or a dynamic worker_threads pool
 const pool = new DynamicThreadPool(
@@ -158,9 +164,18 @@ const pool = new DynamicThreadPool(
   ),
 )
 
-pool.emitter?.on(PoolEvents.full, () => console.info('Pool is full'))
-pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
-pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
+pool.eventTarget?.addEventListener(
+  PoolEvents.full,
+  () => console.info('Pool is full'),
+)
+pool.eventTarget?.addEventListener(
+  PoolEvents.ready,
+  () => console.info('Pool is ready'),
+)
+pool.eventTarget?.addEventListener(
+  PoolEvents.busy,
+  () => console.info('Pool is busy'),
+)
 
 // the execute method signature is the same for both implementations,
 // so you can easily switch from one to another
@@ -219,8 +234,14 @@ const pool = new FixedThreadPool(
   new URL('./yourWorker.js', import.meta.url),
 )
 
-pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
-pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
+pool.eventTarget?.addEventListener(
+  PoolEvents.ready,
+  () => console.info('Pool is ready'),
+)
+pool.eventTarget?.addEventListener(
+  PoolEvents.busy,
+  () => console.info('Pool is busy'),
+)
 
 // or a dynamic worker_threads pool
 const pool = new DynamicThreadPool(
@@ -232,9 +253,18 @@ const pool = new DynamicThreadPool(
   ),
 )
 
-pool.emitter?.on(PoolEvents.full, () => console.info('Pool is full'))
-pool.emitter?.on(PoolEvents.ready, () => console.info('Pool is ready'))
-pool.emitter?.on(PoolEvents.busy, () => console.info('Pool is busy'))
+pool.eventTarget?.addEventListener(
+  PoolEvents.full,
+  () => console.info('Pool is full'),
+)
+pool.eventTarget?.addEventListener(
+  PoolEvents.ready,
+  () => console.info('Pool is ready'),
+)
+pool.eventTarget?.addEventListener(
+  PoolEvents.busy,
+  () => console.info('Pool is busy'),
+)
 
 // the execute method signature is the same for both implementations,
 // so you can easily switch from one to another

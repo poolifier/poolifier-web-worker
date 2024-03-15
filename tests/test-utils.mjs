@@ -42,7 +42,7 @@ export const waitPoolEvents = async (pool, poolEvent, numberOfEventsToWait) => {
       resolve(events)
       return
     }
-    pool.emitter?.on(poolEvent, () => {
+    pool.eventTarget?.addEventListener(poolEvent, () => {
       ;++events
       if (events === numberOfEventsToWait) {
         resolve(events)

@@ -1,4 +1,3 @@
-import type { EventEmitter } from 'node:events'
 import type { TaskFunction } from '../worker/task-functions.ts'
 import type {
   IWorker,
@@ -171,7 +170,7 @@ export interface PoolOptions {
    */
   restartWorkerOnError?: boolean
   /**
-   * Pool events integrated with async resource emission.
+   * Pool events emission.
    *
    * @defaultValue true
    */
@@ -217,8 +216,7 @@ export interface IPool<
    */
   readonly workerNodes: Array<IWorkerNode<Worker, Data>>
   /**
-   * Event emitter integrated with async resource on which events can be listened to.
-   * The async tracking tooling identifier is `poolifier:<PoolType>-<WorkerType>-pool`.
+   * Pool event target.
    *
    * Events that can currently be listened to:
    *
@@ -231,7 +229,7 @@ export interface IPool<
    * - `'taskError'`: Emitted when an error occurs while executing a task.
    * - `'backPressure'`: Emitted when all worker nodes have back pressure (i.e. their tasks queue is full: queue size \>= maximum queue size).
    */
-  readonly emitter?: EventEmitter
+  readonly eventTarget?: EventTarget
   /**
    * Executes the specified function in the worker constructor with the task data input parameter.
    *

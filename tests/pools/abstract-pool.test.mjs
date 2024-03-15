@@ -1,5 +1,4 @@
 import { /* assertSpyCalls, */ returnsNext, stub } from '$std/testing/mock.ts'
-import { EventEmitter } from 'node:events'
 import { expect } from 'expect'
 import {
   DynamicThreadPool,
@@ -78,14 +77,14 @@ Deno.test({
       expect(() => new FixedThreadPool(numberOfWorkers, 0)).toThrow(
         new TypeError('The worker URL must be an instance of URL'),
       )
-      const dummyWorkerURL = new URL('./dummyWorker.ts', import.meta.url)
-      expect(
-        () =>
-          new FixedThreadPool(
-            numberOfWorkers,
-            dummyWorkerURL,
-          ),
-      ).toThrow(new Error(`Cannot find the worker URL '${dummyWorkerURL}'`))
+      // const dummyWorkerURL = new URL('./dummyWorker.ts', import.meta.url)
+      // expect(
+      //   () =>
+      //     new FixedThreadPool(
+      //       numberOfWorkers,
+      //       dummyWorkerURL,
+      //     ),
+      // ).toThrow(new Error(`Cannot find the worker URL '${dummyWorkerURL}'`))
     })
 
     await t.step('Verify that numberOfWorkers is checked', () => {
@@ -268,8 +267,7 @@ Deno.test({
           import.meta.url,
         ),
       )
-      expect(pool.emitter).toBeInstanceOf(EventEmitter)
-      expect(pool.emitter.eventNames()).toStrictEqual([])
+      expect(pool.eventTarget).toBeInstanceOf(EventTarget)
       expect(pool.opts).toStrictEqual({
         startWorkers: true,
         enableEvents: true,
@@ -315,7 +313,7 @@ Deno.test({
           messageEventErrorHandler: testHandler,
         },
       )
-      expect(pool.emitter).toBeUndefined()
+      expect(pool.eventTarget).toBeUndefined()
       expect(pool.opts).toStrictEqual({
         startWorkers: true,
         enableEvents: false,
@@ -1243,7 +1241,7 @@ Deno.test({
     )
 
     await t.step(
-      "Verify that pool event emitter 'ready' event can register a callback",
+      "Verify that pool event target 'ready' event can register a callback",
       async () => {
         const pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
@@ -1253,15 +1251,13 @@ Deno.test({
             import.meta.url,
           ),
         )
-        expect(pool.emitter.eventNames()).toStrictEqual([])
         let poolInfo
         let poolReady = 0
-        pool.emitter.on(PoolEvents.ready, (info) => {
+        pool.eventTarget.addEventListener(PoolEvents.ready, (event) => {
           ;++poolReady
-          poolInfo = info
+          poolInfo = event.detail
         })
         await waitPoolEvents(pool, PoolEvents.ready, 1)
-        expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.ready])
         expect(poolReady).toBe(1)
         expect(poolInfo).toStrictEqual({
           version,
@@ -1285,7 +1281,7 @@ Deno.test({
     )
 
     await t.step(
-      "Verify that pool event emitter 'busy' event can register a callback",
+      "Verify that pool event target 'busy' event can register a callback",
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
@@ -1294,15 +1290,13 @@ Deno.test({
             import.meta.url,
           ),
         )
-        expect(pool.emitter.eventNames()).toStrictEqual([])
         const promises = new Set()
         let poolBusy = 0
         let poolInfo
-        pool.emitter.on(PoolEvents.busy, (info) => {
+        pool.eventTarget.addEventListener(PoolEvents.busy, (event) => {
           ;++poolBusy
-          poolInfo = info
+          poolInfo = event.detail
         })
-        expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.busy])
         for (let i = 0; i < numberOfWorkers * 2; i++) {
           promises.add(pool.execute())
         }
@@ -1332,7 +1326,7 @@ Deno.test({
     )
 
     await t.step(
-      "Verify that pool event emitter 'full' event can register a callback",
+      "Verify that pool event target 'full' event can register a callback",
       async () => {
         const pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
@@ -1342,15 +1336,13 @@ Deno.test({
             import.meta.url,
           ),
         )
-        expect(pool.emitter.eventNames()).toStrictEqual([])
         const promises = new Set()
         let poolFull = 0
         let poolInfo
-        pool.emitter.on(PoolEvents.full, (info) => {
+        pool.eventTarget.addEventListener(PoolEvents.full, (event) => {
           ;++poolFull
-          poolInfo = info
+          poolInfo = event.detail
         })
-        expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.full])
         for (let i = 0; i < numberOfWorkers * 2; i++) {
           promises.add(pool.execute())
         }
@@ -1378,7 +1370,7 @@ Deno.test({
     )
 
     await t.step(
-      "Verify that pool event emitter 'backPressure' event can register a callback",
+      "Verify that pool event target 'backPressure' event can register a callback",
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
@@ -1395,17 +1387,13 @@ Deno.test({
           'hasBackPressure',
           returnsNext(Array(10).fill(true)),
         )
-        expect(pool.emitter.eventNames()).toStrictEqual([])
         const promises = new Set()
         let poolBackPressure = 0
         let poolInfo
-        pool.emitter.on(PoolEvents.backPressure, (info) => {
+        pool.eventTarget.addEventListener(PoolEvents.backPressure, (event) => {
           ;++poolBackPressure
-          poolInfo = info
+          poolInfo = event.detail
         })
-        expect(pool.emitter.eventNames()).toStrictEqual([
-          PoolEvents.backPressure,
-        ])
         for (let i = 0; i < numberOfWorkers + 1; i++) {
           promises.add(pool.execute())
         }

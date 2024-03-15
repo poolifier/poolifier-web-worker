@@ -1,4 +1,4 @@
-import { PoolEvents, type PoolType, PoolTypes } from '../pool.ts'
+import { PoolEvents, type PoolInfo, type PoolType, PoolTypes } from '../pool.ts'
 import { checkDynamicPoolSize } from '../utils.ts'
 import { FixedThreadPool, type ThreadPoolOptions } from './fixed.ts'
 
@@ -6,7 +6,7 @@ import { FixedThreadPool, type ThreadPoolOptions } from './fixed.ts'
  * A thread pool with a dynamic number of threads, but a guaranteed minimum number of threads.
  *
  * This thread pool creates new threads when the others are busy, up to the maximum number of threads.
- * When the maximum number of threads is reached and workers are busy, an event is emitted. If you want to listen to this event, use the pool's `emitter`.
+ * When the maximum number of threads is reached and workers are busy, an event is emitted. If you want to listen to this event, use the pool's `eventTarget`.
  *
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
@@ -46,7 +46,9 @@ export class DynamicThreadPool<
   /** @inheritDoc */
   protected checkAndEmitDynamicWorkerCreationEvents(): void {
     if (this.full) {
-      this.emitter?.emit(PoolEvents.full, this.info)
+      this.eventTarget?.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.full, { detail: this.info }),
+      )
     }
   }
 

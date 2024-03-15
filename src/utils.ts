@@ -1,4 +1,3 @@
-import os from 'node:os'
 import type { KillBehavior } from './worker/worker-options.ts'
 
 /**
@@ -20,16 +19,7 @@ export const EMPTY_FUNCTION: () => void = Object.freeze(() => {
  * @returns The host OS optimized maximum pool size.
  */
 export const availableParallelism = (): number => {
-  let availableParallelism = 1
-  try {
-    availableParallelism = navigator.hardwareConcurrency
-  } catch {
-    const cpus = os.cpus()
-    if (Array.isArray(cpus) && cpus.length > 0) {
-      availableParallelism = cpus.length
-    }
-  }
-  return availableParallelism
+  return navigator.hardwareConcurrency ?? 1
 }
 
 /**
