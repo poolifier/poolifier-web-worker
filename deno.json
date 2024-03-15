@@ -21,16 +21,16 @@
     "lint": "deno lint",
     "documentation": "deno doc ./src/mod.ts"
   },
+  "exclude": [
+    "./npm",
+    "./coverage"
+  ],
   "test": {
     "include": ["./tests/**/*.test.mjs"]
   },
   "fmt": {
     "semiColons": false,
-    "singleQuote": true,
-    "exclude": [
-      "./npm",
-      "./coverage"
-    ]
+    "singleQuote": true
   },
   "imports": {
     "benchmark": "npm:benchmark@^2.1.4",
