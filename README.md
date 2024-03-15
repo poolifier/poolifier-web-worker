@@ -81,8 +81,8 @@ Please consult our [general guidelines](#general-guidelines).
 - [Overview](#overview)
 - [Usage](#usage)
   - [Deno](#deno)
-  - [Bun](#bun)
-  - [Browser](#browser)
+  - [Bun](#bun-experimental)
+  - [Browser](#browser-experimental)
 - [Deno and Bun versions](#deno-and-bun-versions)
 - [API](#api)
 - [General guidelines](#general-guidelines)
@@ -179,7 +179,7 @@ pool
 - [Javascript](./examples/deno/javascript/)
 - [Typescript](./examples/deno/typescript/)
 
-### Bun
+### Bun (experimental)
 
 ```shell
 bun install poolifier-web-worker
@@ -253,7 +253,7 @@ pool
 - [Javascript](./examples/bun/javascript/)
 - [Typescript](./examples/bun/typescript/) -->
 
-### Browser
+### Browser (experimental)
 
 TODO
 
