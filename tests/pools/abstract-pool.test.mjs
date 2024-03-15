@@ -77,14 +77,6 @@ Deno.test({
       expect(() => new FixedThreadPool(numberOfWorkers, 0)).toThrow(
         new TypeError('The worker URL must be an instance of URL'),
       )
-      // const dummyWorkerURL = new URL('./dummyWorker.ts', import.meta.url)
-      // expect(
-      //   () =>
-      //     new FixedThreadPool(
-      //       numberOfWorkers,
-      //       dummyWorkerURL,
-      //     ),
-      // ).toThrow(new Error(`Cannot find the worker URL '${dummyWorkerURL}'`))
     })
 
     await t.step('Verify that numberOfWorkers is checked', () => {
