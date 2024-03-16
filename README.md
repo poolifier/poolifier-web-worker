@@ -194,7 +194,7 @@ pool
 - [Javascript](./examples/deno/javascript/)
 - [Typescript](./examples/deno/typescript/)
 
-### Bun (experimental)
+### Bun
 
 ```shell
 bun install poolifier-web-worker
@@ -283,9 +283,12 @@ pool
 - [Javascript](./examples/bun/javascript/)
 - [Typescript](./examples/bun/typescript/) -->
 
-### Browser (experimental)
+### Browser
 
-TODO
+```js
+import { FixedThreadPool } from 'https://unpkg.com/poolifier-web-worker@0.3.0/browser/mod.js'
+import { ThreadWorker } from 'https://unpkg.com/poolifier-web-worker@0.3.0/browser/mod.js'
+```
 
 Remember that workers can only send and receive structured-cloneable data.
 
