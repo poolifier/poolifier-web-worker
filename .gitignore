@@ -217,5 +217,9 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/deno,visualstudiocode,intellij,linux,macos,windows
 
 deno.lock
+dist/browser/
+dist/esm/
+dist/LICENSE
+dist/README.md
 npm/
 coverage/
