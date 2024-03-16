@@ -442,7 +442,8 @@ export const createWorker = <Worker extends IWorker>(
     case WorkerTypes.web:
       return new Worker(fileURL, {
         ...opts.workerOptions,
-        type: 'module',
+        ...(isBun && { smol: true }),
+        type: isDeno || isBun ? 'module' : 'classic',
       }) as unknown as Worker
     default:
       throw new Error(`Unknown worker type '${type}'`)

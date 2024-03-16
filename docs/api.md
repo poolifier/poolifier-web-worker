@@ -203,7 +203,11 @@ An object with these properties:
 - `workerOptions` (optional) - An object with the worker options to pass to
   worker. See
   [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker#options)
-  for more details.
+  for more details.\
+  Default:
+  - Deno: `{ type: 'module' }`
+  - Bun: `{ type: 'module', smol: true }`
+  - Browser: `{ type: 'classic' }`
 
 ## Worker
 
