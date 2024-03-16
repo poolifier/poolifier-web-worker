@@ -119,15 +119,21 @@ if (isDeno || isBun) {
       // Ignore
     }
   })()
-} else {
-  const estCpuSpeed = estimatedCpuSpeed()
-  cpusInfo = Array(availableParallelism()).fill({
-    speed: estCpuSpeed,
-  })
+}
+
+const buildCpus = (): { speed: number }[] => {
+  if (cpusInfo != null) {
+    return cpusInfo
+  } else {
+    const estCpuSpeed = estimatedCpuSpeed()
+    return Array(availableParallelism()).fill({
+      speed: estCpuSpeed,
+    })
+  }
 }
 
 const getDefaultWorkerWeight = (
-  cpus = cpusInfo,
+  cpus = buildCpus(),
 ): number => {
   if (isDeno || isBun) {
     let estCpuSpeed: number | undefined
