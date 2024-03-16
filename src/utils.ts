@@ -211,7 +211,7 @@ export const once = <A extends any[], R, T>(
  * @internal
  */
 // deno-lint-ignore no-explicit-any
-export const isBun = !!(globalThis as any).Bun ||
+export const isBun: boolean = !!(globalThis as any).Bun ||
   // deno-lint-ignore no-explicit-any
   !!(globalThis as any).process?.versions?.bun
 
@@ -220,7 +220,7 @@ export const isBun = !!(globalThis as any).Bun ||
  *
  * @internal
  */
-export const isDeno = !!globalThis.Deno
+export const isDeno: boolean = !!globalThis.Deno
 
 /**
  * Returns whether the current environment is a web worker or not.

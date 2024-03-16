@@ -442,7 +442,7 @@ export const createWorker = <Worker extends IWorker>(
     case WorkerTypes.web:
       return new Worker(fileURL, {
         ...(isBun && { smol: true }),
-        ...((!(isDeno as boolean) && !isBun) && { type: 'classic' }),
+        ...((!isDeno && !isBun) && { type: 'classic' }),
         ...opts.workerOptions,
         ...((isDeno || isBun) && { type: 'module' }),
       }) as Worker
