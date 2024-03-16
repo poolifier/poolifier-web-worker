@@ -109,11 +109,7 @@ const estimatedCpuSpeed = (): number => {
   return Math.trunc(runs / duration / 1000) // in MHz
 }
 
-const estCpuSpeed = estimatedCpuSpeed()
-
-let cpusInfo: { speed: number }[] = Array(availableParallelism()).fill({
-  speed: estCpuSpeed,
-})
+let cpusInfo: { speed: number }[]
 if (isDeno || isBun) {
   // To avoid top-level await
   ;(async () => {
@@ -123,18 +119,26 @@ if (isDeno || isBun) {
       // Ignore
     }
   })()
+} else {
+  const estCpuSpeed = estimatedCpuSpeed()
+  cpusInfo = Array(availableParallelism()).fill({
+    speed: estCpuSpeed,
+  })
 }
 
 const getDefaultWorkerWeight = (
   cpus = cpusInfo,
-  estimatedCpuSpeed = estCpuSpeed,
 ): number => {
   if (isDeno || isBun) {
+    let estCpuSpeed: number | undefined
+    if (cpus.every((cpu) => cpu.speed == null || cpu.speed === 0)) {
+      estCpuSpeed = estimatedCpuSpeed()
+    }
     for (const cpu of cpus) {
       if (cpu.speed == null || cpu.speed === 0) {
         cpu.speed = cpus.find((cpu) =>
           cpu.speed != null && cpu.speed !== 0
-        )?.speed ?? estimatedCpuSpeed
+        )?.speed ?? estCpuSpeed ?? 2000
       }
     }
   }
