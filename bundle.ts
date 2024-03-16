@@ -5,10 +5,18 @@ await build({
   entryPoints: ['./src/mod.ts'],
   bundle: true,
   platform: 'browser',
-  // format: 'esm',
-  // minify: true,
+  minify: true,
   sourcemap: true,
   outdir: './dist/browser',
 })
-await stop()
+await build({
+  entryPoints: ['./src/mod.ts'],
+  bundle: true,
+  platform: 'neutral',
+  treeShaking: true,
+  minify: true,
+  sourcemap: true,
+  outdir: './dist/esm',
+})
 console.timeEnd('Build time')
+await stop()

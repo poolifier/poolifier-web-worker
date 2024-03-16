@@ -207,6 +207,8 @@ export const once = <A extends any[], R, T>(
 
 /**
  * Indicates if running in Bun runtime.
+ *
+ * @internal
  */
 // deno-lint-ignore no-explicit-any
 export const isBun = !!(globalThis as any).Bun ||
@@ -215,6 +217,8 @@ export const isBun = !!(globalThis as any).Bun ||
 
 /**
  * Indicates if running in Deno runtime.
+ *
+ * @internal
  */
 export const isDeno = !!globalThis.Deno
 

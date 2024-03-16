@@ -45,6 +45,9 @@ jobs:
       - name: Tests with Coverage
         run: deno task test:coverage
 
+      - name: Bundle
+        run: deno task bundle
+
       - name: Coverage Report
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         run: deno task coverage:report
