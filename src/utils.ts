@@ -1,4 +1,3 @@
-import os from 'node:os'
 import type { KillBehavior } from './worker/worker-options.ts'
 
 /**
@@ -20,16 +19,7 @@ export const EMPTY_FUNCTION: () => void = Object.freeze(() => {
  * @returns The host OS optimized maximum pool size.
  */
 export const availableParallelism = (): number => {
-  let availableParallelism = 1
-  try {
-    availableParallelism = navigator.hardwareConcurrency
-  } catch {
-    const cpus = os.cpus()
-    if (Array.isArray(cpus) && cpus.length > 0) {
-      availableParallelism = cpus.length
-    }
-  }
-  return availableParallelism
+  return navigator.hardwareConcurrency ?? 1
 }
 
 /**
@@ -214,6 +204,23 @@ export const once = <A extends any[], R, T>(
     return result
   }
 }
+
+/**
+ * Indicates if running in Bun runtime.
+ *
+ * @internal
+ */
+// deno-lint-ignore no-explicit-any
+export const isBun = !!(globalThis as any).Bun ||
+  // deno-lint-ignore no-explicit-any
+  !!(globalThis as any).process?.versions?.bun
+
+/**
+ * Indicates if running in Deno runtime.
+ *
+ * @internal
+ */
+export const isDeno = !!globalThis.Deno
 
 /**
  * Returns whether the current environment is a web worker or not.

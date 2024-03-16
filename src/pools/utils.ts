@@ -1,7 +1,13 @@
-import { existsSync } from 'node:fs'
-import { randomInt } from 'node:crypto'
-import { cpus } from 'node:os'
-import { average, isPlainObject, max, median, min } from '../utils.ts'
+import {
+  availableParallelism,
+  average,
+  isBun,
+  isDeno,
+  isPlainObject,
+  max,
+  median,
+  min,
+} from '../utils.ts'
 import {
   type MeasurementStatisticsRequirements,
   WorkerChoiceStrategies,
@@ -93,21 +99,53 @@ const getDefaultWeights = (
   return weights
 }
 
-const getDefaultWorkerWeight = (): number => {
-  const cpuSpeed = randomInt(500, 2500)
-  let cpusCycleTimeWeight = 0
-  for (const cpu of cpus()) {
-    if (cpu.speed == null || cpu.speed === 0) {
-      cpu.speed = cpus().find((cpu) =>
-        cpu.speed != null && cpu.speed !== 0
-      )?.speed ?? cpuSpeed
+const estimatedCpuSpeed = (): number => {
+  const runs = 150000000
+  const begin = performance.now()
+  // deno-lint-ignore no-empty
+  for (let i = runs; i > 0; i--) {}
+  const end = performance.now()
+  const duration = end - begin
+  return Math.trunc(runs / duration / 1000) // in MHz
+}
+
+const estCpuSpeed = estimatedCpuSpeed()
+
+let cpusInfo: { speed: number }[] = Array(availableParallelism()).fill({
+  speed: estCpuSpeed,
+})
+if (isDeno || isBun) {
+  // To avoid top-level await
+  ;(async () => {
+    try {
+      cpusInfo = (await import('node:os')).cpus()
+    } catch {
+      // Ignore
     }
+  })()
+}
+
+const getDefaultWorkerWeight = (
+  cpus = cpusInfo,
+  estimatedCpuSpeed = estCpuSpeed,
+): number => {
+  if (isDeno || isBun) {
+    for (const cpu of cpus) {
+      if (cpu.speed == null || cpu.speed === 0) {
+        cpu.speed = cpus.find((cpu) =>
+          cpu.speed != null && cpu.speed !== 0
+        )?.speed ?? estimatedCpuSpeed
+      }
+    }
+  }
+  let cpusCycleTimeWeight = 0
+  for (const cpu of cpus) {
     // CPU estimated cycle time
     const numberOfDigits = cpu.speed.toString().length - 1
     const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
     cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
   }
-  return Math.round(cpusCycleTimeWeight / cpus().length)
+  return Math.round(cpusCycleTimeWeight / cpus.length)
 }
 
 export const checkFileURL = (fileURL: URL | undefined): void => {
@@ -116,9 +154,6 @@ export const checkFileURL = (fileURL: URL | undefined): void => {
   }
   if (fileURL instanceof URL === false) {
     throw new TypeError('The worker URL must be an instance of URL')
-  }
-  if (!existsSync(fileURL)) {
-    throw new Error(`Cannot find the worker URL '${fileURL}'`)
   }
 }
 
@@ -406,9 +441,11 @@ export const createWorker = <Worker extends IWorker>(
   switch (type) {
     case WorkerTypes.web:
       return new Worker(fileURL, {
+        ...(isBun && { smol: true }),
+        ...((!(isDeno as boolean) && !isBun) && { type: 'classic' }),
         ...opts.workerOptions,
-        type: 'module',
-      }) as unknown as Worker
+        ...((isDeno || isBun) && { type: 'module' }),
+      }) as Worker
     default:
       throw new Error(`Unknown worker type '${type}'`)
   }

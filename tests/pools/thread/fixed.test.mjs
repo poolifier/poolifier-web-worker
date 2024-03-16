@@ -87,21 +87,17 @@ Deno.test({
           messageEventErrorHandler: (e) => console.error(e),
         },
       )
-      expect(pool.emitter.eventNames()).toStrictEqual([])
       let poolReady = 0
-      pool.emitter.on(PoolEvents.ready, () => ++poolReady)
+      pool.eventTarget.addEventListener(PoolEvents.ready, () => ++poolReady)
       await waitPoolEvents(pool, PoolEvents.ready, 1)
-      expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.ready])
       expect(poolReady).toBe(1)
       await pool.destroy()
     })
 
     await t.step("Verify that 'busy' event is emitted", async () => {
       const promises = new Set()
-      expect(pool.emitter.eventNames()).toStrictEqual([])
       let poolBusy = 0
-      pool.emitter.on(PoolEvents.busy, () => ++poolBusy)
-      expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.busy])
+      pool.eventTarget.addEventListener(PoolEvents.busy, () => ++poolBusy)
       for (let i = 0; i < numberOfThreads * 2; i++) {
         promises.add(pool.execute())
       }
@@ -226,14 +222,13 @@ Deno.test({
       'Verify that error handling is working properly:sync',
       async () => {
         const data = { f: 10 }
-        expect(errorPool.emitter.eventNames()).toStrictEqual([])
         let taskError
-        errorPool.emitter.on(PoolEvents.taskError, (e) => {
-          taskError = e
-        })
-        expect(errorPool.emitter.eventNames()).toStrictEqual([
+        errorPool.eventTarget.addEventListener(
           PoolEvents.taskError,
-        ])
+          (event) => {
+            taskError = event.error
+          },
+        )
         let inError
         try {
           await errorPool.execute(data)
@@ -262,14 +257,13 @@ Deno.test({
       'Verify that error handling is working properly:async',
       async () => {
         const data = { f: 10 }
-        expect(asyncErrorPool.emitter.eventNames()).toStrictEqual([])
         let taskError
-        asyncErrorPool.emitter.on(PoolEvents.taskError, (e) => {
-          taskError = e
-        })
-        expect(asyncErrorPool.emitter.eventNames()).toStrictEqual([
+        asyncErrorPool.eventTarget.addEventListener(
           PoolEvents.taskError,
-        ])
+          (event) => {
+            taskError = event.error
+          },
+        )
         let inError
         try {
           await asyncErrorPool.execute(data)
@@ -305,17 +299,11 @@ Deno.test({
 
     await t.step('Shutdown test', async () => {
       const exitPromise = waitWorkerNodeEvents(pool, 'exit', numberOfThreads)
-      expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.busy])
       let poolDestroy = 0
-      pool.emitter.on(PoolEvents.destroy, () => ++poolDestroy)
-      expect(pool.emitter.eventNames()).toStrictEqual([
-        PoolEvents.busy,
-        PoolEvents.destroy,
-      ])
+      pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
       await pool.destroy()
       const numberOfExitEvents = await exitPromise
       expect(pool.started).toBe(false)
-      expect(pool.emitter.eventNames()).toStrictEqual([])
       expect(pool.readyEventEmitted).toBe(false)
       expect(pool.workerNodes.length).toBeLessThan(numberOfThreads)
       expect(numberOfExitEvents).toBe(numberOfThreads)

@@ -17,11 +17,22 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Tests with Coverage
-        run: deno task test:coverage
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.x
+
+      - name: Format Check
+        run: deno task format:check
 
       - name: Lint
         run: deno task lint
+
+      - name: Tests with Coverage
+        run: deno task test:coverage
+
+      - name: Bundle
+        run: deno task bundle
 
   publish-npm:
     needs: build
@@ -36,14 +47,19 @@ jobs:
         with:
           deno-version: v1.x
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.x
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Build npm package
-        run: deno task build:npm
+      # - name: Bundle
+      #   run: deno task bundle
 
       - name: Get tag version
         if: startsWith(github.ref, 'refs/tags/')
@@ -52,18 +68,18 @@ jobs:
 
       - name: Publish Release
         if: ${{ contains(steps.get_tag_version.outputs.TAG_VERSION, '-') == false }}
-        run: cd npm && npm publish
+        run: cd dist && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Pre-Release
         if: ${{ contains(steps.get_tag_version.outputs.TAG_VERSION, '-') == true && contains(steps.get_tag_version.outputs.TAG_VERSION, '-beta') == false }}
-        run: cd npm && npm publish --tag next
+        run: cd dist && npm publish --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Beta Release
         if: ${{ contains(steps.get_tag_version.outputs.TAG_VERSION, '-beta') == true }}
-        run: cd npm && npm publish --tag beta
+        run: cd dist && npm publish --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

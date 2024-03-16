@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed:
+
+- Breaking change: remove node APIs usage in favor of Javascript web APIs. Pool
+  event emitter `emitter` property is renamed to `eventTarget` and is using the
+  `EventTarget` web API.
+
 ## [0.2.3] - 2024-02-25
 
 ### Fixed

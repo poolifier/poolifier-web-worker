@@ -1,0 +1,21 @@
+{
+  "name": "poolifier-web-worker",
+  "version": "0.3.0-0",
+  "description": "poolifier-web-worker",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poolifier/poolifier-web-worker.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/poolifier/poolifier-web-worker/issues"
+  },
+  "module": "./esm/mod.js",
+  "browser": "./browser/mod.js",
+  "exports": {
+    ".": {
+      "browser": "./browser/mod.js",
+      "import": "./esm/mod.js"
+    }
+  }
+}

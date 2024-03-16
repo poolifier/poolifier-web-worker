@@ -43,7 +43,7 @@ Deno.test({
       'Verify that new workers are created when required, max size is not exceeded and that after a while new workers will die',
       async () => {
         let poolBusy = 0
-        pool.emitter.on(PoolEvents.busy, () => ++poolBusy)
+        pool.eventTarget.addEventListener(PoolEvents.busy, () => ++poolBusy)
         for (let i = 0; i < max * 2; i++) {
           pool.execute()
         }
@@ -77,17 +77,11 @@ Deno.test({
 
     await t.step('Shutdown test', async () => {
       const exitPromise = waitWorkerNodeEvents(pool, 'exit', min)
-      expect(pool.emitter.eventNames()).toStrictEqual([PoolEvents.busy])
       let poolDestroy = 0
-      pool.emitter.on(PoolEvents.destroy, () => ++poolDestroy)
-      expect(pool.emitter.eventNames()).toStrictEqual([
-        PoolEvents.busy,
-        PoolEvents.destroy,
-      ])
+      pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
       await pool.destroy()
       const numberOfExitEvents = await exitPromise
       expect(pool.started).toBe(false)
-      expect(pool.emitter.eventNames()).toStrictEqual([])
       expect(pool.readyEventEmitted).toBe(false)
       expect(pool.workerNodes.length).toBeLessThan(min)
       expect(numberOfExitEvents).toBe(min)
