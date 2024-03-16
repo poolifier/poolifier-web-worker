@@ -80,9 +80,8 @@ export const runPoolifierPoolBenchmark = async (
   { taskExecutions, workerData },
 ) => {
   return await new Promise((resolve, reject) => {
-    let pool
+    const pool = buildPoolifierPool(workerType, poolType, poolSize)
     try {
-      pool = buildPoolifierPool(workerType, poolType, poolSize)
       const suite = new Benchmark.Suite(name)
       for (
         const workerChoiceStrategy of Object.values(
