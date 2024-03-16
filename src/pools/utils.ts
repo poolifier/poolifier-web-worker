@@ -102,6 +102,7 @@ const getDefaultWeights = (
 const estimatedCpuSpeed = (): number => {
   const runs = 150000000
   const begin = performance.now()
+  // deno-lint-ignore no-empty
   for (let i = runs; i > 0; i--) {}
   const end = performance.now()
   const duration = end - begin
