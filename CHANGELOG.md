@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.1] - 2024-03-16
+
+### Fixed
+
+- Fix performance regression: compute estimated cpu speed only if strictly
+  needed.
+
 ## [0.3.0] - 2024-03-16
 
 ### Changed:
