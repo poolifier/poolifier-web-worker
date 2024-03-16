@@ -1,5 +1,13 @@
-// import { cpus } from 'node:os'
-import { average, isPlainObject, max, median, min } from '../utils.ts'
+import {
+  availableParallelism,
+  average,
+  isBun,
+  isDeno,
+  isPlainObject,
+  max,
+  median,
+  min,
+} from '../utils.ts'
 import {
   type MeasurementStatisticsRequirements,
   WorkerChoiceStrategies,
@@ -91,22 +99,45 @@ const getDefaultWeights = (
   return weights
 }
 
-const getDefaultWorkerWeight = (): number => {
-  // const cpuSpeed = randomInt(500, 2500)
-  // let cpusCycleTimeWeight = 0
-  // for (const cpu of cpus()) {
-  //   if (cpu.speed == null || cpu.speed === 0) {
-  //     cpu.speed = cpus().find((cpu) =>
-  //       cpu.speed != null && cpu.speed !== 0
-  //     )?.speed ?? cpuSpeed
-  //   }
-  //   // CPU estimated cycle time
-  //   const numberOfDigits = cpu.speed.toString().length - 1
-  //   const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
-  //   cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
-  // }
-  // return Math.round(cpusCycleTimeWeight / cpus().length)
-  return 500
+const estimatedCpuSpeed = (): number => {
+  const runs = 150000000
+  const begin = performance.now()
+  for (let i = runs; i > 0; i--) {}
+  const end = performance.now()
+  const duration = end - begin
+  return Math.trunc(runs / duration / 1000) // in MHz
+}
+
+let cpusInfo: { speed: number }[] = []
+if (isDeno || isBun) {
+  cpusInfo = (await import('node:os')).cpus()
+}
+
+const estCpuSpeed = estimatedCpuSpeed()
+
+const getDefaultWorkerWeight = (
+  cpus = cpusInfo,
+  estimatedCpuSpeed = estCpuSpeed,
+): number => {
+  if (isDeno || isBun) {
+    for (const cpu of cpus) {
+      if (cpu.speed == null || cpu.speed === 0) {
+        cpu.speed = cpus.find((cpu) =>
+          cpu.speed != null && cpu.speed !== 0
+        )?.speed ?? estimatedCpuSpeed
+      }
+    }
+  } else {
+    cpus = cpus.fill({ speed: estimatedCpuSpeed }, 0, availableParallelism())
+  }
+  let cpusCycleTimeWeight = 0
+  for (const cpu of cpus) {
+    // CPU estimated cycle time
+    const numberOfDigits = cpu.speed.toString().length - 1
+    const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
+    cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
+  }
+  return Math.round(cpusCycleTimeWeight / cpus.length)
 }
 
 export const checkFileURL = (fileURL: URL | undefined): void => {
@@ -468,15 +499,3 @@ export const waitWorkerNodeEvents = async <
     }
   })
 }
-
-// const randomInt = (max = Number.MAX_SAFE_INTEGER, min = 0) => {
-//   if (max < min || max < 0 || min < 0) {
-//     throw new RangeError('Invalid interval')
-//   }
-//   max = Math.floor(max)
-//   if (min !== 0) {
-//     min = Math.ceil(min)
-//     return Math.floor(Math.random() * (max - min + 1)) + min
-//   }
-//   return Math.floor(Math.random() * (max + 1))
-// }

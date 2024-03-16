@@ -206,6 +206,17 @@ export const once = <A extends any[], R, T>(
 }
 
 /**
+ * Indicates if running in Bun runtime.
+ */
+export const isBun = !!(globalThis as any).Bun ||
+  !!(globalThis as any).process?.versions?.bun
+
+/**
+ * Indicates if running in Deno runtime.
+ */
+export const isDeno = !!globalThis.Deno
+
+/**
  * Returns whether the current environment is a web worker or not.
  *
  * @returns `true` if the current environment is a web worker, `false` otherwise.
