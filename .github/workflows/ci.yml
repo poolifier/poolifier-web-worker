@@ -34,6 +34,11 @@ jobs:
         with:
           deno-version: ${{ matrix.deno }}
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.x
+
       - name: Format Check
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
         run: deno task format:check

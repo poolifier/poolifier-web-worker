@@ -1,13 +1,19 @@
 import { build, stop } from '$esbuild/mod.js'
+import { existsSync } from '$std/fs/exists.ts'
 
-const entryPoints = ['./src/mod.ts']
+const entryPoint = './src/mod.ts'
+const entryPoints = [entryPoint]
 
 const baseBuildDir = './dist'
 const browserBuildDir = `${baseBuildDir}/browser`
 const esmBuildDir = `${baseBuildDir}/esm`
 
-Deno.removeSync(browserBuildDir, { recursive: true })
-Deno.removeSync(esmBuildDir, { recursive: true })
+if (existsSync(browserBuildDir)) {
+  Deno.removeSync(browserBuildDir, { recursive: true })
+}
+if (existsSync(esmBuildDir)) {
+  Deno.removeSync(esmBuildDir, { recursive: true })
+}
 Deno.copyFileSync('LICENSE', `${baseBuildDir}/LICENSE`)
 Deno.copyFileSync('README.md', `${baseBuildDir}/README.md`)
 
@@ -20,14 +26,21 @@ await build({
   sourcemap: true,
   outdir: browserBuildDir,
 })
-await build({
-  entryPoints,
-  bundle: true,
-  platform: 'neutral',
-  treeShaking: true,
-  minify: true,
-  sourcemap: true,
-  outdir: esmBuildDir,
-})
-console.timeEnd('Build time')
 await stop()
+const bunBuild = new Deno.Command(
+  'bun',
+  {
+    args: [
+      'build',
+      entryPoint,
+      '--outdir',
+      esmBuildDir,
+      '--target',
+      'bun',
+      '--minify',
+      '--sourcemap=external',
+    ],
+  },
+)
+bunBuild.outputSync()
+console.timeEnd('Build time')
