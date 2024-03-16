@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-03-16
+
 ### Changed:
 
 - Breaking change: remove node APIs usage in favor of Javascript web APIs. Pool
