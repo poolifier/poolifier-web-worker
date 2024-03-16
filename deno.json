@@ -23,9 +23,9 @@
   },
   "exclude": [
     "./coverage",
-    "./npm",
     "./dist/browser",
-    "./dist/esm"
+    "./dist/esm",
+    "./npm"
   ],
   "test": {
     "include": ["./tests/**/*.test.mjs"]
