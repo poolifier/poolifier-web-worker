@@ -286,7 +286,10 @@ pool
 ### Browser
 
 ```js
-import { FixedThreadPool } from 'https://unpkg.com/poolifier-web-worker@0.3.0/browser/mod.js'
+import {
+  DynamicThreadPool,
+  FixedThreadPool,
+} from 'https://unpkg.com/poolifier-web-worker@0.3.0/browser/mod.js'
 import { ThreadWorker } from 'https://unpkg.com/poolifier-web-worker@0.3.0/browser/mod.js'
 ```
 
