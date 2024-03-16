@@ -170,7 +170,7 @@ export const runPoolifierPoolBenchmark = async (
         })
         .run({ async: true })
     } catch (error) {
-      pool?.destroy().then(() => reject(error))
+      pool.destroy().then(() => reject(error))
     }
   })
 }
