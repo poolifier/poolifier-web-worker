@@ -1,4 +1,3 @@
-import type { EventLoopUtilization } from 'node:perf_hooks'
 import type { KillBehavior } from './worker/worker-options.ts'
 
 /**
@@ -19,6 +18,12 @@ export interface WorkerError<Data = unknown> {
    * Data triggering the error.
    */
   readonly data?: Data
+}
+
+interface EventLoopUtilization {
+  idle: number
+  active: number
+  utilization: number
 }
 
 /**

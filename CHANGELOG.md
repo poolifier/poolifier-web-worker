@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Add TypeScript type declarations to npm package.
+
 ## [0.3.1] - 2024-03-16
 
 ### Fixed

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "lib": ["ES2022", "WebWorker"],
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "strict": true,
+    "allowImportingTsExtensions": true
+  }
+}

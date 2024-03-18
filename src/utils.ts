@@ -220,7 +220,8 @@ export const isBun: boolean = !!(globalThis as any).Bun ||
  *
  * @internal
  */
-export const isDeno: boolean = !!globalThis.Deno
+// deno-lint-ignore no-explicit-any
+export const isDeno: boolean = !!(globalThis as any).Deno
 
 /**
  * Returns whether the current environment is a web worker or not.

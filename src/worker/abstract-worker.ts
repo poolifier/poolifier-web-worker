@@ -163,7 +163,7 @@ export abstract class AbstractWorker<
     try {
       checkTaskFunctionName(name)
     } catch (error) {
-      return { status: false, error }
+      return { status: false, error: error as Error }
     }
     return { status: this.taskFunctions.has(name) }
   }
@@ -201,7 +201,7 @@ export abstract class AbstractWorker<
       this.sendTaskFunctionNamesToMainWorker()
       return { status: true }
     } catch (error) {
-      return { status: false, error }
+      return { status: false, error: error as Error }
     }
   }
 
@@ -231,7 +231,7 @@ export abstract class AbstractWorker<
       this.sendTaskFunctionNamesToMainWorker()
       return { status: deleteStatus }
     } catch (error) {
-      return { status: false, error }
+      return { status: false, error: error as Error }
     }
   }
 
@@ -288,7 +288,7 @@ export abstract class AbstractWorker<
       this.sendTaskFunctionNamesToMainWorker()
       return { status: true }
     } catch (error) {
-      return { status: false, error }
+      return { status: false, error: error as Error }
     }
   }
 
@@ -543,7 +543,7 @@ export abstract class AbstractWorker<
       this.sendToMainWorker({
         workerError: {
           name: name!,
-          message: this.handleError(error),
+          message: this.handleError(error as Error),
           data,
         },
         taskId,

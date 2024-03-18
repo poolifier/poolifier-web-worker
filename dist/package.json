@@ -10,12 +10,14 @@
   "bugs": {
     "url": "https://github.com/poolifier/poolifier-web-worker/issues"
   },
+  "types": "./esm/mod.d.ts",
   "module": "./esm/mod.js",
   "browser": "./browser/mod.js",
   "exports": {
     ".": {
-      "browser": "./browser/mod.js",
-      "import": "./esm/mod.js"
+      "types": "./esm/mod.d.ts",
+      "import": "./esm/mod.js",
+      "browser": "./browser/mod.js"
     }
   }
 }
