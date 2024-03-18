@@ -114,6 +114,7 @@ if (isDeno || isBun) {
   // To avoid top-level await
   ;(async () => {
     try {
+      // deno-lint-ignore ban-ts-comment
       // @ts-ignore
       cpusInfo = (await import('node:os')).cpus()
     } catch {
