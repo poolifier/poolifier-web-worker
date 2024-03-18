@@ -114,7 +114,7 @@ if (isDeno || isBun) {
   // To avoid top-level await
   ;(async () => {
     try {
-      // @ts-expect-error: cpus() is not available in browser environments
+      // @ts-ignore
       cpusInfo = (await import('node:os')).cpus()
     } catch {
       // Ignore
