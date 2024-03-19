@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ESNext",
     "module": "Node16",
-    "lib": ["ES2022", "WebWorker"],
+    "lib": ["ESNext", "WebWorker"],
     "declaration": true,
     "emitDeclarationOnly": true,
     "strict": true,
