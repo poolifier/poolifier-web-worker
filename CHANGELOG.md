@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.3] - 2024-03-20
+
+## Fixed
+
+- Fix browser bundle format.
+
 ## [0.3.2] - 2024-03-18
 
 ### Changed
