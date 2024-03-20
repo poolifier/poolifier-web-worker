@@ -28,5 +28,8 @@ const bunBuild = new Deno.Command(
     ],
   },
 )
-bunBuild.outputSync()
+const commandOutput = bunBuild.outputSync()
+if (commandOutput.success === false) {
+  console.error(new TextDecoder().decode(commandOutput.stderr))
+}
 console.timeEnd('Build time')
