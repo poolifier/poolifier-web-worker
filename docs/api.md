@@ -207,7 +207,7 @@ An object with these properties:
   Default:
   - Deno: `{ type: 'module' }`
   - Bun: `{ type: 'module', smol: true }`
-  - Browser: `{ type: 'classic' }`
+  - Browser: `{ type: 'module' }`
 
 ## Worker
 

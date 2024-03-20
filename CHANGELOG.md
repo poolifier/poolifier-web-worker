@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.4] - 2024-03-20
+
+## Fixed
+
+- Fix browser web worker default type.
+
 ## [0.3.3] - 2024-03-20
 
 ## Fixed
