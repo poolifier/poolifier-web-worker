@@ -286,11 +286,19 @@ pool
 ### Browser
 
 ```js
+<script type="module">
 import {
   DynamicThreadPool,
   FixedThreadPool,
 } from 'https://unpkg.com/poolifier-web-worker@0.3.2/browser/mod.js'
+</script>
+```
+
+<!-- deno-fmt-ignore -->
+```js
+<script type="module">
 import { ThreadWorker } from 'https://unpkg.com/poolifier-web-worker@0.3.2/browser/mod.js'
+</script>
 ```
 
 Remember that workers can only send and receive structured-cloneable data.

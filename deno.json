@@ -37,7 +37,6 @@
   "imports": {
     "benchmark": "npm:benchmark@^2.1.4",
     "expect": "npm:expect@^29.7.0",
-    "$esbuild/": "https://deno.land/x/esbuild@v0.20.2/",
     "$std/": "https://deno.land/std@0.220.1/"
   },
   "lock": false
