@@ -285,19 +285,19 @@ pool
 
 ### Browser
 
+<!-- deno-fmt-ignore -->
+```js
+<script type="module">
+import { ThreadWorker } from 'https://unpkg.com/poolifier-web-worker@0.3.3/browser/mod.js'
+</script>
+```
+
 ```js
 <script type="module">
 import {
   DynamicThreadPool,
   FixedThreadPool,
 } from 'https://unpkg.com/poolifier-web-worker@0.3.3/browser/mod.js'
-</script>
-```
-
-<!-- deno-fmt-ignore -->
-```js
-<script type="module">
-import { ThreadWorker } from 'https://unpkg.com/poolifier-web-worker@0.3.3/browser/mod.js'
 </script>
 ```
 
