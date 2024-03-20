@@ -455,7 +455,7 @@ export const createWorker = <Worker extends IWorker>(
       return new Worker(fileURL, {
         ...(isBun && { smol: true }),
         ...opts.workerOptions,
-        ...{ type: 'module' },
+        type: 'module',
       }) as Worker
     default:
       throw new Error(`Unknown worker type '${type}'`)
