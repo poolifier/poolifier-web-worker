@@ -43,9 +43,7 @@ Please consult our [general guidelines](#general-guidelines).
 - Fixed and dynamic pool size ✔
 - Easy switch from a pool type to another ✔
 - Performance [benchmarks](./benchmarks/README.md) ✔
-
-<!-- - No runtime dependencies ✔ -->
-
+- No runtime dependencies ✔
 - Support for ESM and TypeScript ✔
 - Support for
   [web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
