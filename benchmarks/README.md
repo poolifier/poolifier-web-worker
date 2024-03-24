@@ -11,7 +11,7 @@ Welcome to poolifier benchmarks.
 
 ## Folder Structure
 
-The [internal](./internal) folder contains poolifier internal benchmark.
+The [internal](./internal) folder contains poolifier internal benchmark code.
 
 <!-- ## Poolifier benchmark versus other worker pools
 
