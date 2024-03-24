@@ -285,7 +285,7 @@ pool
 
 <!-- deno-fmt-ignore -->
 ```js
-<script type='module'>
+<script type="module">
 import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.4/browser/mod.js'
 </script>
 ```
