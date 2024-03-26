@@ -14,18 +14,19 @@ import type {
 /**
  * Enumeration of pool types.
  */
-export const PoolTypes: PoolType = Object.freeze(
-  {
-    /**
-     * Fixed pool type.
-     */
-    fixed: 'fixed',
-    /**
-     * Dynamic pool type.
-     */
-    dynamic: 'dynamic',
-  } as const,
-)
+export const PoolTypes: Readonly<{ fixed: 'fixed'; dynamic: 'dynamic' }> =
+  Object.freeze(
+    {
+      /**
+       * Fixed pool type.
+       */
+      fixed: 'fixed',
+      /**
+       * Dynamic pool type.
+       */
+      dynamic: 'dynamic',
+    } as const,
+  )
 
 /**
  * Pool type.
@@ -35,7 +36,16 @@ export type PoolType = keyof typeof PoolTypes
 /**
  * Enumeration of pool events.
  */
-export const PoolEvents: PoolEvent = Object.freeze(
+export const PoolEvents: Readonly<{
+  ready: 'ready'
+  busy: 'busy'
+  full: 'full'
+  empty: 'empty'
+  destroy: 'destroy'
+  error: 'error'
+  taskError: 'taskError'
+  backPressure: 'backPressure'
+}> = Object.freeze(
   {
     ready: 'ready',
     busy: 'busy',

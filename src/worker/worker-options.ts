@@ -1,18 +1,19 @@
 /**
  * Enumeration of kill behaviors.
  */
-export const KillBehaviors: KillBehavior = Object.freeze(
-  {
-    /**
-     * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker **wont** be deleted.
-     */
-    SOFT: 'SOFT',
-    /**
-     * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker will be deleted.
-     */
-    HARD: 'HARD',
-  } as const,
-)
+export const KillBehaviors: Readonly<{ SOFT: 'SOFT'; HARD: 'HARD' }> = Object
+  .freeze(
+    {
+      /**
+       * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker **wont** be deleted.
+       */
+      SOFT: 'SOFT',
+      /**
+       * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker will be deleted.
+       */
+      HARD: 'HARD',
+    } as const,
+  )
 
 /**
  * Kill behavior.
