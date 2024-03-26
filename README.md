@@ -193,13 +193,13 @@ pool
 
 ### Bun
 
-### npm
+#### npm
 
 ```shell
 bun install poolifier-web-worker
 ```
 
-### jsr
+#### jsr
 
 ```shell
 bunx jsr add @poolifier/poolifier-web-worker
