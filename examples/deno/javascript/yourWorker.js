@@ -1,4 +1,4 @@
-import { ThreadWorker } from 'https://deno.land/x/poolifier/src/mod.ts'
+import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.3.4'
 
 function yourFunction() {
   for (let i = 0; i <= 1000; i++) {

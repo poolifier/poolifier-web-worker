@@ -4,7 +4,7 @@ import {
   runPoolifierPoolBenchmark,
   runPoolifierPoolDenoBenchmark,
 } from '../benchmarks-utils.mjs'
-import { parseArgs } from '$std/cli/parse_args.ts'
+import { parseArgs } from '@std/cli/parse_args'
 
 const poolSize = availableParallelism()
 const taskExecutions = 1

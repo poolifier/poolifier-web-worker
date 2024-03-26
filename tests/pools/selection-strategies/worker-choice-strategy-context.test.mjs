@@ -1,4 +1,4 @@
-import { assertSpyCalls, returnsNext, stub } from '$std/testing/mock.ts'
+import { assertSpyCalls, returnsNext, stub } from '@std/testing/mock'
 import { expect } from 'expect'
 import {
   DynamicThreadPool,

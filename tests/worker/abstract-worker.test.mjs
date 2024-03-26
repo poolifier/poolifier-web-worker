@@ -1,4 +1,4 @@
-import { assertSpyCalls, stub } from '$std/testing/mock.ts'
+import { assertSpyCalls, stub } from '@std/testing/mock'
 import { expect } from 'expect'
 import { KillBehaviors, ThreadWorker } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME, EMPTY_FUNCTION } from '../../src/utils.ts'

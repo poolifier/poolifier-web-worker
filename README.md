@@ -16,14 +16,13 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=poolifier_poolifier-web-worker&metric=alert_status)](https://sonarcloud.io/dashboard?id=poolifier_poolifier-web-worker)
 [![Npm Version](https://badgen.net/npm/v/poolifier-web-worker?icon=npm)](https://www.npmjs.com/package/poolifier-web-worker)
 [![Npm Weekly Downloads](https://badgen.net/npm/dw/poolifier-web-worker?icon=npm)](https://www.npmjs.com/package/poolifier-web-worker)
-[![Deno Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fdeno-visualizer.danopia.net%2Fshields%2Flatest-version%2Fx%2Fpoolifier%2Fmod.ts)](https://deno.land/x/poolifier/src/mod.ts)
-[![Deno doc](https://doc.deno.land/badge.svg)](https://deno.land/x/poolifier/src/mod.ts)
+[![JSR Version](https://jsr.io/badges/@poolifier/poolifier-web-worker)](https://jsr.io/@poolifier/poolifier-web-worker)
+[![JSR Score](https://jsr.io/badges/@poolifier/poolifier-web-worker/score)](https://jsr.io/@poolifier/poolifier-web-worker)
 [![Javascript Standard Style Guide](<https://badgen.net/static/code style/standard/green>)](https://standardjs.com)
 [![Discord](https://badgen.net/discord/online-members/vXxZhyb3b6?icon=discord&label=discord&color=green)](https://discord.gg/vXxZhyb3b6)
 [![Open Collective](https://opencollective.com/poolifier/tiers/badge.svg)](https://opencollective.com/poolifier)
 [![PRs Welcome](https://badgen.net/static/PRs/welcome/green)](https://makeapullrequest.com)
-
-<!-- [![No Dependencies](<https://badgen.net/static/dependencies/no dependencies/green>)](https://badgen.net/static/dependencies/nodependencies/green) -->
+[![No Dependencies](<https://badgen.net/static/dependencies/no dependencies/green>)](https://badgen.net/static/dependencies/nodependencies/green)
 
 </div>
 
@@ -109,12 +108,16 @@ You have to implement your worker by extending the _ThreadWorker_ class.
 
 ### Deno
 
+```shell
+deno add @poolifier/poolifier-web-worker
+```
+
 You can implement a poolifier
 [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker) in
 a simple way by extending the class _ThreadWorker_:
 
 ```js
-import { ThreadWorker } from 'https://deno.land/x/poolifier@$MODULE_VERSION/src/mod.ts'
+import { ThreadWorker } from '@poolifier/poolifier-web-worker'
 
 function yourFunction(data) {
   // this will be executed in the worker thread,
@@ -135,7 +138,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
-} from 'https://deno.land/x/poolifier@$MODULE_VERSION/src/mod.ts'
+} from '@poolifier/poolifier-web-worker'
 
 // a fixed worker_threads pool
 const pool = new FixedThreadPool(
@@ -194,8 +197,16 @@ pool
 
 ### Bun
 
+### npm
+
 ```shell
 bun install poolifier-web-worker
+```
+
+### jsr
+
+```shell
+bunx jsr add @poolifier/poolifier-web-worker
 ```
 
 You can implement a poolifier
@@ -203,7 +214,7 @@ You can implement a poolifier
 a simple way by extending the class _ThreadWorker_:
 
 ```js
-import { ThreadWorker } from 'poolifier'
+import { ThreadWorker } from '@poolifier/poolifier-web-worker'
 
 function yourFunction(data) {
   // this will be executed in the worker thread,
@@ -224,7 +235,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
-} from 'poolifier'
+} from '@poolifier/poolifier-web-worker'
 
 // a fixed worker_threads pool
 const pool = new FixedThreadPool(
