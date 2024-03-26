@@ -107,7 +107,7 @@ export interface TaskStatistics {
 /**
  * Enumeration of worker types.
  */
-export const WorkerTypes = Object.freeze(
+export const WorkerTypes: WorkerType = Object.freeze(
   {
     web: 'web',
   } as const,

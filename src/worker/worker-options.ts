@@ -1,7 +1,7 @@
 /**
  * Enumeration of kill behaviors.
  */
-export const KillBehaviors = Object.freeze(
+export const KillBehaviors: KillBehavior = Object.freeze(
   {
     /**
      * If `currentTime - lastActiveTime` is greater than `maxInactiveTime` but a task is still executing or queued, then the worker **wont** be deleted.

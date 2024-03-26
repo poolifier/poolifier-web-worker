@@ -1,7 +1,7 @@
 /**
  * Enumeration of worker choice strategies.
  */
-export const WorkerChoiceStrategies = Object.freeze(
+export const WorkerChoiceStrategies: WorkerChoiceStrategy = Object.freeze(
   {
     /**
      * Round robin worker selection strategy.
@@ -44,7 +44,7 @@ export type WorkerChoiceStrategy = keyof typeof WorkerChoiceStrategies
 /**
  * Enumeration of measurements.
  */
-export const Measurements = Object.freeze(
+export const Measurements: Measurement = Object.freeze(
   {
     runTime: 'runTime',
     waitTime: 'waitTime',

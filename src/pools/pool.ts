@@ -14,7 +14,7 @@ import type {
 /**
  * Enumeration of pool types.
  */
-export const PoolTypes = Object.freeze(
+export const PoolTypes: PoolType = Object.freeze(
   {
     /**
      * Fixed pool type.
@@ -35,7 +35,7 @@ export type PoolType = keyof typeof PoolTypes
 /**
  * Enumeration of pool events.
  */
-export const PoolEvents = Object.freeze(
+export const PoolEvents: PoolEvent = Object.freeze(
   {
     ready: 'ready',
     busy: 'busy',
