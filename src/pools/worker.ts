@@ -6,24 +6,21 @@ import type { Task } from '../utility-types.ts'
  */
 export type MessageEventHandler =
   // deno-lint-ignore no-explicit-any
-  | ((ev: MessageEvent<any>) => any)
-  | null
+  ((ev: MessageEvent<any>) => any) | null
 
 /**
  * Callback invoked if the worker raised an error at processing a message event.
  */
 export type MessageEventErrorHandler =
   // deno-lint-ignore no-explicit-any
-  | ((ev: MessageEvent<any>) => any)
-  | null
+  ((ev: MessageEvent<any>) => any) | null
 
 /**
  * Callback invoked if the worker raised an error event.
  */
 export type ErrorEventHandler =
   // deno-lint-ignore no-explicit-any
-  | ((ev: ErrorEvent) => any)
-  | null
+  ((ev: ErrorEvent) => any) | null
 
 /**
  * Measurement statistics.

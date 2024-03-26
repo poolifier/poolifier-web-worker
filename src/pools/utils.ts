@@ -134,9 +134,7 @@ const buildCpus = (): { speed: number }[] => {
   }
 }
 
-const getDefaultWorkerWeight = (
-  cpus = buildCpus(),
-): number => {
+const getDefaultWorkerWeight = (cpus = buildCpus()): number => {
   if (isDeno || isBun) {
     let estCpuSpeed: number | undefined
     if (cpus.every((cpu) => cpu.speed == null || cpu.speed === 0)) {
@@ -146,7 +144,9 @@ const getDefaultWorkerWeight = (
       if (cpu.speed == null || cpu.speed === 0) {
         cpu.speed = cpus.find((cpu) =>
           cpu.speed != null && cpu.speed !== 0
-        )?.speed ?? estCpuSpeed ?? 2000
+        )?.speed ??
+          estCpuSpeed ??
+          2000
       }
     }
   }
@@ -336,11 +336,7 @@ export const updateWaitTimeWorkerUsage = <
   Response = unknown,
 >(
   workerChoiceStrategyContext:
-    | WorkerChoiceStrategyContext<
-      Worker,
-      Data,
-      Response
-    >
+    | WorkerChoiceStrategyContext<Worker, Data, Response>
     | undefined,
   workerUsage: WorkerUsage,
   task: Task<Data>,
@@ -378,11 +374,7 @@ export const updateRunTimeWorkerUsage = <
   Response = unknown,
 >(
   workerChoiceStrategyContext:
-    | WorkerChoiceStrategyContext<
-      Worker,
-      Data,
-      Response
-    >
+    | WorkerChoiceStrategyContext<Worker, Data, Response>
     | undefined,
   workerUsage: WorkerUsage,
   message: MessageValue<Response>,
@@ -403,11 +395,7 @@ export const updateEluWorkerUsage = <
   Response = unknown,
 >(
   workerChoiceStrategyContext:
-    | WorkerChoiceStrategyContext<
-      Worker,
-      Data,
-      Response
-    >
+    | WorkerChoiceStrategyContext<Worker, Data, Response>
     | undefined,
   workerUsage: WorkerUsage,
   message: MessageValue<Response>,
@@ -469,9 +457,7 @@ export const createWorker = <Worker extends IWorker>(
  * @returns The worker type of the given worker.
  * @internal
  */
-export const getWorkerType = (
-  worker: IWorker,
-): WorkerType | undefined => {
+export const getWorkerType = (worker: IWorker): WorkerType | undefined => {
   if (worker instanceof Worker) {
     return WorkerTypes.web
   }
@@ -484,9 +470,7 @@ export const getWorkerType = (
  * @returns The worker id of the given worker.
  * @internal
  */
-export const getWorkerId = (
-  worker: IWorker,
-): string | undefined => {
+export const getWorkerId = (worker: IWorker): string | undefined => {
   if (worker instanceof Worker) {
     return crypto.randomUUID()
   }

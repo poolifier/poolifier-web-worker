@@ -161,9 +161,9 @@ export class WorkerChoiceStrategyContext<
    * @returns `true` if the update is successful, `false` otherwise.
    */
   public update(workerNodeKey: number): boolean {
-    return this.workerChoiceStrategies.get(this.workerChoiceStrategy)!.update(
-      workerNodeKey,
-    )
+    return this.workerChoiceStrategies
+      .get(this.workerChoiceStrategy)!
+      .update(workerNodeKey)
   }
 
   /**
@@ -174,9 +174,7 @@ export class WorkerChoiceStrategyContext<
    */
   public execute(): number {
     return this.executeStrategy(
-      this.workerChoiceStrategies.get(
-        this.workerChoiceStrategy,
-      )!,
+      this.workerChoiceStrategies.get(this.workerChoiceStrategy)!,
     )
   }
 
@@ -198,10 +196,7 @@ export class WorkerChoiceStrategyContext<
         ;++this.retriesCount
       }
       ;++chooseCount
-    } while (
-      workerNodeKey == null &&
-      retriesCount < this.retries
-    )
+    } while (workerNodeKey == null && retriesCount < this.retries)
     if (workerNodeKey == null) {
       throw new Error(
         `Worker node key chosen is null or undefined after ${retriesCount} retries`,
@@ -217,9 +212,9 @@ export class WorkerChoiceStrategyContext<
    * @returns `true` if the removal is successful, `false` otherwise.
    */
   public remove(workerNodeKey: number): boolean {
-    return this.workerChoiceStrategies.get(this.workerChoiceStrategy)!.remove(
-      workerNodeKey,
-    )
+    return this.workerChoiceStrategies
+      .get(this.workerChoiceStrategy)!
+      .remove(workerNodeKey)
   }
 
   /**
@@ -227,9 +222,7 @@ export class WorkerChoiceStrategyContext<
    *
    * @param opts - The worker choice strategy options.
    */
-  public setOptions(
-    opts: WorkerChoiceStrategyOptions | undefined,
-  ): void {
+  public setOptions(opts: WorkerChoiceStrategyOptions | undefined): void {
     for (const workerChoiceStrategy of this.workerChoiceStrategies.values()) {
       workerChoiceStrategy.setOptions(opts)
     }

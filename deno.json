@@ -22,12 +22,7 @@
     "lint": "deno lint",
     "documentation": "deno doc ./src/mod.ts"
   },
-  "exclude": [
-    "./coverage",
-    "./dist/browser",
-    "./dist/esm",
-    "./npm"
-  ],
+  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"],
   "test": {
     "include": ["./tests/**/*.test.mjs"]
   },

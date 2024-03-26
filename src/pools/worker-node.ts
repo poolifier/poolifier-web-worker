@@ -92,10 +92,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   /** @inheritdoc */
   public enqueueTask(task: Task<Data>): number {
     const tasksQueueSize = this.tasksQueue.push(task)
-    if (
-      this.hasBackPressure() &&
-      !this.onBackPressureStarted
-    ) {
+    if (this.hasBackPressure() && !this.onBackPressureStarted) {
       this.onBackPressureStarted = true
       this.dispatchEvent(
         new CustomEvent<WorkerNodeEventDetail>('backPressure', {
@@ -110,10 +107,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   /** @inheritdoc */
   public unshiftTask(task: Task<Data>): number {
     const tasksQueueSize = this.tasksQueue.unshift(task)
-    if (
-      this.hasBackPressure() &&
-      !this.onBackPressureStarted
-    ) {
+    if (this.hasBackPressure() && !this.onBackPressureStarted) {
       this.onBackPressureStarted = true
       this.dispatchEvent(
         new CustomEvent<WorkerNodeEventDetail>('backPressure', {

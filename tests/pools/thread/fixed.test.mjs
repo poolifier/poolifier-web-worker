@@ -154,8 +154,9 @@ Deno.test({
         expect(workerNode.usage.tasks.maxQueued).toBe(
           maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency,
         )
-        expect(workerNode.usage.tasks.sequentiallyStolen)
-          .toBeGreaterThanOrEqual(0)
+        expect(
+          workerNode.usage.tasks.sequentiallyStolen,
+        ).toBeGreaterThanOrEqual(0)
         expect(workerNode.usage.tasks.sequentiallyStolen).toBeLessThanOrEqual(
           numberOfThreads * maxMultiplier,
         )
@@ -164,7 +165,9 @@ Deno.test({
           numberOfThreads * maxMultiplier,
         )
       }
-      expect(queuePool.info.executedTasks).toBe(numberOfThreads * maxMultiplier)
+      expect(queuePool.info.executedTasks).toBe(
+        numberOfThreads * maxMultiplier,
+      )
       expect(queuePool.info.backPressure).toBe(false)
       expect(queuePool.info.stolenTasks).toBeGreaterThanOrEqual(0)
       expect(queuePool.info.stolenTasks).toBeLessThanOrEqual(
@@ -212,9 +215,7 @@ Deno.test({
           error = e
         }
         expect(result).toStrictEqual({ ok: 1 })
-        expect(error).toBeInstanceOf(
-          Error,
-        )
+        expect(error).toBeInstanceOf(Error)
       },
     )
 
@@ -300,7 +301,10 @@ Deno.test({
     await t.step('Shutdown test', async () => {
       const exitPromise = waitWorkerNodeEvents(pool, 'exit', numberOfThreads)
       let poolDestroy = 0
-      pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
+      pool.eventTarget.addEventListener(
+        PoolEvents.destroy,
+        () => ++poolDestroy,
+      )
       await pool.destroy()
       const numberOfExitEvents = await exitPromise
       expect(pool.started).toBe(false)
@@ -356,8 +360,9 @@ Deno.test({
       pool.workerNodes[workerNodeKey].addEventListener('exit', () => {
         ;++exitEvent
       })
-      await expect(pool.destroyWorkerNode(workerNodeKey)).resolves
-        .toBeUndefined()
+      await expect(
+        pool.destroyWorkerNode(workerNodeKey),
+      ).resolves.toBeUndefined()
       expect(exitEvent).toBe(1)
       expect(pool.workerNodes.length).toBe(numberOfThreads - 1)
       await pool.destroy()

@@ -592,7 +592,9 @@ export abstract class AbstractWorker<
 
   private beginTaskPerformance(name?: string): TaskPerformance {
     if (this.statistics == null) {
-      throw new Error('Performance statistics computation requirements not set')
+      throw new Error(
+        'Performance statistics computation requirements not set',
+      )
     }
     return {
       name: name ?? DEFAULT_TASK_NAME,
@@ -605,7 +607,9 @@ export abstract class AbstractWorker<
     taskPerformance: TaskPerformance,
   ): TaskPerformance {
     if (this.statistics == null) {
-      throw new Error('Performance statistics computation requirements not set')
+      throw new Error(
+        'Performance statistics computation requirements not set',
+      )
     }
     return {
       ...taskPerformance,

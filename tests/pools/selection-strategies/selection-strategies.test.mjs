@@ -52,7 +52,9 @@ Deno.test({
       'Verify available strategies are taken at pool creation',
       async () => {
         for (
-          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+          const workerChoiceStrategy of Object.values(
+            WorkerChoiceStrategies,
+          )
         ) {
           const pool = new FixedThreadPool(
             max,
@@ -75,7 +77,9 @@ Deno.test({
       'Verify available strategies can be set after pool creation',
       async () => {
         for (
-          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+          const workerChoiceStrategy of Object.values(
+            WorkerChoiceStrategies,
+          )
         ) {
           const pool = new FixedThreadPool(
             max,
@@ -92,7 +96,9 @@ Deno.test({
           await pool.destroy()
         }
         for (
-          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+          const workerChoiceStrategy of Object.values(
+            WorkerChoiceStrategies,
+          )
         ) {
           const pool = new DynamicThreadPool(
             min,
@@ -123,7 +129,9 @@ Deno.test({
           ),
         )
         for (
-          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+          const workerChoiceStrategy of Object.values(
+            WorkerChoiceStrategies,
+          )
         ) {
           expect(
             pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -187,11 +195,12 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-        .toStrictEqual({
-          dynamicWorkerUsage: false,
-          dynamicWorkerReady: true,
-        })
+      expect(
+        pool.workerChoiceStrategyContext.getStrategyPolicy(),
+      ).toStrictEqual({
+        dynamicWorkerUsage: false,
+        dynamicWorkerReady: true,
+      })
       await pool.destroy()
       pool = new DynamicThreadPool(
         min,
@@ -199,11 +208,12 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-        .toStrictEqual({
-          dynamicWorkerUsage: false,
-          dynamicWorkerReady: true,
-        })
+      expect(
+        pool.workerChoiceStrategyContext.getStrategyPolicy(),
+      ).toStrictEqual({
+        dynamicWorkerUsage: false,
+        dynamicWorkerReady: true,
+      })
       // We need to clean up the resources after our test
       await pool.destroy()
     })
@@ -491,11 +501,12 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-        .toStrictEqual({
-          dynamicWorkerUsage: false,
-          dynamicWorkerReady: true,
-        })
+      expect(
+        pool.workerChoiceStrategyContext.getStrategyPolicy(),
+      ).toStrictEqual({
+        dynamicWorkerUsage: false,
+        dynamicWorkerReady: true,
+      })
       await pool.destroy()
       pool = new DynamicThreadPool(
         min,
@@ -503,11 +514,12 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-        .toStrictEqual({
-          dynamicWorkerUsage: false,
-          dynamicWorkerReady: true,
-        })
+      expect(
+        pool.workerChoiceStrategyContext.getStrategyPolicy(),
+      ).toStrictEqual({
+        dynamicWorkerUsage: false,
+        dynamicWorkerReady: true,
+      })
       // We need to clean up the resources after our test
       await pool.destroy()
     })
@@ -713,11 +725,12 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-        .toStrictEqual({
-          dynamicWorkerUsage: false,
-          dynamicWorkerReady: true,
-        })
+      expect(
+        pool.workerChoiceStrategyContext.getStrategyPolicy(),
+      ).toStrictEqual({
+        dynamicWorkerUsage: false,
+        dynamicWorkerReady: true,
+      })
       await pool.destroy()
       pool = new DynamicThreadPool(
         min,
@@ -725,11 +738,12 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-        .toStrictEqual({
-          dynamicWorkerUsage: false,
-          dynamicWorkerReady: true,
-        })
+      expect(
+        pool.workerChoiceStrategyContext.getStrategyPolicy(),
+      ).toStrictEqual({
+        dynamicWorkerUsage: false,
+        dynamicWorkerReady: true,
+      })
       // We need to clean up the resources after our test
       await pool.destroy()
     })
@@ -1197,11 +1211,12 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-        .toStrictEqual({
-          dynamicWorkerUsage: false,
-          dynamicWorkerReady: true,
-        })
+      expect(
+        pool.workerChoiceStrategyContext.getStrategyPolicy(),
+      ).toStrictEqual({
+        dynamicWorkerUsage: false,
+        dynamicWorkerReady: true,
+      })
       await pool.destroy()
       pool = new DynamicThreadPool(
         min,
@@ -1209,11 +1224,12 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-        .toStrictEqual({
-          dynamicWorkerUsage: false,
-          dynamicWorkerReady: true,
-        })
+      expect(
+        pool.workerChoiceStrategyContext.getStrategyPolicy(),
+      ).toStrictEqual({
+        dynamicWorkerUsage: false,
+        dynamicWorkerReady: true,
+      })
       // We need to clean up the resources after our test
       await pool.destroy()
     })
@@ -1359,10 +1375,9 @@ Deno.test({
           //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
           //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
           // }
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeGreaterThan(
-              0,
-            )
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeGreaterThan(0)
         }
         expect(
           pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -1456,10 +1471,9 @@ Deno.test({
           //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
           //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
           // }
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeGreaterThan(
-              0,
-            )
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeGreaterThan(0)
         }
         expect(
           pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -1558,10 +1572,9 @@ Deno.test({
           //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
           //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
           // }
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeGreaterThan(
-              0,
-            )
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeGreaterThan(0)
         }
         expect(
           pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
@@ -1596,8 +1609,9 @@ Deno.test({
         }
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         for (const workerNode of pool.workerNodes) {
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeUndefined()
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeUndefined()
         }
         await pool.destroy()
         pool = new DynamicThreadPool(
@@ -1615,8 +1629,9 @@ Deno.test({
         }
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         for (const workerNode of pool.workerNodes) {
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeUndefined()
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeUndefined()
         }
         // We need to clean up the resources after our test
         await pool.destroy()
@@ -1635,11 +1650,12 @@ Deno.test({
           ),
           { workerChoiceStrategy },
         )
-        expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-          .toStrictEqual({
-            dynamicWorkerUsage: false,
-            dynamicWorkerReady: true,
-          })
+        expect(
+          pool.workerChoiceStrategyContext.getStrategyPolicy(),
+        ).toStrictEqual({
+          dynamicWorkerUsage: false,
+          dynamicWorkerReady: true,
+        })
         await pool.destroy()
         pool = new DynamicThreadPool(
           min,
@@ -1650,11 +1666,12 @@ Deno.test({
           ),
           { workerChoiceStrategy },
         )
-        expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-          .toStrictEqual({
-            dynamicWorkerUsage: false,
-            dynamicWorkerReady: true,
-          })
+        expect(
+          pool.workerChoiceStrategyContext.getStrategyPolicy(),
+        ).toStrictEqual({
+          dynamicWorkerUsage: false,
+          dynamicWorkerReady: true,
+        })
         // We need to clean up the resources after our test
         await pool.destroy()
       },
@@ -2069,11 +2086,12 @@ Deno.test({
           ),
           { workerChoiceStrategy },
         )
-        expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-          .toStrictEqual({
-            dynamicWorkerUsage: false,
-            dynamicWorkerReady: true,
-          })
+        expect(
+          pool.workerChoiceStrategyContext.getStrategyPolicy(),
+        ).toStrictEqual({
+          dynamicWorkerUsage: false,
+          dynamicWorkerReady: true,
+        })
         await pool.destroy()
         pool = new DynamicThreadPool(
           min,
@@ -2084,11 +2102,12 @@ Deno.test({
           ),
           { workerChoiceStrategy },
         )
-        expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-          .toStrictEqual({
-            dynamicWorkerUsage: false,
-            dynamicWorkerReady: true,
-          })
+        expect(
+          pool.workerChoiceStrategyContext.getStrategyPolicy(),
+        ).toStrictEqual({
+          dynamicWorkerUsage: false,
+          dynamicWorkerReady: true,
+        })
         // We need to clean up the resources after our test
         await pool.destroy()
       },

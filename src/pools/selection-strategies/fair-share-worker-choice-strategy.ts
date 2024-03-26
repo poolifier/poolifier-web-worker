@@ -118,8 +118,10 @@ export class FairShareWorkerChoiceStrategy<
     workerNodeKey: number,
     workerNodeVirtualTaskStartTimestamp: number,
   ): number {
-    return workerNodeVirtualTaskStartTimestamp +
+    return (
+      workerNodeVirtualTaskStartTimestamp +
       this.getWorkerNodeTaskRunTime(workerNodeKey)
+    )
   }
 
   private getWorkerNodeVirtualTaskStartTimestamp(

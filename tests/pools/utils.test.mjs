@@ -194,26 +194,18 @@ Deno.test('Pool utils test suite', async (t) => {
 
   await t.step('Verify getWorkerType() behavior', () => {
     const worker = new Worker(
-      new URL(
-        './../worker-files/thread/testWorker.mjs',
-        import.meta.url,
-      ),
+      new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       {
         type: 'module',
       },
     )
-    expect(
-      getWorkerType(worker),
-    ).toBe(WorkerTypes.web)
+    expect(getWorkerType(worker)).toBe(WorkerTypes.web)
     worker.terminate()
   })
 
   await t.step('Verify getWorkerId() behavior', () => {
     const worker = new Worker(
-      new URL(
-        './../worker-files/thread/testWorker.mjs',
-        import.meta.url,
-      ),
+      new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       {
         type: 'module',
       },

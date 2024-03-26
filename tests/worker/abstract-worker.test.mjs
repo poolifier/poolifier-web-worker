@@ -28,10 +28,9 @@ Deno.test('Abstract worker test suite', async (t) => {
       expect(() => new ThreadWorker(() => {}, { maxInactiveTime: '' })).toThrow(
         new TypeError('maxInactiveTime option is not an integer'),
       )
-      expect(() => new ThreadWorker(() => {}, { maxInactiveTime: 0.5 }))
-        .toThrow(
-          new TypeError('maxInactiveTime option is not an integer'),
-        )
+      expect(
+        () => new ThreadWorker(() => {}, { maxInactiveTime: 0.5 }),
+      ).toThrow(new TypeError('maxInactiveTime option is not an integer'))
       expect(() => new ThreadWorker(() => {}, { maxInactiveTime: 0 })).toThrow(
         new TypeError(
           'maxInactiveTime option is not a positive integer greater or equal than 5',

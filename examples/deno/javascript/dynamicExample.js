@@ -7,10 +7,7 @@ import {
 const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
-  new URL(
-    './yourWorker.js',
-    import.meta.url,
-  ),
+  new URL('./yourWorker.js', import.meta.url),
 )
 let poolFull = 0
 let poolReady = 0

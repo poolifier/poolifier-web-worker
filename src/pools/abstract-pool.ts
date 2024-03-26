@@ -207,9 +207,7 @@ export abstract class AbstractPool<
   private checkPoolOptions(opts: PoolOptions): void {
     if (isPlainObject(opts)) {
       this.opts.startWorkers = opts.startWorkers ?? true
-      checkValidWorkerChoiceStrategy(
-        opts.workerChoiceStrategy,
-      )
+      checkValidWorkerChoiceStrategy(opts.workerChoiceStrategy)
       this.opts.workerChoiceStrategy = opts.workerChoiceStrategy ??
         WorkerChoiceStrategies.ROUND_ROBIN
       this.checkValidWorkerChoiceStrategyOptions(
@@ -222,9 +220,7 @@ export abstract class AbstractPool<
       this.opts.enableEvents = opts.enableEvents ?? true
       this.opts.enableTasksQueue = opts.enableTasksQueue ?? false
       if (this.opts.enableTasksQueue) {
-        checkValidTasksQueueOptions(
-          opts.tasksQueueOptions,
-        )
+        checkValidTasksQueueOptions(opts.tasksQueueOptions)
         this.opts.tasksQueueOptions = this.buildTasksQueueOptions(
           opts.tasksQueueOptions,
         )
@@ -295,14 +291,13 @@ export abstract class AbstractPool<
             : accumulator,
         0,
       ),
-      ...(this.opts.enableTasksQueue === true &&
-        {
-          stealingWorkerNodes: this.workerNodes.reduce(
-            (accumulator, workerNode) =>
-              workerNode.info.stealing ? accumulator + 1 : accumulator,
-            0,
-          ),
-        }),
+      ...(this.opts.enableTasksQueue === true && {
+        stealingWorkerNodes: this.workerNodes.reduce(
+          (accumulator, workerNode) =>
+            workerNode.info.stealing ? accumulator + 1 : accumulator,
+          0,
+        ),
+      }),
       busyWorkerNodes: this.workerNodes.reduce(
         (accumulator, _workerNode, workerNodeKey) =>
           this.isWorkerNodeBusy(workerNodeKey) ? accumulator + 1 : accumulator,
@@ -503,12 +498,12 @@ export abstract class AbstractPool<
   private checkMessageWorkerId(message: MessageValue<Data | Response>): void {
     if (message.workerId == null) {
       throw new Error('Worker message received without worker id')
-    } else if (
-      this.getWorkerNodeKeyByWorkerId(message.workerId) === -1
-    ) {
+    } else if (this.getWorkerNodeKeyByWorkerId(message.workerId) === -1) {
       throw new Error(
         `Worker message received from unknown worker '${message.workerId}': ${
-          JSON.stringify(message)
+          JSON.stringify(
+            message,
+          )
         }`,
       )
     }
@@ -658,8 +653,10 @@ export abstract class AbstractPool<
    * The pool filling boolean status.
    */
   protected get full(): boolean {
-    return this.workerNodes.length >=
-      (this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers)
+    return (
+      this.workerNodes.length >=
+        (this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers)
+    )
   }
 
   /**
@@ -1067,9 +1064,8 @@ export abstract class AbstractPool<
     }
     if (
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
-      this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(
-          task.name!,
-        ) != null
+      this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(task.name!) !=
+        null
     ) {
       const taskFunctionWorkerUsage = this.workerNodes[
         workerNodeKey
@@ -1097,10 +1093,7 @@ export abstract class AbstractPool<
     let needWorkerChoiceStrategyUpdate = false
     if (this.workerNodes[workerNodeKey]?.usage != null) {
       const workerUsage = this.workerNodes[workerNodeKey].usage
-      updateTaskStatisticsWorkerUsage(
-        workerUsage,
-        message,
-      )
+      updateTaskStatisticsWorkerUsage(workerUsage, message)
       updateRunTimeWorkerUsage(
         this.workerChoiceStrategyContext,
         workerUsage,
@@ -1121,13 +1114,8 @@ export abstract class AbstractPool<
     ) {
       const taskFunctionWorkerUsage = this.workerNodes[
         workerNodeKey
-      ].getTaskFunctionWorkerUsage(
-        message.taskPerformance!.name,
-      )
-      updateTaskStatisticsWorkerUsage(
-        taskFunctionWorkerUsage!,
-        message,
-      )
+      ].getTaskFunctionWorkerUsage(message.taskPerformance!.name)
+      updateTaskStatisticsWorkerUsage(taskFunctionWorkerUsage!, message)
       updateRunTimeWorkerUsage(
         this.workerChoiceStrategyContext,
         taskFunctionWorkerUsage!,
@@ -1228,7 +1216,9 @@ export abstract class AbstractPool<
         }
       }
       if (
-        this.started && !this.destroying && this.opts.enableTasksQueue === true
+        this.started &&
+        !this.destroying &&
+        this.opts.enableTasksQueue === true
       ) {
         this.redistributeQueuedTasks(this.workerNodes.indexOf(workerNode))
       }
@@ -1257,7 +1247,8 @@ export abstract class AbstractPool<
       if (
         isKillBehavior(KillBehaviors.HARD, message.kill) ||
         (isKillBehavior(KillBehaviors.SOFT, message.kill) &&
-          workerUsage != null && ((this.opts.enableTasksQueue === false &&
+          workerUsage != null &&
+          ((this.opts.enableTasksQueue === false &&
             workerUsage.tasks.executing === 0) ||
             (this.opts.enableTasksQueue === true &&
               workerUsage.tasks.executing === 0 &&
@@ -1388,9 +1379,9 @@ export abstract class AbstractPool<
   private sendStatisticsMessageToWorker(workerNodeKey: number): void {
     this.sendToWorker(workerNodeKey, {
       statistics: {
-        runTime: this.workerChoiceStrategyContext
-          ?.getTaskStatisticsRequirements()
-          .runTime.aggregate ?? false,
+        runTime:
+          this.workerChoiceStrategyContext?.getTaskStatisticsRequirements()
+            .runTime.aggregate ?? false,
         // elu: this.workerChoiceStrategyContext
         //   ?.getTaskStatisticsRequirements()
         //   .elu.aggregate ?? false,
@@ -1513,7 +1504,8 @@ export abstract class AbstractPool<
     }
     const workerInfo = this.getWorkerInfo(workerNodeKey)
     if (
-      this.cannotStealTask() || (this.info.stealingWorkerNodes ?? 0) >
+      this.cannotStealTask() ||
+      (this.info.stealingWorkerNodes ?? 0) >
         Math.floor(this.workerNodes.length / 2)
     ) {
       if (workerInfo != null && previousStolenTask != null) {
@@ -1530,17 +1522,13 @@ export abstract class AbstractPool<
         this.tasksQueueSize(workerNodeKey) > 0)
     ) {
       workerInfo.stealing = false
-      for (
-        const taskName of workerInfo.taskFunctionNames!
-      ) {
+      for (const taskName of workerInfo.taskFunctionNames!) {
         this.resetTaskSequentiallyStolenStatisticsTaskFunctionWorkerUsage(
           workerNodeKey,
           taskName,
         )
       }
-      this.resetTaskSequentiallyStolenStatisticsWorkerUsage(
-        workerNodeKey,
-      )
+      this.resetTaskSequentiallyStolenStatisticsWorkerUsage(workerNodeKey)
       return
     }
     if (workerInfo == null) {
@@ -1554,10 +1542,9 @@ export abstract class AbstractPool<
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       stolenTask != null
     ) {
-      const taskFunctionTasksWorkerUsage = this.workerNodes[workerNodeKey]
-        .getTaskFunctionWorkerUsage(
-          stolenTask.name!,
-        )!.tasks
+      const taskFunctionTasksWorkerUsage = this.workerNodes[
+        workerNodeKey
+      ].getTaskFunctionWorkerUsage(stolenTask.name!)!.tasks
       if (
         taskFunctionTasksWorkerUsage.sequentiallyStolen === 0 ||
         (previousStolenTask != null &&
@@ -1605,13 +1592,8 @@ export abstract class AbstractPool<
     if (sourceWorkerNode != null) {
       const task = sourceWorkerNode.popTask() as Task<Data>
       this.handleTask(workerNodeKey, task)
-      this.updateTaskSequentiallyStolenStatisticsWorkerUsage(
-        workerNodeKey,
-      )
-      this.updateTaskStolenStatisticsWorkerUsage(
-        workerNodeKey,
-        task.name!,
-      )
+      this.updateTaskSequentiallyStolenStatisticsWorkerUsage(workerNodeKey)
+      this.updateTaskStolenStatisticsWorkerUsage(workerNodeKey, task.name!)
       return task
     }
   }
@@ -1620,7 +1602,8 @@ export abstract class AbstractPool<
     event: CustomEvent<WorkerNodeEventDetail>,
   ): void => {
     if (
-      this.cannotStealTask() || (this.info.stealingWorkerNodes ?? 0) >
+      this.cannotStealTask() ||
+      (this.info.stealingWorkerNodes ?? 0) >
         Math.floor(this.workerNodes.length / 2)
     ) {
       return
@@ -1645,7 +1628,7 @@ export abstract class AbstractPool<
         !workerNode.info.stealing &&
         workerNode.info.id !== workerId &&
         workerNode.usage.tasks.queued <
-          (this.opts.tasksQueueOptions!.size! - sizeOffset)
+          this.opts.tasksQueueOptions!.size! - sizeOffset
       ) {
         const workerInfo = this.getWorkerInfo(workerNodeKey)
         if (workerInfo == null) {
@@ -1656,10 +1639,7 @@ export abstract class AbstractPool<
         workerInfo.stealing = true
         const task = sourceWorkerNode.popTask() as Task<Data>
         this.handleTask(workerNodeKey, task)
-        this.updateTaskStolenStatisticsWorkerUsage(
-          workerNodeKey,
-          task.name!,
-        )
+        this.updateTaskStolenStatisticsWorkerUsage(workerNodeKey, task.name!)
         workerInfo.stealing = false
       }
     }
@@ -1673,9 +1653,7 @@ export abstract class AbstractPool<
   ) => {
     this.checkMessageWorkerId(message)
     const { workerId, ready, taskId, taskFunctionNames } = message
-    if (
-      ready != null && taskFunctionNames != null
-    ) {
+    if (ready != null && taskFunctionNames != null) {
       // Worker ready response received from worker
       this.handleWorkerReadyResponse(message)
     } else if (taskId != null) {
@@ -1704,9 +1682,7 @@ export abstract class AbstractPool<
   private handleWorkerReadyResponse(message: MessageValue<Response>): void {
     const { workerId, ready, taskFunctionNames } = message
     if (ready == null || !ready) {
-      throw new Error(
-        `Worker ${workerId} failed to initialize`,
-      )
+      throw new Error(`Worker ${workerId} failed to initialize`)
     }
     const workerNode =
       this.workerNodes[this.getWorkerNodeKeyByWorkerId(workerId)]
@@ -1733,7 +1709,8 @@ export abstract class AbstractPool<
       this.promiseResponseMap.delete(taskId!)
       workerNode?.dispatchEvent(new Event('taskFinished'))
       if (
-        this.opts.enableTasksQueue === true && !this.destroying &&
+        this.opts.enableTasksQueue === true &&
+        !this.destroying &&
         workerNode != null
       ) {
         const workerNodeTasksUsage = workerNode.usage.tasks
@@ -1801,17 +1778,13 @@ export abstract class AbstractPool<
    * @returns The created worker node.
    */
   private createWorkerNode(): IWorkerNode<Worker, Data> {
-    const workerNode = new WorkerNode<Worker, Data>(
-      this.worker,
-      this.fileURL,
-      {
-        workerOptions: this.opts.workerOptions,
-        tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
-          getDefaultTasksQueueOptions(
-            this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
-          ).size,
-      },
-    )
+    const workerNode = new WorkerNode<Worker, Data>(this.worker, this.fileURL, {
+      workerOptions: this.opts.workerOptions,
+      tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
+        getDefaultTasksQueueOptions(
+          this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
+        ).size,
+    })
     // Flag the worker node as ready at pool startup.
     if (this.starting) {
       workerNode.info.ready = true

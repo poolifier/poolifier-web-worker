@@ -28,10 +28,7 @@ Deno.test({
     await t.step('Verify that pool can be created and destroyed', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool).toBeInstanceOf(FixedThreadPool)
       await pool.destroy()
@@ -57,10 +54,7 @@ Deno.test({
     await t.step('Verify that pool statuses properties are set', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.started).toBe(true)
       expect(pool.starting).toBe(false)
@@ -70,9 +64,7 @@ Deno.test({
 
     await t.step('Verify that fileURL is checked', () => {
       expect(() => new FixedThreadPool(numberOfWorkers)).toThrow(
-        new TypeError(
-          'The worker URL must be specified',
-        ),
+        new TypeError('The worker URL must be specified'),
       )
       expect(() => new FixedThreadPool(numberOfWorkers, 0)).toThrow(
         new TypeError('The worker URL must be an instance of URL'),
@@ -84,10 +76,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             undefined,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           ),
       ).toThrow(
         new Error(
@@ -101,10 +90,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             -1,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           ),
       ).toThrow(
         new RangeError(
@@ -155,109 +141,85 @@ Deno.test({
       },
     )
 
-    await t.step(
-      'Verify that dynamic pool sizing is checked',
-      () => {
-        expect(
-          () =>
-            new DynamicThreadPool(
-              1,
-              undefined,
-              new URL(
-                './../worker-files/thread/testWorker.mjs',
-                import.meta.url,
-              ),
-            ),
-        ).toThrow(
-          new TypeError(
-            'Cannot instantiate a dynamic pool without specifying the maximum pool size',
+    await t.step('Verify that dynamic pool sizing is checked', () => {
+      expect(
+        () =>
+          new DynamicThreadPool(
+            1,
+            undefined,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           ),
-        )
-        expect(
-          () =>
-            new DynamicThreadPool(
-              0.5,
-              1,
-              new URL(
-                './../worker-files/thread/testWorker.mjs',
-                import.meta.url,
-              ),
-            ),
-        ).toThrow(
-          new TypeError(
-            'Cannot instantiate a pool with a non safe integer number of workers',
+      ).toThrow(
+        new TypeError(
+          'Cannot instantiate a dynamic pool without specifying the maximum pool size',
+        ),
+      )
+      expect(
+        () =>
+          new DynamicThreadPool(
+            0.5,
+            1,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           ),
-        )
-        expect(
-          () =>
-            new DynamicThreadPool(
-              0,
-              0.5,
-              new URL(
-                './../worker-files/thread/testWorker.mjs',
-                import.meta.url,
-              ),
-            ),
-        ).toThrow(
-          new TypeError(
-            'Cannot instantiate a dynamic pool with a non safe integer maximum pool size',
+      ).toThrow(
+        new TypeError(
+          'Cannot instantiate a pool with a non safe integer number of workers',
+        ),
+      )
+      expect(
+        () =>
+          new DynamicThreadPool(
+            0,
+            0.5,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           ),
-        )
-        expect(
-          () =>
-            new DynamicThreadPool(
-              2,
-              1,
-              new URL(
-                './../worker-files/thread/testWorker.mjs',
-                import.meta.url,
-              ),
-            ),
-        ).toThrow(
-          new RangeError(
-            'Cannot instantiate a dynamic pool with a maximum pool size inferior to the minimum pool size',
+      ).toThrow(
+        new TypeError(
+          'Cannot instantiate a dynamic pool with a non safe integer maximum pool size',
+        ),
+      )
+      expect(
+        () =>
+          new DynamicThreadPool(
+            2,
+            1,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           ),
-        )
-        expect(
-          () =>
-            new DynamicThreadPool(
-              0,
-              0,
-              new URL(
-                './../worker-files/thread/testWorker.mjs',
-                import.meta.url,
-              ),
-            ),
-        ).toThrow(
-          new RangeError(
-            'Cannot instantiate a dynamic pool with a maximum pool size equal to zero',
+      ).toThrow(
+        new RangeError(
+          'Cannot instantiate a dynamic pool with a maximum pool size inferior to the minimum pool size',
+        ),
+      )
+      expect(
+        () =>
+          new DynamicThreadPool(
+            0,
+            0,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           ),
-        )
-        expect(
-          () =>
-            new DynamicThreadPool(
-              1,
-              1,
-              new URL(
-                './../worker-files/thread/testWorker.mjs',
-                import.meta.url,
-              ),
-            ),
-        ).toThrow(
-          new RangeError(
-            'Cannot instantiate a dynamic pool with a minimum pool size equal to the maximum pool size. Use a fixed pool instead',
+      ).toThrow(
+        new RangeError(
+          'Cannot instantiate a dynamic pool with a maximum pool size equal to zero',
+        ),
+      )
+      expect(
+        () =>
+          new DynamicThreadPool(
+            1,
+            1,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           ),
-        )
-      },
-    )
+      ).toThrow(
+        new RangeError(
+          'Cannot instantiate a dynamic pool with a minimum pool size equal to the maximum pool size. Use a fixed pool instead',
+        ),
+      )
+    })
 
     await t.step('Verify that pool options are checked', async () => {
       let pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.eventTarget).toBeInstanceOf(EventTarget)
       expect(pool.opts).toStrictEqual({
@@ -271,26 +233,21 @@ Deno.test({
         const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
           .workerChoiceStrategies
       ) {
-        expect(workerChoiceStrategy.opts).toStrictEqual(
-          {
-            runTime: { median: false },
-            waitTime: { median: false },
-            elu: { median: false },
-            weights: expect.objectContaining({
-              0: expect.any(Number),
-              [pool.info.maxSize - 1]: expect.any(Number),
-            }),
-          },
-        )
+        expect(workerChoiceStrategy.opts).toStrictEqual({
+          runTime: { median: false },
+          waitTime: { median: false },
+          elu: { median: false },
+          weights: expect.objectContaining({
+            0: expect.any(Number),
+            [pool.info.maxSize - 1]: expect.any(Number),
+          }),
+        })
       }
       await pool.destroy()
       const testHandler = () => console.info('test handler executed')
       pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         {
           workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED,
           workerChoiceStrategyOptions: {
@@ -345,10 +302,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               workerChoiceStrategy: 'invalidStrategy',
             },
@@ -358,10 +312,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               workerChoiceStrategyOptions: { weights: {} },
             },
@@ -375,10 +326,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               workerChoiceStrategyOptions: {
                 measurement: 'invalidMeasurement',
@@ -394,10 +342,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               enableTasksQueue: true,
               tasksQueueOptions: 'invalidTasksQueueOptions',
@@ -410,10 +355,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               enableTasksQueue: true,
               tasksQueueOptions: { concurrency: 0 },
@@ -428,10 +370,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               enableTasksQueue: true,
               tasksQueueOptions: { concurrency: -1 },
@@ -446,10 +385,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               enableTasksQueue: true,
               tasksQueueOptions: { concurrency: 0.2 },
@@ -464,10 +400,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               enableTasksQueue: true,
               tasksQueueOptions: { size: 0 },
@@ -482,10 +415,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               enableTasksQueue: true,
               tasksQueueOptions: { size: -1 },
@@ -500,10 +430,7 @@ Deno.test({
         () =>
           new FixedThreadPool(
             numberOfWorkers,
-            new URL(
-              './../worker-files/thread/testWorker.mjs',
-              import.meta.url,
-            ),
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               enableTasksQueue: true,
               tasksQueueOptions: { size: 0.2 },
@@ -521,10 +448,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           { workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE },
         )
         expect(pool.opts.workerChoiceStrategyOptions).toBeUndefined()
@@ -532,17 +456,15 @@ Deno.test({
           const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
             .workerChoiceStrategies
         ) {
-          expect(workerChoiceStrategy.opts).toStrictEqual(
-            {
-              runTime: { median: false },
-              waitTime: { median: false },
-              elu: { median: false },
-              weights: expect.objectContaining({
-                0: expect.any(Number),
-                [pool.info.maxSize - 1]: expect.any(Number),
-              }),
-            },
-          )
+          expect(workerChoiceStrategy.opts).toStrictEqual({
+            runTime: { median: false },
+            waitTime: { median: false },
+            elu: { median: false },
+            weights: expect.objectContaining({
+              0: expect.any(Number),
+              [pool.info.maxSize - 1]: expect.any(Number),
+            }),
+          })
         }
         expect(
           pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
@@ -575,17 +497,15 @@ Deno.test({
           const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
             .workerChoiceStrategies
         ) {
-          expect(workerChoiceStrategy.opts).toStrictEqual(
-            {
-              runTime: { median: true },
-              waitTime: { median: false },
-              elu: { median: true },
-              weights: expect.objectContaining({
-                0: expect.any(Number),
-                [pool.info.maxSize - 1]: expect.any(Number),
-              }),
-            },
-          )
+          expect(workerChoiceStrategy.opts).toStrictEqual({
+            runTime: { median: true },
+            waitTime: { median: false },
+            elu: { median: true },
+            weights: expect.objectContaining({
+              0: expect.any(Number),
+              [pool.info.maxSize - 1]: expect.any(Number),
+            }),
+          })
         }
         expect(
           pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
@@ -618,17 +538,15 @@ Deno.test({
           const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
             .workerChoiceStrategies
         ) {
-          expect(workerChoiceStrategy.opts).toStrictEqual(
-            {
-              runTime: { median: false },
-              waitTime: { median: false },
-              elu: { median: false },
-              weights: expect.objectContaining({
-                0: expect.any(Number),
-                [pool.info.maxSize - 1]: expect.any(Number),
-              }),
-            },
-          )
+          expect(workerChoiceStrategy.opts).toStrictEqual({
+            runTime: { median: false },
+            waitTime: { median: false },
+            elu: { median: false },
+            weights: expect.objectContaining({
+              0: expect.any(Number),
+              [pool.info.maxSize - 1]: expect.any(Number),
+            }),
+          })
         }
         expect(
           pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
@@ -682,10 +600,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         expect(pool.opts.enableTasksQueue).toBe(false)
         expect(pool.opts.tasksQueueOptions).toBeUndefined()
@@ -719,10 +634,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           { enableTasksQueue: true },
         )
         expect(pool.opts.tasksQueueOptions).toStrictEqual({
@@ -816,10 +728,7 @@ Deno.test({
     await t.step('Verify that pool info is set', async () => {
       let pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.info).toStrictEqual({
         version,
@@ -842,10 +751,7 @@ Deno.test({
       pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.info).toStrictEqual({
         version,
@@ -872,10 +778,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         for (const workerNode of pool.workerNodes) {
           expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -914,10 +817,7 @@ Deno.test({
       async () => {
         let pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         for (const workerNode of pool.workerNodes) {
           expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -929,10 +829,7 @@ Deno.test({
         pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         for (const workerNode of pool.workerNodes) {
           expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -947,10 +844,7 @@ Deno.test({
     await t.step('Verify that pool worker info are initialized', async () => {
       let pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -966,10 +860,7 @@ Deno.test({
       pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -989,10 +880,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         expect(pool.info.started).toBe(true)
         expect(pool.info.ready).toBe(true)
@@ -1013,10 +901,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           {
             startWorkers: false,
           },
@@ -1046,10 +931,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         await expect(pool.execute(undefined, 0)).rejects.toThrow(
           new TypeError('name argument must be a string'),
@@ -1075,10 +957,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         const promises = new Set()
         const maxMultiplier = 2
@@ -1150,10 +1029,7 @@ Deno.test({
         const pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         const promises = new Set()
         const maxMultiplier = 2
@@ -1238,10 +1114,7 @@ Deno.test({
         const pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         let poolInfo
         let poolReady = 0
@@ -1277,10 +1150,7 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         const promises = new Set()
         let poolBusy = 0
@@ -1323,10 +1193,7 @@ Deno.test({
         const pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         const promises = new Set()
         let poolFull = 0
@@ -1366,19 +1233,12 @@ Deno.test({
       async () => {
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
           {
             enableTasksQueue: true,
           },
         )
-        stub(
-          pool,
-          'hasBackPressure',
-          returnsNext(Array(10).fill(true)),
-        )
+        stub(pool, 'hasBackPressure', returnsNext(Array(10).fill(true)))
         const promises = new Set()
         let poolBackPressure = 0
         let poolInfo
@@ -1426,10 +1286,7 @@ Deno.test({
         const tasksFinishedTimeout = 2500
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/asyncWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/asyncWorker.mjs', import.meta.url),
           {
             enableTasksQueue: true,
             tasksQueueOptions: { tasksFinishedTimeout },
@@ -1463,10 +1320,7 @@ Deno.test({
         const tasksFinishedTimeout = 1000
         const pool = new FixedThreadPool(
           numberOfWorkers,
-          new URL(
-            './../worker-files/thread/asyncWorker.mjs',
-            import.meta.url,
-          ),
+          new URL('./../worker-files/thread/asyncWorker.mjs', import.meta.url),
           {
             enableTasksQueue: true,
             tasksQueueOptions: { tasksFinishedTimeout },
@@ -1502,10 +1356,9 @@ Deno.test({
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       expect(dynamicThreadPool.hasTaskFunction(DEFAULT_TASK_NAME)).toBe(true)
-      expect(dynamicThreadPool.hasTaskFunction('jsonIntegerSerialization'))
-        .toBe(
-          true,
-        )
+      expect(
+        dynamicThreadPool.hasTaskFunction('jsonIntegerSerialization'),
+      ).toBe(true)
       expect(dynamicThreadPool.hasTaskFunction('factorial')).toBe(true)
       expect(dynamicThreadPool.hasTaskFunction('fibonacci')).toBe(true)
       expect(dynamicThreadPool.hasTaskFunction('unknown')).toBe(false)
@@ -1532,10 +1385,7 @@ Deno.test({
       const dynamicThreadPool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       await expect(
@@ -1546,14 +1396,12 @@ Deno.test({
       ).rejects.toThrow(
         new TypeError('name argument must not be an empty string'),
       )
-      await expect(dynamicThreadPool.addTaskFunction('test', 0)).rejects
-        .toThrow(
-          new TypeError('fn argument must be a function'),
-        )
-      await expect(dynamicThreadPool.addTaskFunction('test', '')).rejects
-        .toThrow(
-          new TypeError('fn argument must be a function'),
-        )
+      await expect(
+        dynamicThreadPool.addTaskFunction('test', 0),
+      ).rejects.toThrow(new TypeError('fn argument must be a function'))
+      await expect(
+        dynamicThreadPool.addTaskFunction('test', ''),
+      ).rejects.toThrow(new TypeError('fn argument must be a function'))
       expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
         DEFAULT_TASK_NAME,
         'test',
@@ -1612,22 +1460,18 @@ Deno.test({
       const dynamicThreadPool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
         DEFAULT_TASK_NAME,
         'test',
       ])
-      await expect(dynamicThreadPool.removeTaskFunction('test')).rejects
-        .toThrow(
-          new Error(
-            'Cannot remove a task function not handled on the pool side',
-          ),
-        )
+      await expect(
+        dynamicThreadPool.removeTaskFunction('test'),
+      ).rejects.toThrow(
+        new Error('Cannot remove a task function not handled on the pool side'),
+      )
       const echoTaskFunction = (data) => {
         return data
       }
@@ -1700,12 +1544,13 @@ Deno.test({
         )
         await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
         const workerId = dynamicThreadPool.workerNodes[0].info.id
-        await expect(dynamicThreadPool.setDefaultTaskFunction(0)).rejects
-          .toThrow(
-            new Error(
-              `Task function operation 'default' failed on worker ${workerId} with error: 'TypeError: name parameter is not a string'`,
-            ),
-          )
+        await expect(
+          dynamicThreadPool.setDefaultTaskFunction(0),
+        ).rejects.toThrow(
+          new Error(
+            `Task function operation 'default' failed on worker ${workerId} with error: 'TypeError: name parameter is not a string'`,
+          ),
+        )
         await expect(
           dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME),
         ).rejects.toThrow(
@@ -1720,8 +1565,9 @@ Deno.test({
             `Task function operation 'default' failed on worker ${workerId} with error: 'Error: Cannot set the default task function to a non-existing task function'`,
           ),
         )
-        await expect(dynamicThreadPool.setDefaultTaskFunction(0)).rejects
-          .toThrow()
+        await expect(
+          dynamicThreadPool.setDefaultTaskFunction(0),
+        ).rejects.toThrow()
         await expect(
           dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME),
         ).rejects.toThrow()
@@ -1831,10 +1677,7 @@ Deno.test({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const workerNodeKey = 0
       await expect(
@@ -1850,10 +1693,7 @@ Deno.test({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const workerNodeKey = 0
       await expect(
@@ -1873,10 +1713,7 @@ Deno.test({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testWorker.mjs',
-          import.meta.url,
-        ),
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await expect(
         pool.sendTaskFunctionOperationToWorkers({

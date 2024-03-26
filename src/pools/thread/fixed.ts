@@ -113,7 +113,9 @@ export class FixedThreadPool<
   }
 
   /** @inheritDoc */
-  protected checkAndEmitDynamicWorkerCreationEvents(): void {/* noop */}
+  protected checkAndEmitDynamicWorkerCreationEvents(): void {
+    /* noop */
+  }
 
   /** @inheritDoc */
   protected get type(): PoolType {

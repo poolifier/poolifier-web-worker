@@ -159,10 +159,7 @@ pool.eventTarget?.addEventListener(
 const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
-  new URL(
-    './yourWorker.js',
-    import.meta.url,
-  ),
+  new URL('./yourWorker.js', import.meta.url),
 )
 
 pool.eventTarget?.addEventListener(
@@ -256,10 +253,7 @@ pool.eventTarget?.addEventListener(
 const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
-  new URL(
-    './yourWorker.js',
-    import.meta.url,
-  ),
+  new URL('./yourWorker.js', import.meta.url),
 )
 
 pool.eventTarget?.addEventListener(
@@ -295,10 +289,9 @@ pool
 ### Browser
 
 <!-- deno-fmt-ignore -->
+
 ```js
-<script type="module">
-import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.5/browser/mod.js'
-</script>
+<script type="module">import {ThreadWorker} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.5/browser/mod.js'</script>
 ```
 
 ```js

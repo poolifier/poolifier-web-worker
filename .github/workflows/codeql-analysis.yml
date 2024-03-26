@@ -20,7 +20,7 @@ on:
   # merge_group:
   #   branches: [master]
   schedule:
-    - cron: '24 10 * * 3'
+    - cron: "24 10 * * 3"
 
 jobs:
   analyze:
@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript']
+        language: ["javascript"]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://git.io/codeql-language-support
 

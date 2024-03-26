@@ -5,10 +5,7 @@ import {
 } from 'jsr:@poolifier/poolifier-web-worker@^0.3.5'
 import type { MyData, MyResponse } from './worker.ts'
 
-const workerFileURL = new URL(
-  './worker.ts',
-  import.meta.url,
-)
+const workerFileURL = new URL('./worker.ts', import.meta.url)
 
 export const fixedPool = new FixedThreadPool<MyData, MyResponse>(
   availableParallelism(),

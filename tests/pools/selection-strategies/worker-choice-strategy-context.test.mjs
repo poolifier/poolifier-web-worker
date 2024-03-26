@@ -54,7 +54,9 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
       expect(workerChoiceStrategyContext.retries).toBe(
         fixedPool.info.maxSize * 2,
       )
-      workerChoiceStrategyContext = new WorkerChoiceStrategyContext(dynamicPool)
+      workerChoiceStrategyContext = new WorkerChoiceStrategyContext(
+        dynamicPool,
+      )
       expect(workerChoiceStrategyContext.retries).toBe(
         dynamicPool.info.maxSize * 2,
       )
