@@ -2,7 +2,7 @@ import {
   availableParallelism,
   DynamicThreadPool,
   PoolEvents,
-} from 'jsr:@poolifier/poolifier-web-worker@^0.3.5'
+} from 'jsr:@poolifier/poolifier-web-worker@^0.3.6'
 
 const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),

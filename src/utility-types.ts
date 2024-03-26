@@ -20,6 +20,9 @@ export interface WorkerError<Data = unknown> {
   readonly data?: Data
 }
 
+/**
+ * Event loop utilization.
+ */
 interface EventLoopUtilization {
   idle: number
   active: number

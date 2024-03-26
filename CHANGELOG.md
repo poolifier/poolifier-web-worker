@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.6] - 2024-03-26
+
+### Changed
+
+- Refine package usage documentation.
+
 ## [0.3.5] - 2024-03-26
 
 ### Changed
