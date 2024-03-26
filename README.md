@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./images/logo.png" width="340px" height="266px"/>
+  <img src="https://raw.githubusercontent.com/poolifier/poolifier/master/images/logo.png" width="340px" height="266px"/>
 </div>
 
 <div align="center">
@@ -40,7 +40,9 @@ Please consult our [general guidelines](#general-guidelines).
 - Easy to use ✔
 - Fixed and dynamic pool size ✔
 - Easy switch from a pool type to another ✔
-- Performance [benchmarks](./benchmarks/README.md) ✔
+- Performance
+  [benchmarks](https://github.com/poolifier/poolifier-web-worker/blob/master/benchmarks/README.md)
+  ✔
 - No runtime dependencies ✔
 - Support for ESM and TypeScript ✔
 - Support for
@@ -186,10 +188,12 @@ pool
   })
 ```
 
-**See [Deno examples](./examples/deno/) for more details**:
+**See
+[Deno examples](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/deno/)
+for more details**:
 
-- [Javascript](./examples/deno/javascript/)
-- [Typescript](./examples/deno/typescript/)
+- [Javascript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/deno/javascript/)
+- [Typescript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/deno/typescript/)
 
 ### Bun
 
@@ -280,10 +284,10 @@ pool
   })
 ```
 
-<!-- **See [Bun examples](./examples/bun/) for more details**:
+<!-- **See [Bun examples](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/) for more details**:
 
-- [Javascript](./examples/bun/javascript/)
-- [Typescript](./examples/bun/typescript/) -->
+- [Javascript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/javascript/)
+- [Typescript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/typescript/) -->
 
 ### Browser
 
@@ -309,18 +313,20 @@ Remember that workers can only send and receive structured-cloneable data.
 - Deno versions >= 1.40.x are supported.
 - Bun versions >= 1.x are supported.
 
-## [API](./docs/api.md)
+## [API](https://github.com/poolifier/poolifier-web-worker/blob/master/docs/api.md)
 
-## [General guidelines](./docs/general-guidelines.md)
+## [General guidelines](https://github.com/poolifier/poolifier-web-worker/blob/master/docs/general-guidelines.md)
 
-## [Worker choice strategies](./docs/worker-choice-strategies.md)
+## [Worker choice strategies](https://github.com/poolifier/poolifier-web-worker/blob/master/docs/worker-choice-strategies.md)
 
 ## Contribute
 
 Choose your task [here](https://github.com/orgs/poolifier/projects/1), propose
 an idea, a fix, an improvement.
 
-See [CONTRIBUTING](./CONTRIBUTING.md) guidelines.
+See
+[CONTRIBUTING](https://github.com/poolifier/poolifier-web-worker/blob/master/CONTRIBUTING.md)
+guidelines.
 
 ## Team
 

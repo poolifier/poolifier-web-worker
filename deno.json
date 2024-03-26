@@ -22,7 +22,6 @@
     "lint": "deno lint",
     "documentation": "deno doc ./src/mod.ts"
   },
-  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"],
   "test": {
     "include": ["./tests/**/*.test.mjs"]
   },
@@ -37,5 +36,13 @@
     "benchmark": "npm:benchmark@^2.1.4",
     "expect": "npm:expect@^29.7.0"
   },
-  "lock": false
+  "publish": {
+    "include": [
+      "LICENSE",
+      "README.md",
+      "src/**/*.ts"
+    ]
+  },
+  "lock": false,
+  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"]
 }
