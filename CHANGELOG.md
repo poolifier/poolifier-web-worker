@@ -8,15 +8,21 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.5] - 2024-03-26
+
+### Changed
+
+- Publish on JSR.
+
 ## [0.3.4] - 2024-03-20
 
-## Fixed
+### Fixed
 
 - Fix browser web worker default type.
 
 ## [0.3.3] - 2024-03-20
 
-## Fixed
+### Fixed
 
 - Fix browser bundle format.
 
