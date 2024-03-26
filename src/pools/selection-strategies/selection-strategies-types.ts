@@ -54,7 +54,8 @@ export type WorkerChoiceStrategy = keyof typeof WorkerChoiceStrategies
  */
 export const Measurements: Readonly<{
   runTime: 'runTime'
-  waitTime: 'waitTime' /* elu: 'elu' */
+  waitTime: 'waitTime'
+  // elu: 'elu'
 }> = Object.freeze(
   {
     runTime: 'runTime',

@@ -17,7 +17,6 @@
 [![Npm Version](https://badgen.net/npm/v/poolifier-web-worker?icon=npm)](https://www.npmjs.com/package/poolifier-web-worker)
 [![Npm Weekly Downloads](https://badgen.net/npm/dw/poolifier-web-worker?icon=npm)](https://www.npmjs.com/package/poolifier-web-worker)
 [![JSR Version](https://jsr.io/badges/@poolifier/poolifier-web-worker)](https://jsr.io/@poolifier/poolifier-web-worker)
-[![JSR Score](https://jsr.io/badges/@poolifier/poolifier-web-worker/score)](https://jsr.io/@poolifier/poolifier-web-worker)
 [![Javascript Standard Style Guide](<https://badgen.net/static/code style/standard/green>)](https://standardjs.com)
 [![Discord](https://badgen.net/discord/online-members/vXxZhyb3b6?icon=discord&label=discord&color=green)](https://discord.gg/vXxZhyb3b6)
 [![Open Collective](https://opencollective.com/poolifier/tiers/badge.svg)](https://opencollective.com/poolifier)
