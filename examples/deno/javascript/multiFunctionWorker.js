@@ -1,4 +1,4 @@
-import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.3.7'
+import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.3.8'
 
 function fn0(data) {
   console.info('Executing fn0')
