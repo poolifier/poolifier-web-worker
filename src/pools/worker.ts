@@ -335,9 +335,7 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
    * @param name - The task function name.
    * @returns The task function worker usage statistics if the task function worker usage statistics are initialized, `undefined` otherwise.
    */
-  readonly getTaskFunctionWorkerUsage: (
-    name: string,
-  ) => WorkerUsage | undefined
+  readonly getTaskFunctionWorkerUsage: (name: string) => WorkerUsage | undefined
   /**
    * Deletes task function worker usage statistics.
    *

@@ -78,10 +78,7 @@ Deno.test({
     await t.step('Shutdown test', async () => {
       const exitPromise = waitWorkerNodeEvents(pool, 'exit', min)
       let poolDestroy = 0
-      pool.eventTarget.addEventListener(
-        PoolEvents.destroy,
-        () => ++poolDestroy,
-      )
+      pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
       await pool.destroy()
       const numberOfExitEvents = await exitPromise
       expect(pool.started).toBe(false)
@@ -215,9 +212,7 @@ Deno.test({
           await Promise.all(promises)
           expect(pool.readyEventEmitted).toBe(true)
           expect(pool.workerNodes.length).toBeGreaterThan(pool.info.minSize)
-          expect(pool.workerNodes.length).toBeLessThanOrEqual(
-            pool.info.maxSize,
-          )
+          expect(pool.workerNodes.length).toBeLessThanOrEqual(pool.info.maxSize)
           await waitPoolEvents(pool, PoolEvents.empty, 1)
           expect(pool.readyEventEmitted).toBe(false)
           expect(pool.workerNodes.length).toBe(pool.info.minSize)

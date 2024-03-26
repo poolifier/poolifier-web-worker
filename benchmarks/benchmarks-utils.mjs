@@ -123,10 +123,7 @@ export const runPoolifierPoolBenchmark = async (
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                assertStrictEquals(
-                  pool.opts.enableTasksQueue,
-                  enableTasksQueue,
-                )
+                assertStrictEquals(pool.opts.enableTasksQueue, enableTasksQueue)
                 await runPoolifierPool(pool, {
                   taskExecutions,
                   workerData,
@@ -198,10 +195,7 @@ export const runPoolifierPoolDenoBenchmark = (
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                assertStrictEquals(
-                  pool.opts.enableTasksQueue,
-                  enableTasksQueue,
-                )
+                assertStrictEquals(pool.opts.enableTasksQueue, enableTasksQueue)
                 assertStrictEquals(
                   pool.opts.workerChoiceStrategyOptions.measurement,
                   measurement,

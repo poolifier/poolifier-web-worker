@@ -43,9 +43,7 @@ Deno.test('Thread worker test suite', async (t) => {
       status: false,
       error: new TypeError('name parameter is an empty string'),
     })
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
-      Function,
-    )
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.size).toBe(3)
@@ -65,9 +63,7 @@ Deno.test('Thread worker test suite', async (t) => {
       ),
     })
     worker.removeTaskFunction('fn2')
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
-      Function,
-    )
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeUndefined()
     expect(worker.taskFunctions.size).toBe(2)

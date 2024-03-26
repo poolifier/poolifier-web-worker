@@ -244,9 +244,7 @@ Deno.test('Abstract worker test suite', async (t) => {
       status: false,
       error: new TypeError('fn parameter is not a function'),
     })
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
-      Function,
-    )
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.size).toBe(2)
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
@@ -259,9 +257,7 @@ Deno.test('Abstract worker test suite', async (t) => {
       ),
     })
     worker.addTaskFunction('fn2', fn2)
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
-      Function,
-    )
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.size).toBe(3)
@@ -269,9 +265,7 @@ Deno.test('Abstract worker test suite', async (t) => {
       worker.taskFunctions.get('fn1'),
     )
     worker.addTaskFunction('fn1', fn1Replacement)
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
-      Function,
-    )
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.size).toBe(3)
@@ -311,9 +305,7 @@ Deno.test('Abstract worker test suite', async (t) => {
       status: false,
       error: new TypeError('name parameter is an empty string'),
     })
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
-      Function,
-    )
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
     expect(worker.taskFunctions.size).toBe(3)

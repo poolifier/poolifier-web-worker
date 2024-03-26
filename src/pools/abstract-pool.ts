@@ -282,7 +282,9 @@ export abstract class AbstractPool<
             .runTime.aggregate === true &&
         this.workerChoiceStrategyContext.getTaskStatisticsRequirements()
           .waitTime.aggregate &&
-        { utilization: round(this.utilization) }),
+        {
+          utilization: round(this.utilization),
+        }),
       workerNodes: this.workerNodes.length,
       idleWorkerNodes: this.workerNodes.reduce(
         (accumulator, workerNode) =>

@@ -165,9 +165,7 @@ Deno.test({
           numberOfThreads * maxMultiplier,
         )
       }
-      expect(queuePool.info.executedTasks).toBe(
-        numberOfThreads * maxMultiplier,
-      )
+      expect(queuePool.info.executedTasks).toBe(numberOfThreads * maxMultiplier)
       expect(queuePool.info.backPressure).toBe(false)
       expect(queuePool.info.stolenTasks).toBeGreaterThanOrEqual(0)
       expect(queuePool.info.stolenTasks).toBeLessThanOrEqual(
@@ -301,10 +299,7 @@ Deno.test({
     await t.step('Shutdown test', async () => {
       const exitPromise = waitWorkerNodeEvents(pool, 'exit', numberOfThreads)
       let poolDestroy = 0
-      pool.eventTarget.addEventListener(
-        PoolEvents.destroy,
-        () => ++poolDestroy,
-      )
+      pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
       await pool.destroy()
       const numberOfExitEvents = await exitPromise
       expect(pool.started).toBe(false)
