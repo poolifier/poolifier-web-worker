@@ -1,4 +1,4 @@
-import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.3.6'
+import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.3.7'
 
 function yourFunction() {
   for (let i = 0; i <= 1000; i++) {
