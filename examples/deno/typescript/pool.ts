@@ -7,16 +7,20 @@ import type { MyData, MyResponse } from './worker.ts'
 
 const workerFileURL = new URL('./worker.ts', import.meta.url)
 
-export const fixedPool = new FixedThreadPool<MyData, MyResponse>(
+const fixedPool = new FixedThreadPool<MyData, MyResponse>(
   availableParallelism(),
   workerFileURL,
 )
 
-export const dynamicPool = new DynamicThreadPool<MyData, MyResponse>(
+await fixedPool.execute()
+
+const dynamicPool = new DynamicThreadPool<MyData, MyResponse>(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
   workerFileURL,
 )
+
+await dynamicPool.execute()
 
 setTimeout(async () => {
   await fixedPool.destroy()
