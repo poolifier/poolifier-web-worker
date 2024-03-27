@@ -295,7 +295,7 @@ for more details**:
 <!-- deno-fmt-ignore -->
 
 ```js
-<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.10/browser/mod.js'</script>
+<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.11/browser/mod.js'</script>
 ```
 
 ```js
@@ -303,7 +303,7 @@ for more details**:
 import {
   DynamicThreadPool,
   FixedThreadPool,
-} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.10/browser/mod.js'
+} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.11/browser/mod.js'
 </script>
 ```
 

@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.11] - 2024-03-27
+
+- Fix conditional imports promise resolution.
+
+### Fixed
+
 ## [0.3.10] - 2024-03-27
 
 ### Fixed
