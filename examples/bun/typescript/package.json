@@ -1,0 +1,17 @@
+{
+  "name": "bun-example",
+  "module": "pool.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run pool.ts"
+  },
+  "dependencies": {
+    "@poolifier/poolifier-web-worker": "npm:@jsr/poolifier__poolifier-web-worker"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

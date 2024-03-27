@@ -284,10 +284,11 @@ pool
   })
 ```
 
-<!-- **See [Bun examples](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/) for more details**:
+**See
+[Bun examples](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/)
+for more details**:
 
-- [Javascript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/javascript/)
-- [Typescript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/typescript/) -->
+- [Typescript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/typescript/)
 
 ### Browser
 
