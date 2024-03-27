@@ -1,5 +1,4 @@
 import type { KillBehavior } from './worker/worker-options.ts'
-import { isMainThread } from 'node:worker_threads'
 
 /**
  * Default task name.
@@ -224,6 +223,19 @@ export const isBun: boolean = !!(globalThis as any).Bun ||
 // deno-lint-ignore no-explicit-any
 export const isDeno: boolean = !!(globalThis as any).Deno
 
+let isMainThread: boolean
+if (isBun) {
+  try {
+    ;(async () => {
+      // deno-lint-ignore ban-ts-comment
+      // @ts-ignore
+      isMainThread = (await import('node:worker_threads')).isMainThread
+    })()
+  } catch {
+    // Ignore
+  }
+}
+
 /**
  * Returns whether the current environment is a web worker or not.
  *
@@ -231,7 +243,7 @@ export const isDeno: boolean = !!(globalThis as any).Deno
  * @internal
  */
 export const isWebWorker = () => {
-  return isBun ? !isMainThread : (
+  return isMainThread != null ? !isMainThread : (
     typeof WorkerGlobalScope !== 'undefined' &&
     self instanceof WorkerGlobalScope
   )

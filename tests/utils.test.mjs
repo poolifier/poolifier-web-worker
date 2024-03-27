@@ -1,4 +1,3 @@
-import os from 'node:os'
 import { randomInt } from 'node:crypto'
 import { expect } from 'expect'
 import { availableParallelism, KillBehaviors } from '../src/mod.ts'
@@ -33,13 +32,7 @@ Deno.test('Utils test suite', async (t) => {
     const parallelism = availableParallelism()
     expect(typeof parallelism === 'number').toBe(true)
     expect(Number.isSafeInteger(parallelism)).toBe(true)
-    let expectedParallelism = 1
-    try {
-      expectedParallelism = navigator.hardwareConcurrency
-    } catch {
-      expectedParallelism = os.cpus().length
-    }
-    expect(parallelism).toBe(expectedParallelism)
+    expect(parallelism).toBe(navigator.hardwareConcurrency)
   })
 
   await t.step('Verify sleep() behavior', async () => {

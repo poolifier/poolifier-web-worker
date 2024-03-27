@@ -8,7 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [0.3.8] - 2024-03-27
+## [0.3.10] - 2024-03-27
+
+### Fixed
+
+- Fix browser compatibility: ensure `node:...` imports are conditionals.
+
+## [0.3.9] - 2024-03-27
 
 ### Fixed
 
