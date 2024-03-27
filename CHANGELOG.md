@@ -10,9 +10,9 @@ and this project adheres to
 
 ## [0.3.11] - 2024-03-27
 
-- Fix conditional imports promise resolution.
-
 ### Fixed
+
+- Fix conditional imports promise resolution.
 
 ## [0.3.10] - 2024-03-27
 
