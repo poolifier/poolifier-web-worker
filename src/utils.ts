@@ -1,4 +1,5 @@
 import type { KillBehavior } from './worker/worker-options.ts'
+import { isMainThread } from 'node:worker_threads'
 
 /**
  * Default task name.
@@ -230,7 +231,7 @@ export const isDeno: boolean = !!(globalThis as any).Deno
  * @internal
  */
 export const isWebWorker = () => {
-  return (
+  return isBun ? !isMainThread : (
     typeof WorkerGlobalScope !== 'undefined' &&
     self instanceof WorkerGlobalScope
   )
