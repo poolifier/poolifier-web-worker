@@ -226,11 +226,9 @@ export const isDeno: boolean = !!(globalThis as any).Deno
 let isMainThread: boolean
 if (isBun) {
   try {
-    ;(async () => {
-      // deno-lint-ignore ban-ts-comment
-      // @ts-ignore
-      isMainThread = (await import('node:worker_threads')).isMainThread
-    })()
+    // deno-lint-ignore ban-ts-comment
+    // @ts-ignore
+    isMainThread = (await import('node:worker_threads')).isMainThread
   } catch {
     // Ignore
   }

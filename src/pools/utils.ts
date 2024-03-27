@@ -112,11 +112,9 @@ const estimatedCpuSpeed = (): number => {
 let cpusInfo: { speed: number }[]
 if (isDeno || isBun) {
   try {
-    ;(async () => {
-      // deno-lint-ignore ban-ts-comment
-      // @ts-ignore
-      cpusInfo = (await import('node:os')).cpus()
-    })()
+    // deno-lint-ignore ban-ts-comment
+    // @ts-ignore
+    cpusInfo = (await import('node:os')).cpus()
   } catch {
     // Ignore
   }
