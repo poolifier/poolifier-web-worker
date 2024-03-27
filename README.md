@@ -81,6 +81,7 @@ Please consult our [general guidelines](#general-guidelines).
   - [Deno](#deno)
   - [Bun](#bun)
   - [Browser](#browser)
+  - [Example code](#example-code)
 - [Deno and Bun versions](#deno-and-bun-versions)
 - [API](#api)
 - [General guidelines](#general-guidelines)
@@ -113,81 +114,6 @@ You have to implement your worker by extending the _ThreadWorker_ class.
 deno add @poolifier/poolifier-web-worker
 ```
 
-You can implement a poolifier
-[web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker) in
-a simple way by extending the class _ThreadWorker_:
-
-```js
-import { ThreadWorker } from '@poolifier/poolifier-web-worker'
-
-function yourFunction(data) {
-  // this will be executed in the worker thread,
-  // the data will be received by using the execute method
-  return { ok: 1 }
-}
-
-export default new ThreadWorker(yourFunction, {
-  maxInactiveTime: 60000,
-})
-```
-
-Instantiate your pool based on your needs :
-
-```js
-import {
-  availableParallelism,
-  DynamicThreadPool,
-  FixedThreadPool,
-  PoolEvents,
-} from '@poolifier/poolifier-web-worker'
-
-// a fixed worker_threads pool
-const pool = new FixedThreadPool(
-  availableParallelism(),
-  new URL('./yourWorker.js', import.meta.url),
-)
-
-pool.eventTarget?.addEventListener(
-  PoolEvents.ready,
-  () => console.info('Pool is ready'),
-)
-pool.eventTarget?.addEventListener(
-  PoolEvents.busy,
-  () => console.info('Pool is busy'),
-)
-
-// or a dynamic worker_threads pool
-const pool = new DynamicThreadPool(
-  Math.floor(availableParallelism() / 2),
-  availableParallelism(),
-  new URL('./yourWorker.js', import.meta.url),
-)
-
-pool.eventTarget?.addEventListener(
-  PoolEvents.full,
-  () => console.info('Pool is full'),
-)
-pool.eventTarget?.addEventListener(
-  PoolEvents.ready,
-  () => console.info('Pool is ready'),
-)
-pool.eventTarget?.addEventListener(
-  PoolEvents.busy,
-  () => console.info('Pool is busy'),
-)
-
-// the execute method signature is the same for both implementations,
-// so you can easily switch from one to another
-pool
-  .execute()
-  .then((res) => {
-    console.info(res)
-  })
-  .catch((err) => {
-    console.error(err)
-  })
-```
-
 **See
 [Deno examples](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/deno/)
 for more details**:
@@ -209,11 +135,39 @@ bun install poolifier-web-worker
 bunx jsr add @poolifier/poolifier-web-worker
 ```
 
+**See
+[Bun examples](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/)
+for more details**:
+
+- [Typescript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/typescript/)
+
+### Browser
+
+<!-- deno-fmt-ignore -->
+
+```js
+<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.11/browser/mod.js'</script>
+```
+
+```js
+<script type="module">
+import {
+  availableParallelism,
+  DynamicThreadPool,
+  FixedThreadPool,
+  PoolEvents,
+} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.11/browser/mod.js'
+</script>
+```
+
+### Example code
+
 You can implement a poolifier
 [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker) in
 a simple way by extending the class _ThreadWorker_:
 
 ```js
+// adapt import to the targeted JS runtime
 import { ThreadWorker } from '@poolifier/poolifier-web-worker'
 
 function yourFunction(data) {
@@ -230,6 +184,7 @@ export default new ThreadWorker(yourFunction, {
 Instantiate your pool based on your needs :
 
 ```js
+// adapt import to the targeted JS runtime
 import {
   availableParallelism,
   DynamicThreadPool,
@@ -282,29 +237,6 @@ pool
   .catch((err) => {
     console.error(err)
   })
-```
-
-**See
-[Bun examples](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/)
-for more details**:
-
-- [Typescript](https://github.com/poolifier/poolifier-web-worker/blob/master/examples/bun/typescript/)
-
-### Browser
-
-<!-- deno-fmt-ignore -->
-
-```js
-<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.11/browser/mod.js'</script>
-```
-
-```js
-<script type="module">
-import {
-  DynamicThreadPool,
-  FixedThreadPool,
-} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.11/browser/mod.js'
-</script>
 ```
 
 Remember that workers can only send and receive structured-cloneable data.
