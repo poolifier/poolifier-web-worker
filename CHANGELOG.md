@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.8] - 2024-03-27
+
 ### Fixed
 
 - Fix worker initialization with Bun.
