@@ -63,11 +63,13 @@ Deno.test({
         let result = await pool.execute({
           function: TaskFunctions.fibonacci,
         })
-        expect(result).toBe(75025)
+        expect(result).toBe(354224848179261915075n)
         result = await pool.execute({
           function: TaskFunctions.factorial,
         })
-        expect(result).toBe(9.33262154439441e157)
+        expect(result).toBe(
+          93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000n,
+        )
       },
     )
 

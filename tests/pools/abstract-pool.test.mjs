@@ -1619,9 +1619,9 @@ Deno.test({
         const result1 = await pool.execute(data, 'jsonIntegerSerialization')
         expect(result1).toStrictEqual({ ok: 1 })
         const result2 = await pool.execute(data, 'factorial')
-        expect(result2).toBe(3628800)
+        expect(result2).toBe(3628800n)
         const result3 = await pool.execute(data, 'fibonacci')
-        expect(result3).toBe(55)
+        expect(result3).toBe(55n)
         expect(pool.info.executingTasks).toBe(0)
         expect(pool.info.executedTasks).toBe(4)
         for (const workerNode of pool.workerNodes) {
