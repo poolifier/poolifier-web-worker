@@ -110,13 +110,14 @@ const runBenchmark = async () => {
         parseArgs({
           args: Bun.argv,
           options: {
-            t: {
+            type: {
               type: 'string',
+              short: 't',
             },
           },
           strict: true,
           allowPositionals: true,
-        }).t
+        }).values.type
       ) {
         case 'benchmark.js':
           await runPoolifierBenchmarkBenchmarkJs(
