@@ -135,7 +135,7 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
         .on('cycle', (event) => {
           console.info(event.target.toString())
         })
-        .on('complete', () => {
+        .on('complete', function () {
           console.info(
             'Fastest is ' +
               LIST_FORMATTER.format(this.filter('fastest').map('name')),
