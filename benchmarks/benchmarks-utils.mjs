@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto'
 import { assertStrictEquals } from '@std/assert'
+import { bench, group } from 'mitata'
 import {
   existsSync,
   mkdirSync,
@@ -64,7 +65,7 @@ const runPoolifierPool = async (pool, { taskExecutions, workerData }) => {
   })
 }
 
-export const runPoolifierPoolBenchmark = async (
+export const runPoolifierBenchmarkBenchmarkJs = async (
   name,
   workerType,
   poolType,
@@ -161,7 +162,7 @@ export const runPoolifierPoolBenchmark = async (
   })
 }
 
-export const runPoolifierPoolDenoBenchmark = (
+export const runPoolifierBenchmarkDenoBench = (
   name,
   workerType,
   poolType,
@@ -235,6 +236,94 @@ export const runPoolifierPoolDenoBenchmark = (
               await pool.destroy()
             },
           )
+        }
+      }
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export const buildPoolifierBenchmarkMitata = (
+  name,
+  workerType,
+  poolType,
+  poolSize,
+  { taskExecutions, workerData },
+) => {
+  try {
+    for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
+      for (const enableTasksQueue of [false, true]) {
+        if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
+          for (const measurement of [Measurements.runTime]) {
+            group(name, () => {
+              bench(
+                `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
+                  enableTasksQueue ? 'with' : 'without'
+                } tasks queue`,
+                async () => {
+                  const pool = buildPoolifierPool(
+                    workerType,
+                    poolType,
+                    poolSize,
+                    {
+                      workerChoiceStrategy,
+                      workerChoiceStrategyOptions: {
+                        measurement,
+                      },
+                      enableTasksQueue,
+                    },
+                  )
+                  assertStrictEquals(
+                    pool.opts.workerChoiceStrategy,
+                    workerChoiceStrategy,
+                  )
+                  assertStrictEquals(
+                    pool.opts.enableTasksQueue,
+                    enableTasksQueue,
+                  )
+                  assertStrictEquals(
+                    pool.opts.workerChoiceStrategyOptions.measurement,
+                    measurement,
+                  )
+                  await runPoolifierPool(pool, {
+                    taskExecutions,
+                    workerData,
+                  })
+                  await pool.destroy()
+                },
+              )
+            })
+          }
+        } else {
+          group(name, () => {
+            bench(
+              `${name} with ${workerChoiceStrategy} and ${
+                enableTasksQueue ? 'with' : 'without'
+              } tasks queue`,
+              async () => {
+                const pool = buildPoolifierPool(
+                  workerType,
+                  poolType,
+                  poolSize,
+                  {
+                    workerChoiceStrategy,
+                    enableTasksQueue,
+                  },
+                )
+                assertStrictEquals(
+                  pool.opts.workerChoiceStrategy,
+                  workerChoiceStrategy,
+                )
+                assertStrictEquals(pool.opts.enableTasksQueue, enableTasksQueue)
+                await runPoolifierPool(pool, {
+                  taskExecutions,
+                  workerData,
+                })
+                await pool.destroy()
+              },
+            )
+          })
         }
       }
     }
@@ -324,4 +413,28 @@ export const executeTaskFunction = (data) => {
     default:
       throw new Error('Unknown task function')
   }
+}
+
+const javascriptRuntimes = {
+  bun: 'bun',
+  deno: 'deno',
+  node: 'node',
+  workerd: 'workerd',
+  browser: 'browser',
+}
+
+export const isBun = !!globalThis.Bun || !!globalThis.process?.versions?.bun
+export const isDeno = !!globalThis.Deno
+export const isNode = globalThis.process?.release?.name === 'node'
+export const isWorkerd =
+  globalThis.navigator?.userAgent === 'Cloudflare-Workers'
+export const isBrowser = !!globalThis.navigator
+
+export const runtime = () => {
+  if (isBun) return javascriptRuntimes.bun
+  if (isDeno) return javascriptRuntimes.deno
+  if (isNode) return javascriptRuntimes.node
+  if (isWorkerd) return javascriptRuntimes.workerd
+  if (isBrowser) return javascriptRuntimes.browser
+  return 'unknown'
 }

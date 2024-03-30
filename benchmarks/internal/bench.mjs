@@ -1,10 +1,12 @@
+import { run } from 'mitata'
 import { availableParallelism, PoolTypes, WorkerTypes } from '../../src/mod.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
 import {
-  runPoolifierPoolBenchmark,
-  runPoolifierPoolDenoBenchmark,
+  buildPoolifierBenchmarkMitata,
+  runPoolifierBenchmarkBenchmarkJs,
+  runPoolifierBenchmarkDenoBench,
+  runtime,
 } from '../benchmarks-utils.mjs'
-import { parseArgs } from '@std/cli/parse_args'
 
 const poolSize = availableParallelism()
 const taskExecutions = 1
@@ -13,51 +15,93 @@ const workerData = {
   taskSize: 50000,
 }
 
-switch (parseArgs(Deno.args).t) {
-  case 'javascript':
-    await runPoolifierPoolBenchmark(
-      'FixedThreadPool',
-      WorkerTypes.web,
-      PoolTypes.fixed,
-      poolSize,
-      {
-        taskExecutions,
-        workerData,
-      },
-    )
-    await runPoolifierPoolBenchmark(
-      'DynamicThreadPool',
-      WorkerTypes.web,
-      PoolTypes.dynamic,
-      poolSize,
-      {
-        taskExecutions,
-        workerData,
-      },
-    )
-    Deno.exit()
-    break
-  case 'deno':
-  default:
-    runPoolifierPoolDenoBenchmark(
-      'FixedThreadPool',
-      WorkerTypes.web,
-      PoolTypes.fixed,
-      poolSize,
-      {
-        taskExecutions,
-        workerData,
-      },
-    )
-    runPoolifierPoolDenoBenchmark(
-      'DynamicThreadPool',
-      WorkerTypes.web,
-      PoolTypes.dynamic,
-      poolSize,
-      {
-        taskExecutions,
-        workerData,
-      },
-    )
-    break
+const unsupportedJsRuntime = () => {
+  console.error(`Unsupported JavaScript runtime environment: ${runtime()}`)
 }
+
+const runBenchmark = async () => {
+  const fixedThreadPoolGroupname = `FixedThreadPool on ${runtime()}`
+  const dynamicThreadPoolGroupname = `DynamicThreadPool on ${runtime()}`
+  return await {
+    unknown: () => console.error('Unknown JavaScript runtime environment'),
+    browser: unsupportedJsRuntime,
+    deno: async () => {
+      const { parseArgs } = await import('@std/cli/parse_args')
+      switch (parseArgs(Deno.args).t) {
+        case 'benchmark.js':
+          await runPoolifierBenchmarkBenchmarkJs(
+            fixedThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.fixed,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          await runPoolifierBenchmarkBenchmarkJs(
+            dynamicThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.dynamic,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          Deno.exit()
+          break
+        case 'mitata':
+          buildPoolifierBenchmarkMitata(
+            fixedThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.fixed,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          buildPoolifierBenchmarkMitata(
+            dynamicThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.dynamic,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          await run()
+          break
+        default:
+          runPoolifierBenchmarkDenoBench(
+            fixedThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.fixed,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          runPoolifierBenchmarkDenoBench(
+            dynamicThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.dynamic,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          break
+      }
+    },
+    bun: unsupportedJsRuntime,
+    node: unsupportedJsRuntime,
+    workerd: unsupportedJsRuntime,
+  }[runtime()]()
+}
+
+await runBenchmark()

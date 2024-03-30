@@ -241,8 +241,8 @@ if (isBun) {
  * @internal
  */
 export const isWebWorker = () => {
-  return isMainThread != null ? !isMainThread : (
-    typeof WorkerGlobalScope !== 'undefined' &&
-    self instanceof WorkerGlobalScope
-  )
+  return isMainThread != null
+    ? !isMainThread
+    : typeof WorkerGlobalScope !== 'undefined' &&
+      self instanceof WorkerGlobalScope
 }

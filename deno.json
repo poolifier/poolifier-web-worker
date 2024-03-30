@@ -9,8 +9,10 @@
   "tasks": {
     "benchmark:deno": "deno bench -A ./benchmarks/internal/bench.mjs",
     "benchmark:deno:json": "deno bench -A --json ./benchmarks/internal/bench.mjs",
-    "benchmark": "deno run -A --v8-flags=--max-old-space-size=8192 ./benchmarks/internal/bench.mjs -t javascript",
-    "benchmark:debug": "deno run -A --inspect --v8-flags=--max-old-space-size=8192 ./benchmarks/internal/bench.mjs -t javascript",
+    "benchmark:benchmark-js": "deno run -A --v8-flags=--max-old-space-size=8192 ./benchmarks/internal/bench.mjs -t benchmark.js ",
+    "benchmark:benchmark-js:debug": "deno run -A --inspect --v8-flags=--max-old-space-size=8192 ./benchmarks/internal/bench.mjs -t benchmark.js ",
+    "benchmark:mitata": "deno run -A ./benchmarks/internal/bench.mjs -t mitata",
+    "benchmark:mitata:debug": "deno run -A --inspect ./benchmarks/internal/bench.mjs -t mitata",
     "bundle": "deno run -A bundle.ts",
     "test": "deno test -A --parallel",
     "test:coverage": "deno test -A --parallel --coverage=./coverage",
@@ -34,15 +36,11 @@
     "@std/cli": "jsr:@std/cli@^0.220.0",
     "@std/testing": "jsr:@std/testing@^0.220.0",
     "benchmark": "npm:benchmark@^2.1.4",
-    "expect": "npm:expect@^29.7.0"
+    "expect": "npm:expect@^29.7.0",
+    "mitata": "npm:mitata@^0.1.11"
   },
   "publish": {
-    "include": [
-      "LICENSE",
-      "README.md",
-      "deno.json",
-      "src/**/*.ts"
-    ]
+    "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
   },
   "lock": false,
   "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"]

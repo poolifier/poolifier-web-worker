@@ -35,6 +35,7 @@
     "markdownlint",
     "maxdepth",
     "microjob",
+    "mitata",
     "nanothreads",
     "nproc",
     "octocat",
@@ -47,6 +48,7 @@
     "poolify",
     "preinstall",
     "Quadflieg",
+    "Runtimes",
     "Shinigami",
     "smol",
     "sonarsource",
@@ -58,6 +60,7 @@
     "trimmable",
     "tsdoc",
     "typedoc",
+    "workerd",
     "workerpool"
   ],
   "sonarlint.connectedMode.project": {
