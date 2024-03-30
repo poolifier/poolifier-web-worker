@@ -98,7 +98,68 @@ const runBenchmark = async () => {
           break
       }
     },
-    bun: unsupportedJsRuntime,
+    bun: async () => {
+      const { parseArgs } = await import('util')
+      switch (
+        parseArgs({
+          args: Bun.argv,
+          options: {
+            t: {
+              type: 'string',
+            },
+          },
+          strict: true,
+          allowPositionals: true,
+        }).t
+      ) {
+        case 'benchmark.js':
+          await runPoolifierBenchmarkBenchmarkJs(
+            fixedThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.fixed,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          await runPoolifierBenchmarkBenchmarkJs(
+            dynamicThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.dynamic,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          break
+        case 'mitata':
+        default:
+          buildPoolifierBenchmarkMitata(
+            fixedThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.fixed,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          buildPoolifierBenchmarkMitata(
+            dynamicThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.dynamic,
+            poolSize,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          await run()
+          break
+      }
+    },
     node: unsupportedJsRuntime,
     workerd: unsupportedJsRuntime,
   }[runtime()]()

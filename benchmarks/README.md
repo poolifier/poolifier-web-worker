@@ -25,8 +25,15 @@ See the dedicated repository
 To run the internal benchmark, you just need to navigate to the root of
 poolifier cloned repository and run:
 
+#### Deno
+
 - `deno task benchmark:benchmark-js` or
 - `deno task benchmark:mitata` or
 - `deno task benchmark:deno`
+
+#### Bun
+
+- `bun run ./benchmarks/internal/bench.mjs -t benchmark.js` or
+- `bun run ./benchmarks/internal/bench.mjs -t mitata`
 
 ### [Results](https://bencher.dev/perf/poolifier-web-worker)

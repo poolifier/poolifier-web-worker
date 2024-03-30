@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto'
-import { assertStrictEquals } from '@std/assert'
+import { strictEqual } from 'node:assert'
 import { bench, group } from 'mitata'
 import {
   existsSync,
@@ -93,15 +93,12 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
                     measurement,
                   })
                   pool.enableTasksQueue(enableTasksQueue)
-                  assertStrictEquals(
+                  strictEqual(
                     pool.opts.workerChoiceStrategy,
                     workerChoiceStrategy,
                   )
-                  assertStrictEquals(
-                    pool.opts.enableTasksQueue,
-                    enableTasksQueue,
-                  )
-                  assertStrictEquals(
+                  strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+                  strictEqual(
                     pool.opts.workerChoiceStrategyOptions.measurement,
                     measurement,
                   )
@@ -120,11 +117,11 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
               async () => {
                 pool.setWorkerChoiceStrategy(workerChoiceStrategy)
                 pool.enableTasksQueue(enableTasksQueue)
-                assertStrictEquals(
+                strictEqual(
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                assertStrictEquals(pool.opts.enableTasksQueue, enableTasksQueue)
+                strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
                 await runPoolifierPool(pool, {
                   taskExecutions,
                   workerData,
@@ -192,12 +189,12 @@ export const runPoolifierBenchmarkDenoBench = (
                     enableTasksQueue,
                   },
                 )
-                assertStrictEquals(
+                strictEqual(
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                assertStrictEquals(pool.opts.enableTasksQueue, enableTasksQueue)
-                assertStrictEquals(
+                strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+                strictEqual(
                   pool.opts.workerChoiceStrategyOptions.measurement,
                   measurement,
                 )
@@ -222,11 +219,8 @@ export const runPoolifierBenchmarkDenoBench = (
                 workerChoiceStrategy,
                 enableTasksQueue,
               })
-              assertStrictEquals(
-                pool.opts.workerChoiceStrategy,
-                workerChoiceStrategy,
-              )
-              assertStrictEquals(pool.opts.enableTasksQueue, enableTasksQueue)
+              strictEqual(pool.opts.workerChoiceStrategy, workerChoiceStrategy)
+              strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
               b.start()
               await runPoolifierPool(pool, {
                 taskExecutions,
@@ -274,15 +268,12 @@ export const buildPoolifierBenchmarkMitata = (
                       enableTasksQueue,
                     },
                   )
-                  assertStrictEquals(
+                  strictEqual(
                     pool.opts.workerChoiceStrategy,
                     workerChoiceStrategy,
                   )
-                  assertStrictEquals(
-                    pool.opts.enableTasksQueue,
-                    enableTasksQueue,
-                  )
-                  assertStrictEquals(
+                  strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+                  strictEqual(
                     pool.opts.workerChoiceStrategyOptions.measurement,
                     measurement,
                   )
@@ -311,11 +302,11 @@ export const buildPoolifierBenchmarkMitata = (
                     enableTasksQueue,
                   },
                 )
-                assertStrictEquals(
+                strictEqual(
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
                 )
-                assertStrictEquals(pool.opts.enableTasksQueue, enableTasksQueue)
+                strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
                 await runPoolifierPool(pool, {
                   taskExecutions,
                   workerData,
