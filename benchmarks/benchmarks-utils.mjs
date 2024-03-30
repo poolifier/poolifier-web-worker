@@ -246,11 +246,7 @@ export const buildPoolifierBenchmarkMitata = (
   { taskExecutions, workerData },
 ) => {
   try {
-    const pool = buildPoolifierPool(
-      workerType,
-      poolType,
-      poolSize,
-    )
+    const pool = buildPoolifierPool(workerType, poolType, poolSize)
     for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
       for (const enableTasksQueue of [false, true]) {
         if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
