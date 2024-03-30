@@ -1,6 +1,6 @@
 {
   "name": "@poolifier/poolifier-web-worker",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "exports": "./src/mod.ts",
   "compilerOptions": {
     "lib": ["deno.worker"],

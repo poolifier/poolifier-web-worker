@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.12] - 2024-03-30
+
+### Changed
+
+- Add mitata and Bun support to internal benchmark.
+
 ## [0.3.11] - 2024-03-27
 
 ### Fixed
