@@ -27,6 +27,8 @@ const runBenchmark = async () => {
     browser: unsupportedJsRuntime,
     deno: async () => {
       const { parseArgs } = await import('@std/cli/parse_args')
+      let fixedThreadPool
+      let dynamicThreadPool
       switch (parseArgs(Deno.args).t) {
         case 'benchmark.js':
           await runPoolifierBenchmarkBenchmarkJs(
@@ -52,7 +54,7 @@ const runBenchmark = async () => {
           Deno.exit()
           break
         case 'mitata':
-          buildPoolifierBenchmarkMitata(
+          fixedThreadPool = buildPoolifierBenchmarkMitata(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
@@ -62,7 +64,7 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          buildPoolifierBenchmarkMitata(
+          dynamicThreadPool = buildPoolifierBenchmarkMitata(
             dynamicThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.dynamic,
@@ -73,6 +75,8 @@ const runBenchmark = async () => {
             },
           )
           await run()
+          await fixedThreadPool.destroy()
+          await dynamicThreadPool.destroy()
           break
         default:
           runPoolifierBenchmarkDenoBench(
@@ -100,6 +104,8 @@ const runBenchmark = async () => {
     },
     bun: async () => {
       const { parseArgs } = await import('util')
+      let fixedThreadPool
+      let dynamicThreadPool
       switch (
         parseArgs({
           args: Bun.argv,
@@ -136,7 +142,7 @@ const runBenchmark = async () => {
           break
         case 'mitata':
         default:
-          buildPoolifierBenchmarkMitata(
+          fixedThreadPool = buildPoolifierBenchmarkMitata(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
@@ -146,7 +152,7 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          buildPoolifierBenchmarkMitata(
+          dynamicThreadPool = buildPoolifierBenchmarkMitata(
             dynamicThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.dynamic,
@@ -157,6 +163,8 @@ const runBenchmark = async () => {
             },
           )
           await run()
+          await fixedThreadPool.destroy()
+          await dynamicThreadPool.destroy()
           break
       }
     },

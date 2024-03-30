@@ -135,7 +135,7 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
         .on('cycle', (event) => {
           console.info(event.target.toString())
         })
-        .on('complete', function () {
+        .on('complete', () => {
           console.info(
             'Fastest is ' +
               LIST_FORMATTER.format(this.filter('fastest').map('name')),
@@ -246,6 +246,11 @@ export const buildPoolifierBenchmarkMitata = (
   { taskExecutions, workerData },
 ) => {
   try {
+    const pool = buildPoolifierPool(
+      workerType,
+      poolType,
+      poolSize,
+    )
     for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
       for (const enableTasksQueue of [false, true]) {
         if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
@@ -256,18 +261,10 @@ export const buildPoolifierBenchmarkMitata = (
                   enableTasksQueue ? 'with' : 'without'
                 } tasks queue`,
                 async () => {
-                  const pool = buildPoolifierPool(
-                    workerType,
-                    poolType,
-                    poolSize,
-                    {
-                      workerChoiceStrategy,
-                      workerChoiceStrategyOptions: {
-                        measurement,
-                      },
-                      enableTasksQueue,
-                    },
-                  )
+                  pool.setWorkerChoiceStrategy(workerChoiceStrategy, {
+                    measurement,
+                  })
+                  pool.enableTasksQueue(enableTasksQueue)
                   strictEqual(
                     pool.opts.workerChoiceStrategy,
                     workerChoiceStrategy,
@@ -281,7 +278,6 @@ export const buildPoolifierBenchmarkMitata = (
                     taskExecutions,
                     workerData,
                   })
-                  await pool.destroy()
                 },
               )
             })
@@ -293,15 +289,8 @@ export const buildPoolifierBenchmarkMitata = (
                 enableTasksQueue ? 'with' : 'without'
               } tasks queue`,
               async () => {
-                const pool = buildPoolifierPool(
-                  workerType,
-                  poolType,
-                  poolSize,
-                  {
-                    workerChoiceStrategy,
-                    enableTasksQueue,
-                  },
-                )
+                pool.setWorkerChoiceStrategy(workerChoiceStrategy)
+                pool.enableTasksQueue(enableTasksQueue)
                 strictEqual(
                   pool.opts.workerChoiceStrategy,
                   workerChoiceStrategy,
@@ -311,13 +300,13 @@ export const buildPoolifierBenchmarkMitata = (
                   taskExecutions,
                   workerData,
                 })
-                await pool.destroy()
               },
             )
           })
         }
       }
     }
+    return pool
   } catch (error) {
     console.error(error)
   }
