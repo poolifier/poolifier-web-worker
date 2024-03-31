@@ -70,6 +70,74 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
   workerType,
   poolType,
   poolSize,
+  poolOptions,
+  { taskExecutions, workerData },
+) => {
+  return await new Promise((resolve, reject) => {
+    const pool = buildPoolifierPool(workerType, poolType, poolSize, poolOptions)
+    let workerChoiceStrategy
+    let enableTasksQueue
+    let workerChoiceStrategyOptions
+    if (poolOptions != null) {
+      ;({
+        workerChoiceStrategy,
+        enableTasksQueue,
+        workerChoiceStrategyOptions,
+      } = poolOptions)
+    }
+    const measurement = workerChoiceStrategyOptions?.measurement
+    new Benchmark(
+      `${name} with ${workerChoiceStrategy ?? pool.opts.workerChoiceStrategy}${
+        measurement != null ? `, with ${measurement}` : ''
+      } and ${enableTasksQueue ? 'with' : 'without'} tasks queue`,
+      async () => {
+        await runPoolifierPool(pool, {
+          taskExecutions,
+          workerData,
+        })
+      },
+      {
+        onStart: () => {
+          if (workerChoiceStrategy != null) {
+            strictEqual(pool.opts.workerChoiceStrategy, workerChoiceStrategy)
+          }
+          if (enableTasksQueue != null) {
+            strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+          }
+          if (measurement != null) {
+            strictEqual(
+              pool.opts.workerChoiceStrategyOptions.measurement,
+              measurement,
+            )
+          }
+        },
+        onComplete: (event) => {
+          console.info(event.target.toString())
+          if (pool.started && !pool.destroying) {
+            pool.destroy().then(resolve).catch(reject)
+          } else {
+            resolve()
+          }
+        },
+        onError: (event) => {
+          if (pool.started && !pool.destroying) {
+            pool.destroy().then(() => {
+              reject(event.target.error)
+            })
+          } else {
+            reject(event.target.error)
+          }
+        },
+      },
+    ).run()
+  })
+}
+
+export const runPoolifierBenchmarkBenchmarkJsSuite = async (
+  name,
+  workerType,
+  poolType,
+  poolSize,
   { taskExecutions, workerData },
 ) => {
   return await new Promise((resolve, reject) => {
@@ -100,7 +168,7 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
         if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
           for (const measurement of [Measurements.runTime]) {
             suite.add(
-              `${name} with ${workerChoiceStrategy}, with measurement ${measurement} and ${
+              `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
                 enableTasksQueue ? 'with' : 'without'
               } tasks queue`,
               async () => {
@@ -181,7 +249,7 @@ const buildPoolifierBenchmarkDenoBench = (
   const measurement = workerChoiceStrategyOptions?.measurement
   Deno.bench(
     `${name} with ${workerChoiceStrategy}${
-      measurement != null ? `, with measurement ${measurement}` : ''
+      measurement != null ? `, with ${measurement}` : ''
     } and ${enableTasksQueue ? 'with' : 'without'} tasks queue`,
     { group: `${name}` },
     async (b) => {
@@ -274,7 +342,7 @@ export const buildPoolifierBenchmarkMitata = (
           for (const measurement of [Measurements.runTime]) {
             group(name, () => {
               bench(
-                `${name} with ${workerChoiceStrategy}, with measurement ${measurement} and ${
+                `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
                   enableTasksQueue ? 'with' : 'without'
                 } tasks queue`,
                 async () => {

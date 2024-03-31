@@ -3,7 +3,7 @@ import { availableParallelism, PoolTypes, WorkerTypes } from '../../src/mod.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
 import {
   buildPoolifierBenchmarkMitata,
-  runPoolifierBenchmarkBenchmarkJs,
+  runPoolifierBenchmarkBenchmarkJsSuite,
   runPoolifierBenchmarkDenoBench,
   runtime,
 } from '../benchmarks-utils.mjs'
@@ -31,7 +31,7 @@ const runBenchmark = async () => {
       let dynamicThreadPool
       switch (parseArgs(Deno.args).t) {
         case 'benchmark.js':
-          await runPoolifierBenchmarkBenchmarkJs(
+          await runPoolifierBenchmarkBenchmarkJsSuite(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
@@ -41,7 +41,7 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          await runPoolifierBenchmarkBenchmarkJs(
+          await runPoolifierBenchmarkBenchmarkJsSuite(
             dynamicThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.dynamic,
@@ -120,7 +120,7 @@ const runBenchmark = async () => {
         }).values.type
       ) {
         case 'benchmark.js':
-          await runPoolifierBenchmarkBenchmarkJs(
+          await runPoolifierBenchmarkBenchmarkJsSuite(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
@@ -130,7 +130,7 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          await runPoolifierBenchmarkBenchmarkJs(
+          await runPoolifierBenchmarkBenchmarkJsSuite(
             dynamicThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.dynamic,
