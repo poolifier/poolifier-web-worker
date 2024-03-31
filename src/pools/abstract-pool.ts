@@ -1384,9 +1384,9 @@ export abstract class AbstractPool<
         runTime:
           this.workerChoiceStrategyContext?.getTaskStatisticsRequirements()
             .runTime.aggregate ?? false,
-        // elu: this.workerChoiceStrategyContext
-        //   ?.getTaskStatisticsRequirements()
-        //   .elu.aggregate ?? false,
+        // elu:
+        //   this.workerChoiceStrategyContext?.getTaskStatisticsRequirements().elu
+        //     .aggregate ?? false,
       },
     })
   }

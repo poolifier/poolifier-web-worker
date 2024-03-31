@@ -311,6 +311,30 @@ Deno.test({
       expect(poolDestroy).toBe(1)
     })
 
+    // await t.step('Shutdown test after heavy computation', async () => {
+    //   pool.start()
+    //   const exitPromise = waitWorkerNodeEvents(pool, 'exit', numberOfThreads)
+    //   let poolDestroy = 0
+    //   pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
+    //   const promises = new Set()
+    //   for (let i = 0; i < 1000; i++) {
+    //     promises.add(
+    //       pool.execute({
+    //         function: TaskFunctions.factorial,
+    //         n: 50000,
+    //       }),
+    //     )
+    //   }
+    //   await Promise.all(promises)
+    //   await pool.destroy()
+    //   const numberOfExitEvents = await exitPromise
+    //   expect(pool.started).toBe(false)
+    //   expect(pool.readyEventEmitted).toBe(false)
+    //   expect(pool.workerNodes.length).toBe(0)
+    //   expect(numberOfExitEvents).toBe(numberOfThreads)
+    //   expect(poolDestroy).toBe(1)
+    // })
+
     await t.step('Verify that thread pool options are checked', async () => {
       const workerFilePath = './../../worker-files/thread/testWorker.mjs'
       let pool = new FixedThreadPool(

@@ -969,11 +969,12 @@ Deno.test({
     //     new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
     //     { workerChoiceStrategy },
     //   )
-    //   expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-    //     .toStrictEqual({
-    //       dynamicWorkerUsage: false,
-    //       dynamicWorkerReady: true,
-    //     })
+    //   expect(
+    //     pool.workerChoiceStrategyContext.getStrategyPolicy(),
+    //   ).toStrictEqual({
+    //     dynamicWorkerUsage: false,
+    //     dynamicWorkerReady: true,
+    //   })
     //   await pool.destroy()
     //   pool = new DynamicThreadPool(
     //     min,
@@ -981,11 +982,12 @@ Deno.test({
     //     new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
     //     { workerChoiceStrategy },
     //   )
-    //   expect(pool.workerChoiceStrategyContext.getStrategyPolicy())
-    //     .toStrictEqual({
-    //       dynamicWorkerUsage: false,
-    //       dynamicWorkerReady: true,
-    //     })
+    //   expect(
+    //     pool.workerChoiceStrategyContext.getStrategyPolicy(),
+    //   ).toStrictEqual({
+    //     dynamicWorkerUsage: false,
+    //     dynamicWorkerReady: true,
+    //   })
     //   // We need to clean up the resources after our test
     //   await pool.destroy()
     // })
@@ -996,7 +998,10 @@ Deno.test({
     //     const workerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
     //     let pool = new FixedThreadPool(
     //       max,
-    //       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+    //       new URL(
+    //         './../../worker-files/thread/testWorker.mjs',
+    //         import.meta.url,
+    //       ),
     //       { workerChoiceStrategy },
     //     )
     //     expect(
@@ -1022,7 +1027,10 @@ Deno.test({
     //     pool = new DynamicThreadPool(
     //       min,
     //       max,
-    //       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+    //       new URL(
+    //         './../../worker-files/thread/testWorker.mjs',
+    //         import.meta.url,
+    //       ),
     //       { workerChoiceStrategy },
     //     )
     //     expect(
@@ -1054,7 +1062,10 @@ Deno.test({
     //   async () => {
     //     const pool = new FixedThreadPool(
     //       max,
-    //       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+    //       new URL(
+    //         './../../worker-files/thread/testWorker.mjs',
+    //         import.meta.url,
+    //       ),
     //       { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_ELU },
     //     )
     //     // TODO: Create a better test to cover `LeastEluWorkerChoiceStrategy#choose`
@@ -1102,7 +1113,9 @@ Deno.test({
     //       if (workerNode.usage.elu.idle.aggregate == null) {
     //         expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
     //       } else {
-    //         expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
+    //         expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(
+    //           0,
+    //         )
     //       }
     //       if (workerNode.usage.elu.utilization == null) {
     //         expect(workerNode.usage.elu.utilization).toBeUndefined()
@@ -1132,7 +1145,10 @@ Deno.test({
     //     const pool = new DynamicThreadPool(
     //       min,
     //       max,
-    //       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+    //       new URL(
+    //         './../../worker-files/thread/testWorker.mjs',
+    //         import.meta.url,
+    //       ),
     //       { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_ELU },
     //     )
     //     // TODO: Create a better test to cover `LeastEluWorkerChoiceStrategy#choose`
@@ -1180,7 +1196,9 @@ Deno.test({
     //       if (workerNode.usage.elu.idle.aggregate == null) {
     //         expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
     //       } else {
-    //         expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
+    //         expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(
+    //           0,
+    //         )
     //       }
     //       if (workerNode.usage.elu.utilization == null) {
     //         expect(workerNode.usage.elu.utilization).toBeUndefined()
