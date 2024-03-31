@@ -74,68 +74,33 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
 ) => {
   return await new Promise((resolve, reject) => {
     const pool = buildPoolifierPool(workerType, poolType, poolSize)
-    try {
-      const suite = new Benchmark.Suite(name, {
-        onComplete: () => {
-          if (pool.started && !pool.destroying) {
-            pool.destroy().then(resolve).catch(reject)
-          } else {
-            resolve()
-          }
-        },
-        onCycle: (event) => {
-          console.info(event.target.toString())
-        },
-        onError: (event) => {
-          if (pool.started && !pool.destroying) {
-            pool.destroy().then(() => {
-              reject(event.target.error)
-            })
-          } else {
+    const suite = new Benchmark.Suite(name, {
+      onComplete: () => {
+        if (pool.started && !pool.destroying) {
+          pool.destroy().then(resolve).catch(reject)
+        } else {
+          resolve()
+        }
+      },
+      onCycle: (event) => {
+        console.info(event.target.toString())
+      },
+      onError: (event) => {
+        if (pool.started && !pool.destroying) {
+          pool.destroy().then(() => {
             reject(event.target.error)
-          }
-        },
-      })
-      for (
-        const workerChoiceStrategy of Object.values(
-          WorkerChoiceStrategies,
-        )
-      ) {
-        for (const enableTasksQueue of [false, true]) {
-          if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
-            for (const measurement of [Measurements.runTime]) {
-              suite.add(
-                `${name} with ${workerChoiceStrategy}, with measurement ${measurement} and ${
-                  enableTasksQueue ? 'with' : 'without'
-                } tasks queue`,
-                async () => {
-                  await runPoolifierPool(pool, {
-                    taskExecutions,
-                    workerData,
-                  })
-                },
-                {
-                  onStart: () => {
-                    pool.setWorkerChoiceStrategy(workerChoiceStrategy, {
-                      measurement,
-                    })
-                    pool.enableTasksQueue(enableTasksQueue)
-                    strictEqual(
-                      pool.opts.workerChoiceStrategy,
-                      workerChoiceStrategy,
-                    )
-                    strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
-                    strictEqual(
-                      pool.opts.workerChoiceStrategyOptions.measurement,
-                      measurement,
-                    )
-                  },
-                },
-              )
-            }
-          } else {
+          })
+        } else {
+          reject(event.target.error)
+        }
+      },
+    })
+    for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
+      for (const enableTasksQueue of [false, true]) {
+        if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
+          for (const measurement of [Measurements.runTime]) {
             suite.add(
-              `${name} with ${workerChoiceStrategy} and ${
+              `${name} with ${workerChoiceStrategy}, with measurement ${measurement} and ${
                 enableTasksQueue ? 'with' : 'without'
               } tasks queue`,
               async () => {
@@ -146,30 +111,57 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
               },
               {
                 onStart: () => {
-                  pool.setWorkerChoiceStrategy(workerChoiceStrategy)
+                  pool.setWorkerChoiceStrategy(workerChoiceStrategy, {
+                    measurement,
+                  })
                   pool.enableTasksQueue(enableTasksQueue)
                   strictEqual(
                     pool.opts.workerChoiceStrategy,
                     workerChoiceStrategy,
                   )
                   strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+                  strictEqual(
+                    pool.opts.workerChoiceStrategyOptions.measurement,
+                    measurement,
+                  )
                 },
               },
             )
           }
+        } else {
+          suite.add(
+            `${name} with ${workerChoiceStrategy} and ${
+              enableTasksQueue ? 'with' : 'without'
+            } tasks queue`,
+            async () => {
+              await runPoolifierPool(pool, {
+                taskExecutions,
+                workerData,
+              })
+            },
+            {
+              onStart: () => {
+                pool.setWorkerChoiceStrategy(workerChoiceStrategy)
+                pool.enableTasksQueue(enableTasksQueue)
+                strictEqual(
+                  pool.opts.workerChoiceStrategy,
+                  workerChoiceStrategy,
+                )
+                strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+              },
+            },
+          )
         }
       }
-      suite
-        .on('complete', function () {
-          console.info(
-            'Fastest is ' +
-              LIST_FORMATTER.format(this.filter('fastest').map('name')),
-          )
-        })
-        .run({ async: true })
-    } catch (error) {
-      pool.destroy().then(() => reject(error))
     }
+    suite
+      .on('complete', function () {
+        console.info(
+          'Fastest is ' +
+            LIST_FORMATTER.format(this.filter('fastest').map('name')),
+        )
+      })
+      .run({ async: true })
   })
 }
 
