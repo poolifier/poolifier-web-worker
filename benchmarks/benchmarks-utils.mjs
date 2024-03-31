@@ -165,6 +165,55 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
   })
 }
 
+const buildPoolifierBenchmarkDenoBench = (
+  name,
+  workerType,
+  poolType,
+  poolSize,
+  poolOptions,
+  { taskExecutions, workerData },
+) => {
+  const {
+    workerChoiceStrategy,
+    enableTasksQueue,
+    workerChoiceStrategyOptions,
+  } = poolOptions
+  const measurement = workerChoiceStrategyOptions?.measurement
+  Deno.bench(
+    `${name} with ${workerChoiceStrategy}${
+      measurement != null ? `, with measurement ${measurement}` : ''
+    } and ${enableTasksQueue ? 'with' : 'without'} tasks queue`,
+    { group: `${name}` },
+    async (b) => {
+      const pool = buildPoolifierPool(
+        workerType,
+        poolType,
+        poolSize,
+        poolOptions,
+      )
+      if (workerChoiceStrategy != null) {
+        strictEqual(pool.opts.workerChoiceStrategy, workerChoiceStrategy)
+      }
+      if (enableTasksQueue != null) {
+        strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+      }
+      if (measurement != null) {
+        strictEqual(
+          pool.opts.workerChoiceStrategyOptions.measurement,
+          measurement,
+        )
+      }
+      b.start()
+      await runPoolifierPool(pool, {
+        taskExecutions,
+        workerData,
+      })
+      b.end()
+      await pool.destroy()
+    },
+  )
+}
+
 export const runPoolifierBenchmarkDenoBench = (
   name,
   workerType,
@@ -177,64 +226,30 @@ export const runPoolifierBenchmarkDenoBench = (
       for (const enableTasksQueue of [false, true]) {
         if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
           for (const measurement of [Measurements.runTime]) {
-            Deno.bench(
-              `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
-                enableTasksQueue ? 'with' : 'without'
-              } tasks queue`,
-              { group: `${name}` },
-              async (b) => {
-                const pool = buildPoolifierPool(
-                  workerType,
-                  poolType,
-                  poolSize,
-                  {
-                    workerChoiceStrategy,
-                    workerChoiceStrategyOptions: {
-                      measurement,
-                    },
-                    enableTasksQueue,
-                  },
-                )
-                strictEqual(
-                  pool.opts.workerChoiceStrategy,
-                  workerChoiceStrategy,
-                )
-                strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
-                strictEqual(
-                  pool.opts.workerChoiceStrategyOptions.measurement,
-                  measurement,
-                )
-                b.start()
-                await runPoolifierPool(pool, {
-                  taskExecutions,
-                  workerData,
-                })
-                b.end()
-                await pool.destroy()
+            buildPoolifierBenchmarkDenoBench(
+              name,
+              workerType,
+              poolType,
+              poolSize,
+              {
+                workerChoiceStrategy,
+                enableTasksQueue,
+                workerChoiceStrategyOptions: { measurement },
               },
+              { taskExecutions, workerData },
             )
           }
         } else {
-          Deno.bench(
-            `${name} with ${workerChoiceStrategy} and ${
-              enableTasksQueue ? 'with' : 'without'
-            } tasks queue`,
-            { group: `${name}` },
-            async (b) => {
-              const pool = buildPoolifierPool(workerType, poolType, poolSize, {
-                workerChoiceStrategy,
-                enableTasksQueue,
-              })
-              strictEqual(pool.opts.workerChoiceStrategy, workerChoiceStrategy)
-              strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
-              b.start()
-              await runPoolifierPool(pool, {
-                taskExecutions,
-                workerData,
-              })
-              b.end()
-              await pool.destroy()
+          buildPoolifierBenchmarkDenoBench(
+            name,
+            workerType,
+            poolType,
+            poolSize,
+            {
+              workerChoiceStrategy,
+              enableTasksQueue,
             },
+            { taskExecutions, workerData },
           )
         }
       }
@@ -259,7 +274,7 @@ export const buildPoolifierBenchmarkMitata = (
           for (const measurement of [Measurements.runTime]) {
             group(name, () => {
               bench(
-                `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
+                `${name} with ${workerChoiceStrategy}, with measurement ${measurement} and ${
                   enableTasksQueue ? 'with' : 'without'
                 } tasks queue`,
                 async () => {
