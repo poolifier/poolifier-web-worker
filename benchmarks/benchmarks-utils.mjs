@@ -73,9 +73,32 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
   { taskExecutions, workerData },
 ) => {
   return await new Promise((resolve, reject) => {
-    const pool = buildPoolifierPool(workerType, poolType, poolSize)
+    let pool = buildPoolifierPool(workerType, poolType, poolSize)
     try {
-      const suite = new Benchmark.Suite(name)
+      const suite = new Benchmark.Suite(name, {
+        onComplete: () => {
+          const destroyTimeout = setTimeout(() => {
+            console.error('Pool destroy timeout reached (30s)')
+            resolve()
+            pool = undefined
+          }, 30000)
+          pool
+            .destroy()
+            .then(resolve)
+            .catch(reject)
+            .finally(() => {
+              clearTimeout(destroyTimeout)
+            })
+        },
+        onCycle: (event) => {
+          console.info(event.target.toString())
+        },
+        onError: (event) => {
+          pool.destroy().then(() => {
+            reject(event.target.error)
+          })
+        },
+      })
       for (
         const workerChoiceStrategy of Object.values(
           WorkerChoiceStrategies,
@@ -85,7 +108,7 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
           if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
             for (const measurement of [Measurements.runTime]) {
               suite.add(
-                `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
+                `${name} with ${workerChoiceStrategy}, with measurement ${measurement} and ${
                   enableTasksQueue ? 'with' : 'without'
                 } tasks queue`,
                 async () => {
@@ -110,9 +133,6 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
                       measurement,
                     )
                   },
-                  // onComplete: async () => {
-                  //   await pool.destroy()
-                  // },
                 },
               )
             }
@@ -137,34 +157,17 @@ export const runPoolifierBenchmarkBenchmarkJs = async (
                   )
                   strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
                 },
-                // onComplete: async () => {
-                //   await pool.destroy()
-                // },
               },
             )
           }
         }
       }
       suite
-        .on('cycle', (event) => {
-          console.info(event.target.toString())
-        })
         .on('complete', function () {
           console.info(
             'Fastest is ' +
               LIST_FORMATTER.format(this.filter('fastest').map('name')),
           )
-          const destroyTimeout = setTimeout(() => {
-            console.error('Pool destroy timeout reached (30s)')
-            resolve()
-          }, 30000)
-          pool
-            .destroy()
-            .then(resolve)
-            .catch(reject)
-            .finally(() => {
-              clearTimeout(destroyTimeout)
-            })
         })
         .run({ async: true })
     } catch (error) {

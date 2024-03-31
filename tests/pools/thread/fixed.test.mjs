@@ -306,7 +306,7 @@ Deno.test({
       const numberOfExitEvents = await exitPromise
       expect(pool.started).toBe(false)
       expect(pool.readyEventEmitted).toBe(false)
-      expect(pool.workerNodes.length).toBeLessThan(numberOfThreads)
+      expect(pool.workerNodes.length).toBe(0)
       expect(numberOfExitEvents).toBe(numberOfThreads)
       expect(poolDestroy).toBe(1)
     })
