@@ -21,7 +21,11 @@ import { isWebWorker } from '../utils.ts'
 export class ThreadWorker<
   Data = unknown,
   Response = unknown,
-> extends AbstractWorker<typeof globalThis, Data, Response> {
+> extends AbstractWorker<
+  WorkerGlobalScope & typeof globalThis,
+  Data,
+  Response
+> {
   /**
    * Message port used to communicate with the main worker.
    */

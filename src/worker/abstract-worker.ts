@@ -50,7 +50,7 @@ const DEFAULT_WORKER_OPTIONS: WorkerOptions = {
  * @typeParam Response - Type of response the worker sends back to the main worker. This can only be structured-cloneable data.
  */
 export abstract class AbstractWorker<
-  MainWorker extends typeof globalThis,
+  MainWorker extends WorkerGlobalScope & typeof globalThis,
   Data = unknown,
   Response = unknown,
 > {
