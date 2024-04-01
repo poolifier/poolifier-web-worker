@@ -2,7 +2,7 @@ import { TaskFunctions } from './test-types.mjs'
 
 export const waitWorkerNodeEvents = async (
   pool,
-  workerEvent,
+  workerNodeEvent,
   numberOfEventsToWait,
 ) => {
   return await new Promise((resolve) => {
@@ -18,14 +18,14 @@ export const waitWorkerNodeEvents = async (
       }
     }
     for (const workerNode of pool.workerNodes) {
-      switch (workerEvent) {
+      switch (workerNodeEvent) {
         case 'message':
         case 'messageerror':
         case 'taskFinished':
         case 'backPressure':
         case 'idle':
         case 'exit':
-          workerNode.addEventListener(workerEvent, eventHandler)
+          workerNode.addEventListener(workerNodeEvent, eventHandler)
           break
         default:
           throw new Error('Invalid worker node event')
