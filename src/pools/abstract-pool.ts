@@ -1205,7 +1205,7 @@ export abstract class AbstractPool<
     const workerNode = this.createWorkerNode()
     workerNode.worker.onmessage = this.opts.messageEventHandler ??
       EMPTY_FUNCTION
-    workerNode.worker.onmessageerror = (messageEvent: MessageEvent) => {
+    workerNode.worker.onmessageerror = (messageEvent) => {
       this.eventTarget?.dispatchEvent(
         new ErrorEvent(PoolEvents.messageerror, { error: messageEvent }),
       )

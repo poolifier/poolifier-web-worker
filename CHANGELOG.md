@@ -8,10 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.14] - 2024-04-01
+
 ### Changed
 
-- Add `errorEventHandler` support to pool options listening for error event on
-  each worker.
+- Add `errorEventHandler` handler support to pool options listening for error
+  event on each worker.
 
 ## [0.3.13] - 2024-04-01
 
