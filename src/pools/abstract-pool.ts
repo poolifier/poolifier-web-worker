@@ -1205,12 +1205,21 @@ export abstract class AbstractPool<
     const workerNode = this.createWorkerNode()
     workerNode.worker.onmessage = this.opts.messageEventHandler ??
       EMPTY_FUNCTION
-    workerNode.worker.onmessageerror = this.opts.messageEventErrorHandler ??
-      EMPTY_FUNCTION
-    workerNode.worker.onerror = (error) => {
+    workerNode.worker.onmessageerror = (messageEvent: MessageEvent) => {
+      this.eventTarget?.dispatchEvent(
+        new ErrorEvent(PoolEvents.messageerror, { error: messageEvent }),
+      )
+    }
+    workerNode.worker.onerror = (errorEvent) => {
       workerNode.info.ready = false
       this.eventTarget?.dispatchEvent(
-        new ErrorEvent(PoolEvents.error, { error }),
+        new ErrorEvent(PoolEvents.error, {
+          message: errorEvent.message,
+          filename: errorEvent.filename,
+          lineno: errorEvent.lineno,
+          colno: errorEvent.colno,
+          error: errorEvent.error,
+        }),
       )
       if (
         this.started &&
@@ -1232,6 +1241,14 @@ export abstract class AbstractPool<
       }
       workerNode?.terminate()
     }
+    workerNode.worker.addEventListener(
+      'messageerror',
+      this.opts.messageEventErrorHandler ?? EMPTY_FUNCTION,
+    )
+    workerNode.worker.addEventListener(
+      'error',
+      this.opts.errorEventHandler ?? EMPTY_FUNCTION,
+    )
     workerNode.addEventListener(
       'exit',
       () => {

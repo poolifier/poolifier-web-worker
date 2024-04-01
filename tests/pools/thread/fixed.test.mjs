@@ -13,7 +13,7 @@ Deno.test({
       numberOfThreads,
       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       {
-        messageEventErrorHandler: (e) => console.error(e),
+        errorEventHandler: (e) => console.error(e),
       },
     )
     const queuePool = new FixedThreadPool(
@@ -24,7 +24,7 @@ Deno.test({
         tasksQueueOptions: {
           concurrency: tasksConcurrency,
         },
-        messageEventErrorHandler: (e) => console.error(e),
+        errorEventHandler: (e) => console.error(e),
       },
     )
     const emptyPool = new FixedThreadPool(
@@ -39,7 +39,7 @@ Deno.test({
       numberOfThreads,
       new URL('./../../worker-files/thread/errorWorker.mjs', import.meta.url),
       {
-        messageEventErrorHandler: (e) => console.error(e),
+        errorEventHandler: (e) => console.error(e),
       },
     )
     const asyncErrorPool = new FixedThreadPool(
@@ -49,7 +49,7 @@ Deno.test({
         import.meta.url,
       ),
       {
-        messageEventErrorHandler: (e) => console.error(e),
+        errorEventHandler: (e) => console.error(e),
       },
     )
     const asyncPool = new FixedThreadPool(
@@ -86,7 +86,7 @@ Deno.test({
         numberOfThreads,
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         {
-          messageEventErrorHandler: (e) => console.error(e),
+          errorEventHandler: (e) => console.error(e),
         },
       )
       let poolReady = 0

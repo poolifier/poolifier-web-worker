@@ -7,6 +7,11 @@ import {
 const pool = new FixedThreadPool(
   availableParallelism(),
   new URL('./yourWorker.js', import.meta.url),
+  {
+    errorEventHandler: (e) => {
+      console.error(e)
+    },
+  },
 )
 let poolReady = 0
 let poolBusy = 0

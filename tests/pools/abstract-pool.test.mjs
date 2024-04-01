@@ -260,6 +260,7 @@ Deno.test({
           tasksQueueOptions: { concurrency: 2 },
           messageEventHandler: testHandler,
           messageEventErrorHandler: testHandler,
+          errorEventHandler: testHandler,
         },
       )
       expect(pool.eventTarget).toBeUndefined()
@@ -282,6 +283,7 @@ Deno.test({
         },
         messageEventHandler: testHandler,
         messageEventErrorHandler: testHandler,
+        errorEventHandler: testHandler,
       })
       for (
         const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext

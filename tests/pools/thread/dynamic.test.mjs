@@ -21,7 +21,7 @@ Deno.test({
       max,
       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
       {
-        messageEventErrorHandler: (e) => console.error(e),
+        errorEventHandler: (e) => console.error(e),
       },
     )
 
@@ -143,7 +143,7 @@ Deno.test({
             import.meta.url,
           ),
           {
-            messageEventErrorHandler: (e) => console.error(e),
+            errorEventHandler: (e) => console.error(e),
           },
         )
         expect(longRunningPool.workerNodes.length).toBe(min)
@@ -175,7 +175,7 @@ Deno.test({
             import.meta.url,
           ),
           {
-            messageEventErrorHandler: (e) => console.error(e),
+            errorEventHandler: (e) => console.error(e),
           },
         )
         expect(longRunningPool.workerNodes.length).toBe(min)

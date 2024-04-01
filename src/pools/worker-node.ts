@@ -64,8 +64,8 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       messageEvent: MessageEvent<MessageValue<Data>>,
     ) => {
       this.dispatchEvent(
-        new CustomEvent<MessageValue<Data>>('message', {
-          detail: messageEvent.data,
+        new MessageEvent<MessageValue<Data>>('message', {
+          data: messageEvent.data,
         }),
       )
     }
@@ -73,8 +73,8 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       messageEvent: MessageEvent<MessageValue<Data>>,
     ) => {
       this.dispatchEvent(
-        new CustomEvent<MessageValue<Data>>('messageerror', {
-          detail: messageEvent.data,
+        new MessageEvent<MessageValue<Data>>('messageerror', {
+          data: messageEvent.data,
         }),
       )
     }

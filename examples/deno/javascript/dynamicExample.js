@@ -8,6 +8,11 @@ const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
   new URL('./yourWorker.js', import.meta.url),
+  {
+    errorEventHandler: (e) => {
+      console.error(e)
+    },
+  },
 )
 let poolFull = 0
 let poolReady = 0

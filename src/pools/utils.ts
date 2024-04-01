@@ -428,7 +428,7 @@ export const updateEluWorkerUsage = <
 export const messageListenerToEventListener = <Message = unknown>(
   listener: (message: MessageValue<Message>) => void,
 ): (event: Event) => void =>
-(event: Event) => listener((event as CustomEvent<MessageValue<Message>>).detail)
+(event: Event) => listener((event as MessageEvent<MessageValue<Message>>).data)
 
 export const createWorker = <Worker extends IWorker>(
   type: WorkerType,

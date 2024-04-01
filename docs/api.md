@@ -100,23 +100,15 @@ promise.
 
 An object with these properties:
 
-<!-- - `onlineHandler` (optional) - A function that will listen for online event on
-  each worker.\
-  Default: `() => {}` -->
-
 - `messageEventHandler` (optional) - A function that will listen for message
   event on each worker.\
   Default: `() => {}`
 - `messageEventErrorHandler` (optional) - A function that will listen for
   message event processing error on each worker.\
   Default: `() => {}`
-
-<!-- - `errorHandler` (optional) - A function that will listen for error event on
-  each worker.\
+- `errorEventHandler?` (optional) - A function that will listen for error event
+  on each worker.\
   Default: `() => {}`
-- `exitHandler` (optional) - A function that will listen for exit event on each
-  worker.\
-  Default: `() => {}` -->
 
 - `workerChoiceStrategy` (optional) - The worker choice strategy to use in this
   pool:

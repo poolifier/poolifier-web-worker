@@ -196,6 +196,11 @@ import {
 const pool = new FixedThreadPool(
   availableParallelism(),
   new URL('./yourWorker.js', import.meta.url),
+  {
+    errorEventHandler: (e) => {
+      console.error(e)
+    },
+  },
 )
 
 pool.eventTarget?.addEventListener(
@@ -212,6 +217,11 @@ const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
   new URL('./yourWorker.js', import.meta.url),
+  {
+    errorEventHandler: (e) => {
+      console.error(e)
+    },
+  },
 )
 
 pool.eventTarget?.addEventListener(

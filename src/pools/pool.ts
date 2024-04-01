@@ -1,5 +1,6 @@
 import type { TaskFunction } from '../worker/task-functions.ts'
 import type {
+  ErrorEventHandler,
   IWorker,
   IWorkerNode,
   MessageEventErrorHandler,
@@ -43,6 +44,7 @@ export const PoolEvents: Readonly<{
   empty: 'empty'
   destroy: 'destroy'
   error: 'error'
+  messageerror: 'messageerror'
   taskError: 'taskError'
   backPressure: 'backPressure'
 }> = Object.freeze(
@@ -53,6 +55,7 @@ export const PoolEvents: Readonly<{
     empty: 'empty',
     destroy: 'destroy',
     error: 'error',
+    messageerror: 'messageerror',
     taskError: 'taskError',
     backPressure: 'backPressure',
   } as const,
@@ -160,6 +163,12 @@ export interface PoolOptions {
    */
   messageEventErrorHandler?: MessageEventErrorHandler
   /**
+   * A function that will listen for error event on each worker.
+   *
+   * @defaultValue `() => {}`
+   */
+  errorEventHandler?: ErrorEventHandler
+  /**
    * Whether to start the minimum number of workers at pool initialization.
    *
    * @defaultValue true
@@ -236,6 +245,7 @@ export interface IPool<
    * - `'empty'`: Emitted when the pool is dynamic with a minimum number of workers set to zero and the number of workers has reached the minimum size expected.
    * - `'destroy'`: Emitted when the pool is destroyed.
    * - `'error'`: Emitted when an uncaught error occurs.
+   * - `'messageerror'`: Emitted when an error occurs while processing a message event.
    * - `'taskError'`: Emitted when an error occurs while executing a task.
    * - `'backPressure'`: Emitted when all worker nodes have back pressure (i.e. their tasks queue is full: queue size \>= maximum queue size).
    */

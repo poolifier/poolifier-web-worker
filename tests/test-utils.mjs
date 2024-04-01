@@ -20,11 +20,10 @@ export const waitWorkerNodeEvents = async (
     for (const workerNode of pool.workerNodes) {
       switch (workerEvent) {
         case 'message':
-          workerNode.addEventListener(workerEvent, eventHandler)
-          break
         case 'messageerror':
-          workerNode.addEventListener(workerEvent, eventHandler)
-          break
+        case 'taskFinished':
+        case 'backPressure':
+        case 'idle':
         case 'exit':
           workerNode.addEventListener(workerEvent, eventHandler)
           break
