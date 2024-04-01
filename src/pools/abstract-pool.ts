@@ -1229,7 +1229,7 @@ export abstract class AbstractPool<
         if (workerNode.info.dynamic) {
           this.createAndSetupDynamicWorkerNode()
         } else {
-          this.createAndSetupWorkerNode()
+          this.startMinimumNumberOfWorkers()
         }
       }
       if (
