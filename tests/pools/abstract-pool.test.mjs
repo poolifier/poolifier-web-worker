@@ -1683,9 +1683,8 @@ Deno.test({
       await expect(
         pool.sendKillMessageToWorker(workerNodeKey),
       ).resolves.toBeUndefined()
-      // Simulate destroyWorkerNode()
+      // Simulates destroyWorkerNode()
       pool.workerNodes[workerNodeKey].terminate()
-      pool.removeWorkerNode(pool.workerNodes[workerNodeKey])
       await pool.destroy()
     })
 
