@@ -1,6 +1,5 @@
 import type {
   MessageValue,
-  MsgEvent,
   Task,
   TaskPerformance,
   WorkerStatistics,
@@ -300,7 +299,7 @@ export abstract class AbstractWorker<
    * @param messageEvent - The ready message event.
    */
   protected abstract handleReadyMessageEvent(
-    messageEvent: MsgEvent<MessageValue<Data>>,
+    messageEvent: MessageEvent<MessageValue<Data>>,
   ): void
 
   /**

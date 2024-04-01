@@ -70,15 +70,6 @@ export interface WorkerStatistics {
 }
 
 /**
- * Global `this` message event type.
- *
- * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
- */
-export interface MsgEvent<Data = unknown> extends Event {
-  data?: Data
-}
-
-/**
  * Message object that is passed as a task between main worker and worker.
  *
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.

@@ -1,4 +1,4 @@
-import type { MessageValue, MsgEvent } from '../utility-types.ts'
+import type { MessageValue } from '../utility-types.ts'
 import { AbstractWorker } from './abstract-worker.ts'
 import type { WorkerOptions } from './worker-options.ts'
 import type { TaskFunction, TaskFunctions } from './task-functions.ts'
@@ -48,7 +48,7 @@ export class ThreadWorker<
 
   /** @inheritDoc */
   protected handleReadyMessageEvent(
-    message: MsgEvent<MessageValue<Data>>,
+    message: MessageEvent<MessageValue<Data>>,
   ): void {
     if (
       message.data?.workerId != null &&
