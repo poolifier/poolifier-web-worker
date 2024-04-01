@@ -35,7 +35,7 @@ jobs:
           deno-version: ${{ matrix.deno }}
 
       - name: Setup Bun
-        if: ${{ matrix.os != 'windows-latest' }}
+        # if: ${{ matrix.os != 'windows-latest' }}
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.x
@@ -52,7 +52,7 @@ jobs:
         run: deno task test:coverage
 
       - name: Bundle
-        if: ${{ matrix.os != 'windows-latest' }}
+        # if: ${{ matrix.os != 'windows-latest' }}
         run: deno task bundle
 
       - name: Coverage Report
