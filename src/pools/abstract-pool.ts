@@ -1232,12 +1232,16 @@ export abstract class AbstractPool<
       }
       workerNode?.terminate()
     }
-    workerNode.addEventListener('exit', () => {
-      this.removeWorkerNode(workerNode)
-      if (this.started && !this.destroying) {
-        this.startMinimumNumberOfWorkers()
-      }
-    })
+    workerNode.addEventListener(
+      'exit',
+      () => {
+        this.removeWorkerNode(workerNode)
+        if (this.started && !this.destroying) {
+          this.startMinimumNumberOfWorkers()
+        }
+      },
+      { once: true },
+    )
     const workerNodeKey = this.addWorkerNode(workerNode)
     this.afterWorkerNodeSetup(workerNodeKey)
     return workerNodeKey
