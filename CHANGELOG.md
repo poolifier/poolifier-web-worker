@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.13] - 2024-04-01
+
 ### Fixed
 
 - Ensure the minimum number of workers on a started pool is guaranteed.
