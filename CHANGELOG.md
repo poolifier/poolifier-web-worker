@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix possible race condition at worker node recreation on worker node `error`
+  and `exit` events.
+
 ## [0.3.14] - 2024-04-01
 
 ### Changed
