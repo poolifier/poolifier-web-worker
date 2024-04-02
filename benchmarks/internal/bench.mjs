@@ -26,7 +26,7 @@ const runBenchmark = async () => {
     unknown: () => console.error('Unknown JavaScript runtime environment'),
     browser: unsupportedJsRuntime,
     deno: async () => {
-      const { parseArgs } = await import('@std/cli/parse_args')
+      const { parseArgs } = await import('@std/cli/parse-args')
       let fixedThreadPool
       let dynamicThreadPool
       switch (parseArgs(Deno.args).t) {
