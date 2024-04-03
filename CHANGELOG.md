@@ -8,12 +8,17 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [0.3.15] - 2024-04-02
+## [0.3.15] - 2024-04-03
 
 ### Fixed
 
 - Fix possible race condition at worker node recreation on worker node `error`
   and `exit` events.
+
+### Changed
+
+- Disable release publishing on https://deno.land/x/poolifier in favor of JSR:
+  https://jsr.io/@poolifier/poolifier-web-worker.
 
 ## [0.3.14] - 2024-04-01
 
