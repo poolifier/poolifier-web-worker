@@ -480,7 +480,7 @@ export const executeTaskFunction = (data) => {
   }
 }
 
-const javascriptRuntimes = {
+const JavaScriptRuntimes = {
   bun: 'bun',
   deno: 'deno',
   node: 'node',
@@ -488,18 +488,17 @@ const javascriptRuntimes = {
   browser: 'browser',
 }
 
-export const isBun = !!globalThis.Bun || !!globalThis.process?.versions?.bun
-export const isDeno = !!globalThis.Deno
-export const isNode = globalThis.process?.release?.name === 'node'
-export const isWorkerd =
-  globalThis.navigator?.userAgent === 'Cloudflare-Workers'
-export const isBrowser = !!globalThis.navigator
+const isBun = !!globalThis.Bun || !!globalThis.process?.versions?.bun
+const isDeno = !!globalThis.Deno
+const isNode = globalThis.process?.release?.name === 'node'
+const isWorkerd = globalThis.navigator?.userAgent === 'Cloudflare-Workers'
+const isBrowser = !!globalThis.navigator
 
 export const runtime = (() => {
-  if (isBun) return javascriptRuntimes.bun
-  if (isDeno) return javascriptRuntimes.deno
-  if (isNode) return javascriptRuntimes.node
-  if (isWorkerd) return javascriptRuntimes.workerd
-  if (isBrowser) return javascriptRuntimes.browser
+  if (isBun) return JavaScriptRuntimes.bun
+  if (isDeno) return JavaScriptRuntimes.deno
+  if (isNode) return JavaScriptRuntimes.node
+  if (isWorkerd) return JavaScriptRuntimes.workerd
+  if (isBrowser) return JavaScriptRuntimes.browser
   return 'unknown'
 })()

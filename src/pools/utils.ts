@@ -1,12 +1,12 @@
 import {
   availableParallelism,
   average,
-  isBun,
-  isDeno,
   isPlainObject,
+  JavaScriptRuntimes,
   max,
   median,
   min,
+  runtime,
 } from '../utils.ts'
 import {
   type MeasurementStatisticsRequirements,
@@ -91,7 +91,7 @@ const getDefaultWeights = (
   poolMaxSize: number,
   defaultWorkerWeight?: number,
 ): Record<number, number> => {
-  defaultWorkerWeight = defaultWorkerWeight ?? getDefaultWorkerWeight()
+  defaultWorkerWeight = defaultWorkerWeight ?? getDefaultWorkerWeight
   const weights: Record<number, number> = {}
   for (let workerNodeKey = 0; workerNodeKey < poolMaxSize; workerNodeKey++) {
     weights[workerNodeKey] = defaultWorkerWeight
@@ -109,44 +109,25 @@ const estimatedCpuSpeed = (): number => {
   return Math.trunc(runs / duration / 1000) // in MHz
 }
 
-let cpusInfo: { speed: number }[]
-if (isDeno || isBun) {
-  try {
-    // deno-lint-ignore ban-ts-comment
-    // @ts-ignore
-    cpusInfo = (await import('node:os')).cpus()
-  } catch {
-    // Ignore
+const buildCpusInfo = async (): Promise<{ speed: number }[]> => {
+  const cpus = (await import('node:os')).cpus()
+  let estCpuSpeed: number | undefined
+  if (cpus.every((cpu) => cpu.speed == null || cpu.speed === 0)) {
+    estCpuSpeed = estimatedCpuSpeed()
   }
-}
-
-const buildCpus = (): { speed: number }[] => {
-  if (cpusInfo != null) {
-    return cpusInfo
-  } else {
-    const estCpuSpeed = estimatedCpuSpeed()
-    return Array(availableParallelism()).fill({
-      speed: estCpuSpeed,
-    })
-  }
-}
-
-const getDefaultWorkerWeight = (cpus = buildCpus()): number => {
-  if (isDeno || isBun) {
-    let estCpuSpeed: number | undefined
-    if (cpus.every((cpu) => cpu.speed == null || cpu.speed === 0)) {
-      estCpuSpeed = estimatedCpuSpeed()
-    }
-    for (const cpu of cpus) {
-      if (cpu.speed == null || cpu.speed === 0) {
-        cpu.speed = cpus.find((cpu) =>
-          cpu.speed != null && cpu.speed !== 0
-        )?.speed ??
-          estCpuSpeed ??
-          2000
-      }
+  for (const cpu of cpus) {
+    if (cpu.speed == null || cpu.speed === 0) {
+      cpu.speed = cpus.find((cpu) =>
+        cpu.speed != null && cpu.speed !== 0
+      )?.speed ??
+        estCpuSpeed ??
+        2000
     }
   }
+  return cpus
+}
+
+const cpusCycleTimeWeight = (cpus: { speed: number }[]): number => {
   let cpusCycleTimeWeight = 0
   for (const cpu of cpus) {
     // CPU estimated cycle time
@@ -156,6 +137,28 @@ const getDefaultWorkerWeight = (cpus = buildCpus()): number => {
   }
   return Math.round(cpusCycleTimeWeight / cpus.length)
 }
+
+const getDefaultWorkerWeight: number = await (async (): Promise<number> => {
+  return await {
+    unknown: () => {
+      throw new Error('Unsupported JavaScript runtime environment')
+    },
+    browser: () => {
+      const estCpuSpeed = estimatedCpuSpeed()
+      return cpusCycleTimeWeight(
+        Array(availableParallelism()).fill({
+          speed: estCpuSpeed,
+        }),
+      )
+    },
+    deno: async () => {
+      return cpusCycleTimeWeight(await buildCpusInfo())
+    },
+    bun: async () => {
+      return cpusCycleTimeWeight(await buildCpusInfo())
+    },
+  }[runtime]()
+})()
 
 export const checkFileURL = (fileURL: URL | undefined): void => {
   if (fileURL == null) {
@@ -438,7 +441,7 @@ export const createWorker = <Worker extends IWorker>(
   switch (type) {
     case WorkerTypes.web:
       return new Worker(fileURL, {
-        ...(isBun && { smol: true }),
+        ...(runtime === JavaScriptRuntimes.bun && { smol: true }),
         ...opts.workerOptions,
         type: 'module',
       }) as Worker

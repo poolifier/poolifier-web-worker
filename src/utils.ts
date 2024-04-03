@@ -211,7 +211,7 @@ export const once = <A extends any[], R, T>(
  * @internal
  */
 // deno-lint-ignore no-explicit-any
-export const isBun: boolean = !!(globalThis as any).Bun ||
+const isBun: boolean = !!(globalThis as any).Bun ||
   // deno-lint-ignore no-explicit-any
   !!(globalThis as any).process?.versions?.bun
 
@@ -221,18 +221,47 @@ export const isBun: boolean = !!(globalThis as any).Bun ||
  * @internal
  */
 // deno-lint-ignore no-explicit-any
-export const isDeno: boolean = !!(globalThis as any).Deno
+const isDeno: boolean = !!(globalThis as any).Deno
 
-let isMainThread: boolean
-if (isBun) {
-  try {
-    // deno-lint-ignore ban-ts-comment
-    // @ts-ignore
-    isMainThread = (await import('node:worker_threads')).isMainThread
-  } catch {
-    // Ignore
-  }
+/**
+ * Indicates if running in browser runtime.
+ *
+ * @internal
+ */
+// deno-lint-ignore no-explicit-any
+const isBrowser = !!(globalThis as any).navigator
+
+/**
+ * JavaScript runtime environments enumeration.
+ * @internal
+ */
+export enum JavaScriptRuntimes {
+  bun = 'bun',
+  deno = 'deno',
+  browser = 'browser',
 }
+
+/**
+ * JavaScript runtime environments.
+ * @internal
+ */
+export const runtime: JavaScriptRuntimes | 'unknown' = (() => {
+  if (isBun) return JavaScriptRuntimes.bun
+  if (isDeno) return JavaScriptRuntimes.deno
+  if (isBrowser) return JavaScriptRuntimes.browser
+  return 'unknown'
+})()
+
+const isMainThread: boolean | undefined = await (async (): Promise<
+  boolean | undefined
+> => {
+  return await {
+    unknown: () => undefined,
+    browser: () => undefined,
+    deno: () => undefined,
+    bun: async () => (await import('node:worker_threads')).isMainThread,
+  }[runtime]()
+})()
 
 /**
  * Returns whether the current environment is a web worker or not.

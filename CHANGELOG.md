@@ -17,6 +17,8 @@ and this project adheres to
 
 ### Changed
 
+- Optimize different JavaScript runtime handling code with a branchless design
+  pattern.
 - Disable release publishing on https://deno.land/x/poolifier in favor of JSR:
   https://jsr.io/@poolifier/poolifier-web-worker.
 
