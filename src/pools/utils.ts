@@ -91,7 +91,7 @@ const getDefaultWeights = (
   poolMaxSize: number,
   defaultWorkerWeight?: number,
 ): Record<number, number> => {
-  defaultWorkerWeight = defaultWorkerWeight ?? getDefaultWorkerWeight
+  defaultWorkerWeight = defaultWorkerWeight ?? computedDefaultWorkerWeight
   const weights: Record<number, number> = {}
   for (let workerNodeKey = 0; workerNodeKey < poolMaxSize; workerNodeKey++) {
     weights[workerNodeKey] = defaultWorkerWeight
@@ -138,27 +138,28 @@ const cpusCycleTimeWeight = (cpus: { speed: number }[]): number => {
   return Math.round(cpusCycleTimeWeight / cpus.length)
 }
 
-const getDefaultWorkerWeight: number = await (async (): Promise<number> => {
-  return await {
-    unknown: () => {
-      throw new Error('Unsupported JavaScript runtime environment')
-    },
-    browser: () => {
-      const estCpuSpeed = estimatedCpuSpeed()
-      return cpusCycleTimeWeight(
-        Array(availableParallelism()).fill({
-          speed: estCpuSpeed,
-        }),
-      )
-    },
-    deno: async () => {
-      return cpusCycleTimeWeight(await buildCpusInfo())
-    },
-    bun: async () => {
-      return cpusCycleTimeWeight(await buildCpusInfo())
-    },
-  }[runtime]()
-})()
+const computedDefaultWorkerWeight: number =
+  await (async (): Promise<number> => {
+    return await {
+      unknown: () => {
+        throw new Error('Unsupported JavaScript runtime environment')
+      },
+      browser: () => {
+        const estCpuSpeed = estimatedCpuSpeed()
+        return cpusCycleTimeWeight(
+          Array(availableParallelism()).fill({
+            speed: estCpuSpeed,
+          }),
+        )
+      },
+      deno: async () => {
+        return cpusCycleTimeWeight(await buildCpusInfo())
+      },
+      bun: async () => {
+        return cpusCycleTimeWeight(await buildCpusInfo())
+      },
+    }[runtime]()
+  })()
 
 export const checkFileURL = (fileURL: URL | undefined): void => {
   if (fileURL == null) {
