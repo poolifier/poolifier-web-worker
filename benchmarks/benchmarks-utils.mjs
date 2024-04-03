@@ -495,11 +495,11 @@ export const isWorkerd =
   globalThis.navigator?.userAgent === 'Cloudflare-Workers'
 export const isBrowser = !!globalThis.navigator
 
-export const runtime = () => {
+export const runtime = (() => {
   if (isBun) return javascriptRuntimes.bun
   if (isDeno) return javascriptRuntimes.deno
   if (isNode) return javascriptRuntimes.node
   if (isWorkerd) return javascriptRuntimes.workerd
   if (isBrowser) return javascriptRuntimes.browser
   return 'unknown'
-}
+})()

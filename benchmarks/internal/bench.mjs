@@ -16,12 +16,12 @@ const workerData = {
 }
 
 const unsupportedJsRuntime = () => {
-  console.error(`Unsupported JavaScript runtime environment: ${runtime()}`)
+  console.error(`Unsupported JavaScript runtime environment: ${runtime}`)
 }
 
 const runBenchmark = async () => {
-  const fixedThreadPoolGroupname = `FixedThreadPool on ${runtime()}`
-  const dynamicThreadPoolGroupname = `DynamicThreadPool on ${runtime()}`
+  const fixedThreadPoolGroupname = `FixedThreadPool on ${runtime}`
+  const dynamicThreadPoolGroupname = `DynamicThreadPool on ${runtime}`
   return await {
     unknown: () => console.error('Unknown JavaScript runtime environment'),
     browser: unsupportedJsRuntime,
@@ -171,7 +171,7 @@ const runBenchmark = async () => {
     },
     node: unsupportedJsRuntime,
     workerd: unsupportedJsRuntime,
-  }[runtime()]()
+  }[runtime]()
 }
 
 await runBenchmark()
