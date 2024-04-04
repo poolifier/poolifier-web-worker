@@ -186,17 +186,21 @@ export const max = (...args: number[]): number =>
  * @param fn - The function to wrap.
  * @param context - The context to bind the function to.
  * @returns The wrapped function.
+ *
+ * @typeParam A - The function's arguments.
+ * @typeParam R - The function's return value.
+ * @typeParam C - The function's context.
  * @internal
  */
 // deno-lint-ignore no-explicit-any
-export const once = <A extends any[], R, T>(
+export const once = <A extends any[], R, C>(
   fn: (...args: A) => R,
-  context: T,
+  context: C,
 ): (...args: A) => R => {
   let result: R
   return (...args: A) => {
     if (fn != null) {
-      result = fn.apply<T, A, R>(context, args)
+      result = fn.apply<C, A, R>(context, args)
       ;(fn as unknown as undefined) =
         (context as unknown as undefined) =
           undefined
