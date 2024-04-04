@@ -1,12 +1,14 @@
 import {
   availableParallelism,
   average,
+  environment,
   isPlainObject,
   JavaScriptRuntimes,
   max,
   median,
   min,
   runtime,
+  unsupportedJsRuntime,
 } from '../utils.ts'
 import {
   type MeasurementStatisticsRequirements,
@@ -26,7 +28,13 @@ import {
 } from './worker.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import type { WorkerChoiceStrategyContext } from './selection-strategies/worker-choice-strategy-context.ts'
-import { unsupportedJsRuntime } from '../utils.ts'
+
+let exportedUpdateMeasurementStatistics: (
+  measurementStatistics: MeasurementStatistics,
+  measurementRequirements: MeasurementStatisticsRequirements | undefined,
+  measurementValue: number | undefined,
+) => void
+export { exportedUpdateMeasurementStatistics }
 
 /**
  * Default measurement statistics requirements.
@@ -293,8 +301,7 @@ export const checkWorkerNodeArguments = (
  * @param measurementValue - The measurement value.
  * @internal
  */
-// FIXME: should not be exported
-export const updateMeasurementStatistics = (
+const updateMeasurementStatistics = (
   measurementStatistics: MeasurementStatistics,
   measurementRequirements: MeasurementStatisticsRequirements | undefined,
   measurementValue: number | undefined,
@@ -328,6 +335,9 @@ export const updateMeasurementStatistics = (
       }
     }
   }
+}
+if (environment === 'test') {
+  exportedUpdateMeasurementStatistics = updateMeasurementStatistics
 }
 
 export const updateWaitTimeWorkerUsage = <

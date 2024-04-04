@@ -7,11 +7,11 @@ import {
   buildWorkerChoiceStrategyOptions,
   createWorker,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+  exportedUpdateMeasurementStatistics,
   getDefaultTasksQueueOptions,
   getWorkerChoiceStrategyRetries,
   getWorkerId,
   getWorkerType,
-  updateMeasurementStatistics,
 } from '../../src/pools/utils.ts'
 import { FixedThreadPool, WorkerTypes } from '../../src/mod.ts'
 
@@ -99,7 +99,7 @@ Deno.test('Pool utils test suite', async (t) => {
     const measurementStatistics = {
       history: new CircularArray(),
     }
-    updateMeasurementStatistics(
+    exportedUpdateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: false, median: false },
       0.01,
@@ -110,7 +110,7 @@ Deno.test('Pool utils test suite', async (t) => {
       minimum: 0.01,
       history: new CircularArray(),
     })
-    updateMeasurementStatistics(
+    exportedUpdateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: false, median: false },
       0.02,
@@ -121,7 +121,7 @@ Deno.test('Pool utils test suite', async (t) => {
       minimum: 0.01,
       history: new CircularArray(),
     })
-    updateMeasurementStatistics(
+    exportedUpdateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: true, median: false },
       0.001,
@@ -133,7 +133,7 @@ Deno.test('Pool utils test suite', async (t) => {
       average: 0.001,
       history: new CircularArray(DEFAULT_CIRCULAR_ARRAY_SIZE, 0.001),
     })
-    updateMeasurementStatistics(
+    exportedUpdateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: true, median: false },
       0.003,
@@ -145,7 +145,7 @@ Deno.test('Pool utils test suite', async (t) => {
       average: 0.002,
       history: new CircularArray(DEFAULT_CIRCULAR_ARRAY_SIZE, 0.001, 0.003),
     })
-    updateMeasurementStatistics(
+    exportedUpdateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: false, median: true },
       0.006,
@@ -162,7 +162,7 @@ Deno.test('Pool utils test suite', async (t) => {
         0.006,
       ),
     })
-    updateMeasurementStatistics(
+    exportedUpdateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: true, median: false },
       0.01,

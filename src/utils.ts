@@ -279,6 +279,21 @@ const isMainThread: boolean | undefined = await (async (): Promise<
 })()
 
 /**
+ * The current environment name.
+ *
+ * @internal
+ */
+export const environment: string = await (async (): Promise<string> => {
+  return await {
+    unknown: unsupportedJsRuntime,
+    browser: () => 'production',
+    deno: () => Deno.env.get('ENVIRONMENT') ?? 'production',
+    bun: async () =>
+      (await import('node:process')).env.ENVIRONMENT ?? 'production',
+  }[runtime]()
+})()
+
+/**
  * Whether the current environment is a web worker or not.
  *
  * @internal
