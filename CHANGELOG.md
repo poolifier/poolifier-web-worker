@@ -8,11 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.16] - 2024-04-04
+
 ### Fixed
 
 - Fix bundling.
 
-## [0.3.15] - 2024-04-03
+## [0.3.15] - 2024-04-04
 
 ### Fixed
 
