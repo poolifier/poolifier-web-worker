@@ -120,7 +120,9 @@ const estimatedCpuSpeed = (): number => {
 }
 
 const buildCpusInfo = async (): Promise<{ speed: number }[]> => {
-  const cpus = (await import('node:os')).cpus()
+  // deno-lint-ignore ban-ts-comment
+  // @ts-ignore
+  const cpus: { speed: number }[] = (await import('node:os')).cpus()
   let estCpuSpeed: number | undefined
   if (cpus.every((cpu) => cpu.speed == null || cpu.speed === 0)) {
     estCpuSpeed = estimatedCpuSpeed()

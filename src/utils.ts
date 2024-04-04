@@ -274,7 +274,11 @@ const isMainThread: boolean | undefined = await (async (): Promise<
     unknown: unsupportedJsRuntime,
     browser: () => undefined,
     deno: () => undefined,
-    bun: async () => (await import('node:worker_threads')).isMainThread,
+    bun: async () => {
+      // deno-lint-ignore ban-ts-comment
+      // @ts-ignore
+      return (await import('node:worker_threads')).isMainThread
+    },
   }[runtime]()
 })()
 
@@ -287,9 +291,16 @@ export const environment: string = await (async (): Promise<string> => {
   return await {
     unknown: unsupportedJsRuntime,
     browser: () => 'production',
-    deno: () => Deno.env.get('ENVIRONMENT') ?? 'production',
-    bun: async () =>
-      (await import('node:process')).env.ENVIRONMENT ?? 'production',
+    deno: () => {
+      // deno-lint-ignore ban-ts-comment
+      // @ts-ignore
+      return Deno.env.get('ENVIRONMENT') ?? 'production'
+    },
+    bun: async () => {
+      // deno-lint-ignore ban-ts-comment
+      // @ts-ignore
+      return (await import('node:process')).env.ENVIRONMENT ?? 'production'
+    },
   }[runtime]()
 })()
 

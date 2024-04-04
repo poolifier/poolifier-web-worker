@@ -18,7 +18,7 @@ const bunBuild = new Deno.Command('bun', {
 })
 const bunBuildCommandOutput = bunBuild.outputSync()
 if (bunBuildCommandOutput.success === false) {
-  const errMsg = new TextDecoder().decode(browserBuildCommandOutput.stderr)
+  const errMsg = new TextDecoder().decode(bunBuildCommandOutput.stderr)
   console.error(errMsg)
   throw new Error(`Bun build failed: ${errMsg}`)
 }
