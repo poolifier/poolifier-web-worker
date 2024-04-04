@@ -26,6 +26,7 @@ import {
 } from './worker.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import type { WorkerChoiceStrategyContext } from './selection-strategies/worker-choice-strategy-context.ts'
+import { unsupportedJsRuntime } from '../utils.ts'
 
 /**
  * Default measurement statistics requirements.
@@ -141,9 +142,7 @@ const cpusCycleTimeWeight = (cpus: { speed: number }[]): number => {
 const computedDefaultWorkerWeight: number =
   await (async (): Promise<number> => {
     return await {
-      unknown: () => {
-        throw new Error('Unsupported JavaScript runtime environment')
-      },
+      unknown: unsupportedJsRuntime,
       browser: () => {
         const estCpuSpeed = estimatedCpuSpeed()
         return cpusCycleTimeWeight(

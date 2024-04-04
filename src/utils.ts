@@ -236,6 +236,15 @@ const isDeno: boolean = !!(globalThis as any).Deno
 const isBrowser: boolean = !!(globalThis as any).navigator
 
 /**
+ * Throws an error indicating that the current JavaScript runtime environment is unsupported.
+ *
+ * @internal
+ */
+export const unsupportedJsRuntime = () => {
+  throw new Error('Unsupported JavaScript runtime environment')
+}
+
+/**
  * JavaScript runtime environments enumeration.
  *
  * @internal
@@ -262,9 +271,7 @@ const isMainThread: boolean | undefined = await (async (): Promise<
   boolean | undefined
 > => {
   return await {
-    unknown: () => {
-      throw new Error('Unsupported JavaScript runtime environment')
-    },
+    unknown: unsupportedJsRuntime,
     browser: () => undefined,
     deno: () => undefined,
     bun: async () => (await import('node:worker_threads')).isMainThread,
