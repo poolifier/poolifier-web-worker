@@ -9,13 +9,17 @@ const browserBuild = new Deno.Command('bun', {
 })
 const browserBuildCommandOutput = browserBuild.outputSync()
 if (browserBuildCommandOutput.success === false) {
-  console.error(new TextDecoder().decode(browserBuildCommandOutput.stderr))
+  const errMsg = new TextDecoder().decode(browserBuildCommandOutput.stderr)
+  console.error(errMsg)
+  throw new Error(`Browser build failed: ${errMsg}`)
 }
 const bunBuild = new Deno.Command('bun', {
   args: ['run', './build/bun-build.ts'],
 })
 const bunBuildCommandOutput = bunBuild.outputSync()
 if (bunBuildCommandOutput.success === false) {
-  console.error(new TextDecoder().decode(bunBuildCommandOutput.stderr))
+  const errMsg = new TextDecoder().decode(browserBuildCommandOutput.stderr)
+  console.error(errMsg)
+  throw new Error(`Bun build failed: ${errMsg}`)
 }
 console.timeEnd('Build time')

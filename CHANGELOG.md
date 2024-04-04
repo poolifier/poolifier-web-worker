@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix bundling.
+
 ## [0.3.15] - 2024-04-03
 
 ### Fixed
