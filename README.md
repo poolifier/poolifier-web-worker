@@ -123,13 +123,13 @@ for more details**:
 
 ### Bun
 
-#### npm
+#### npmjs
 
 ```shell
-bun install poolifier-web-worker
+bun add poolifier-web-worker
 ```
 
-#### jsr
+#### JSR
 
 ```shell
 bunx jsr add @poolifier/poolifier-web-worker

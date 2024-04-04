@@ -43,7 +43,7 @@ export class ThreadWorker<
     taskFunctions: TaskFunction<Data, Response> | TaskFunctions<Data, Response>,
     opts: WorkerOptions = {},
   ) {
-    super(!isWebWorker(), self, taskFunctions, opts)
+    super(!isWebWorker, self, taskFunctions, opts)
   }
 
   /** @inheritDoc */

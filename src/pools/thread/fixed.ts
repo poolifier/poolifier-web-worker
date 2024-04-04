@@ -39,7 +39,7 @@ export class FixedThreadPool<
   }
   /** @inheritDoc */
   protected isMain(): boolean {
-    return !isWebWorker()
+    return !isWebWorker
   }
 
   /** @inheritDoc */

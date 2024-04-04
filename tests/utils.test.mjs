@@ -10,11 +10,13 @@ import {
   isKillBehavior,
   isPlainObject,
   isWebWorker,
+  JavaScriptRuntimes,
   max,
   median,
   min,
   once,
   round,
+  runtime,
   secureRandom,
   sleep,
 } from '../src/utils.ts'
@@ -223,7 +225,17 @@ Deno.test('Utils test suite', async (t) => {
     expect(result3).toBe(1)
   })
 
-  await t.step('Verify isWebWorker() behavior', () => {
-    expect(isWebWorker()).toBe(false)
+  await t.step('Verify isWebWorker value', () => {
+    expect(isWebWorker).toBe(false)
+  })
+
+  await t.step('Verify JavaScriptRuntimes values', () => {
+    expect(JavaScriptRuntimes.bun).toBe('bun')
+    expect(JavaScriptRuntimes.deno).toBe('deno')
+    expect(JavaScriptRuntimes.browser).toBe('browser')
+  })
+
+  await t.step('Verify runtime value', () => {
+    expect(runtime).toBe(JavaScriptRuntimes.deno)
   })
 })

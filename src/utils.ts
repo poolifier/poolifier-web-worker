@@ -233,6 +233,7 @@ const isBrowser: boolean = !!(globalThis as any).navigator
 
 /**
  * JavaScript runtime environments enumeration.
+ *
  * @internal
  */
 export enum JavaScriptRuntimes {
@@ -243,6 +244,7 @@ export enum JavaScriptRuntimes {
 
 /**
  * JavaScript runtime environments.
+ *
  * @internal
  */
 export const runtime: JavaScriptRuntimes | 'unknown' = (() => {
@@ -266,14 +268,11 @@ const isMainThread: boolean | undefined = await (async (): Promise<
 })()
 
 /**
- * Returns whether the current environment is a web worker or not.
+ * Whether the current environment is a web worker or not.
  *
- * @returns `true` if the current environment is a web worker, `false` otherwise.
  * @internal
  */
-export const isWebWorker = () => {
-  return isMainThread != null
-    ? !isMainThread
-    : typeof WorkerGlobalScope !== 'undefined' &&
-      self instanceof WorkerGlobalScope
-}
+export const isWebWorker: boolean = isMainThread != null
+  ? !isMainThread
+  : typeof WorkerGlobalScope !== 'undefined' &&
+    self instanceof WorkerGlobalScope
