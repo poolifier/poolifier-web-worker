@@ -4,6 +4,14 @@ import { ThreadWorker } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 
 Deno.test('Thread worker test suite', async (t) => {
+  await t.step('Verify worker properties value after initialization', () => {
+    const worker = new ThreadWorker(() => {})
+    expect(worker.isMain).toBe(true)
+    expect(worker.mainWorker).toStrictEqual(self)
+    expect(worker.taskFunctions).toBeInstanceOf(Map)
+    expect(worker.taskFunctions.size).toBe(2)
+  })
+
   await t.step(
     'Verify that sync kill handler is called when worker is killed',
     () => {
