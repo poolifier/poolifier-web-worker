@@ -38,7 +38,7 @@
     "@std/testing": "jsr:@std/testing@^0.221.0",
     "benchmark": "npm:benchmark@^2.1.4",
     "expect": "npm:expect@^29.7.0",
-    "mitata": "npm:mitata@^0.1.11"
+    "mitata": "https://raw.githubusercontent.com/poolifier/mitata/master/src/cli.mjs"
   },
   "publish": {
     "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]

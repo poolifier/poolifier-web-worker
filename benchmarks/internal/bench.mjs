@@ -1,10 +1,9 @@
-import { run } from 'mitata'
 import { availableParallelism, PoolTypes, WorkerTypes } from '../../src/mod.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
 import {
-  buildPoolifierBenchmarkMitata,
   runPoolifierBenchmarkBenchmarkJsSuite,
   runPoolifierBenchmarkDenoBench,
+  runPoolifierBenchmarkMitata,
   runtime,
 } from '../benchmarks-utils.mjs'
 
@@ -27,8 +26,6 @@ const runBenchmark = async () => {
     browser: unsupportedJsRuntime,
     deno: async () => {
       const { parseArgs } = await import('@std/cli/parse-args')
-      let fixedThreadPool
-      let dynamicThreadPool
       switch (parseArgs(Deno.args).t) {
         case 'benchmark.js':
           await runPoolifierBenchmarkBenchmarkJsSuite(
@@ -54,7 +51,7 @@ const runBenchmark = async () => {
           Deno.exit()
           break
         case 'mitata':
-          fixedThreadPool = buildPoolifierBenchmarkMitata(
+          await runPoolifierBenchmarkMitata(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
@@ -64,7 +61,7 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          dynamicThreadPool = buildPoolifierBenchmarkMitata(
+          await runPoolifierBenchmarkMitata(
             dynamicThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.dynamic,
@@ -74,9 +71,6 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          await run()
-          await fixedThreadPool.destroy()
-          await dynamicThreadPool.destroy()
           break
         default:
           runPoolifierBenchmarkDenoBench(
@@ -104,8 +98,6 @@ const runBenchmark = async () => {
     },
     bun: async () => {
       const { parseArgs } = await import('util')
-      let fixedThreadPool
-      let dynamicThreadPool
       switch (
         parseArgs({
           args: Bun.argv,
@@ -143,7 +135,7 @@ const runBenchmark = async () => {
           break
         case 'mitata':
         default:
-          fixedThreadPool = buildPoolifierBenchmarkMitata(
+          await runPoolifierBenchmarkMitata(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
@@ -153,7 +145,7 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          dynamicThreadPool = buildPoolifierBenchmarkMitata(
+          await runPoolifierBenchmarkMitata(
             dynamicThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.dynamic,
@@ -163,9 +155,6 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          await run()
-          await fixedThreadPool.destroy()
-          await dynamicThreadPool.destroy()
           break
       }
     },
