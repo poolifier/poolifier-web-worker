@@ -3,7 +3,7 @@ import { TaskFunctions } from '../benchmarks-types.mjs'
 import {
   runPoolifierBenchmarkBenchmarkJsSuite,
   runPoolifierBenchmarkDenoBench,
-  runPoolifierBenchmarkMitata,
+  runPoolifierBenchmarkTatamiNg,
   runtime,
 } from '../benchmarks-utils.mjs'
 
@@ -50,8 +50,8 @@ const runBenchmark = async () => {
           )
           Deno.exit()
           break
-        case 'mitata':
-          await runPoolifierBenchmarkMitata(
+        case 'tatami-ng':
+          await runPoolifierBenchmarkTatamiNg(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
@@ -61,7 +61,7 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          await runPoolifierBenchmarkMitata(
+          await runPoolifierBenchmarkTatamiNg(
             dynamicThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.dynamic,
@@ -133,9 +133,9 @@ const runBenchmark = async () => {
             },
           )
           break
-        case 'mitata':
+        case 'tatami-ng':
         default:
-          await runPoolifierBenchmarkMitata(
+          await runPoolifierBenchmarkTatamiNg(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
@@ -145,7 +145,7 @@ const runBenchmark = async () => {
               workerData,
             },
           )
-          await runPoolifierBenchmarkMitata(
+          await runPoolifierBenchmarkTatamiNg(
             dynamicThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.dynamic,

@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto'
 import { strictEqual } from 'node:assert'
-import { bench, clear, group, run } from 'mitata'
+import { bench, clear, group, run } from 'tatami-ng'
 import {
   existsSync,
   mkdirSync,
@@ -327,7 +327,7 @@ export const runPoolifierBenchmarkDenoBench = (
   }
 }
 
-export const runPoolifierBenchmarkMitata = async (
+export const runPoolifierBenchmarkTatamiNg = async (
   name,
   workerType,
   poolType,
