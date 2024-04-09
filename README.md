@@ -192,7 +192,7 @@ import {
   PoolEvents,
 } from '@poolifier/poolifier-web-worker'
 
-// a fixed worker_threads pool
+// a fixed web worker pool
 const pool = new FixedThreadPool(
   availableParallelism(),
   new URL('./yourWorker.js', import.meta.url),
@@ -212,7 +212,7 @@ pool.eventTarget?.addEventListener(
   () => console.info('Pool is busy'),
 )
 
-// or a dynamic worker_threads pool
+// or a dynamic web worker pool
 const pool = new DynamicThreadPool(
   Math.floor(availableParallelism() / 2),
   availableParallelism(),
