@@ -34,7 +34,6 @@ let exportedUpdateMeasurementStatistics: (
   measurementRequirements: MeasurementStatisticsRequirements | undefined,
   measurementValue: number | undefined,
 ) => void
-// deno-lint-ignore verbatim-module-syntax
 export { exportedUpdateMeasurementStatistics }
 
 /**
