@@ -38,7 +38,7 @@
     "@std/testing": "jsr:@std/testing@^0.222.1",
     "benchmark": "npm:benchmark@^2.1.4",
     "expect": "npm:expect@^29.7.0",
-    "tatami-ng": "npm:tatami-ng@^0.3.1"
+    "tatami-ng": "npm:tatami-ng@^0.3.2"
   },
   "publish": {
     "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
