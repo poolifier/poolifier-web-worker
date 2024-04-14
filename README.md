@@ -43,7 +43,7 @@ Please consult our [general guidelines](#general-guidelines).
 - Performance
   [benchmarks](https://github.com/poolifier/poolifier-web-worker/blob/master/benchmarks/README.md)
   ✔
-- Zero cost abstraction support for multiple JS runtime ✔
+- Zero cost abstraction for multiple JS runtime support ✔
 - No runtime dependencies ✔
 - Support for ESM and TypeScript ✔
 - Support for
