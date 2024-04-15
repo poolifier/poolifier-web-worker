@@ -6,7 +6,7 @@ if (existsSync(browserBuildDir)) {
   rmSync(browserBuildDir, { recursive: true })
 }
 
-build({
+await build({
   entrypoints: entryPoints,
   outdir: browserBuildDir,
   target: 'browser',

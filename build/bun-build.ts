@@ -7,7 +7,7 @@ if (existsSync(esmBuildDir)) {
   rmSync(esmBuildDir, { recursive: true })
 }
 
-build({
+await build({
   entrypoints: entryPoints,
   outdir: esmBuildDir,
   target: 'bun',
