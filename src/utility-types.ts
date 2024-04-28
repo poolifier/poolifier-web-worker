@@ -135,13 +135,13 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
    */
   readonly taskFunctionOperationStatus?: boolean
   /**
-   * Task function serialized to string.
-   */
-  readonly taskFunction?: string
-  /**
    * Task function name.
    */
   readonly taskFunctionName?: string
+  /**
+   * Task function serialized to string.
+   */
+  readonly taskFunction?: string
   /**
    * Task function names.
    */

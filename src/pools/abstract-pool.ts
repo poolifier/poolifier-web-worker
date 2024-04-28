@@ -76,7 +76,7 @@ export abstract class AbstractPool<
   /**
    * The task execution response promise map:
    * - `key`: The message id of each submitted task.
-   * - `value`: An object that contains the worker, the execution response promise resolve and reject callbacks.
+   * - `value`: An object that contains task's worker node key, execution response promise resolve and reject callbacks.
    *
    * When we receive a message from the worker, we get a map entry with the promise resolve/reject bound to the message id.
    */

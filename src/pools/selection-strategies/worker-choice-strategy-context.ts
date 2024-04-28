@@ -35,7 +35,7 @@ export class WorkerChoiceStrategyContext<
   public retriesCount: number
 
   /**
-   * The worker choice strategy instances registered in the context.
+   * The worker choice strategies registered in the context.
    */
   private readonly workerChoiceStrategies: Map<
     WorkerChoiceStrategy,
