@@ -95,7 +95,7 @@ export interface Task<Data = unknown> {
   /**
    * Task UUID.
    */
-  readonly taskId?: string
+  readonly taskId?: `${string}-${string}-${string}-${string}-${string}`
 }
 
 /**
