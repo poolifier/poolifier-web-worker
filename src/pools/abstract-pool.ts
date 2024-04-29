@@ -543,7 +543,7 @@ export abstract class AbstractPool<
       requireSync = true
     }
     if (workerChoiceStrategyOptions != null) {
-      requireSync = this.setWorkerChoiceStrategyOptions(
+      requireSync = !this.setWorkerChoiceStrategyOptions(
         workerChoiceStrategyOptions,
       )
     }
