@@ -1026,7 +1026,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify that pool worker tasks usage are reset at worker choice strategy change',
+      "Verify that pool worker tasks usage aren't reset at worker choice strategy change",
       async () => {
         const pool = new DynamicThreadPool(
           Math.floor(numberOfWorkers / 2),
@@ -1078,7 +1078,7 @@ Deno.test({
         for (const workerNode of pool.workerNodes) {
           expect(workerNode.usage).toStrictEqual({
             tasks: {
-              executed: 0,
+              executed: expect.any(Number),
               executing: 0,
               queued: 0,
               maxQueued: 0,
@@ -1101,6 +1101,10 @@ Deno.test({
               },
             },
           })
+          expect(workerNode.usage.tasks.executed).toBeGreaterThan(0)
+          expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
+            numberOfWorkers * maxMultiplier,
+          )
           expect(workerNode.usage.runTime.history.length).toBe(0)
           expect(workerNode.usage.waitTime.history.length).toBe(0)
           expect(workerNode.usage.elu.idle.history.length).toBe(0)

@@ -426,7 +426,7 @@ Deno.test({
     })
 
     await t.step(
-      'Verify ROUND_ROBIN strategy internals are resets after setting it',
+      'Verify ROUND_ROBIN strategy internals are reset after setting it',
       async () => {
         const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
         let pool = new FixedThreadPool(
@@ -1610,7 +1610,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify FAIR_SHARE strategy internals are resets after setting it',
+      'Verify FAIR_SHARE strategy internals are reset after setting it',
       async () => {
         const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
         let pool = new FixedThreadPool(
@@ -2005,7 +2005,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify WEIGHTED_ROUND_ROBIN strategy internals are resets after setting it',
+      'Verify WEIGHTED_ROUND_ROBIN strategy internals are reset after setting it',
       async () => {
         const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
         let pool = new FixedThreadPool(
@@ -2377,7 +2377,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy internals are resets after setting it',
+      'Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy internals are reset after setting it',
       async () => {
         const workerChoiceStrategy =
           WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN

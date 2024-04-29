@@ -122,7 +122,7 @@ export class WorkerChoiceStrategyContext<
   }
 
   /**
-   * Gets the strategy policy in the context.
+   * Gets the worker choice strategy in the context policy.
    *
    * @returns The strategy policy.
    */
@@ -134,7 +134,7 @@ export class WorkerChoiceStrategyContext<
   /**
    * Gets the worker choice strategy in the context task statistics requirements.
    *
-   * @returns The task statistics requirements.
+   * @returns The strategy task statistics requirements.
    */
   public getTaskStatisticsRequirements(): TaskStatisticsRequirements {
     return this.workerChoiceStrategies.get(this.workerChoiceStrategy)!
@@ -151,8 +151,8 @@ export class WorkerChoiceStrategyContext<
   ): void {
     if (this.workerChoiceStrategy !== workerChoiceStrategy) {
       this.workerChoiceStrategy = workerChoiceStrategy
+      this.workerChoiceStrategies.get(this.workerChoiceStrategy)?.reset()
     }
-    this.workerChoiceStrategies.get(this.workerChoiceStrategy)?.reset()
   }
 
   /**

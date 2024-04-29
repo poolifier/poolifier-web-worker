@@ -193,7 +193,7 @@ export const max = (...args: number[]): number =>
  * @internal
  */
 // deno-lint-ignore no-explicit-any
-export const once = <A extends any[], R, C>(
+export const once = <A extends any[], R, C extends ThisType<any>>(
   fn: (...args: A) => R,
   context: C,
 ): (...args: A) => R => {

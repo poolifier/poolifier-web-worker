@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Ensure settings worker choice strategy options at runtime are propagated to
+  poolifier workers.
+- Do not reset worker node usage statistics at worker choice strategy runtime
+  change.
+
 ## [0.3.16] - 2024-04-04
 
 ### Fixed
