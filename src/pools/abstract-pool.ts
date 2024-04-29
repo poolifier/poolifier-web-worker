@@ -1180,8 +1180,6 @@ export abstract class AbstractPool<
   /**
    * Chooses a worker node for the next task.
    *
-   * The default worker choice strategy uses a round robin algorithm to distribute the tasks.
-   *
    * @returns The chosen worker node key
    */
   private chooseWorkerNode(): number {

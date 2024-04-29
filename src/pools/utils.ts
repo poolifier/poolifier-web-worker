@@ -80,7 +80,7 @@ export const buildWorkerChoiceStrategyOptions = <
   pool: IPool<Worker, Data, Response>,
   opts?: WorkerChoiceStrategyOptions,
 ): WorkerChoiceStrategyOptions => {
-  opts = clone(opts ?? {})
+  opts = structuredClone(opts ?? {})
   opts.weights = opts.weights ?? getDefaultWeights(pool.info.maxSize)
   return {
     ...{
@@ -90,10 +90,6 @@ export const buildWorkerChoiceStrategyOptions = <
     },
     ...opts,
   }
-}
-
-const clone = <T>(object: T): T => {
-  return structuredClone<T>(object)
 }
 
 const getDefaultWeights = (
