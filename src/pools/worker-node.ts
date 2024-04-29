@@ -140,12 +140,6 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   }
 
   /** @inheritdoc */
-  public resetUsage(): void {
-    this.usage = this.initWorkerUsage()
-    this.taskFunctionsUsage.clear()
-  }
-
-  /** @inheritdoc */
   public terminate(): void {
     this.closeMessageChannel()
     this.worker.terminate()
