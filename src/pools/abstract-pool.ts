@@ -122,7 +122,7 @@ export abstract class AbstractPool<
   /**
    * The start timestamp of the pool.
    */
-  private readonly startTimestamp
+  private startTimestamp?: number
 
   /**
    * Constructs a new poolifier pool.
@@ -177,8 +177,6 @@ export abstract class AbstractPool<
     if (this.opts.startWorkers === true) {
       this.start()
     }
-
-    this.startTimestamp = performance.now()
   }
 
   private checkPoolType(): void {
@@ -469,6 +467,9 @@ export abstract class AbstractPool<
    * @returns The pool utilization.
    */
   private get utilization(): number {
+    if (this.startTimestamp == null) {
+      return 0
+    }
     const poolTimeCapacity = (performance.now() - this.startTimestamp) *
       (this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers)
     const totalTasksRunTime = this.workerNodes.reduce(
@@ -979,6 +980,7 @@ export abstract class AbstractPool<
     }
     this.starting = true
     this.startMinimumNumberOfWorkers()
+    this.startTimestamp = performance.now()
     this.starting = false
     this.started = true
   }
@@ -1004,6 +1006,7 @@ export abstract class AbstractPool<
       new CustomEvent<PoolInfo>(PoolEvents.destroy, { detail: this.info }),
     )
     this.readyEventEmitted = false
+    delete this.startTimestamp
     this.destroying = false
     this.started = false
   }
