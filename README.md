@@ -49,17 +49,17 @@ Please consult our [general guidelines](#general-guidelines).
 - Support for
   [web worker API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
   module ✔
-- Support for multiple task functions ✔
-- Support for task functions
-  [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-  operations at runtime ✔
-- Support for sync and async task functions ✔
 - Tasks distribution strategies ✔
 - Lockless tasks queueing ✔
 - Queued tasks rescheduling:
   - Task stealing on idle ✔
   - Tasks stealing under back pressure ✔
   - Tasks redistribution on worker error ✔
+- Support for sync and async task functions ✔
+- Support for multiple task functions ✔
+- Support for task functions
+  [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
+  operations at runtime ✔
 - General guidelines on pool choice ✔
 - Error handling out of the box ✔
 - Widely tested ✔
@@ -147,7 +147,7 @@ for more details**:
 <!-- deno-fmt-ignore -->
 
 ```js
-<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.16/browser/mod.js'</script>
+<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.17/browser/mod.js'</script>
 ```
 
 ```js
@@ -157,7 +157,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
-} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.16/browser/mod.js'
+} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.17/browser/mod.js'
 </script>
 ```
 

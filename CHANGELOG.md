@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.17] - 2024-04-30
+
 ### Fixed
 
 - Ensure worker choice strategy options changes at runtime are propagated to
