@@ -55,7 +55,7 @@ Please consult our [general guidelines](#general-guidelines).
   - Task stealing on idle ✔
   - Tasks stealing under back pressure ✔
   - Tasks redistribution on worker error ✔
-- Support for sync and async task functions ✔
+- Support for sync and async task function ✔
 - Support for multiple task functions ✔
 - Support for task functions
   [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
