@@ -1,3 +1,4 @@
+import type { WorkerChoiceStrategy } from './pools/selection-strategies/selection-strategies-types.ts'
 import type { KillBehavior } from './worker/worker-options.ts'
 
 /**
@@ -70,6 +71,24 @@ export interface WorkerStatistics {
 }
 
 /**
+ * Task function properties.
+ */
+export interface TaskFunctionProperties {
+  /**
+   * Task function name.
+   */
+  readonly name: string
+  /**
+   * Task function priority. Lower values have higher priority.
+   */
+  readonly priority?: number
+  /**
+   * Task function worker choice strategy.
+   */
+  readonly strategy?: WorkerChoiceStrategy
+}
+
+/**
  * Message object that is passed as a task between main worker and worker.
  *
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
@@ -84,6 +103,16 @@ export interface Task<Data = unknown> {
    * Task input data that will be passed to the worker.
    */
   readonly data?: Data
+  /**
+   * Task priority. Lower values have higher priority.
+   *
+   * @defaultValue 0
+   */
+  readonly priority?: number
+  /**
+   * Task worker choice strategy.
+   */
+  readonly strategy?: WorkerChoiceStrategy
   /**
    * Array of transferable objects.
    */
@@ -135,17 +164,17 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
    */
   readonly taskFunctionOperationStatus?: boolean
   /**
-   * Task function name.
+   * Task function properties.
    */
-  readonly taskFunctionName?: string
+  readonly taskFunctionProperties?: TaskFunctionProperties
   /**
    * Task function serialized to string.
    */
   readonly taskFunction?: string
   /**
-   * Task function names.
+   * Task function properties.
    */
-  readonly taskFunctionNames?: string[]
+  readonly taskFunctionsProperties?: TaskFunctionProperties[]
   /**
    * Whether the worker computes the given statistics or not.
    */

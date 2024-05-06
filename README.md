@@ -56,7 +56,8 @@ Please consult our [general guidelines](#general-guidelines).
   - Tasks stealing under back pressure ✔
   - Tasks redistribution on worker error ✔
 - Support for sync and async task function ✔
-- Support for multiple task functions ✔
+- Support for multiple task functions with per task function queuing priority
+  and tasks distribution strategy ✔
 - Support for task functions
   [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
   operations at runtime ✔
@@ -147,7 +148,7 @@ for more details**:
 <!-- deno-fmt-ignore -->
 
 ```js
-<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.17/browser/mod.js'</script>
+<script type="module">import {ThreadWorker} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.3.17/browser/mod.js'</script>
 ```
 
 ```js

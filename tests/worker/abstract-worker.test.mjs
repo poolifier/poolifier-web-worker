@@ -1,6 +1,10 @@
 import { assertSpyCalls, stub } from '@std/testing/mock'
 import { expect } from 'expect'
-import { KillBehaviors, ThreadWorker } from '../../src/mod.ts'
+import {
+  KillBehaviors,
+  ThreadWorker,
+  WorkerChoiceStrategies,
+} from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME, EMPTY_FUNCTION } from '../../src/utils.ts'
 
 Deno.test('Abstract worker test suite', async (t) => {
@@ -131,10 +135,12 @@ Deno.test('Abstract worker test suite', async (t) => {
     'Verify that taskFunctions parameter with unique function is taken',
     () => {
       const worker = new ThreadWorker(() => {})
-      expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
-        Function,
-      )
-      expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
+      expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual({
+        taskFunction: expect.any(Function),
+      })
+      expect(worker.taskFunctions.get('fn1')).toStrictEqual({
+        taskFunction: expect.any(Function),
+      })
       expect(worker.taskFunctions.size).toBe(2)
       expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
         worker.taskFunctions.get('fn1'),
@@ -156,9 +162,38 @@ Deno.test('Abstract worker test suite', async (t) => {
       )
       expect(() => new ThreadWorker({ fn1, fn2 })).toThrow(
         new TypeError(
-          'A taskFunctions parameter object value is not a function',
+          "taskFunction object 'taskFunction' property 'undefined' is not a function",
         ),
       )
+      expect(() => new ThreadWorker({ fn1: { fn1 } })).toThrow(
+        new TypeError(
+          "taskFunction object 'taskFunction' property 'undefined' is not a function",
+        ),
+      )
+      expect(() => new ThreadWorker({ fn2: { taskFunction: fn2 } })).toThrow(
+        new TypeError(
+          "taskFunction object 'taskFunction' property '' is not a function",
+        ),
+      )
+      expect(
+        () => new ThreadWorker({ fn1: { taskFunction: fn1, priority: '' } }),
+      ).toThrow(new TypeError("Invalid property 'priority': ''"))
+      expect(
+        () => new ThreadWorker({ fn1: { taskFunction: fn1, priority: -21 } }),
+      ).toThrow(
+        new RangeError("Property 'priority' must be between -20 and 19"),
+      )
+      expect(
+        () => new ThreadWorker({ fn1: { taskFunction: fn1, priority: 20 } }),
+      ).toThrow(
+        new RangeError("Property 'priority' must be between -20 and 19"),
+      )
+      expect(
+        () =>
+          new ThreadWorker({
+            fn1: { taskFunction: fn1, strategy: 'invalidStrategy' },
+          }),
+      ).toThrow(new Error("Invalid worker choice strategy 'invalidStrategy'"))
     },
   )
 
@@ -172,11 +207,45 @@ Deno.test('Abstract worker test suite', async (t) => {
         return 2
       }
       const worker = new ThreadWorker({ fn1, fn2 })
-      expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(
-        Function,
+      expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual({
+        taskFunction: expect.any(Function),
+      })
+      expect(worker.taskFunctions.get('fn1')).toStrictEqual({
+        taskFunction: expect.any(Function),
+      })
+      expect(worker.taskFunctions.get('fn2')).toStrictEqual({
+        taskFunction: expect.any(Function),
+      })
+      expect(worker.taskFunctions.size).toBe(3)
+      expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
+        worker.taskFunctions.get('fn1'),
       )
-      expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
-      expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
+    },
+  )
+
+  await t.step(
+    'Verify that taskFunctions parameter with multiple task functions object is taken',
+    () => {
+      const fn1Obj = {
+        taskFunction: () => {
+          return 1
+        },
+        priority: 5,
+      }
+      const fn2Obj = {
+        taskFunction: () => {
+          return 2
+        },
+        priority: 6,
+        strategy: WorkerChoiceStrategies.LESS_BUSY,
+      }
+      const worker = new ThreadWorker({
+        fn1: fn1Obj,
+        fn2: fn2Obj,
+      })
+      expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(fn1Obj)
+      expect(worker.taskFunctions.get('fn1')).toStrictEqual(fn1Obj)
+      expect(worker.taskFunctions.get('fn2')).toStrictEqual(fn2Obj)
       expect(worker.taskFunctions.size).toBe(3)
       expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
         worker.taskFunctions.get('fn1'),
@@ -242,10 +311,49 @@ Deno.test('Abstract worker test suite', async (t) => {
     })
     expect(worker.addTaskFunction('fn3', '')).toStrictEqual({
       status: false,
-      error: new TypeError('fn parameter is not a function'),
+      error: new TypeError(
+        "taskFunction object 'taskFunction' property 'undefined' is not a function",
+      ),
     })
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
-    expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
+    expect(worker.addTaskFunction('fn2', { taskFunction: 0 })).toStrictEqual({
+      status: false,
+      error: new TypeError(
+        "taskFunction object 'taskFunction' property '0' is not a function",
+      ),
+    })
+    expect(worker.addTaskFunction('fn3', { taskFunction: '' })).toStrictEqual({
+      status: false,
+      error: new TypeError(
+        "taskFunction object 'taskFunction' property '' is not a function",
+      ),
+    })
+    expect(
+      worker.addTaskFunction('fn2', { taskFunction: () => {}, priority: -21 }),
+    ).toStrictEqual({
+      status: false,
+      error: new RangeError("Property 'priority' must be between -20 and 19"),
+    })
+    expect(
+      worker.addTaskFunction('fn3', { taskFunction: () => {}, priority: 20 }),
+    ).toStrictEqual({
+      status: false,
+      error: new RangeError("Property 'priority' must be between -20 and 19"),
+    })
+    expect(
+      worker.addTaskFunction('fn2', {
+        taskFunction: () => {},
+        strategy: 'invalidStrategy',
+      }),
+    ).toStrictEqual({
+      status: false,
+      error: new Error("Invalid worker choice strategy 'invalidStrategy'"),
+    })
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
+    expect(worker.taskFunctions.get('fn1')).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
     expect(worker.taskFunctions.size).toBe(2)
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
       worker.taskFunctions.get('fn1'),
@@ -257,24 +365,36 @@ Deno.test('Abstract worker test suite', async (t) => {
       ),
     })
     worker.addTaskFunction('fn2', fn2)
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
-    expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
-    expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
+    expect(worker.taskFunctions.get('fn1')).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
+    expect(worker.taskFunctions.get('fn2')).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
     expect(worker.taskFunctions.size).toBe(3)
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
       worker.taskFunctions.get('fn1'),
     )
     worker.addTaskFunction('fn1', fn1Replacement)
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
-    expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
-    expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
+    expect(worker.taskFunctions.get('fn1')).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
+    expect(worker.taskFunctions.get('fn2')).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
     expect(worker.taskFunctions.size).toBe(3)
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
       worker.taskFunctions.get('fn1'),
     )
   })
 
-  await t.step('Verify that listTaskFunctionNames() is working', () => {
+  await t.step('Verify that listTaskFunctionsProperties() is working', () => {
     const fn1 = () => {
       return 1
     }
@@ -282,10 +402,10 @@ Deno.test('Abstract worker test suite', async (t) => {
       return 2
     }
     const worker = new ThreadWorker({ fn1, fn2 })
-    expect(worker.listTaskFunctionNames()).toStrictEqual([
-      DEFAULT_TASK_NAME,
-      'fn1',
-      'fn2',
+    expect(worker.listTaskFunctionsProperties()).toStrictEqual([
+      { name: DEFAULT_TASK_NAME },
+      { name: 'fn1' },
+      { name: 'fn2' },
     ])
   })
 
@@ -305,9 +425,15 @@ Deno.test('Abstract worker test suite', async (t) => {
       status: false,
       error: new TypeError('name parameter is an empty string'),
     })
-    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toBeInstanceOf(Function)
-    expect(worker.taskFunctions.get('fn1')).toBeInstanceOf(Function)
-    expect(worker.taskFunctions.get('fn2')).toBeInstanceOf(Function)
+    expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
+    expect(worker.taskFunctions.get('fn1')).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
+    expect(worker.taskFunctions.get('fn2')).toStrictEqual({
+      taskFunction: expect.any(Function),
+    })
     expect(worker.taskFunctions.size).toBe(3)
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
       worker.taskFunctions.get('fn1'),

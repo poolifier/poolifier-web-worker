@@ -39,7 +39,7 @@ export type {
   WorkerChoiceStrategy,
   WorkerChoiceStrategyOptions,
 } from './pools/selection-strategies/selection-strategies-types.ts'
-export type { WorkerChoiceStrategyContext } from './pools/selection-strategies/worker-choice-strategy-context.ts'
+export type { WorkerChoiceStrategiesContext } from './pools/selection-strategies/worker-choice-strategies-context.ts'
 export { DynamicThreadPool } from './pools/thread/dynamic.ts'
 export { FixedThreadPool } from './pools/thread/fixed.ts'
 export type { ThreadPoolOptions } from './pools/thread/fixed.ts'
@@ -54,6 +54,7 @@ export type {
 export type {
   TaskAsyncFunction,
   TaskFunction,
+  TaskFunctionObject,
   TaskFunctionOperationResult,
   TaskFunctions,
   TaskSyncFunction,
@@ -62,11 +63,12 @@ export type {
   MessageValue,
   PromiseResponseWrapper,
   Task,
+  TaskFunctionProperties,
   TaskPerformance,
   WorkerError,
   WorkerStatistics,
   Writable,
 } from './utility-types.ts'
 export type { CircularArray } from './circular-array.ts'
-export type { Deque, ILinkedListNode } from './deque.ts'
+export type { PriorityQueue, PriorityQueueNode } from './priority-queue.ts'
 export { availableParallelism } from './utils.ts'

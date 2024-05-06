@@ -13,7 +13,7 @@ import { version } from '../../src/pools/version.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 import { CircularArray } from '../../src/circular-array.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'
-import { Deque } from '../../src/deque.ts'
+import { PriorityQueue } from '../../src/priority-queue.ts'
 
 Deno.test({
   name: 'Abstract pool test suite',
@@ -230,7 +230,7 @@ Deno.test({
         workerChoiceStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
       })
       for (
-        const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
+        const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
           .workerChoiceStrategies
       ) {
         expect(workerChoiceStrategy.opts).toStrictEqual({
@@ -286,7 +286,7 @@ Deno.test({
         errorEventHandler: testHandler,
       })
       for (
-        const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
+        const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
           .workerChoiceStrategies
       ) {
         expect(workerChoiceStrategy.opts).toStrictEqual({
@@ -455,8 +455,8 @@ Deno.test({
         )
         expect(pool.opts.workerChoiceStrategyOptions).toBeUndefined()
         for (
-          const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
-            .workerChoiceStrategies
+          const [, workerChoiceStrategy] of pool
+            .workerChoiceStrategiesContext.workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual({
             runTime: { median: false },
@@ -469,7 +469,7 @@ Deno.test({
           })
         }
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -496,8 +496,8 @@ Deno.test({
           elu: { median: true },
         })
         for (
-          const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
-            .workerChoiceStrategies
+          const [, workerChoiceStrategy] of pool
+            .workerChoiceStrategiesContext.workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual({
             runTime: { median: true },
@@ -510,7 +510,7 @@ Deno.test({
           })
         }
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -537,8 +537,8 @@ Deno.test({
           elu: { median: false },
         })
         for (
-          const [, workerChoiceStrategy] of pool.workerChoiceStrategyContext
-            .workerChoiceStrategies
+          const [, workerChoiceStrategy] of pool
+            .workerChoiceStrategiesContext.workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual({
             runTime: { median: false },
@@ -551,7 +551,7 @@ Deno.test({
           })
         }
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -738,7 +738,7 @@ Deno.test({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        strategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: 0,
         minSize: numberOfWorkers,
         maxSize: numberOfWorkers,
@@ -761,7 +761,7 @@ Deno.test({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        strategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: 0,
         minSize: Math.floor(numberOfWorkers / 2),
         maxSize: numberOfWorkers,
@@ -823,7 +823,7 @@ Deno.test({
         )
         for (const workerNode of pool.workerNodes) {
           expect(workerNode).toBeInstanceOf(WorkerNode)
-          expect(workerNode.tasksQueue).toBeInstanceOf(Deque)
+          expect(workerNode.tasksQueue).toBeInstanceOf(PriorityQueue)
           expect(workerNode.tasksQueue.size).toBe(0)
           expect(workerNode.tasksQueue.maxSize).toBe(0)
         }
@@ -835,7 +835,7 @@ Deno.test({
         )
         for (const workerNode of pool.workerNodes) {
           expect(workerNode).toBeInstanceOf(WorkerNode)
-          expect(workerNode.tasksQueue).toBeInstanceOf(Deque)
+          expect(workerNode.tasksQueue).toBeInstanceOf(PriorityQueue)
           expect(workerNode.tasksQueue.size).toBe(0)
           expect(workerNode.tasksQueue.maxSize).toBe(0)
         }
@@ -1136,7 +1136,7 @@ Deno.test({
           worker: WorkerTypes.web,
           started: true,
           ready: true,
-          strategy: WorkerChoiceStrategies.ROUND_ROBIN,
+          defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
           strategyRetries: expect.any(Number),
           minSize: expect.any(Number),
           maxSize: expect.any(Number),
@@ -1178,7 +1178,7 @@ Deno.test({
           worker: WorkerTypes.web,
           started: true,
           ready: true,
-          strategy: WorkerChoiceStrategies.ROUND_ROBIN,
+          defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
           strategyRetries: expect.any(Number),
           minSize: expect.any(Number),
           maxSize: expect.any(Number),
@@ -1219,7 +1219,7 @@ Deno.test({
           worker: WorkerTypes.web,
           started: true,
           ready: true,
-          strategy: WorkerChoiceStrategies.ROUND_ROBIN,
+          defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
           strategyRetries: expect.any(Number),
           minSize: expect.any(Number),
           maxSize: expect.any(Number),
@@ -1263,7 +1263,7 @@ Deno.test({
           worker: WorkerTypes.web,
           started: true,
           ready: true,
-          strategy: WorkerChoiceStrategies.ROUND_ROBIN,
+          defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
           strategyRetries: expect.any(Number),
           minSize: expect.any(Number),
           maxSize: expect.any(Number),
@@ -1404,28 +1404,81 @@ Deno.test({
       )
       await expect(
         dynamicThreadPool.addTaskFunction('test', 0),
-      ).rejects.toThrow(new TypeError('fn argument must be a function'))
+      ).rejects.toThrow(
+        new TypeError('taskFunction property must be a function'),
+      )
       await expect(
         dynamicThreadPool.addTaskFunction('test', ''),
-      ).rejects.toThrow(new TypeError('fn argument must be a function'))
-      expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-        DEFAULT_TASK_NAME,
-        'test',
+      ).rejects.toThrow(
+        new TypeError('taskFunction property must be a function'),
+      )
+      await expect(
+        dynamicThreadPool.addTaskFunction('test', { taskFunction: 0 }),
+      ).rejects.toThrow(
+        new TypeError('taskFunction property must be a function'),
+      )
+      await expect(
+        dynamicThreadPool.addTaskFunction('test', { taskFunction: '' }),
+      ).rejects.toThrow(
+        new TypeError('taskFunction property must be a function'),
+      )
+      await expect(
+        dynamicThreadPool.addTaskFunction('test', {
+          taskFunction: () => {},
+          priority: -21,
+        }),
+      ).rejects.toThrow(
+        new RangeError("Property 'priority' must be between -20 and 19"),
+      )
+      await expect(
+        dynamicThreadPool.addTaskFunction('test', {
+          taskFunction: () => {},
+          priority: 20,
+        }),
+      ).rejects.toThrow(
+        new RangeError("Property 'priority' must be between -20 and 19"),
+      )
+      await expect(
+        dynamicThreadPool.addTaskFunction('test', {
+          taskFunction: () => {},
+          strategy: 'invalidStrategy',
+        }),
+      ).rejects.toThrow(
+        new Error("Invalid worker choice strategy 'invalidStrategy'"),
+      )
+      expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+        { name: DEFAULT_TASK_NAME },
+        { name: 'test' },
       ])
+      expect([
+        ...dynamicThreadPool.workerChoiceStrategiesContext
+          .workerChoiceStrategies.keys(),
+      ]).toStrictEqual([WorkerChoiceStrategies.ROUND_ROBIN])
       const echoTaskFunction = (data) => {
         return data
       }
       await expect(
-        dynamicThreadPool.addTaskFunction('echo', echoTaskFunction),
+        dynamicThreadPool.addTaskFunction('echo', {
+          taskFunction: echoTaskFunction,
+          strategy: WorkerChoiceStrategies.LEAST_BUSY,
+        }),
       ).resolves.toBe(true)
       expect(dynamicThreadPool.taskFunctions.size).toBe(1)
-      expect(dynamicThreadPool.taskFunctions.get('echo')).toStrictEqual(
-        echoTaskFunction,
-      )
-      expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-        DEFAULT_TASK_NAME,
-        'test',
-        'echo',
+      expect(dynamicThreadPool.taskFunctions.get('echo')).toStrictEqual({
+        taskFunction: echoTaskFunction,
+        strategy: WorkerChoiceStrategies.LEAST_BUSY,
+      })
+      expect([
+        ...dynamicThreadPool.workerChoiceStrategiesContext
+          .workerChoiceStrategies.keys(),
+      ]).toStrictEqual([
+        WorkerChoiceStrategies.ROUND_ROBIN,
+        WorkerChoiceStrategies.LEAST_BUSY,
+      ])
+      expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+        { name: DEFAULT_TASK_NAME },
+        { name: 'test' },
+        { name: 'echo', strategy: WorkerChoiceStrategies.LEAST_BUSY },
       ])
       const taskFunctionData = { test: 'test' }
       const echoResult = await dynamicThreadPool.execute(
@@ -1443,12 +1496,12 @@ Deno.test({
             stolen: 0,
             failed: 0,
           },
-          runTime: {
-            history: new CircularArray(),
-          },
-          waitTime: {
-            history: new CircularArray(),
-          },
+          runTime: expect.objectContaining({
+            history: expect.any(CircularArray),
+          }),
+          waitTime: expect.objectContaining({
+            history: expect.any(CircularArray),
+          }),
           elu: {
             idle: {
               history: new CircularArray(),
@@ -1458,6 +1511,33 @@ Deno.test({
             },
           },
         })
+        expect(
+          workerNode.getTaskFunctionWorkerUsage('echo').tasks.executed,
+        ).toBeGreaterThan(0)
+        if (
+          workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate ==
+            null
+        ) {
+          expect(
+            workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate,
+          ).toBeUndefined()
+        } else {
+          expect(
+            workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate,
+          ).toBeGreaterThan(0)
+        }
+        if (
+          workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate ==
+            null
+        ) {
+          expect(
+            workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate,
+          ).toBeUndefined()
+        } else {
+          expect(
+            workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate,
+          ).toBeGreaterThan(0)
+        }
       }
       await dynamicThreadPool.destroy()
     })
@@ -1469,9 +1549,9 @@ Deno.test({
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
-      expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-        DEFAULT_TASK_NAME,
-        'test',
+      expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+        { name: DEFAULT_TASK_NAME },
+        { name: 'test' },
       ])
       await expect(
         dynamicThreadPool.removeTaskFunction('test'),
@@ -1481,61 +1561,79 @@ Deno.test({
       const echoTaskFunction = (data) => {
         return data
       }
-      await dynamicThreadPool.addTaskFunction('echo', echoTaskFunction)
+      await dynamicThreadPool.addTaskFunction('echo', {
+        taskFunction: echoTaskFunction,
+        strategy: WorkerChoiceStrategies.LEAST_BUSY,
+      })
       expect(dynamicThreadPool.taskFunctions.size).toBe(1)
-      expect(dynamicThreadPool.taskFunctions.get('echo')).toStrictEqual(
-        echoTaskFunction,
-      )
-      expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-        DEFAULT_TASK_NAME,
-        'test',
-        'echo',
+      expect(dynamicThreadPool.taskFunctions.get('echo')).toStrictEqual({
+        taskFunction: echoTaskFunction,
+        strategy: WorkerChoiceStrategies.LEAST_BUSY,
+      })
+      expect([
+        ...dynamicThreadPool.workerChoiceStrategiesContext
+          .workerChoiceStrategies.keys(),
+      ]).toStrictEqual([
+        WorkerChoiceStrategies.ROUND_ROBIN,
+        WorkerChoiceStrategies.LEAST_BUSY,
+      ])
+      expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+        { name: DEFAULT_TASK_NAME },
+        { name: 'test' },
+        { name: 'echo', strategy: WorkerChoiceStrategies.LEAST_BUSY },
       ])
       await expect(dynamicThreadPool.removeTaskFunction('echo')).resolves.toBe(
         true,
       )
       expect(dynamicThreadPool.taskFunctions.size).toBe(0)
       expect(dynamicThreadPool.taskFunctions.get('echo')).toBeUndefined()
-      expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-        DEFAULT_TASK_NAME,
-        'test',
+      expect([
+        ...dynamicThreadPool.workerChoiceStrategiesContext
+          .workerChoiceStrategies.keys(),
+      ]).toStrictEqual([WorkerChoiceStrategies.ROUND_ROBIN])
+      expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+        { name: DEFAULT_TASK_NAME },
+        { name: 'test' },
       ])
       await dynamicThreadPool.destroy()
     })
 
-    await t.step('Verify that listTaskFunctionNames() is working', async () => {
-      const dynamicThreadPool = new DynamicThreadPool(
-        Math.floor(numberOfWorkers / 2),
-        numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url,
-        ),
-      )
-      await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
-      expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-        DEFAULT_TASK_NAME,
-        'jsonIntegerSerialization',
-        'factorial',
-        'fibonacci',
-      ])
-      await dynamicThreadPool.destroy()
-      const fixedClusterPool = new FixedThreadPool(
-        numberOfWorkers,
-        new URL(
-          './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url,
-        ),
-      )
-      await waitPoolEvents(fixedClusterPool, PoolEvents.ready, 1)
-      expect(fixedClusterPool.listTaskFunctionNames()).toStrictEqual([
-        DEFAULT_TASK_NAME,
-        'jsonIntegerSerialization',
-        'factorial',
-        'fibonacci',
-      ])
-      await fixedClusterPool.destroy()
-    })
+    await t.step(
+      'Verify that listTaskFunctionsProperties() is working',
+      async () => {
+        const dynamicThreadPool = new DynamicThreadPool(
+          Math.floor(numberOfWorkers / 2),
+          numberOfWorkers,
+          new URL(
+            './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
+            import.meta.url,
+          ),
+        )
+        await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
+        expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+          { name: DEFAULT_TASK_NAME },
+          { name: 'jsonIntegerSerialization' },
+          { name: 'factorial' },
+          { name: 'fibonacci' },
+        ])
+        await dynamicThreadPool.destroy()
+        const fixedClusterPool = new FixedThreadPool(
+          numberOfWorkers,
+          new URL(
+            './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
+            import.meta.url,
+          ),
+        )
+        await waitPoolEvents(fixedClusterPool, PoolEvents.ready, 1)
+        expect(fixedClusterPool.listTaskFunctionsProperties()).toStrictEqual([
+          { name: DEFAULT_TASK_NAME },
+          { name: 'jsonIntegerSerialization' },
+          { name: 'factorial' },
+          { name: 'fibonacci' },
+        ])
+        await fixedClusterPool.destroy()
+      },
+    )
 
     await t.step(
       'Verify that setDefaultTaskFunction() is working',
@@ -1580,29 +1678,29 @@ Deno.test({
         await expect(
           dynamicThreadPool.setDefaultTaskFunction('unknown'),
         ).rejects.toThrow()
-        expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-          DEFAULT_TASK_NAME,
-          'jsonIntegerSerialization',
-          'factorial',
-          'fibonacci',
+        expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+          { name: DEFAULT_TASK_NAME },
+          { name: 'jsonIntegerSerialization' },
+          { name: 'factorial' },
+          { name: 'fibonacci' },
         ])
         await expect(
           dynamicThreadPool.setDefaultTaskFunction('factorial'),
         ).resolves.toBe(true)
-        expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-          DEFAULT_TASK_NAME,
-          'factorial',
-          'jsonIntegerSerialization',
-          'fibonacci',
+        expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+          { name: DEFAULT_TASK_NAME },
+          { name: 'factorial' },
+          { name: 'jsonIntegerSerialization' },
+          { name: 'fibonacci' },
         ])
         await expect(
           dynamicThreadPool.setDefaultTaskFunction('fibonacci'),
         ).resolves.toBe(true)
-        expect(dynamicThreadPool.listTaskFunctionNames()).toStrictEqual([
-          DEFAULT_TASK_NAME,
-          'fibonacci',
-          'jsonIntegerSerialization',
-          'factorial',
+        expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
+          { name: DEFAULT_TASK_NAME },
+          { name: 'fibonacci' },
+          { name: 'jsonIntegerSerialization' },
+          { name: 'factorial' },
         ])
         await dynamicThreadPool.destroy()
       },
@@ -1631,15 +1729,21 @@ Deno.test({
         expect(pool.info.executingTasks).toBe(0)
         expect(pool.info.executedTasks).toBe(4)
         for (const workerNode of pool.workerNodes) {
-          expect(workerNode.info.taskFunctionNames).toStrictEqual([
-            DEFAULT_TASK_NAME,
-            'jsonIntegerSerialization',
-            'factorial',
-            'fibonacci',
+          expect(workerNode.info.taskFunctionsProperties).toStrictEqual([
+            { name: DEFAULT_TASK_NAME },
+            { name: 'jsonIntegerSerialization' },
+            { name: 'factorial' },
+            { name: 'fibonacci' },
           ])
           expect(workerNode.taskFunctionsUsage.size).toBe(3)
-          for (const name of pool.listTaskFunctionNames()) {
-            expect(workerNode.getTaskFunctionWorkerUsage(name)).toStrictEqual({
+          for (
+            const taskFunctionProperties of pool.listTaskFunctionsProperties()
+          ) {
+            expect(
+              workerNode.getTaskFunctionWorkerUsage(
+                taskFunctionProperties.name,
+              ),
+            ).toStrictEqual({
               tasks: {
                 executed: expect.any(Number),
                 executing: 0,
@@ -1664,14 +1768,15 @@ Deno.test({
               },
             })
             expect(
-              workerNode.getTaskFunctionWorkerUsage(name).tasks.executed,
+              workerNode.getTaskFunctionWorkerUsage(taskFunctionProperties.name)
+                .tasks.executed,
             ).toBeGreaterThan(0)
           }
           expect(
             workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME),
           ).toStrictEqual(
             workerNode.getTaskFunctionWorkerUsage(
-              workerNode.info.taskFunctionNames[1],
+              workerNode.info.taskFunctionsProperties[1].name,
             ),
           )
         }
@@ -1704,13 +1809,19 @@ Deno.test({
       await expect(
         pool.sendTaskFunctionOperationToWorker(workerNodeKey, {
           taskFunctionOperation: 'add',
-          taskFunctionName: 'empty',
+          taskFunctionProperties: { name: 'empty' },
           taskFunction: (() => {}).toString(),
         }),
       ).resolves.toBe(true)
       expect(
-        pool.workerNodes[workerNodeKey].info.taskFunctionNames,
-      ).toStrictEqual([DEFAULT_TASK_NAME, 'test', 'empty'])
+        pool.workerNodes[workerNodeKey].info.taskFunctionsProperties,
+      ).toStrictEqual([
+        { name: DEFAULT_TASK_NAME },
+        { name: 'test' },
+        {
+          name: 'empty',
+        },
+      ])
       await pool.destroy()
     })
 
@@ -1723,15 +1834,15 @@ Deno.test({
       await expect(
         pool.sendTaskFunctionOperationToWorkers({
           taskFunctionOperation: 'add',
-          taskFunctionName: 'empty',
+          taskFunctionProperties: { name: 'empty' },
           taskFunction: (() => {}).toString(),
         }),
       ).resolves.toBe(true)
       for (const workerNode of pool.workerNodes) {
-        expect(workerNode.info.taskFunctionNames).toStrictEqual([
-          DEFAULT_TASK_NAME,
-          'test',
-          'empty',
+        expect(workerNode.info.taskFunctionsProperties).toStrictEqual([
+          { name: DEFAULT_TASK_NAME },
+          { name: 'test' },
+          { name: 'empty' },
         ])
       }
       await pool.destroy()

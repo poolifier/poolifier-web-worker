@@ -18,14 +18,17 @@ Deno.test(
       const strategy = new WeightedRoundRobinWorkerChoiceStrategy(pool)
       strategy.nextWorkerNodeKey = randomInt(1, 281474976710656)
       strategy.previousWorkerNodeKey = randomInt(1, 281474976710656)
-      strategy.workerNodeVirtualTaskRunTime = randomInt(1, 281474976710656)
+      strategy.workerNodeVirtualTaskExecutionTime = randomInt(
+        1,
+        281474976710656,
+      )
       expect(strategy.nextWorkerNodeKey).toBeGreaterThan(0)
       expect(strategy.previousWorkerNodeKey).toBeGreaterThan(0)
-      expect(strategy.workerNodeVirtualTaskRunTime).toBeGreaterThan(0)
+      expect(strategy.workerNodeVirtualTaskExecutionTime).toBeGreaterThan(0)
       expect(strategy.reset()).toBe(true)
       expect(strategy.nextWorkerNodeKey).toBe(0)
       expect(strategy.previousWorkerNodeKey).toBe(0)
-      expect(strategy.workerNodeVirtualTaskRunTime).toBe(0)
+      expect(strategy.workerNodeVirtualTaskExecutionTime).toBe(0)
     })
 
     await t.step('Verify that IWRR reset() resets internals', () => {
@@ -36,18 +39,21 @@ Deno.test(
       strategy.previousWorkerNodeKey = randomInt(1, 281474976710656)
       strategy.roundId = randomInt(1, 281474976710656)
       strategy.workerNodeId = randomInt(1, 281474976710656)
-      strategy.workerNodeVirtualTaskRunTime = randomInt(1, 281474976710656)
+      strategy.workerNodeVirtualTaskExecutionTime = randomInt(
+        1,
+        281474976710656,
+      )
       expect(strategy.nextWorkerNodeKey).toBeGreaterThan(0)
       expect(strategy.previousWorkerNodeKey).toBeGreaterThan(0)
       expect(strategy.roundId).toBeGreaterThan(0)
       expect(strategy.workerNodeId).toBeGreaterThan(0)
-      expect(strategy.workerNodeVirtualTaskRunTime).toBeGreaterThan(0)
+      expect(strategy.workerNodeVirtualTaskExecutionTime).toBeGreaterThan(0)
       expect(strategy.reset()).toBe(true)
       expect(strategy.nextWorkerNodeKey).toBe(0)
       expect(strategy.previousWorkerNodeKey).toBe(0)
       expect(strategy.roundId).toBe(0)
       expect(strategy.workerNodeId).toBe(0)
-      expect(strategy.workerNodeVirtualTaskRunTime).toBe(0)
+      expect(strategy.workerNodeVirtualTaskExecutionTime).toBe(0)
     })
 
     await pool.destroy()

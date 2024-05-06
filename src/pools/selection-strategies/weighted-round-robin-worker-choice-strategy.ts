@@ -34,9 +34,9 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /**
-   * Worker node virtual task runtime.
+   * Worker node virtual task execution time.
    */
-  private workerNodeVirtualTaskRunTime = 0
+  private workerNodeVirtualTaskExecutionTime = 0
 
   /** @inheritDoc */
   public constructor(
@@ -50,7 +50,7 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   /** @inheritDoc */
   public reset(): boolean {
     this.resetWorkerNodeKeyProperties()
-    this.workerNodeVirtualTaskRunTime = 0
+    this.workerNodeVirtualTaskExecutionTime = 0
     return true
   }
 
@@ -74,7 +74,7 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
       return true
     }
     if (this.nextWorkerNodeKey === workerNodeKey) {
-      this.workerNodeVirtualTaskRunTime = 0
+      this.workerNodeVirtualTaskExecutionTime = 0
       if (this.nextWorkerNodeKey > this.pool.workerNodes.length - 1) {
         this.nextWorkerNodeKey = this.pool.workerNodes.length - 1
       }
@@ -91,17 +91,16 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   private weightedRoundRobinNextWorkerNodeKey(): number | undefined {
     const workerWeight =
       this.opts!.weights![this.nextWorkerNodeKey ?? this.previousWorkerNodeKey]
-    if (this.workerNodeVirtualTaskRunTime < workerWeight) {
-      this.workerNodeVirtualTaskRunTime = this.workerNodeVirtualTaskRunTime +
-        this.getWorkerNodeTaskRunTime(
-          this.nextWorkerNodeKey ?? this.previousWorkerNodeKey,
-        )
+    if (this.workerNodeVirtualTaskExecutionTime < workerWeight) {
+      this.workerNodeVirtualTaskExecutionTime += this.getWorkerNodeTaskRunTime(
+        this.nextWorkerNodeKey ?? this.previousWorkerNodeKey,
+      )
     } else {
       this.nextWorkerNodeKey =
         this.nextWorkerNodeKey === this.pool.workerNodes.length - 1
           ? 0
           : (this.nextWorkerNodeKey ?? this.previousWorkerNodeKey) + 1
-      this.workerNodeVirtualTaskRunTime = 0
+      this.workerNodeVirtualTaskExecutionTime = 0
     }
     return this.nextWorkerNodeKey
   }

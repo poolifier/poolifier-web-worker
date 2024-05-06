@@ -1,7 +1,6 @@
 import { CircularArray } from '../circular-array.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import { DEFAULT_TASK_NAME } from '../utils.ts'
-import { Deque } from '../deque.ts'
 import type {
   IWorker,
   IWorkerNode,
@@ -18,6 +17,7 @@ import {
   getWorkerId,
   getWorkerType,
 } from './utils.ts'
+import { PriorityQueue } from '../priority-queue.ts'
 
 /**
  * Worker node.
@@ -40,7 +40,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   public messageChannel?: MessageChannel
   /** @inheritdoc */
   public tasksQueueBackPressureSize: number
-  private readonly tasksQueue: Deque<Task<Data>>
+  private readonly tasksQueue: PriorityQueue<Task<Data>>
   private onBackPressureStarted: boolean
   private readonly taskFunctionsUsage: Map<string, WorkerUsage>
 
@@ -79,7 +79,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       )
     }
     this.tasksQueueBackPressureSize = opts.tasksQueueBackPressureSize!
-    this.tasksQueue = new Deque<Task<Data>>()
+    this.tasksQueue = new PriorityQueue<Task<Data>>()
     this.onBackPressureStarted = false
     this.taskFunctionsUsage = new Map<string, WorkerUsage>()
   }
@@ -91,7 +91,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
 
   /** @inheritdoc */
   public enqueueTask(task: Task<Data>): number {
-    const tasksQueueSize = this.tasksQueue.push(task)
+    const tasksQueueSize = this.tasksQueue.enqueue(task, task.priority)
     if (this.hasBackPressure() && !this.onBackPressureStarted) {
       this.onBackPressureStarted = true
       this.dispatchEvent(
@@ -105,28 +105,8 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   }
 
   /** @inheritdoc */
-  public unshiftTask(task: Task<Data>): number {
-    const tasksQueueSize = this.tasksQueue.unshift(task)
-    if (this.hasBackPressure() && !this.onBackPressureStarted) {
-      this.onBackPressureStarted = true
-      this.dispatchEvent(
-        new CustomEvent<WorkerNodeEventDetail>('backPressure', {
-          detail: { workerId: this.info.id },
-        }),
-      )
-      this.onBackPressureStarted = false
-    }
-    return tasksQueueSize
-  }
-
-  /** @inheritdoc */
-  public dequeueTask(): Task<Data> | undefined {
-    return this.tasksQueue.shift()
-  }
-
-  /** @inheritdoc */
-  public popTask(): Task<Data> | undefined {
-    return this.tasksQueue.pop()
+  public dequeueTask(bucket?: number): Task<Data> | undefined {
+    return this.tasksQueue.dequeue(bucket)
   }
 
   /** @inheritdoc */
@@ -148,21 +128,21 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
 
   /** @inheritdoc */
   public getTaskFunctionWorkerUsage(name: string): WorkerUsage | undefined {
-    if (!Array.isArray(this.info.taskFunctionNames)) {
+    if (!Array.isArray(this.info.taskFunctionsProperties)) {
       throw new Error(
-        `Cannot get task function worker usage for task function name '${name}' when task function names list is not yet defined`,
+        `Cannot get task function worker usage for task function name '${name}' when task function properties list is not yet defined`,
       )
     }
     if (
-      Array.isArray(this.info.taskFunctionNames) &&
-      this.info.taskFunctionNames.length < 3
+      Array.isArray(this.info.taskFunctionsProperties) &&
+      this.info.taskFunctionsProperties.length < 3
     ) {
       throw new Error(
-        `Cannot get task function worker usage for task function name '${name}' when task function names list has less than 3 elements`,
+        `Cannot get task function worker usage for task function name '${name}' when task function properties list has less than 3 elements`,
       )
     }
     if (name === DEFAULT_TASK_NAME) {
-      name = this.info.taskFunctionNames[1]
+      name = this.info.taskFunctionsProperties[1].name
     }
     if (!this.taskFunctionsUsage.has(name)) {
       this.taskFunctionsUsage.set(name, this.initTaskFunctionWorkerUsage(name))
@@ -237,7 +217,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       for (const task of this.tasksQueue) {
         if (
           (task.name === DEFAULT_TASK_NAME &&
-            name === this.info.taskFunctionNames![1]) ||
+            name === this.info.taskFunctionsProperties![1].name) ||
           (task.name !== DEFAULT_TASK_NAME && name === task.name)
         ) {
           ;++taskFunctionQueueSize

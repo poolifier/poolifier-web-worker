@@ -11,6 +11,7 @@ import type {
   WorkerChoiceStrategy,
   WorkerChoiceStrategyOptions,
 } from './selection-strategies/selection-strategies-types.ts'
+import type { TaskFunctionProperties } from '../utility-types.ts'
 
 /**
  * Enumeration of pool types.
@@ -75,7 +76,7 @@ export interface PoolInfo {
   readonly worker: WorkerType
   readonly started: boolean
   readonly ready: boolean
-  readonly strategy: WorkerChoiceStrategy
+  readonly defaultStrategy: WorkerChoiceStrategy
   readonly strategyRetries: number
   readonly minSize: number
   readonly maxSize: number
@@ -175,7 +176,7 @@ export interface PoolOptions {
    */
   startWorkers?: boolean
   /**
-   * The worker choice strategy to use in this pool.
+   * The default worker choice strategy to use in this pool.
    *
    * @defaultValue WorkerChoiceStrategies.ROUND_ROBIN
    */
@@ -300,11 +301,11 @@ export interface IPool<
    */
   readonly removeTaskFunction: (name: string) => Promise<boolean>
   /**
-   * Lists the names of task function available in this pool.
+   * Lists the properties of task functions available in this pool.
    *
-   * @returns The names of task function available in this pool.
+   * @returns The properties of task functions available in this pool.
    */
-  readonly listTaskFunctionNames: () => string[]
+  readonly listTaskFunctionsProperties: () => TaskFunctionProperties[]
   /**
    * Sets the default task function in this pool.
    *
@@ -313,9 +314,9 @@ export interface IPool<
    */
   readonly setDefaultTaskFunction: (name: string) => Promise<boolean>
   /**
-   * Sets the worker choice strategy in this pool.
+   * Sets the default worker choice strategy in this pool.
    *
-   * @param workerChoiceStrategy - The worker choice strategy.
+   * @param workerChoiceStrategy - The default worker choice strategy.
    * @param workerChoiceStrategyOptions - The worker choice strategy options.
    */
   readonly setWorkerChoiceStrategy: (

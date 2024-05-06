@@ -1,5 +1,5 @@
 import type { CircularArray } from '../circular-array.ts'
-import type { Task } from '../utility-types.ts'
+import type { Task, TaskFunctionProperties } from '../utility-types.ts'
 
 /**
  * Callback invoked if the worker has received a message event.
@@ -143,9 +143,9 @@ export interface WorkerInfo {
    */
   stealing: boolean
   /**
-   * Task function names.
+   * Task functions properties.
    */
-  taskFunctionNames?: string[]
+  taskFunctionsProperties?: TaskFunctionProperties[]
 }
 
 /**
@@ -242,6 +242,7 @@ export interface IWorker extends EventTarget {
 export interface WorkerNodeOptions {
   workerOptions?: WorkerOptions
   tasksQueueBackPressureSize: number | undefined
+  tasksQueueBucketSize: number | undefined
 }
 
 /**
@@ -293,24 +294,11 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
    */
   readonly enqueueTask: (task: Task<Data>) => number
   /**
-   * Prepends a task to the tasks queue.
-   *
-   * @param task - The task to prepend.
-   * @returns The tasks queue size.
-   */
-  readonly unshiftTask: (task: Task<Data>) => number
-  /**
    * Dequeue task.
    *
    * @returns The dequeued task.
    */
-  readonly dequeueTask: () => Task<Data> | undefined
-  /**
-   * Pops a task from the tasks queue.
-   *
-   * @returns The popped task.
-   */
-  readonly popTask: () => Task<Data> | undefined
+  readonly dequeueTask: (bucket?: number) => Task<Data> | undefined
   /**
    * Clears tasks queue.
    */
