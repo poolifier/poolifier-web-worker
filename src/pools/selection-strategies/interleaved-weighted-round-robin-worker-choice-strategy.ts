@@ -28,7 +28,11 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
       average: true,
       median: false,
     },
-    waitTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+    waitTime: {
+      aggregate: true,
+      average: true,
+      median: false,
+    },
     elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   }
 
@@ -45,9 +49,9 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
    */
   private workerNodeId = 0
   /**
-   * Worker node virtual task runtime.
+   * Worker node virtual task execution time.
    */
-  private workerNodeVirtualTaskRunTime = 0
+  private workerNodeVirtualTaskExecutionTime = 0
 
   /** @inheritDoc */
   public constructor(
@@ -64,7 +68,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
     this.resetWorkerNodeKeyProperties()
     this.roundId = 0
     this.workerNodeId = 0
-    this.workerNodeVirtualTaskRunTime = 0
+    this.workerNodeVirtualTaskExecutionTime = 0
     return true
   }
 
@@ -89,18 +93,18 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
         this.workerNodeId = workerNodeKey
         if (
           this.workerNodeId !== this.nextWorkerNodeKey &&
-          this.workerNodeVirtualTaskRunTime !== 0
+          this.workerNodeVirtualTaskExecutionTime !== 0
         ) {
-          this.workerNodeVirtualTaskRunTime = 0
+          this.workerNodeVirtualTaskExecutionTime = 0
         }
         const workerWeight = this.opts!.weights![workerNodeKey]
         if (
           this.isWorkerNodeReady(workerNodeKey) &&
           workerWeight >= this.roundWeights[roundIndex] &&
-          this.workerNodeVirtualTaskRunTime < workerWeight
+          this.workerNodeVirtualTaskExecutionTime < workerWeight
         ) {
-          this.workerNodeVirtualTaskRunTime =
-            this.workerNodeVirtualTaskRunTime +
+          this.workerNodeVirtualTaskExecutionTime +=
+            this.getWorkerNodeTaskWaitTime(workerNodeKey) +
             this.getWorkerNodeTaskRunTime(workerNodeKey)
           this.setPreviousWorkerNodeKey(this.nextWorkerNodeKey)
           this.nextWorkerNodeKey = workerNodeKey
@@ -133,7 +137,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
     if (this.pool.workerNodes.length === 0) {
       this.resetWorkerNodeKeyProperties()
       this.workerNodeId = 0
-      this.workerNodeVirtualTaskRunTime = 0
+      this.workerNodeVirtualTaskExecutionTime = 0
       return true
     }
     if (

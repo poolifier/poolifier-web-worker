@@ -1,5 +1,4 @@
 import {
-  availableParallelism,
   average,
   environment,
   isPlainObject,
@@ -8,15 +7,13 @@ import {
   median,
   min,
   runtime,
-  unsupportedJsRuntime,
 } from '../utils.ts'
 import {
   type MeasurementStatisticsRequirements,
   WorkerChoiceStrategies,
   type WorkerChoiceStrategy,
-  type WorkerChoiceStrategyOptions,
 } from './selection-strategies/selection-strategies-types.ts'
-import type { IPool, TasksQueueOptions } from './pool.ts'
+import type { TasksQueueOptions } from './pool.ts'
 import {
   type IWorker,
   type IWorkerNode,
@@ -27,7 +24,7 @@ import {
   type WorkerUsage,
 } from './worker.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
-import type { WorkerChoiceStrategyContext } from './selection-strategies/worker-choice-strategy-context.ts'
+import type { WorkerChoiceStrategiesContext } from './selection-strategies/worker-choice-strategies-context.ts'
 
 let exportedUpdateMeasurementStatistics: (
   measurementStatistics: MeasurementStatistics,
@@ -57,114 +54,6 @@ export const getDefaultTasksQueueOptions = (
     tasksFinishedTimeout: 2000,
   }
 }
-
-export const getWorkerChoiceStrategyRetries = <
-  Worker extends IWorker,
-  Data,
-  Response,
->(
-  pool: IPool<Worker, Data, Response>,
-  opts?: WorkerChoiceStrategyOptions,
-): number => {
-  return (
-    pool.info.maxSize +
-    Object.keys(opts?.weights ?? getDefaultWeights(pool.info.maxSize)).length
-  )
-}
-
-export const buildWorkerChoiceStrategyOptions = <
-  Worker extends IWorker,
-  Data,
-  Response,
->(
-  pool: IPool<Worker, Data, Response>,
-  opts?: WorkerChoiceStrategyOptions,
-): WorkerChoiceStrategyOptions => {
-  opts = structuredClone(opts ?? {})
-  opts.weights = opts.weights ?? getDefaultWeights(pool.info.maxSize)
-  return {
-    ...{
-      runTime: { median: false },
-      waitTime: { median: false },
-      elu: { median: false },
-    },
-    ...opts,
-  }
-}
-
-const getDefaultWeights = (
-  poolMaxSize: number,
-  defaultWorkerWeight?: number,
-): Record<number, number> => {
-  defaultWorkerWeight = defaultWorkerWeight ?? computedDefaultWorkerWeight
-  const weights: Record<number, number> = {}
-  for (let workerNodeKey = 0; workerNodeKey < poolMaxSize; workerNodeKey++) {
-    weights[workerNodeKey] = defaultWorkerWeight
-  }
-  return weights
-}
-
-const estimatedCpuSpeed = (): number => {
-  const runs = 150000000
-  const begin = performance.now()
-  // deno-lint-ignore no-empty
-  for (let i = runs; i > 0; i--) {}
-  const end = performance.now()
-  const duration = end - begin
-  return Math.trunc(runs / duration / 1000) // in MHz
-}
-
-const buildCpusInfo = async (): Promise<{ speed: number }[]> => {
-  // deno-lint-ignore ban-ts-comment
-  // @ts-ignore
-  const cpus: { speed: number }[] = (await import('node:os')).cpus()
-  let estCpuSpeed: number | undefined
-  if (cpus.every((cpu) => cpu.speed == null || cpu.speed === 0)) {
-    estCpuSpeed = estimatedCpuSpeed()
-  }
-  for (const cpu of cpus) {
-    if (cpu.speed == null || cpu.speed === 0) {
-      cpu.speed = cpus.find((cpu) =>
-        cpu.speed != null && cpu.speed !== 0
-      )?.speed ??
-        estCpuSpeed ??
-        2000
-    }
-  }
-  return cpus
-}
-
-const cpusCycleTimeWeight = (cpus: { speed: number }[]): number => {
-  let cpusCycleTimeWeight = 0
-  for (const cpu of cpus) {
-    // CPU estimated cycle time
-    const numberOfDigits = cpu.speed.toString().length - 1
-    const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
-    cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
-  }
-  return Math.round(cpusCycleTimeWeight / cpus.length)
-}
-
-const computedDefaultWorkerWeight: number =
-  await (async (): Promise<number> => {
-    return await {
-      unknown: unsupportedJsRuntime,
-      browser: () => {
-        const estCpuSpeed = estimatedCpuSpeed()
-        return cpusCycleTimeWeight(
-          Array(availableParallelism()).fill({
-            speed: estCpuSpeed,
-          }),
-        )
-      },
-      deno: async () => {
-        return cpusCycleTimeWeight(await buildCpusInfo())
-      },
-      bun: async () => {
-        return cpusCycleTimeWeight(await buildCpusInfo())
-      },
-    }[runtime]()
-  })()
 
 export const checkFileURL = (fileURL: URL | undefined): void => {
   if (fileURL == null) {
@@ -199,6 +88,19 @@ export const checkDynamicPoolSize = (
     throw new RangeError(
       'Cannot instantiate a dynamic pool with a minimum pool size equal to the maximum pool size. Use a fixed pool instead',
     )
+  }
+}
+
+export const checkValidPriority = (priority: number | undefined): void => {
+  if (priority != null && !Number.isSafeInteger(priority)) {
+    throw new TypeError(`Invalid property 'priority': '${priority}'`)
+  }
+  if (
+    priority != null &&
+    Number.isSafeInteger(priority) &&
+    (priority < -20 || priority > 19)
+  ) {
+    throw new RangeError("Property 'priority' must be between -20 and 19")
   }
 }
 
@@ -343,8 +245,8 @@ export const updateWaitTimeWorkerUsage = <
   Data = unknown,
   Response = unknown,
 >(
-  workerChoiceStrategyContext:
-    | WorkerChoiceStrategyContext<Worker, Data, Response>
+  workerChoiceStrategiesContext:
+    | WorkerChoiceStrategiesContext<Worker, Data, Response>
     | undefined,
   workerUsage: WorkerUsage,
   task: Task<Data>,
@@ -353,7 +255,7 @@ export const updateWaitTimeWorkerUsage = <
   const taskWaitTime = timestamp - (task.timestamp ?? timestamp)
   updateMeasurementStatistics(
     workerUsage.waitTime,
-    workerChoiceStrategyContext?.getTaskStatisticsRequirements().waitTime,
+    workerChoiceStrategiesContext?.getTaskStatisticsRequirements().waitTime,
     taskWaitTime,
   )
 }
@@ -381,8 +283,8 @@ export const updateRunTimeWorkerUsage = <
   Data = unknown,
   Response = unknown,
 >(
-  workerChoiceStrategyContext:
-    | WorkerChoiceStrategyContext<Worker, Data, Response>
+  workerChoiceStrategiesContext:
+    | WorkerChoiceStrategiesContext<Worker, Data, Response>
     | undefined,
   workerUsage: WorkerUsage,
   message: MessageValue<Response>,
@@ -392,7 +294,7 @@ export const updateRunTimeWorkerUsage = <
   }
   updateMeasurementStatistics(
     workerUsage.runTime,
-    workerChoiceStrategyContext?.getTaskStatisticsRequirements().runTime,
+    workerChoiceStrategiesContext?.getTaskStatisticsRequirements().runTime,
     message.taskPerformance?.runTime ?? 0,
   )
 }
@@ -402,8 +304,8 @@ export const updateEluWorkerUsage = <
   Data = unknown,
   Response = unknown,
 >(
-  workerChoiceStrategyContext:
-    | WorkerChoiceStrategyContext<Worker, Data, Response>
+  workerChoiceStrategiesContext:
+    | WorkerChoiceStrategiesContext<Worker, Data, Response>
     | undefined,
   workerUsage: WorkerUsage,
   message: MessageValue<Response>,
@@ -411,7 +313,7 @@ export const updateEluWorkerUsage = <
   if (message.workerError != null) {
     return
   }
-  const eluTaskStatisticsRequirements = workerChoiceStrategyContext
+  const eluTaskStatisticsRequirements = workerChoiceStrategiesContext
     ?.getTaskStatisticsRequirements().elu
   updateMeasurementStatistics(
     workerUsage.elu.active,

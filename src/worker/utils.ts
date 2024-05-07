@@ -1,5 +1,9 @@
+import {
+  checkValidPriority,
+  checkValidWorkerChoiceStrategy,
+} from '../pools/utils.ts'
 import { isPlainObject } from '../utils.ts'
-import type { TaskFunction } from './task-functions.ts'
+import type { TaskFunctionObject } from './task-functions.ts'
 import { KillBehaviors, type WorkerOptions } from './worker-options.ts'
 
 export const checkValidWorkerOptions = (
@@ -32,9 +36,12 @@ export const checkValidWorkerOptions = (
   }
 }
 
-export const checkValidTaskFunctionEntry = <Data = unknown, Response = unknown>(
+export const checkValidTaskFunctionObjectEntry = <
+  Data = unknown,
+  Response = unknown,
+>(
   name: string,
-  fn: TaskFunction<Data, Response>,
+  fnObj: TaskFunctionObject<Data, Response>,
 ): void => {
   if (typeof name !== 'string') {
     throw new TypeError('A taskFunctions parameter object key is not a string')
@@ -44,11 +51,13 @@ export const checkValidTaskFunctionEntry = <Data = unknown, Response = unknown>(
       'A taskFunctions parameter object key is an empty string',
     )
   }
-  if (typeof fn !== 'function') {
+  if (typeof fnObj.taskFunction !== 'function') {
     throw new TypeError(
-      'A taskFunctions parameter object value is not a function',
+      `taskFunction object 'taskFunction' property '${fnObj.taskFunction}' is not a function`,
     )
   }
+  checkValidPriority(fnObj.priority)
+  checkValidWorkerChoiceStrategy(fnObj.strategy)
 }
 
 export const checkTaskFunctionName = (name: string): void => {

@@ -4,16 +4,14 @@ import {
   DEFAULT_CIRCULAR_ARRAY_SIZE,
 } from '../../src/circular-array.ts'
 import {
-  buildWorkerChoiceStrategyOptions,
   createWorker,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   exportedUpdateMeasurementStatistics,
   getDefaultTasksQueueOptions,
-  getWorkerChoiceStrategyRetries,
   getWorkerId,
   getWorkerType,
 } from '../../src/pools/utils.ts'
-import { FixedThreadPool, WorkerTypes } from '../../src/mod.ts'
+import { WorkerTypes } from '../../src/mod.ts'
 
 Deno.test('Pool utils test suite', async (t) => {
   await t.step(
@@ -36,64 +34,6 @@ Deno.test('Pool utils test suite', async (t) => {
       tasksFinishedTimeout: 2000,
     })
   })
-
-  await t.step('Verify getWorkerChoiceStrategyRetries() behavior', async () => {
-    const numberOfThreads = 4
-    const pool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-    )
-    expect(getWorkerChoiceStrategyRetries(pool)).toBe(pool.info.maxSize * 2)
-    const workerChoiceStrategyOptions = {
-      runTime: { median: true },
-      waitTime: { median: true },
-      elu: { median: true },
-      weights: {
-        0: 100,
-        1: 100,
-      },
-    }
-    expect(
-      getWorkerChoiceStrategyRetries(pool, workerChoiceStrategyOptions),
-    ).toBe(
-      pool.info.maxSize +
-        Object.keys(workerChoiceStrategyOptions.weights).length,
-    )
-    await pool.destroy()
-  })
-
-  await t.step(
-    'Verify buildWorkerChoiceStrategyOptions() behavior',
-    async () => {
-      const numberOfThreads = 4
-      const pool = new FixedThreadPool(
-        numberOfThreads,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-      )
-      expect(buildWorkerChoiceStrategyOptions(pool)).toStrictEqual({
-        runTime: { median: false },
-        waitTime: { median: false },
-        elu: { median: false },
-        weights: expect.objectContaining({
-          0: expect.any(Number),
-          [pool.info.maxSize - 1]: expect.any(Number),
-        }),
-      })
-      const workerChoiceStrategyOptions = {
-        runTime: { median: true },
-        waitTime: { median: true },
-        elu: { median: true },
-        weights: {
-          0: 100,
-          1: 100,
-        },
-      }
-      expect(
-        buildWorkerChoiceStrategyOptions(pool, workerChoiceStrategyOptions),
-      ).toStrictEqual(workerChoiceStrategyOptions)
-      await pool.destroy()
-    },
-  )
 
   await t.step('Verify updateMeasurementStatistics() behavior', () => {
     const measurementStatistics = {

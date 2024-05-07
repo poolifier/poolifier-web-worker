@@ -1,3 +1,5 @@
+import type { TaskFunctionProperties } from './utility-types.ts'
+import type { TaskFunctionObject } from './worker/task-functions.ts'
 import type { KillBehavior } from './worker/worker-options.ts'
 
 /**
@@ -206,6 +208,21 @@ export const once = <A extends any[], R, C extends ThisType<any>>(
           undefined
     }
     return result
+  }
+}
+
+export const buildTaskFunctionProperties = <Data, Response>(
+  name: string,
+  taskFunctionObject: TaskFunctionObject<Data, Response> | undefined,
+): TaskFunctionProperties => {
+  return {
+    name,
+    ...(taskFunctionObject?.priority != null && {
+      priority: taskFunctionObject.priority,
+    }),
+    ...(taskFunctionObject?.strategy != null && {
+      strategy: taskFunctionObject.strategy,
+    }),
   }
 }
 

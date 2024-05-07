@@ -5,6 +5,7 @@ import {
   WorkerChoiceStrategies,
 } from '../../../src/mod.ts'
 import { CircularArray } from '../../../src/circular-array.ts'
+import { randomInt } from 'node:crypto'
 
 Deno.test({
   name: 'Selection strategies test suite',
@@ -43,6 +44,9 @@ Deno.test({
         expect(pool.opts.workerChoiceStrategy).toBe(
           WorkerChoiceStrategies.ROUND_ROBIN,
         )
+        expect(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).toBe(WorkerChoiceStrategies.ROUND_ROBIN)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
@@ -65,9 +69,9 @@ Deno.test({
             { workerChoiceStrategy },
           )
           expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
-          expect(pool.workerChoiceStrategyContext.workerChoiceStrategy).toBe(
-            workerChoiceStrategy,
-          )
+          expect(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).toBe(workerChoiceStrategy)
           await pool.destroy()
         }
       },
@@ -90,9 +94,9 @@ Deno.test({
           )
           pool.setWorkerChoiceStrategy(workerChoiceStrategy)
           expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
-          expect(pool.workerChoiceStrategyContext.workerChoiceStrategy).toBe(
-            workerChoiceStrategy,
-          )
+          expect(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).toBe(workerChoiceStrategy)
           await pool.destroy()
         }
         for (
@@ -110,9 +114,9 @@ Deno.test({
           )
           pool.setWorkerChoiceStrategy(workerChoiceStrategy)
           expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
-          expect(pool.workerChoiceStrategyContext.workerChoiceStrategy).toBe(
-            workerChoiceStrategy,
-          )
+          expect(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).toBe(workerChoiceStrategy)
           await pool.destroy()
         }
       },
@@ -121,25 +125,26 @@ Deno.test({
     await t.step(
       'Verify available strategies default internals at pool creation',
       async () => {
-        const pool = new FixedThreadPool(
-          max,
-          new URL(
-            './../../worker-files/thread/testWorker.mjs',
-            import.meta.url,
-          ),
-        )
         for (
           const workerChoiceStrategy of Object.values(
             WorkerChoiceStrategies,
           )
         ) {
+          const pool = new FixedThreadPool(
+            max,
+            new URL(
+              './../../worker-files/thread/testWorker.mjs',
+              import.meta.url,
+            ),
+            { workerChoiceStrategy },
+          )
           expect(
-            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
               workerChoiceStrategy,
             ).nextWorkerNodeKey,
           ).toBe(0)
           expect(
-            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
               workerChoiceStrategy,
             ).previousWorkerNodeKey,
           ).toBe(0)
@@ -147,44 +152,44 @@ Deno.test({
             workerChoiceStrategy === WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
           ) {
             expect(
-              pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
-              ).workerNodeVirtualTaskRunTime,
+              ).workerNodeVirtualTaskExecutionTime,
             ).toBe(0)
           } else if (
             workerChoiceStrategy ===
               WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
           ) {
             expect(
-              pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
-              ).workerNodeVirtualTaskRunTime,
+              ).workerNodeVirtualTaskExecutionTime,
             ).toBe(0)
             expect(
-              pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
               ).roundId,
             ).toBe(0)
             expect(
-              pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
               ).workerNodeId,
             ).toBe(0)
             expect(
-              pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
               ).roundWeights.length,
             ).toBe(1)
             expect(
               Number.isSafeInteger(
-                pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
+                pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                   workerChoiceStrategy,
                 ).roundWeights[0],
               ),
             ).toBe(true)
           }
+          await pool.destroy()
         }
-        await pool.destroy()
       },
     )
 
@@ -195,9 +200,7 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(
-        pool.workerChoiceStrategyContext.getStrategyPolicy(),
-      ).toStrictEqual({
+      expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
         dynamicWorkerUsage: false,
         dynamicWorkerReady: true,
       })
@@ -208,9 +211,7 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(
-        pool.workerChoiceStrategyContext.getStrategyPolicy(),
-      ).toStrictEqual({
+      expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
         dynamicWorkerUsage: false,
         dynamicWorkerReady: true,
       })
@@ -231,7 +232,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: false,
@@ -260,7 +261,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: false,
@@ -330,13 +331,13 @@ Deno.test({
           })
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toBe(pool.workerNodes.length - 1)
         // We need to clean up the resources after our test
@@ -396,13 +397,13 @@ Deno.test({
           )
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toBe(pool.workerNodes.length - 1)
         // We need to clean up the resources after our test
@@ -426,7 +427,7 @@ Deno.test({
     })
 
     await t.step(
-      'Verify ROUND_ROBIN strategy internals are reset after setting it',
+      "Verify ROUND_ROBIN strategy internals aren't reset after setting it",
       async () => {
         const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
         let pool = new FixedThreadPool(
@@ -435,29 +436,25 @@ Deno.test({
             './../../worker-files/thread/testWorker.mjs',
             import.meta.url,
           ),
-          { workerChoiceStrategy: WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN },
+          { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).nextWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).previousWorkerNodeKey,
-        ).toBeDefined()
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).nextWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).previousWorkerNodeKey = randomInt(1, max - 1)
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         await pool.destroy()
         pool = new DynamicThreadPool(
           min,
@@ -466,29 +463,25 @@ Deno.test({
             './../../worker-files/thread/testWorker.mjs',
             import.meta.url,
           ),
-          { workerChoiceStrategy: WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN },
+          { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).nextWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).previousWorkerNodeKey,
-        ).toBeDefined()
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).nextWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).previousWorkerNodeKey = randomInt(1, max - 1)
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
@@ -501,9 +494,7 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(
-        pool.workerChoiceStrategyContext.getStrategyPolicy(),
-      ).toStrictEqual({
+      expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
         dynamicWorkerUsage: false,
         dynamicWorkerReady: true,
       })
@@ -514,9 +505,7 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(
-        pool.workerChoiceStrategyContext.getStrategyPolicy(),
-      ).toStrictEqual({
+      expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
         dynamicWorkerUsage: false,
         dynamicWorkerReady: true,
       })
@@ -537,7 +526,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: false,
@@ -566,7 +555,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: false,
@@ -639,13 +628,13 @@ Deno.test({
           )
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toEqual(expect.any(Number))
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(expect.any(Number))
         // We need to clean up the resources after our test
@@ -704,13 +693,13 @@ Deno.test({
           )
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toEqual(expect.any(Number))
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(expect.any(Number))
         // We need to clean up the resources after our test
@@ -725,9 +714,7 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(
-        pool.workerChoiceStrategyContext.getStrategyPolicy(),
-      ).toStrictEqual({
+      expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
         dynamicWorkerUsage: false,
         dynamicWorkerReady: true,
       })
@@ -738,9 +725,7 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(
-        pool.workerChoiceStrategyContext.getStrategyPolicy(),
-      ).toStrictEqual({
+      expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
         dynamicWorkerUsage: false,
         dynamicWorkerReady: true,
       })
@@ -761,7 +746,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -790,7 +775,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -873,13 +858,13 @@ Deno.test({
           }
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toEqual(expect.any(Number))
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(expect.any(Number))
         // We need to clean up the resources after our test
@@ -948,13 +933,13 @@ Deno.test({
           }
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toEqual(expect.any(Number))
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(expect.any(Number))
         // We need to clean up the resources after our test
@@ -969,9 +954,7 @@ Deno.test({
     //     new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
     //     { workerChoiceStrategy },
     //   )
-    //   expect(
-    //     pool.workerChoiceStrategyContext.getStrategyPolicy(),
-    //   ).toStrictEqual({
+    //   expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
     //     dynamicWorkerUsage: false,
     //     dynamicWorkerReady: true,
     //   })
@@ -982,9 +965,7 @@ Deno.test({
     //     new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
     //     { workerChoiceStrategy },
     //   )
-    //   expect(
-    //     pool.workerChoiceStrategyContext.getStrategyPolicy(),
-    //   ).toStrictEqual({
+    //   expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
     //     dynamicWorkerUsage: false,
     //     dynamicWorkerReady: true,
     //   })
@@ -1005,7 +986,7 @@ Deno.test({
     //       { workerChoiceStrategy },
     //     )
     //     expect(
-    //       pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+    //       pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
     //     ).toStrictEqual({
     //       runTime: {
     //         aggregate: false,
@@ -1034,7 +1015,7 @@ Deno.test({
     //       { workerChoiceStrategy },
     //     )
     //     expect(
-    //       pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+    //       pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
     //     ).toStrictEqual({
     //       runTime: {
     //         aggregate: false,
@@ -1125,13 +1106,13 @@ Deno.test({
     //       }
     //     }
     //     expect(
-    //       pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-    //         pool.workerChoiceStrategyContext.workerChoiceStrategy,
+    //       pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+    //         pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
     //       ).nextWorkerNodeKey,
     //     ).toEqual(expect.any(Number))
     //     expect(
-    //       pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-    //         pool.workerChoiceStrategyContext.workerChoiceStrategy,
+    //       pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+    //         pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
     //       ).previousWorkerNodeKey,
     //     ).toEqual(expect.any(Number))
     //     // We need to clean up the resources after our test
@@ -1208,13 +1189,13 @@ Deno.test({
     //       }
     //     }
     //     expect(
-    //       pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-    //         pool.workerChoiceStrategyContext.workerChoiceStrategy,
+    //       pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+    //         pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
     //       ).nextWorkerNodeKey,
     //     ).toEqual(expect.any(Number))
     //     expect(
-    //       pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-    //         pool.workerChoiceStrategyContext.workerChoiceStrategy,
+    //       pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+    //         pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
     //       ).previousWorkerNodeKey,
     //     ).toEqual(expect.any(Number))
     //     // We need to clean up the resources after our test
@@ -1229,9 +1210,7 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(
-        pool.workerChoiceStrategyContext.getStrategyPolicy(),
-      ).toStrictEqual({
+      expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
         dynamicWorkerUsage: false,
         dynamicWorkerReady: true,
       })
@@ -1242,9 +1221,7 @@ Deno.test({
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
         { workerChoiceStrategy },
       )
-      expect(
-        pool.workerChoiceStrategyContext.getStrategyPolicy(),
-      ).toStrictEqual({
+      expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
         dynamicWorkerUsage: false,
         dynamicWorkerReady: true,
       })
@@ -1265,7 +1242,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -1273,8 +1250,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -1294,7 +1271,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -1302,8 +1279,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -1349,9 +1326,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
                 history: expect.any(CircularArray),
@@ -1374,6 +1351,16 @@ Deno.test({
             expect(workerNode.usage.runTime.average).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
           }
           // if (workerNode.usage.elu.active.aggregate == null) {
           //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
@@ -1398,13 +1385,13 @@ Deno.test({
           ).toBeGreaterThan(0)
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toEqual(expect.any(Number))
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(expect.any(Number))
         // We need to clean up the resources after our test
@@ -1445,9 +1432,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
                 history: expect.any(CircularArray),
@@ -1470,6 +1457,16 @@ Deno.test({
             expect(workerNode.usage.runTime.average).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
           }
           // if (workerNode.usage.elu.active.aggregate == null) {
           //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
@@ -1494,13 +1491,13 @@ Deno.test({
           ).toBeGreaterThan(0)
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toEqual(expect.any(Number))
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(expect.any(Number))
         // We need to clean up the resources after our test
@@ -1546,9 +1543,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
                 history: expect.any(CircularArray),
@@ -1571,6 +1568,16 @@ Deno.test({
             expect(workerNode.usage.runTime.median).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.median).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.median == null) {
+            expect(workerNode.usage.waitTime.median).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.median).toBeGreaterThan(0)
           }
           // if (workerNode.usage.elu.active.aggregate == null) {
           //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
@@ -1595,13 +1602,13 @@ Deno.test({
           ).toBeGreaterThan(0)
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toEqual(expect.any(Number))
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(expect.any(Number))
         // We need to clean up the resources after our test
@@ -1610,7 +1617,7 @@ Deno.test({
     )
 
     await t.step(
-      'Verify FAIR_SHARE strategy internals are reset after setting it',
+      "Verify FAIR_SHARE strategy internals aren't reset after setting it",
       async () => {
         const workerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
         let pool = new FixedThreadPool(
@@ -1629,7 +1636,7 @@ Deno.test({
         for (const workerNode of pool.workerNodes) {
           expect(
             workerNode.strategyData.virtualTaskEndTimestamp,
-          ).toBeUndefined()
+          ).toBeGreaterThan(0)
         }
         await pool.destroy()
         pool = new DynamicThreadPool(
@@ -1649,7 +1656,7 @@ Deno.test({
         for (const workerNode of pool.workerNodes) {
           expect(
             workerNode.strategyData.virtualTaskEndTimestamp,
-          ).toBeUndefined()
+          ).toBeGreaterThan(0)
         }
         // We need to clean up the resources after our test
         await pool.destroy()
@@ -1668,9 +1675,7 @@ Deno.test({
           ),
           { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.getStrategyPolicy(),
-        ).toStrictEqual({
+        expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
           dynamicWorkerUsage: false,
           dynamicWorkerReady: true,
         })
@@ -1684,9 +1689,7 @@ Deno.test({
           ),
           { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.getStrategyPolicy(),
-        ).toStrictEqual({
+        expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
           dynamicWorkerUsage: false,
           dynamicWorkerReady: true,
         })
@@ -1708,7 +1711,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -1716,8 +1719,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -1737,7 +1740,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -1745,8 +1748,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -1792,9 +1795,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -1818,30 +1821,41 @@ Deno.test({
           } else {
             expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
           }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
+          }
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).workerNodeVirtualTaskRunTime,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).workerNodeVirtualTaskExecutionTime,
         ).toBeGreaterThanOrEqual(0)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
     )
 
-    await t.step(
-      'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
-      async () => {
+    await t.step({
+      name: 'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
+      ignore: Deno.build.os === 'linux',
+      fn: async () => {
         const pool = new DynamicThreadPool(
           min,
           max,
@@ -1872,9 +1886,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -1898,30 +1912,42 @@ Deno.test({
           } else {
             expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
           }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
+          }
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).workerNodeVirtualTaskRunTime,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).workerNodeVirtualTaskExecutionTime,
         ).toBeGreaterThanOrEqual(0)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
-    )
+    })
 
-    await t.step(
-      'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool with median runtime statistic',
-      async () => {
+    await t.step({
+      name:
+        'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool with median runtime statistic',
+      ignore: Deno.build.os === 'linux',
+      fn: async () => {
         const pool = new DynamicThreadPool(
           min,
           max,
@@ -1957,9 +1983,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -1983,29 +2009,39 @@ Deno.test({
           } else {
             expect(workerNode.usage.runTime.median).toBeGreaterThan(0)
           }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.median == null) {
+            expect(workerNode.usage.waitTime.median).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.median).toBeGreaterThan(0)
+          }
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).workerNodeVirtualTaskRunTime,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).workerNodeVirtualTaskExecutionTime,
         ).toBeGreaterThanOrEqual(0)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
-    )
+    })
 
     await t.step(
-      'Verify WEIGHTED_ROUND_ROBIN strategy internals are reset after setting it',
+      "Verify WEIGHTED_ROUND_ROBIN strategy internals aren't reset after setting it",
       async () => {
         const workerChoiceStrategy = WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
         let pool = new FixedThreadPool(
@@ -2014,38 +2050,33 @@ Deno.test({
             './../../worker-files/thread/testWorker.mjs',
             import.meta.url,
           ),
+          { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).nextWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).previousWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).workerNodeVirtualTaskRunTime,
-        ).toBeDefined()
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).nextWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).previousWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).workerNodeVirtualTaskExecutionTime = randomInt(100, 1000)
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).workerNodeVirtualTaskRunTime,
-        ).toBe(0)
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).workerNodeVirtualTaskExecutionTime,
+        ).toBeGreaterThan(99)
         await pool.destroy()
         pool = new DynamicThreadPool(
           min,
@@ -2054,38 +2085,33 @@ Deno.test({
             './../../worker-files/thread/testWorker.mjs',
             import.meta.url,
           ),
+          { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).nextWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).previousWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).workerNodeVirtualTaskRunTime,
-        ).toBeDefined()
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).nextWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).previousWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).workerNodeVirtualTaskExecutionTime = randomInt(100, 1000)
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
-          ).workerNodeVirtualTaskRunTime,
-        ).toBe(0)
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).workerNodeVirtualTaskExecutionTime,
+        ).toBeGreaterThan(99)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
@@ -2104,9 +2130,7 @@ Deno.test({
           ),
           { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.getStrategyPolicy(),
-        ).toStrictEqual({
+        expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
           dynamicWorkerUsage: false,
           dynamicWorkerReady: true,
         })
@@ -2120,9 +2144,7 @@ Deno.test({
           ),
           { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.getStrategyPolicy(),
-        ).toStrictEqual({
+        expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
           dynamicWorkerUsage: false,
           dynamicWorkerReady: true,
         })
@@ -2145,7 +2167,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -2153,8 +2175,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -2174,7 +2196,7 @@ Deno.test({
           { workerChoiceStrategy },
         )
         expect(
-          pool.workerChoiceStrategyContext.getTaskStatisticsRequirements(),
+          pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
         ).toStrictEqual({
           runTime: {
             aggregate: true,
@@ -2182,8 +2204,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -2232,9 +2254,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -2248,36 +2270,56 @@ Deno.test({
           expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
             max * maxMultiplier,
           )
+          if (workerNode.usage.runTime.aggregate == null) {
+            expect(workerNode.usage.runTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.runTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.runTime.average == null) {
+            expect(workerNode.usage.runTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
+          }
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).roundId,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).workerNodeId,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).roundWeights.length,
         ).toBe(1)
         expect(
           Number.isSafeInteger(
-            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-              pool.workerChoiceStrategyContext.workerChoiceStrategy,
+            pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
             ).roundWeights[0],
           ),
         ).toBe(true)
@@ -2286,9 +2328,11 @@ Deno.test({
       },
     )
 
-    await t.step(
-      'Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
-      async () => {
+    await t.step({
+      name:
+        'Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
+      ignore: Deno.build.os === 'linux',
+      fn: async () => {
         const pool = new DynamicThreadPool(
           min,
           max,
@@ -2322,9 +2366,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -2338,46 +2382,66 @@ Deno.test({
           expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
             max * maxMultiplier,
           )
+          if (workerNode.usage.runTime.aggregate == null) {
+            expect(workerNode.usage.runTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.runTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.runTime.average == null) {
+            expect(workerNode.usage.runTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
+          }
         }
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).roundId,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).workerNodeId,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
         ).toBe(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
         ).toEqual(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).roundWeights.length,
         ).toBe(1)
         expect(
           Number.isSafeInteger(
-            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-              pool.workerChoiceStrategyContext.workerChoiceStrategy,
+            pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
             ).roundWeights[0],
           ),
         ).toBe(true)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
-    )
+    })
 
     await t.step(
-      'Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy internals are reset after setting it',
+      "Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy internals aren't reset after setting it",
       async () => {
         const workerChoiceStrategy =
           WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
@@ -2387,62 +2451,53 @@ Deno.test({
             './../../worker-files/thread/testWorker.mjs',
             import.meta.url,
           ),
+          { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).roundId,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).workerNodeId,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).nextWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).previousWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).roundWeights,
-        ).toBeDefined()
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).roundId = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).workerNodeId = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).nextWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).previousWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).roundWeights = [randomInt(1, max - 1), randomInt(1, max - 1)]
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).roundId,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).workerNodeId,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).roundWeights.length,
-        ).toBe(1)
+        ).toBeGreaterThan(1)
         expect(
           Number.isSafeInteger(
-            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-              pool.workerChoiceStrategyContext.workerChoiceStrategy,
+            pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
             ).roundWeights[0],
           ),
         ).toBe(true)
@@ -2454,62 +2509,53 @@ Deno.test({
             './../../worker-files/thread/testWorker.mjs',
             import.meta.url,
           ),
+          { workerChoiceStrategy },
         )
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).roundId,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).workerNodeId,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).nextWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).previousWorkerNodeKey,
-        ).toBeDefined()
-        expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            workerChoiceStrategy,
-          ).roundWeights,
-        ).toBeDefined()
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).roundId = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).workerNodeId = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).nextWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).previousWorkerNodeKey = randomInt(1, max - 1)
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
+        ).roundWeights = [randomInt(1, max - 1), randomInt(1, max - 1)]
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).roundId,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).workerNodeId,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).nextWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).previousWorkerNodeKey,
-        ).toBe(0)
+        ).toBeGreaterThan(0)
         expect(
-          pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-            pool.workerChoiceStrategyContext.workerChoiceStrategy,
+          pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
           ).roundWeights.length,
-        ).toBe(1)
+        ).toBeGreaterThan(1)
         expect(
           Number.isSafeInteger(
-            pool.workerChoiceStrategyContext.workerChoiceStrategies.get(
-              pool.workerChoiceStrategyContext.workerChoiceStrategy,
+            pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+              pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
             ).roundWeights[0],
           ),
         ).toBe(true)
