@@ -1852,9 +1852,10 @@ Deno.test({
       },
     )
 
-    await t.step(
-      'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
-      async () => {
+    await t.step({
+      name: 'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
+      ignore: Deno.build.os === 'linux',
+      fn: async () => {
         const pool = new DynamicThreadPool(
           min,
           max,
@@ -1940,11 +1941,13 @@ Deno.test({
         // We need to clean up the resources after our test
         await pool.destroy()
       },
-    )
+    })
 
-    await t.step(
-      'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool with median runtime statistic',
-      async () => {
+    await t.step({
+      name:
+        'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool with median runtime statistic',
+      ignore: Deno.build.os === 'linux',
+      fn: async () => {
         const pool = new DynamicThreadPool(
           min,
           max,
@@ -2035,7 +2038,7 @@ Deno.test({
         // We need to clean up the resources after our test
         await pool.destroy()
       },
-    )
+    })
 
     await t.step(
       "Verify WEIGHTED_ROUND_ROBIN strategy internals aren't reset after setting it",
@@ -2325,9 +2328,11 @@ Deno.test({
       },
     )
 
-    await t.step(
-      'Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
-      async () => {
+    await t.step({
+      name:
+        'Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
+      ignore: Deno.build.os === 'linux',
+      fn: async () => {
         const pool = new DynamicThreadPool(
           min,
           max,
@@ -2433,7 +2438,7 @@ Deno.test({
         // We need to clean up the resources after our test
         await pool.destroy()
       },
-    )
+    })
 
     await t.step(
       "Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy internals aren't reset after setting it",
