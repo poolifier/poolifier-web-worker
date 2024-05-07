@@ -329,24 +329,25 @@ export abstract class AbstractWorker<
   protected messageEventListener(
     messageEvent: MessageEvent<MessageValue<Data>>,
   ): void {
-    this.checkMessageWorkerId(messageEvent.data)
-    if (messageEvent.data.statistics != null) {
+    const { data } = messageEvent
+    this.checkMessageWorkerId(data)
+    const { statistics, checkActive, taskFunctionOperation, taskId, kill } =
+      data
+    if (statistics != null) {
       // Statistics message received
-      this.statistics = messageEvent.data.statistics
-    } else if (messageEvent.data.checkActive != null) {
+      this.statistics = statistics
+    } else if (checkActive != null) {
       // Check active message received
-      messageEvent.data.checkActive
-        ? this.startCheckActive()
-        : this.stopCheckActive()
-    } else if (messageEvent.data.taskFunctionOperation != null) {
+      checkActive ? this.startCheckActive() : this.stopCheckActive()
+    } else if (taskFunctionOperation != null) {
       // Task function operation message received
-      this.handleTaskFunctionOperationMessage(messageEvent.data)
-    } else if (messageEvent.data.taskId != null && messageEvent.data != null) {
+      this.handleTaskFunctionOperationMessage(data)
+    } else if (taskId != null && data != null) {
       // Task message received
-      this.run(messageEvent.data)
-    } else if (messageEvent.data.kill === true) {
+      this.run(data)
+    } else if (kill === true) {
       // Kill message received
-      this.handleKillMessage(messageEvent.data)
+      this.handleKillMessage(data)
     }
   }
 
