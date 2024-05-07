@@ -309,6 +309,12 @@ Deno.test('Abstract worker test suite', async (t) => {
       status: false,
       error: new TypeError('name parameter is an empty string'),
     })
+    expect(worker.addTaskFunction('fn2', 0)).toStrictEqual({
+      status: false,
+      error: new TypeError(
+        "taskFunction object 'taskFunction' property 'undefined' is not a function",
+      ),
+    })
     expect(worker.addTaskFunction('fn3', '')).toStrictEqual({
       status: false,
       error: new TypeError(
