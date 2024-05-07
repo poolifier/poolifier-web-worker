@@ -28,7 +28,11 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
       average: true,
       median: false,
     },
-    waitTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+    waitTime: {
+      aggregate: true,
+      average: true,
+      median: false,
+    },
     elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   }
 
@@ -99,8 +103,9 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
           workerWeight >= this.roundWeights[roundIndex] &&
           this.workerNodeVirtualTaskExecutionTime < workerWeight
         ) {
-          this.workerNodeVirtualTaskExecutionTime += this
-            .getWorkerNodeTaskRunTime(workerNodeKey)
+          this.workerNodeVirtualTaskExecutionTime +=
+            this.getWorkerNodeTaskWaitTime(workerNodeKey) +
+            this.getWorkerNodeTaskRunTime(workerNodeKey)
           this.setPreviousWorkerNodeKey(this.nextWorkerNodeKey)
           this.nextWorkerNodeKey = workerNodeKey
           return this.nextWorkerNodeKey

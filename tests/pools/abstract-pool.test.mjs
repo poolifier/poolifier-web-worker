@@ -477,8 +477,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -518,8 +518,8 @@ Deno.test({
             median: true,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -559,8 +559,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {

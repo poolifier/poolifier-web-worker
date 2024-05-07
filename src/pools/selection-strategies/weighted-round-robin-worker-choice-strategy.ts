@@ -29,7 +29,11 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
       average: true,
       median: false,
     },
-    waitTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+    waitTime: {
+      aggregate: true,
+      average: true,
+      median: false,
+    },
     elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   }
 
@@ -92,9 +96,12 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
     const workerWeight =
       this.opts!.weights![this.nextWorkerNodeKey ?? this.previousWorkerNodeKey]
     if (this.workerNodeVirtualTaskExecutionTime < workerWeight) {
-      this.workerNodeVirtualTaskExecutionTime += this.getWorkerNodeTaskRunTime(
+      this.workerNodeVirtualTaskExecutionTime += this.getWorkerNodeTaskWaitTime(
         this.nextWorkerNodeKey ?? this.previousWorkerNodeKey,
-      )
+      ) +
+        this.getWorkerNodeTaskRunTime(
+          this.nextWorkerNodeKey ?? this.previousWorkerNodeKey,
+        )
     } else {
       this.nextWorkerNodeKey =
         this.nextWorkerNodeKey === this.pool.workerNodes.length - 1

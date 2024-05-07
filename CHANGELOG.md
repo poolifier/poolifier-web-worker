@@ -22,6 +22,8 @@ and this project adheres to
 
 ### Fixed
 
+- Ensure dynamic worker node are initialized with sensible worker node usage
+  default values to avoid worker choice strategies biased decisions.
 - Ensure worker choice strategy options changes at runtime are propagated to
   poolifier workers.
 

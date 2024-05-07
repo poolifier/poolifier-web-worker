@@ -1045,7 +1045,7 @@ export abstract class AbstractPool<
   /**
    * Starts the minimum number of workers.
    */
-  private startMinimumNumberOfWorkers(): void {
+  private startMinimumNumberOfWorkers(initWorkerNodeUsage = false): void {
     this.startingMinimumNumberOfWorkers = true
     while (
       this.workerNodes.reduce(
@@ -1054,7 +1054,9 @@ export abstract class AbstractPool<
         0,
       ) < this.minimumNumberOfWorkers
     ) {
-      this.createAndSetupWorkerNode()
+      const workerNodeKey = this.createAndSetupWorkerNode()
+      initWorkerNodeUsage &&
+        this.initWorkerNodeUsage(this.workerNodes[workerNodeKey])
     }
     this.startingMinimumNumberOfWorkers = false
   }
@@ -1314,6 +1316,44 @@ export abstract class AbstractPool<
   ): void
 
   /**
+   * Initializes the worker node usage with sensible default values gathered during runtime.
+   *
+   * @param workerNode - The worker node.
+   */
+  private initWorkerNodeUsage(workerNode: IWorkerNode<Worker, Data>): void {
+    if (
+      this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
+        .runTime.aggregate === true
+    ) {
+      workerNode.usage.runTime.aggregate = min(
+        ...this.workerNodes.map(
+          (workerNode) => workerNode.usage.runTime.aggregate ?? Infinity,
+        ),
+      )
+    }
+    if (
+      this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
+        .waitTime.aggregate === true
+    ) {
+      workerNode.usage.waitTime.aggregate = min(
+        ...this.workerNodes.map(
+          (workerNode) => workerNode.usage.waitTime.aggregate ?? Infinity,
+        ),
+      )
+    }
+    if (
+      this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements().elu
+        .aggregate === true
+    ) {
+      workerNode.usage.elu.active.aggregate = min(
+        ...this.workerNodes.map(
+          (workerNode) => workerNode.usage.elu.active.aggregate ?? Infinity,
+        ),
+      )
+    }
+  }
+
+  /**
    * Creates a new, completely set up worker node.
    *
    * @returns New, completely set up worker node key.
@@ -1346,7 +1386,7 @@ export abstract class AbstractPool<
         if (workerNode.info.dynamic) {
           this.createAndSetupDynamicWorkerNode()
         } else if (!this.startingMinimumNumberOfWorkers) {
-          this.startMinimumNumberOfWorkers()
+          this.startMinimumNumberOfWorkers(true)
         }
       }
       if (
@@ -1375,7 +1415,7 @@ export abstract class AbstractPool<
           !this.startingMinimumNumberOfWorkers &&
           !this.destroying
         ) {
-          this.startMinimumNumberOfWorkers()
+          this.startMinimumNumberOfWorkers(true)
         }
       },
       { once: true },
@@ -1447,6 +1487,7 @@ export abstract class AbstractPool<
     ) {
       workerNode.info.ready = true
     }
+    this.initWorkerNodeUsage(workerNode)
     this.checkAndEmitDynamicWorkerCreationEvents()
     return workerNodeKey
   }

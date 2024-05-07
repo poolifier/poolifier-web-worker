@@ -954,9 +954,7 @@ Deno.test({
     //     new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
     //     { workerChoiceStrategy },
     //   )
-    //   expect(
-    //     pool.workerChoiceStrategiesContext.getPolicy(),
-    //   ).toStrictEqual({
+    //   expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
     //     dynamicWorkerUsage: false,
     //     dynamicWorkerReady: true,
     //   })
@@ -967,9 +965,7 @@ Deno.test({
     //     new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
     //     { workerChoiceStrategy },
     //   )
-    //   expect(
-    //     pool.workerChoiceStrategiesContext.getPolicy(),
-    //   ).toStrictEqual({
+    //   expect(pool.workerChoiceStrategiesContext.getPolicy()).toStrictEqual({
     //     dynamicWorkerUsage: false,
     //     dynamicWorkerReady: true,
     //   })
@@ -1254,8 +1250,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -1283,8 +1279,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -1330,9 +1326,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
                 history: expect.any(CircularArray),
@@ -1355,6 +1351,16 @@ Deno.test({
             expect(workerNode.usage.runTime.average).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
           }
           // if (workerNode.usage.elu.active.aggregate == null) {
           //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
@@ -1426,9 +1432,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
                 history: expect.any(CircularArray),
@@ -1451,6 +1457,16 @@ Deno.test({
             expect(workerNode.usage.runTime.average).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
           }
           // if (workerNode.usage.elu.active.aggregate == null) {
           //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
@@ -1527,9 +1543,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
                 history: expect.any(CircularArray),
@@ -1552,6 +1568,16 @@ Deno.test({
             expect(workerNode.usage.runTime.median).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.median).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.median == null) {
+            expect(workerNode.usage.waitTime.median).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.median).toBeGreaterThan(0)
           }
           // if (workerNode.usage.elu.active.aggregate == null) {
           //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
@@ -1693,8 +1719,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -1722,8 +1748,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -1769,9 +1795,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -1794,6 +1820,16 @@ Deno.test({
             expect(workerNode.usage.runTime.average).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
           }
         }
         expect(
@@ -1849,9 +1885,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -1874,6 +1910,16 @@ Deno.test({
             expect(workerNode.usage.runTime.average).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
           }
         }
         expect(
@@ -1934,9 +1980,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -1959,6 +2005,16 @@ Deno.test({
             expect(workerNode.usage.runTime.median).toBeUndefined()
           } else {
             expect(workerNode.usage.runTime.median).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.median == null) {
+            expect(workerNode.usage.waitTime.median).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.median).toBeGreaterThan(0)
           }
         }
         expect(
@@ -2116,8 +2172,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -2145,8 +2201,8 @@ Deno.test({
             median: false,
           },
           waitTime: {
-            aggregate: false,
-            average: false,
+            aggregate: true,
+            average: true,
             median: false,
           },
           elu: {
@@ -2195,9 +2251,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -2211,6 +2267,26 @@ Deno.test({
           expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
             max * maxMultiplier,
           )
+          if (workerNode.usage.runTime.aggregate == null) {
+            expect(workerNode.usage.runTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.runTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.runTime.average == null) {
+            expect(workerNode.usage.runTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
+          }
         }
         expect(
           pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
@@ -2285,9 +2361,9 @@ Deno.test({
             runTime: expect.objectContaining({
               history: expect.any(CircularArray),
             }),
-            waitTime: {
-              history: new CircularArray(),
-            },
+            waitTime: expect.objectContaining({
+              history: expect.any(CircularArray),
+            }),
             elu: {
               idle: {
                 history: new CircularArray(),
@@ -2301,6 +2377,26 @@ Deno.test({
           expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
             max * maxMultiplier,
           )
+          if (workerNode.usage.runTime.aggregate == null) {
+            expect(workerNode.usage.runTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.runTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.runTime.average == null) {
+            expect(workerNode.usage.runTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.aggregate == null) {
+            expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+          }
+          if (workerNode.usage.waitTime.average == null) {
+            expect(workerNode.usage.waitTime.average).toBeUndefined()
+          } else {
+            expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
+          }
         }
         expect(
           pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(

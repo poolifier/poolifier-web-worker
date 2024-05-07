@@ -460,65 +460,101 @@ Deno.test('Worker choice strategy context test suite', async (t) => {
     () => {
       const wwrWorkerChoiceStrategy =
         WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
-      let workerChoiceStrategyContext = new WorkerChoiceStrategiesContext(
+      let workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
         fixedPool,
         [wwrWorkerChoiceStrategy],
         {
           runTime: { median: true },
+          waitTime: { median: true },
         },
       )
       expect(
-        workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .average,
       ).toBe(false)
       expect(
-        workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .median,
       ).toBe(true)
-      workerChoiceStrategyContext = new WorkerChoiceStrategiesContext(
+      expect(
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
+          .average,
+      ).toBe(false)
+      expect(
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
+          .median,
+      ).toBe(true)
+      workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
         dynamicPool,
         [wwrWorkerChoiceStrategy],
         {
           runTime: { median: true },
+          waitTime: { median: true },
         },
       )
       expect(
-        workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .average,
       ).toBe(false)
       expect(
-        workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
+          .median,
+      ).toBe(true)
+      expect(
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
+          .average,
+      ).toBe(false)
+      expect(
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .median,
       ).toBe(true)
       const fsWorkerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
-      workerChoiceStrategyContext = new WorkerChoiceStrategiesContext(
+      workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
         fixedPool,
         [fsWorkerChoiceStrategy],
         {
           runTime: { median: true },
+          waitTime: { median: true },
         },
       )
       expect(
-        workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .average,
       ).toBe(false)
       expect(
-        workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .median,
       ).toBe(true)
-      workerChoiceStrategyContext = new WorkerChoiceStrategiesContext(
+      expect(
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
+          .average,
+      ).toBe(false)
+      expect(
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
+          .median,
+      ).toBe(true)
+      workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
         dynamicPool,
         [fsWorkerChoiceStrategy],
         {
           runTime: { median: true },
+          waitTime: { median: true },
         },
       )
       expect(
-        workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .average,
       ).toBe(false)
       expect(
-        workerChoiceStrategyContext.getTaskStatisticsRequirements().runTime
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
+          .median,
+      ).toBe(true)
+      expect(
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
+          .average,
+      ).toBe(false)
+      expect(
+        workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .median,
       ).toBe(true)
     },

@@ -29,7 +29,11 @@ export class FairShareWorkerChoiceStrategy<
       average: true,
       median: false,
     },
-    waitTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+    waitTime: {
+      aggregate: true,
+      average: true,
+      median: false,
+    },
     elu: {
       aggregate: true,
       average: true,
@@ -120,6 +124,7 @@ export class FairShareWorkerChoiceStrategy<
   ): number {
     return (
       workerNodeVirtualTaskStartTimestamp +
+      this.getWorkerNodeTaskWaitTime(workerNodeKey) +
       this.getWorkerNodeTaskRunTime(workerNodeKey)
     )
   }
