@@ -59,7 +59,7 @@ export abstract class AbstractWorker<
   /**
    * Worker id.
    */
-  protected abstract id?: string
+  protected abstract id?: `${string}-${string}-${string}-${string}-${string}`
   /**
    * Task function(s) object processed by the worker when the pool's `execution` function is invoked.
    */
@@ -568,7 +568,7 @@ export abstract class AbstractWorker<
       this.sendToMainWorker({
         workerError: {
           name: name!,
-          message: this.handleError(error as Error),
+          message: this.handleError(error as Error | string),
           data,
         },
         taskId,
@@ -603,7 +603,7 @@ export abstract class AbstractWorker<
         this.sendToMainWorker({
           workerError: {
             name: name!,
-            message: this.handleError(error),
+            message: this.handleError(error as Error | string),
             data,
           },
           taskId,

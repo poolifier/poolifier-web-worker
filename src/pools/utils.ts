@@ -380,7 +380,9 @@ export const getWorkerType = (worker: IWorker): WorkerType | undefined => {
  * @returns The worker id of the given worker.
  * @internal
  */
-export const getWorkerId = (worker: IWorker): string | undefined => {
+export const getWorkerId = (
+  worker: IWorker,
+): `${string}-${string}-${string}-${string}-${string}` | undefined => {
   if (worker instanceof Worker) {
     return crypto.randomUUID()
   }

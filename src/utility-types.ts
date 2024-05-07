@@ -139,7 +139,7 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
   /**
    * Worker id.
    */
-  readonly workerId?: string
+  readonly workerId?: `${string}-${string}-${string}-${string}-${string}`
   /**
    * Kill code.
    */

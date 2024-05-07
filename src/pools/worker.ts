@@ -124,7 +124,7 @@ export interface WorkerInfo {
   /**
    * Worker id.
    */
-  readonly id: string | undefined
+  readonly id: `${string}-${string}-${string}-${string}-${string}` | undefined
   /**
    * Worker type.
    */
@@ -335,6 +335,6 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
  * @internal
  */
 export interface WorkerNodeEventDetail {
-  workerId?: string
+  workerId?: `${string}-${string}-${string}-${string}-${string}`
   workerNodeKey?: number
 }

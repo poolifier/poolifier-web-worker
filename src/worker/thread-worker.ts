@@ -31,7 +31,7 @@ export class ThreadWorker<
    */
   private port?: MessagePort
   /** @inheritdoc */
-  public id?: string
+  public id?: `${string}-${string}-${string}-${string}-${string}`
 
   /**
    * Constructs a new poolifier thread worker.
