@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.2] - 2024-05-08
+
 ### Changed
 
 - Optimize task(s) stealing by dequeuing task(s) from the last prioritized
