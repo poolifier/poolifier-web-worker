@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix worker nodes priority queue k-buckets initialization.
+
 ## [0.4.0] - 2024-05-07
 
 ### Changed

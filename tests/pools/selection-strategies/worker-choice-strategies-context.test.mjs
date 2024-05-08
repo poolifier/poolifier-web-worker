@@ -14,7 +14,7 @@ import { RoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-str
 import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.ts'
 import { WorkerChoiceStrategiesContext } from '../../../src/pools/selection-strategies/worker-choice-strategies-context.ts'
 
-Deno.test('Worker choice strategy context test suite', async (t) => {
+Deno.test('Worker choice strategies context test suite', async (t) => {
   const min = 1
   const max = 3
   const fixedPool = new FixedThreadPool(

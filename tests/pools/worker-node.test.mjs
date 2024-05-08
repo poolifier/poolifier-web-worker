@@ -11,7 +11,7 @@ Deno.test({
     const threadWorkerNode = new WorkerNode(
       WorkerTypes.web,
       new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-      { tasksQueueBackPressureSize: 12 },
+      { tasksQueueBackPressureSize: 12, tasksQueueBucketSize: 6 },
     )
 
     await t.step('Worker node instantiation', () => {
@@ -113,6 +113,71 @@ Deno.test({
           'Cannot construct a worker node with a tasks queue back pressure size option that is not a positive integer',
         ),
       )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              tasksQueueBackPressureSize: 12,
+            },
+          ),
+      ).toThrow(
+        new TypeError(
+          'Cannot construct a worker node without a tasks queue bucket size option',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              tasksQueueBackPressureSize: 12,
+              tasksQueueBucketSize: 'invalidTasksQueueBucketSize',
+            },
+          ),
+      ).toThrow(
+        new TypeError(
+          'Cannot construct a worker node with a tasks queue bucket size option that is not an integer',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            { tasksQueueBackPressureSize: 12, tasksQueueBucketSize: 0.2 },
+          ),
+      ).toThrow(
+        new TypeError(
+          'Cannot construct a worker node with a tasks queue bucket size option that is not an integer',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            { tasksQueueBackPressureSize: 12, tasksQueueBucketSize: 0 },
+          ),
+      ).toThrow(
+        new RangeError(
+          'Cannot construct a worker node with a tasks queue bucket size option that is not a positive integer',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            { tasksQueueBackPressureSize: 12, tasksQueueBucketSize: -1 },
+          ),
+      ).toThrow(
+        new RangeError(
+          'Cannot construct a worker node with a tasks queue bucket size option that is not a positive integer',
+        ),
+      )
       expect(threadWorkerNode).toBeInstanceOf(WorkerNode)
       expect(threadWorkerNode.worker).toBeInstanceOf(Worker)
       expect(threadWorkerNode.info).toStrictEqual({
@@ -151,6 +216,7 @@ Deno.test({
       expect(threadWorkerNode.tasksQueueBackPressureSize).toBe(12)
       expect(threadWorkerNode.tasksQueue).toBeInstanceOf(PriorityQueue)
       expect(threadWorkerNode.tasksQueue.size).toBe(0)
+      expect(threadWorkerNode.tasksQueue.k).toBe(6)
       expect(threadWorkerNode.tasksQueueSize()).toBe(
         threadWorkerNode.tasksQueue.size,
       )

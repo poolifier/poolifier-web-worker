@@ -79,7 +79,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       )
     }
     this.tasksQueueBackPressureSize = opts.tasksQueueBackPressureSize!
-    this.tasksQueue = new PriorityQueue<Task<Data>>()
+    this.tasksQueue = new PriorityQueue<Task<Data>>(opts.tasksQueueBucketSize)
     this.onBackPressureStarted = false
     this.taskFunctionsUsage = new Map<string, WorkerUsage>()
   }
