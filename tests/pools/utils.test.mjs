@@ -30,7 +30,7 @@ Deno.test('Pool utils test suite', async (t) => {
       concurrency: 1,
       size: Math.pow(poolMaxSize, 2),
       taskStealing: true,
-      tasksStealingOnBackPressure: true,
+      tasksStealingOnBackPressure: false,
       tasksFinishedTimeout: 2000,
     })
   })

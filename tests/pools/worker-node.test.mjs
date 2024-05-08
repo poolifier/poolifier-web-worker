@@ -186,6 +186,7 @@ Deno.test({
         dynamic: false,
         ready: false,
         stealing: false,
+        backPressure: false,
       })
       expect(threadWorkerNode.usage).toStrictEqual({
         tasks: {
@@ -220,7 +221,7 @@ Deno.test({
       expect(threadWorkerNode.tasksQueueSize()).toBe(
         threadWorkerNode.tasksQueue.size,
       )
-      expect(threadWorkerNode.onBackPressureStarted).toBe(false)
+      expect(threadWorkerNode.setBackPressureFlag).toBe(false)
       expect(threadWorkerNode.taskFunctionsUsage).toBeInstanceOf(Map)
     })
 

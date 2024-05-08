@@ -273,7 +273,7 @@ Deno.test({
           concurrency: 2,
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
-          tasksStealingOnBackPressure: true,
+          tasksStealingOnBackPressure: false,
           tasksFinishedTimeout: 2000,
         },
         workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED,
@@ -612,7 +612,7 @@ Deno.test({
           concurrency: 1,
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
-          tasksStealingOnBackPressure: true,
+          tasksStealingOnBackPressure: false,
           tasksFinishedTimeout: 2000,
         })
         pool.enableTasksQueue(true, { concurrency: 2 })
@@ -621,7 +621,7 @@ Deno.test({
           concurrency: 2,
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
-          tasksStealingOnBackPressure: true,
+          tasksStealingOnBackPressure: false,
           tasksFinishedTimeout: 2000,
         })
         pool.enableTasksQueue(false)
@@ -643,7 +643,7 @@ Deno.test({
           concurrency: 1,
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
-          tasksStealingOnBackPressure: true,
+          tasksStealingOnBackPressure: false,
           tasksFinishedTimeout: 2000,
         })
         for (const workerNode of pool.workerNodes) {
@@ -858,6 +858,7 @@ Deno.test({
           dynamic: false,
           ready: true,
           stealing: false,
+          backPressure: false,
         })
       }
       await pool.destroy()
@@ -874,6 +875,7 @@ Deno.test({
           dynamic: false,
           ready: true,
           stealing: false,
+          backPressure: false,
         })
       }
       await pool.destroy()
