@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.3] - 2024-05-09
+
 ### Fixed
 
 - Disable `tasksStealingOnBackPressure` by default until performance issues
