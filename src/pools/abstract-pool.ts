@@ -1795,7 +1795,7 @@ export abstract class AbstractPool<
         sourceWorkerNode.usage.tasks.queued > 0,
     )
     if (sourceWorkerNode != null) {
-      const task = sourceWorkerNode.dequeueTask(1) as Task<Data>
+      const task = sourceWorkerNode.dequeueLastBucketTask() as Task<Data>
       this.handleTask(workerNodeKey, task)
       this.updateTaskSequentiallyStolenStatisticsWorkerUsage(workerNodeKey)
       this.updateTaskStolenStatisticsWorkerUsage(workerNodeKey, task.name!)
@@ -1842,7 +1842,7 @@ export abstract class AbstractPool<
           )
         }
         workerInfo.stealing = true
-        const task = sourceWorkerNode.dequeueTask(1) as Task<Data>
+        const task = sourceWorkerNode.dequeueLastBucketTask() as Task<Data>
         this.handleTask(workerNodeKey, task)
         this.updateTaskStolenStatisticsWorkerUsage(workerNodeKey, task.name!)
         workerInfo.stealing = false
@@ -2073,11 +2073,8 @@ export abstract class AbstractPool<
     return tasksQueueSize
   }
 
-  private dequeueTask(
-    workerNodeKey: number,
-    bucket?: number,
-  ): Task<Data> | undefined {
-    return this.workerNodes[workerNodeKey].dequeueTask(bucket)
+  private dequeueTask(workerNodeKey: number): Task<Data> | undefined {
+    return this.workerNodes[workerNodeKey].dequeueTask()
   }
 
   private tasksQueueSize(workerNodeKey: number): number {

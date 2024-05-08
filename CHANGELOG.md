@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Optimize task(s) stealing by dequeuing task(s) from the last prioritized
+  bucket.
+
 ## [0.4.1] - 2024-05-08
 
 ### Fixed
