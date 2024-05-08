@@ -1,4 +1,4 @@
-# [API](https://jsr.io/@poolifier/poolifier-web-worker)
+# [API](https://jsr.io/@poolifier/poolifier-web-worker/doc)
 
 ## Table of contents
 
