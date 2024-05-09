@@ -97,7 +97,7 @@ and this project adheres to
 
 ### Changed
 
-- Add mitata and Bun support to internal benchmark.
+- Add tatami-ng and Bun support to internal benchmark.
 
 ## [0.3.11] - 2024-03-27
 
