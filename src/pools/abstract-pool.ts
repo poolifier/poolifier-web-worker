@@ -1652,24 +1652,23 @@ export abstract class AbstractPool<
     if (workerNode?.usage != null) {
       ;++workerNode.usage.tasks.sequentiallyStolen
     }
-    const taskFunctionWorkerUsage = workerNode.getTaskFunctionWorkerUsage(
-      taskName,
-    )
     if (
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
-      taskFunctionWorkerUsage != null &&
-      (taskFunctionWorkerUsage.tasks.sequentiallyStolen === 0 ||
+      workerNode.getTaskFunctionWorkerUsage(taskName) != null
+    ) {
+      const taskFunctionWorkerUsage = workerNode.getTaskFunctionWorkerUsage(
+        taskName,
+      )!
+      if (
+        taskFunctionWorkerUsage.tasks.sequentiallyStolen === 0 ||
         (previousTaskName != null &&
           previousTaskName === taskName &&
-          taskFunctionWorkerUsage.tasks.sequentiallyStolen > 0))
-    ) {
-      ;++taskFunctionWorkerUsage.tasks.sequentiallyStolen
-    } else if (
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
-      taskFunctionWorkerUsage != null &&
-      taskFunctionWorkerUsage.tasks.sequentiallyStolen > 0
-    ) {
-      taskFunctionWorkerUsage.tasks.sequentiallyStolen = 0
+          taskFunctionWorkerUsage.tasks.sequentiallyStolen > 0)
+      ) {
+        ;++taskFunctionWorkerUsage.tasks.sequentiallyStolen
+      } else if (taskFunctionWorkerUsage.tasks.sequentiallyStolen > 0) {
+        taskFunctionWorkerUsage.tasks.sequentiallyStolen = 0
+      }
     }
   }
 
