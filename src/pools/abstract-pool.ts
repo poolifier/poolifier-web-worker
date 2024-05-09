@@ -1639,17 +1639,14 @@ export abstract class AbstractPool<
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
-      const taskFunctionWorkerUsage = workerNode.getTaskFunctionWorkerUsage(
-        taskName,
-      )
-      ;++taskFunctionWorkerUsage!.tasks.stolen
+      ;++workerNode.getTaskFunctionWorkerUsage(taskName)!.tasks.stolen
     }
   }
 
   private updateTaskSequentiallyStolenStatisticsWorkerUsage(
     workerNodeKey: number,
     taskName: string,
-    previousStolenTaskName: string,
+    previousTaskName?: string,
   ): void {
     const workerNode = this.workerNodes[workerNodeKey]
     if (workerNode?.usage != null) {
@@ -1662,13 +1659,15 @@ export abstract class AbstractPool<
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       taskFunctionWorkerUsage != null &&
       (taskFunctionWorkerUsage.tasks.sequentiallyStolen === 0 ||
-        (previousStolenTaskName === taskName &&
+        (previousTaskName != null &&
+          previousTaskName === taskName &&
           taskFunctionWorkerUsage.tasks.sequentiallyStolen > 0))
     ) {
       ;++taskFunctionWorkerUsage.tasks.sequentiallyStolen
     } else if (
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
-      taskFunctionWorkerUsage != null
+      taskFunctionWorkerUsage != null &&
+      taskFunctionWorkerUsage.tasks.sequentiallyStolen > 0
     ) {
       taskFunctionWorkerUsage.tasks.sequentiallyStolen = 0
     }
@@ -1686,10 +1685,9 @@ export abstract class AbstractPool<
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
-      const taskFunctionWorkerUsage = workerNode.getTaskFunctionWorkerUsage(
+      workerNode.getTaskFunctionWorkerUsage(
         taskName,
-      )
-      taskFunctionWorkerUsage!.tasks.sequentiallyStolen = 0
+      )!.tasks.sequentiallyStolen = 0
     }
   }
 
@@ -1739,11 +1737,11 @@ export abstract class AbstractPool<
     }
     workerInfo.stealing = true
     const stolenTask = this.workerNodeStealTask(workerNodeKey)
-    if (stolenTask != null && previousStolenTask != null) {
+    if (stolenTask != null) {
       this.updateTaskSequentiallyStolenStatisticsWorkerUsage(
         workerNodeKey,
         stolenTask.name!,
-        previousStolenTask.name!,
+        previousStolenTask?.name,
       )
     }
     sleep(exponentialDelay(workerNodeTasksUsage.sequentiallyStolen))
