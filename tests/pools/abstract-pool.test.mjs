@@ -1,4 +1,4 @@
-import { /* assertSpyCalls, */ returnsNext, stub } from '@std/testing/mock'
+import { assertSpyCall, returnsNext, stub } from '@std/testing/mock'
 import { expect } from 'expect'
 import {
   DynamicThreadPool,
@@ -1283,8 +1283,9 @@ Deno.test({
           stolenTasks: expect.any(Number),
           failedTasks: expect.any(Number),
         })
-        // FIXME: test for calls count >= 7
-        // assertSpyCalls(pool.hasBackPressure, 7)
+        assertSpyCall(pool.hasBackPressure, 6, {
+          returned: true,
+        })
         pool.hasBackPressure.restore()
         await pool.destroy()
       },
