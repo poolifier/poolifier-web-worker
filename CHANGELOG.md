@@ -11,6 +11,7 @@ and this project adheres to
 ### Fixed
 
 - Avoid queued tasks redistribution on the errored worker node.
+- Fix pools' `addTaskFunction()` type definition.
 
 ## [0.4.3] - 2024-05-09
 
