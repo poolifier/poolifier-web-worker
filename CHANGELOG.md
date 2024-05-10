@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.4] - 2024-05-10
+
 ### Fixed
 
 - Avoid queued tasks redistribution on the errored worker node.
