@@ -318,7 +318,7 @@ export abstract class AbstractPool<
         ),
       }),
       busyWorkerNodes: this.workerNodes.reduce(
-        (accumulator, _workerNode, workerNodeKey) =>
+        (accumulator, _, workerNodeKey) =>
           this.isWorkerNodeBusy(workerNodeKey) ? accumulator + 1 : accumulator,
         0,
       ),
@@ -1097,7 +1097,7 @@ export abstract class AbstractPool<
     }
     this.destroying = true
     await Promise.all(
-      this.workerNodes.map(async (_workerNode, workerNodeKey) => {
+      this.workerNodes.map(async (_, workerNodeKey) => {
         await this.destroyWorkerNode(workerNodeKey)
       }),
     )
