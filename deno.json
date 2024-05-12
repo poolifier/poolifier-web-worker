@@ -9,8 +9,8 @@
   "tasks": {
     "benchmark:deno": "deno bench -A ./benchmarks/internal/bench.mjs",
     "benchmark:deno:json": "deno bench -A --json ./benchmarks/internal/bench.mjs",
-    "benchmark:benchmark-js": "deno run -A --v8-flags=--max-old-space-size=8192 ./benchmarks/internal/bench.mjs -t benchmark.js ",
-    "benchmark:benchmark-js:debug": "deno run -A --inspect --v8-flags=--max-old-space-size=8192 ./benchmarks/internal/bench.mjs -t benchmark.js ",
+    "benchmark:benchmark-js": "deno run -A ./benchmarks/internal/bench.mjs -t benchmark.js ",
+    "benchmark:benchmark-js:debug": "deno run -A --inspect ./benchmarks/internal/bench.mjs -t benchmark.js ",
     "benchmark:tatami-ng": "deno run -A ./benchmarks/internal/bench.mjs -t tatami-ng",
     "benchmark:tatami-ng:debug": "deno run -A --inspect ./benchmarks/internal/bench.mjs -t tatami-ng",
     "bundle": "deno run -A bundle.ts",
