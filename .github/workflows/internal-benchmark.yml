@@ -24,14 +24,14 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      # - uses: bencherdev/bencher@main
-      # - name: Run benchmark
-      #   run: |
-      #     bencher run \
-      #     --if-branch "$GITHUB_REF_NAME" \
-      #     --else-if-branch "$GITHUB_BASE_REF" \
-      #     --else-if-branch master \
-      #     --hash "$GITHUB_SHA" \
-      #     --err \
-      #     --github-actions ${{ secrets.GITHUB_TOKEN }} \
-      #     "deno task benchmark:benchmark-js"
+      - uses: bencherdev/bencher@main
+      - name: Run benchmark
+        run: |
+          bencher run \
+          --if-branch "$GITHUB_REF_NAME" \
+          --else-if-branch "$GITHUB_BASE_REF" \
+          --else-if-branch master \
+          --hash "$GITHUB_SHA" \
+          --err \
+          --github-actions ${{ secrets.GITHUB_TOKEN }} \
+          "deno task benchmark:benchmark-js"
