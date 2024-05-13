@@ -35,4 +35,4 @@ jobs:
           --file benchmark-report.json \
           --err \
           --github-actions ${{ secrets.GITHUB_TOKEN }} \
-          "deno task benchmark:benchmark-js"
+          "deno task benchmark:tatami-ng"
