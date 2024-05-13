@@ -44,16 +44,18 @@ const runBenchmark = async () => {
           )
           benchmarkReport = {
             ...benchmarkReport,
-            ...(await runPoolifierBenchmarkTatamiNg(
-              dynamicThreadPoolGroupname,
-              WorkerTypes.web,
-              PoolTypes.dynamic,
-              poolSize,
-              {
-                taskExecutions,
-                workerData,
-              },
-            )),
+            ...convertTatamiNgToBmf(
+              await runPoolifierBenchmarkTatamiNg(
+                dynamicThreadPoolGroupname,
+                WorkerTypes.web,
+                PoolTypes.dynamic,
+                poolSize,
+                {
+                  taskExecutions,
+                  workerData,
+                },
+              ),
+            ),
           }
           Deno.env.get('CI') != null &&
             Deno.writeTextFileSync(
