@@ -223,3 +223,4 @@ dist/LICENSE
 dist/README.md
 npm/
 coverage/
+benchmark-report.json

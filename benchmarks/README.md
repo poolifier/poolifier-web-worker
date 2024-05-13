@@ -27,13 +27,11 @@ poolifier cloned repository and run:
 
 #### Deno
 
-- `deno task benchmark:benchmark-js` or
 - `deno task benchmark:tatami-ng` or
 - `deno task benchmark:deno`
 
 #### Bun
 
-- `bun run ./benchmarks/internal/bench.mjs -t benchmark.js` or
 - `bun run ./benchmarks/internal/bench.mjs -t tatami-ng`
 
 ### [Results](https://bencher.dev/perf/poolifier-web-worker)
