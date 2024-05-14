@@ -1789,11 +1789,11 @@ export abstract class AbstractPool<
     ) {
       return
     }
-    const { workerId } = event.detail
     const sizeOffset = 1
     if (this.opts.tasksQueueOptions!.size! <= sizeOffset) {
       return
     }
+    const { workerId } = event.detail
     const sourceWorkerNode =
       this.workerNodes[this.getWorkerNodeKeyByWorkerId(workerId)]
     const workerNodes = this.workerNodes
