@@ -931,6 +931,31 @@ export abstract class AbstractPool<
   }
 
   /**
+   * Gets worker node task function worker choice strategy, if any.
+   *
+   * @param workerNodeKey - The worker node key.
+   * @param name - The task function name.
+   * @returns The worker node task function worker choice strategy if the worker node task function worker choice strategy is defined, `undefined` otherwise.
+   */
+  private readonly getWorkerNodeTaskFunctionWorkerChoiceStrategy = (
+    workerNodeKey: number,
+    name?: string,
+  ): WorkerChoiceStrategy | undefined => {
+    const workerInfo = this.getWorkerInfo(workerNodeKey)
+    if (workerInfo == null) {
+      return
+    }
+    name = name ?? DEFAULT_TASK_NAME
+    if (name === DEFAULT_TASK_NAME) {
+      name = workerInfo.taskFunctionsProperties?.[1]?.name
+    }
+    return workerInfo.taskFunctionsProperties?.find(
+      (taskFunctionProperties: TaskFunctionProperties) =>
+        taskFunctionProperties.name === name,
+    )?.strategy
+  }
+
+  /**
    * Gets worker node task function priority, if any.
    *
    * @param workerNodeKey - The worker node key.
@@ -941,11 +966,11 @@ export abstract class AbstractPool<
     workerNodeKey: number,
     name?: string,
   ): number | undefined => {
-    name = name ?? DEFAULT_TASK_NAME
     const workerInfo = this.getWorkerInfo(workerNodeKey)
     if (workerInfo == null) {
       return
     }
+    name = name ?? DEFAULT_TASK_NAME
     if (name === DEFAULT_TASK_NAME) {
       name = workerInfo.taskFunctionsProperties?.[1]?.name
     }
@@ -1032,7 +1057,10 @@ export abstract class AbstractPool<
         name: name ?? DEFAULT_TASK_NAME,
         data: data ?? ({} as Data),
         priority: this.getWorkerNodeTaskFunctionPriority(workerNodeKey, name),
-        strategy: this.getTaskFunctionWorkerChoiceStrategy(name),
+        strategy: this.getWorkerNodeTaskFunctionWorkerChoiceStrategy(
+          workerNodeKey,
+          name,
+        ),
         transferList,
         timestamp,
         taskId: crypto.randomUUID(),
