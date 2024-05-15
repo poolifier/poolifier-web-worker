@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix default task function worker choice strategy and priority handling.
+
 ## [0.4.4] - 2024-05-10
 
 ### Fixed
