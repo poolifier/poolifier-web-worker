@@ -418,12 +418,23 @@ export const waitWorkerNodeEvents = async <
       resolve(events)
       return
     }
-    workerNode.addEventListener(workerNodeEvent, () => {
-      ;++events
-      if (events === numberOfEventsToWait) {
-        resolve(events)
-      }
-    })
+    switch (workerNodeEvent) {
+      case 'message':
+      case 'messageerror':
+      case 'taskFinished':
+      case 'backPressure':
+      case 'idle':
+      case 'exit':
+        workerNode.addEventListener(workerNodeEvent, () => {
+          ;++events
+          if (events === numberOfEventsToWait) {
+            resolve(events)
+          }
+        })
+        break
+      default:
+        throw new Error('Invalid worker node event')
+    }
     if (timeout >= 0) {
       setTimeout(() => {
         resolve(events)
