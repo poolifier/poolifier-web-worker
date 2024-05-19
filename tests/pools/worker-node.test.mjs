@@ -217,7 +217,7 @@ Deno.test({
       expect(threadWorkerNode.tasksQueueBackPressureSize).toBe(12)
       expect(threadWorkerNode.tasksQueue).toBeInstanceOf(PriorityQueue)
       expect(threadWorkerNode.tasksQueue.size).toBe(0)
-      expect(threadWorkerNode.tasksQueue.k).toBe(6)
+      expect(threadWorkerNode.tasksQueue.bucketSize).toBe(6)
       expect(threadWorkerNode.tasksQueueSize()).toBe(
         threadWorkerNode.tasksQueue.size,
       )
