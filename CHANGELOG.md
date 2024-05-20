@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.7] - 2024-05-20
+
+### Changed
+
+- Bump version to deal with npm package publication issue.
+
 ## [0.4.6] - 2024-05-20
 
 ### Fixed
