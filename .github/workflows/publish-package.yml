@@ -52,13 +52,8 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Get tag version
-        if: startsWith(github.ref, 'refs/tags/')
-        id: get_tag_version
-        run: echo TAG_VERSION=${GITHUB_REF/refs\/tags\//} >> $GITHUB_OUTPUT
-
       - name: Publish Release
-        if: ${{ contains(steps.get_tag_version.outputs.TAG_VERSION, '-') == false }}
+        if: ${{ contains(github.ref_name, '-') == false }}
         run: deno publish
 
   publish-npm:
@@ -89,25 +84,20 @@ jobs:
       - name: Bundle
         run: deno task bundle
 
-      - name: Get tag version
-        if: startsWith(github.ref, 'refs/tags/')
-        id: get_tag_version
-        run: echo TAG_VERSION=${GITHUB_REF/refs\/tags\//} >> $GITHUB_OUTPUT
-
       - name: Publish Release
-        if: ${{ contains(steps.get_tag_version.outputs.TAG_VERSION, '-') == false }}
+        if: ${{ contains(github.ref_name, '-') == false }}
         run: cd dist && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Pre-Release
-        if: ${{ contains(steps.get_tag_version.outputs.TAG_VERSION, '-') == true && contains(steps.get_tag_version.outputs.TAG_VERSION, '-beta') == false }}
+        if: ${{ contains(github.ref_name, '-') == true && contains(github.ref_name, '-beta') == false }}
         run: cd dist && npm publish --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Beta Release
-        if: ${{ contains(steps.get_tag_version.outputs.TAG_VERSION, '-beta') == true }}
+        if: ${{ contains(github.ref_name, '-beta') == true }}
         run: cd dist && npm publish --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
