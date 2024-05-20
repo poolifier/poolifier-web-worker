@@ -1487,7 +1487,7 @@ export abstract class AbstractPool<
             workerUsage.tasks.executing === 0) ||
             (this.opts.enableTasksQueue === true &&
               workerInfo != null &&
-              workerInfo.stealing === false &&
+              !workerInfo.stealing &&
               workerUsage.tasks.executing === 0 &&
               this.tasksQueueSize(localWorkerNodeKey) === 0)))
       ) {
