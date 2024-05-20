@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Ensure tasks stealing dynamic worker node is not destroyed on inactivity.
+
 ## [0.4.5] - 2024-05-15
 
 ### Fixed
