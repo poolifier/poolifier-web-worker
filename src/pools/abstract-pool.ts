@@ -1482,8 +1482,7 @@ export abstract class AbstractPool<
       // Kill message received from worker
       if (
         isKillBehavior(KillBehaviors.HARD, message.kill) ||
-        (workerUsage != null &&
-          isKillBehavior(KillBehaviors.SOFT, message.kill) &&
+        (isKillBehavior(KillBehaviors.SOFT, message.kill) &&
           ((this.opts.enableTasksQueue === false &&
             workerUsage.tasks.executing === 0) ||
             (this.opts.enableTasksQueue === true &&
