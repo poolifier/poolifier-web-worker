@@ -25,7 +25,7 @@ export type ErrorEventHandler =
 /**
  * Measurement history size.
  */
-export const MeasurementHistorySize = 385
+export const MeasurementHistorySize = 386
 
 /**
  * Measurement statistics.

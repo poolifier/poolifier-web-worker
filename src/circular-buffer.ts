@@ -7,7 +7,7 @@ export const defaultBufferSize = 2048
  * Circular buffer
  */
 export class CircularBuffer<T> {
-  private readIdx: number
+  private readonly readIdx: number
   private writeIdx: number
   private items: Array<T | undefined>
   private readonly maxArrayIdx: number
@@ -37,10 +37,10 @@ export class CircularBuffer<T> {
   /**
    * Returns buffer as array
    *
-   * @returns Array<T>
+   * @returns T[]
    */
-  public toArray(): Array<T> {
-    return this.items.filter((item) => item != null) as Array<T>
+  public toArray(): T[] {
+    return this.items.filter((item) => item != null) as T[]
   }
 
   private checkSize(size: number): void {
