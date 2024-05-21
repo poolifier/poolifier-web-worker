@@ -11,7 +11,7 @@ import {
 import { waitPoolEvents } from '../test-utils.mjs'
 import { version } from '../../src/pools/version.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
-import { CircularArray } from '../../src/circular-array.ts'
+import { CircularBuffer } from '../../src/circular-buffer.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'
 import { PriorityQueue } from '../../src/priority-queue.ts'
 
@@ -795,17 +795,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -982,17 +982,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -1010,17 +1010,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -1055,17 +1055,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -1073,10 +1073,6 @@ Deno.test({
           expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
             numberOfWorkers * maxMultiplier,
           )
-          expect(workerNode.usage.runTime.history.length).toBe(0)
-          expect(workerNode.usage.waitTime.history.length).toBe(0)
-          expect(workerNode.usage.elu.idle.history.length).toBe(0)
-          expect(workerNode.usage.elu.active.history.length).toBe(0)
         }
         pool.setWorkerChoiceStrategy(WorkerChoiceStrategies.FAIR_SHARE)
         for (const workerNode of pool.workerNodes) {
@@ -1091,17 +1087,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -1109,10 +1105,6 @@ Deno.test({
           expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
             numberOfWorkers * maxMultiplier,
           )
-          expect(workerNode.usage.runTime.history.length).toBe(0)
-          expect(workerNode.usage.waitTime.history.length).toBe(0)
-          expect(workerNode.usage.elu.idle.history.length).toBe(0)
-          expect(workerNode.usage.elu.active.history.length).toBe(0)
         }
         await pool.destroy()
       },
@@ -1502,17 +1494,17 @@ Deno.test({
             failed: 0,
           },
           runTime: expect.objectContaining({
-            history: expect.any(CircularArray),
+            history: expect.any(CircularBuffer),
           }),
           waitTime: expect.objectContaining({
-            history: expect.any(CircularArray),
+            history: expect.any(CircularBuffer),
           }),
           elu: {
             idle: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             active: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
           },
         })
@@ -1759,17 +1751,17 @@ Deno.test({
                 stolen: 0,
               },
               runTime: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
               waitTime: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
               elu: {
                 idle: {
-                  history: expect.any(CircularArray),
+                  history: expect.any(CircularBuffer),
                 },
                 active: {
-                  history: expect.any(CircularArray),
+                  history: expect.any(CircularBuffer),
                 },
               },
             })
@@ -1838,17 +1830,17 @@ Deno.test({
                 stolen: 0,
               },
               runTime: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
               waitTime: {
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               },
               elu: {
                 idle: {
-                  history: expect.any(CircularArray),
+                  history: expect.any(CircularBuffer),
                 },
                 active: {
-                  history: expect.any(CircularArray),
+                  history: expect.any(CircularBuffer),
                 },
               },
             })

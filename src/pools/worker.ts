@@ -1,4 +1,4 @@
-import type { CircularArray } from '../circular-array.ts'
+import type { CircularBuffer } from '../circular-buffer.ts'
 import type { Task, TaskFunctionProperties } from '../utility-types.ts'
 
 /**
@@ -21,6 +21,11 @@ export type MessageEventErrorHandler =
 export type ErrorEventHandler =
   // deno-lint-ignore no-explicit-any
   ((ev: ErrorEvent) => any) | null
+
+/**
+ * Measurement history size.
+ */
+export const MeasurementHistorySize = 385
 
 /**
  * Measurement statistics.
@@ -51,7 +56,7 @@ export interface MeasurementStatistics {
   /**
    * Measurement history.
    */
-  readonly history: CircularArray<number>
+  readonly history: CircularBuffer<number>
 }
 
 /**

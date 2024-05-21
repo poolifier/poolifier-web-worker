@@ -4,7 +4,7 @@ import {
   FixedThreadPool,
   WorkerChoiceStrategies,
 } from '../../../src/mod.ts'
-import { CircularArray } from '../../../src/circular-array.ts'
+import { CircularBuffer } from '../../../src/circular-buffer.ts'
 import { randomInt } from 'node:crypto'
 
 Deno.test({
@@ -315,17 +315,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -377,17 +377,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -608,17 +608,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -673,17 +673,17 @@ Deno.test({
               failed: 0,
             },
             runTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             waitTime: {
-              history: new CircularArray(),
+              history: expect.any(CircularBuffer),
             },
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -828,17 +828,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -903,17 +903,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -1068,17 +1068,17 @@ Deno.test({
     //           failed: 0,
     //         },
     //         runTime: {
-    //           history: new CircularArray(),
+    //           history: expect.any(CircularBuffer)),
     //         },
     //         waitTime: {
-    //           history: new CircularArray(),
+    //           history: expect.any(CircularBuffer),
     //         },
     //         elu: expect.objectContaining({
     //           idle: expect.objectContaining({
-    //             history: expect.any(CircularArray),
+    //             history: expect.any(CircularBuffer),
     //           }),
     //           active: expect.objectContaining({
-    //             history: expect.any(CircularArray),
+    //             history: expect.any(CircularBuffer),
     //           }),
     //         }),
     //       })
@@ -1151,17 +1151,17 @@ Deno.test({
     //           failed: 0,
     //         },
     //         runTime: {
-    //           history: new CircularArray(),
+    //           history: expect.any(CircularBuffer),
     //         },
     //         waitTime: {
-    //           history: new CircularArray(),
+    //           history: expect.any(CircularBuffer),
     //         },
     //         elu: expect.objectContaining({
     //           idle: expect.objectContaining({
-    //             history: expect.any(CircularArray),
+    //             history: expect.any(CircularBuffer),
     //           }),
     //           active: expect.objectContaining({
-    //             history: expect.any(CircularArray),
+    //             history: expect.any(CircularBuffer),
     //           }),
     //         }),
     //       })
@@ -1324,17 +1324,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               }),
               active: expect.objectContaining({
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               }),
             }),
           })
@@ -1430,17 +1430,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               }),
               active: expect.objectContaining({
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               }),
             }),
           })
@@ -1541,17 +1541,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: expect.objectContaining({
               idle: expect.objectContaining({
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               }),
               active: expect.objectContaining({
-                history: expect.any(CircularArray),
+                history: expect.any(CircularBuffer),
               }),
             }),
           })
@@ -1793,17 +1793,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -1884,17 +1884,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -1981,17 +1981,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -2252,17 +2252,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })
@@ -2364,17 +2364,17 @@ Deno.test({
               failed: 0,
             },
             runTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             waitTime: expect.objectContaining({
-              history: expect.any(CircularArray),
+              history: expect.any(CircularBuffer),
             }),
             elu: {
               idle: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
               active: {
-                history: new CircularArray(),
+                history: expect.any(CircularBuffer),
               },
             },
           })

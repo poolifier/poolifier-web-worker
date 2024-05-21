@@ -69,6 +69,6 @@ export type {
   WorkerStatistics,
   Writable,
 } from './utility-types.ts'
-export type { CircularArray } from './circular-array.ts'
+export type { CircularBuffer } from './circular-buffer.ts'
 export type { PriorityQueue, PriorityQueueNode } from './priority-queue.ts'
 export { availableParallelism } from './utils.ts'

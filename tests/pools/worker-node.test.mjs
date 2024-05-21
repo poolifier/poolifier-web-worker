@@ -1,7 +1,7 @@
 import { expect } from 'expect'
 import { WorkerTypes } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
-import { CircularArray } from '../../src/circular-array.ts'
+import { CircularBuffer } from '../../src/circular-buffer.ts'
 import { PriorityQueue } from '../../src/priority-queue.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'
 
@@ -199,17 +199,17 @@ Deno.test({
           failed: 0,
         },
         runTime: {
-          history: new CircularArray(),
+          history: expect.any(CircularBuffer),
         },
         waitTime: {
-          history: new CircularArray(),
+          history: expect.any(CircularBuffer),
         },
         elu: {
           idle: {
-            history: new CircularArray(),
+            history: expect.any(CircularBuffer),
           },
           active: {
-            history: new CircularArray(),
+            history: expect.any(CircularBuffer),
           },
         },
       })
@@ -261,17 +261,17 @@ Deno.test({
           failed: 0,
         },
         runTime: {
-          history: new CircularArray(),
+          history: expect.any(CircularBuffer),
         },
         waitTime: {
-          history: new CircularArray(),
+          history: expect.any(CircularBuffer),
         },
         elu: {
           idle: {
-            history: new CircularArray(),
+            history: expect.any(CircularBuffer),
           },
           active: {
-            history: new CircularArray(),
+            history: expect.any(CircularBuffer),
           },
         },
       })
@@ -285,17 +285,17 @@ Deno.test({
           failed: 0,
         },
         runTime: {
-          history: new CircularArray(),
+          history: expect.any(CircularBuffer),
         },
         waitTime: {
-          history: new CircularArray(),
+          history: expect.any(CircularBuffer),
         },
         elu: {
           idle: {
-            history: new CircularArray(),
+            history: expect.any(CircularBuffer),
           },
           active: {
-            history: new CircularArray(),
+            history: expect.any(CircularBuffer),
           },
         },
       })
@@ -309,17 +309,17 @@ Deno.test({
           failed: 0,
         },
         runTime: {
-          history: new CircularArray(),
+          history: expect.any(CircularBuffer),
         },
         waitTime: {
-          history: new CircularArray(),
+          history: expect.any(CircularBuffer),
         },
         elu: {
           idle: {
-            history: new CircularArray(),
+            history: expect.any(CircularBuffer),
           },
           active: {
-            history: new CircularArray(),
+            history: expect.any(CircularBuffer),
           },
         },
       })

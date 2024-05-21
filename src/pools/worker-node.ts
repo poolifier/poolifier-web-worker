@@ -1,15 +1,16 @@
-import { CircularArray } from '../circular-array.ts'
+import { CircularBuffer } from '../circular-buffer.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import { DEFAULT_TASK_NAME } from '../utils.ts'
-import type {
-  IWorker,
-  IWorkerNode,
-  StrategyData,
-  WorkerInfo,
-  WorkerNodeEventDetail,
-  WorkerNodeOptions,
-  WorkerType,
-  WorkerUsage,
+import {
+  type IWorker,
+  type IWorkerNode,
+  MeasurementHistorySize,
+  type StrategyData,
+  type WorkerInfo,
+  type WorkerNodeEventDetail,
+  type WorkerNodeOptions,
+  type WorkerType,
+  type WorkerUsage,
 } from './worker.ts'
 import {
   checkWorkerNodeArguments,
@@ -217,17 +218,17 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
         failed: 0,
       },
       runTime: {
-        history: new CircularArray<number>(),
+        history: new CircularBuffer<number>(MeasurementHistorySize),
       },
       waitTime: {
-        history: new CircularArray<number>(),
+        history: new CircularBuffer<number>(MeasurementHistorySize),
       },
       elu: {
         idle: {
-          history: new CircularArray<number>(),
+          history: new CircularBuffer<number>(MeasurementHistorySize),
         },
         active: {
-          history: new CircularArray<number>(),
+          history: new CircularBuffer<number>(MeasurementHistorySize),
         },
       },
     }
@@ -259,17 +260,17 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
         failed: 0,
       },
       runTime: {
-        history: new CircularArray<number>(),
+        history: new CircularBuffer<number>(MeasurementHistorySize),
       },
       waitTime: {
-        history: new CircularArray<number>(),
+        history: new CircularBuffer<number>(MeasurementHistorySize),
       },
       elu: {
         idle: {
-          history: new CircularArray<number>(),
+          history: new CircularBuffer<number>(MeasurementHistorySize),
         },
         active: {
-          history: new CircularArray<number>(),
+          history: new CircularBuffer<number>(MeasurementHistorySize),
         },
       },
     }

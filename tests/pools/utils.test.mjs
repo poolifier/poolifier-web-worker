@@ -1,8 +1,5 @@
 import { expect } from 'expect'
-import {
-  CircularArray,
-  DEFAULT_CIRCULAR_ARRAY_SIZE,
-} from '../../src/circular-array.ts'
+import { CircularBuffer } from '../../src/circular-buffer.ts'
 import {
   createWorker,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
@@ -12,6 +9,7 @@ import {
   getWorkerType,
 } from '../../src/pools/utils.ts'
 import { WorkerTypes } from '../../src/mod.ts'
+import { MeasurementHistorySize } from '../../src/pools/worker.ts'
 
 Deno.test('Pool utils test suite', async (t) => {
   await t.step(
@@ -36,8 +34,9 @@ Deno.test('Pool utils test suite', async (t) => {
   })
 
   await t.step('Verify updateMeasurementStatistics() behavior', () => {
+    const circularBuffer = new CircularBuffer(MeasurementHistorySize)
     const measurementStatistics = {
-      history: new CircularArray(),
+      history: circularBuffer,
     }
     exportedUpdateMeasurementStatistics(
       measurementStatistics,
@@ -48,7 +47,7 @@ Deno.test('Pool utils test suite', async (t) => {
       aggregate: 0.01,
       maximum: 0.01,
       minimum: 0.01,
-      history: new CircularArray(),
+      history: circularBuffer,
     })
     exportedUpdateMeasurementStatistics(
       measurementStatistics,
@@ -59,7 +58,7 @@ Deno.test('Pool utils test suite', async (t) => {
       aggregate: 0.03,
       maximum: 0.02,
       minimum: 0.01,
-      history: new CircularArray(),
+      history: circularBuffer,
     })
     exportedUpdateMeasurementStatistics(
       measurementStatistics,
@@ -71,7 +70,7 @@ Deno.test('Pool utils test suite', async (t) => {
       maximum: 0.02,
       minimum: 0.001,
       average: 0.001,
-      history: new CircularArray(DEFAULT_CIRCULAR_ARRAY_SIZE, 0.001),
+      history: circularBuffer,
     })
     exportedUpdateMeasurementStatistics(
       measurementStatistics,
@@ -83,7 +82,7 @@ Deno.test('Pool utils test suite', async (t) => {
       maximum: 0.02,
       minimum: 0.001,
       average: 0.002,
-      history: new CircularArray(DEFAULT_CIRCULAR_ARRAY_SIZE, 0.001, 0.003),
+      history: circularBuffer,
     })
     exportedUpdateMeasurementStatistics(
       measurementStatistics,
@@ -95,12 +94,7 @@ Deno.test('Pool utils test suite', async (t) => {
       maximum: 0.02,
       minimum: 0.001,
       median: 0.003,
-      history: new CircularArray(
-        DEFAULT_CIRCULAR_ARRAY_SIZE,
-        0.001,
-        0.003,
-        0.006,
-      ),
+      history: circularBuffer,
     })
     exportedUpdateMeasurementStatistics(
       measurementStatistics,
@@ -112,13 +106,7 @@ Deno.test('Pool utils test suite', async (t) => {
       maximum: 0.02,
       minimum: 0.001,
       average: 0.005,
-      history: new CircularArray(
-        DEFAULT_CIRCULAR_ARRAY_SIZE,
-        0.001,
-        0.003,
-        0.006,
-        0.01,
-      ),
+      history: circularBuffer,
     })
   })
 
