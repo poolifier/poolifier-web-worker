@@ -62,4 +62,18 @@ Deno.test('Circular buffer test suite', async (t) => {
     expect(circularBuffer.items).toMatchObject([5, 6, 3, 4])
     expect(circularBuffer.writeIdx).toBe(2)
   })
+
+  await t.step(
+    'Verify that circular buffer toArray() works as intended',
+    () => {
+      const circularBuffer = new CircularBuffer(4)
+      circularBuffer.put(1)
+      circularBuffer.put(2)
+      circularBuffer.put(3)
+      circularBuffer.put(4)
+      circularBuffer.put(5)
+      circularBuffer.put(6)
+      expect(circularBuffer.toArray()).toStrictEqual([5, 6, 3, 4])
+    },
+  )
 })
