@@ -162,7 +162,7 @@ export const secureRandom = (): number => {
 
 /**
  * Returns the minimum of the given numbers.
- * If no numbers are given, `Infinity` is returned.
+ * If no numbers are given, `Number.POSITIVE_INFINITY` is returned.
  *
  * @param args - The numbers to get the minimum of.
  * @returns The minimum of the given numbers.
@@ -176,7 +176,7 @@ export const min = (...args: number[]): number =>
 
 /**
  * Returns the maximum of the given numbers.
- * If no numbers are given, `-Infinity` is returned.
+ * If no numbers are given, `Number.NEGATIVE_INFINITY` is returned.
  *
  * @param args - The numbers to get the maximum of.
  * @returns The maximum of the given numbers.

@@ -38,7 +38,7 @@ export class PriorityQueue<T> {
   /**
    * Constructs a priority queue.
    *
-   * @param bucketSize - Prioritized bucket size. @defaultValue Infinity
+   * @param bucketSize - Prioritized bucket size. @defaultValue Number.POSITIVE_INFINITY
    */
   public constructor(bucketSize = Number.POSITIVE_INFINITY) {
     if (
