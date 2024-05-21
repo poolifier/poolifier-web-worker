@@ -1,7 +1,12 @@
+import type { TaskFunctionProperties } from '../utility-types.ts'
 import type {
   TaskFunction,
   TaskFunctionObject,
 } from '../worker/task-functions.ts'
+import type {
+  WorkerChoiceStrategy,
+  WorkerChoiceStrategyOptions,
+} from './selection-strategies/selection-strategies-types.ts'
 import type {
   ErrorEventHandler,
   IWorker,
@@ -10,11 +15,6 @@ import type {
   MessageEventHandler,
   WorkerType,
 } from './worker.ts'
-import type {
-  WorkerChoiceStrategy,
-  WorkerChoiceStrategyOptions,
-} from './selection-strategies/selection-strategies-types.ts'
-import type { TaskFunctionProperties } from '../utility-types.ts'
 
 /**
  * Enumeration of pool types.

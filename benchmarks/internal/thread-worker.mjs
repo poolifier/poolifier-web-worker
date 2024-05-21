@@ -1,6 +1,6 @@
 import { ThreadWorker } from '../../src/mod.ts'
-import { executeTaskFunction } from '../benchmarks-utils.mjs'
 import { TaskFunctions } from '../benchmarks-types.mjs'
+import { executeTaskFunction } from '../benchmarks-utils.mjs'
 
 const taskFunction = (data) => {
   data = data || {}

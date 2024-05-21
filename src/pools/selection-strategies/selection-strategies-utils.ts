@@ -1,3 +1,8 @@
+import {
+  availableParallelism,
+  runtime,
+  unsupportedJsRuntime,
+} from '../../utils.ts'
 import type { IPool } from '../pool.ts'
 import type { IWorker } from '../worker.ts'
 import { FairShareWorkerChoiceStrategy } from './fair-share-worker-choice-strategy.ts'
@@ -17,11 +22,6 @@ import {
 } from './selection-strategies-types.ts'
 import { WeightedRoundRobinWorkerChoiceStrategy } from './weighted-round-robin-worker-choice-strategy.ts'
 import type { WorkerChoiceStrategiesContext } from './worker-choice-strategies-context.ts'
-import {
-  availableParallelism,
-  runtime,
-  unsupportedJsRuntime,
-} from '../../utils.ts'
 
 const estimatedCpuSpeed = (): number => {
   const runs = 150000000

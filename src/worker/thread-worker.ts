@@ -1,8 +1,8 @@
 import type { MessageValue } from '../utility-types.ts'
-import { AbstractWorker } from './abstract-worker.ts'
-import type { WorkerOptions } from './worker-options.ts'
-import type { TaskFunction, TaskFunctions } from './task-functions.ts'
 import { isWebWorker } from '../utils.ts'
+import { AbstractWorker } from './abstract-worker.ts'
+import type { TaskFunction, TaskFunctions } from './task-functions.ts'
+import type { WorkerOptions } from './worker-options.ts'
 
 /**
  * A thread worker used by a poolifier `ThreadPool`.

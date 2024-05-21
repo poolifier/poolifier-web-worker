@@ -169,7 +169,10 @@ export const secureRandom = (): number => {
  * @internal
  */
 export const min = (...args: number[]): number =>
-  args.reduce((minimum, num) => (minimum < num ? minimum : num), Infinity)
+  args.reduce(
+    (minimum, num) => (minimum < num ? minimum : num),
+    Number.POSITIVE_INFINITY,
+  )
 
 /**
  * Returns the maximum of the given numbers.
@@ -180,7 +183,10 @@ export const min = (...args: number[]): number =>
  * @internal
  */
 export const max = (...args: number[]): number =>
-  args.reduce((maximum, num) => (maximum > num ? maximum : num), -Infinity)
+  args.reduce(
+    (maximum, num) => (maximum > num ? maximum : num),
+    Number.NEGATIVE_INFINITY,
+  )
 
 /**
  * Wraps a function so that it can only be called once.

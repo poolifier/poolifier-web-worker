@@ -18,11 +18,11 @@ import {
   round,
   sleep,
 } from '../utils.ts'
-import { KillBehaviors } from '../worker/worker-options.ts'
 import type {
   TaskFunction,
   TaskFunctionObject,
 } from '../worker/task-functions.ts'
+import { KillBehaviors } from '../worker/worker-options.ts'
 import {
   type IPool,
   PoolEvents,
@@ -32,13 +32,6 @@ import {
   PoolTypes,
   type TasksQueueOptions,
 } from './pool.ts'
-import type {
-  IWorker,
-  IWorkerNode,
-  WorkerInfo,
-  WorkerNodeEventDetail,
-  WorkerType,
-} from './worker.ts'
 import {
   Measurements,
   WorkerChoiceStrategies,
@@ -46,8 +39,6 @@ import {
   type WorkerChoiceStrategyOptions,
 } from './selection-strategies/selection-strategies-types.ts'
 import { WorkerChoiceStrategiesContext } from './selection-strategies/worker-choice-strategies-context.ts'
-import { version } from './version.ts'
-import { WorkerNode } from './worker-node.ts'
 import {
   checkFileURL,
   checkValidPriority,
@@ -60,6 +51,15 @@ import {
   updateWaitTimeWorkerUsage,
   waitWorkerNodeEvents,
 } from './utils.ts'
+import { version } from './version.ts'
+import { WorkerNode } from './worker-node.ts'
+import type {
+  IWorker,
+  IWorkerNode,
+  WorkerInfo,
+  WorkerNodeEventDetail,
+  WorkerType,
+} from './worker.ts'
 
 /**
  * Base class that implements some shared logic for all poolifier pools.
@@ -367,14 +367,16 @@ export abstract class AbstractPool<
           minimum: round(
             min(
               ...this.workerNodes.map(
-                (workerNode) => workerNode.usage.runTime.minimum ?? Infinity,
+                (workerNode) =>
+                  workerNode.usage.runTime.minimum ?? Number.POSITIVE_INFINITY,
               ),
             ),
           ),
           maximum: round(
             max(
               ...this.workerNodes.map(
-                (workerNode) => workerNode.usage.runTime.maximum ?? -Infinity,
+                (workerNode) =>
+                  workerNode.usage.runTime.maximum ?? Number.NEGATIVE_INFINITY,
               ),
             ),
           ),
@@ -414,14 +416,16 @@ export abstract class AbstractPool<
           minimum: round(
             min(
               ...this.workerNodes.map(
-                (workerNode) => workerNode.usage.waitTime.minimum ?? Infinity,
+                (workerNode) =>
+                  workerNode.usage.waitTime.minimum ?? Number.POSITIVE_INFINITY,
               ),
             ),
           ),
           maximum: round(
             max(
               ...this.workerNodes.map(
-                (workerNode) => workerNode.usage.waitTime.maximum ?? -Infinity,
+                (workerNode) =>
+                  workerNode.usage.waitTime.maximum ?? Number.NEGATIVE_INFINITY,
               ),
             ),
           ),
@@ -531,9 +535,7 @@ export abstract class AbstractPool<
     } else if (this.getWorkerNodeKeyByWorkerId(message.workerId) === -1) {
       throw new Error(
         `Worker message received from unknown worker '${message.workerId}': ${
-          JSON.stringify(
-            message,
-          )
+          JSON.stringify(message)
         }`,
       )
     }
@@ -1375,7 +1377,8 @@ export abstract class AbstractPool<
     ) {
       workerNode.usage.runTime.aggregate = min(
         ...this.workerNodes.map(
-          (workerNode) => workerNode.usage.runTime.aggregate ?? Infinity,
+          (workerNode) =>
+            workerNode.usage.runTime.aggregate ?? Number.POSITIVE_INFINITY,
         ),
       )
     }
@@ -1385,7 +1388,8 @@ export abstract class AbstractPool<
     ) {
       workerNode.usage.waitTime.aggregate = min(
         ...this.workerNodes.map(
-          (workerNode) => workerNode.usage.waitTime.aggregate ?? Infinity,
+          (workerNode) =>
+            workerNode.usage.waitTime.aggregate ?? Number.POSITIVE_INFINITY,
         ),
       )
     }
@@ -1395,7 +1399,8 @@ export abstract class AbstractPool<
     ) {
       workerNode.usage.elu.active.aggregate = min(
         ...this.workerNodes.map(
-          (workerNode) => workerNode.usage.elu.active.aggregate ?? Infinity,
+          (workerNode) =>
+            workerNode.usage.elu.active.aggregate ?? Number.POSITIVE_INFINITY,
         ),
       )
     }

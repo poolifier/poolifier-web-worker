@@ -1,6 +1,13 @@
 import { CircularBuffer } from '../circular-buffer.ts'
+import { PriorityQueue } from '../priority-queue.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import { DEFAULT_TASK_NAME } from '../utils.ts'
+import {
+  checkWorkerNodeArguments,
+  createWorker,
+  getWorkerId,
+  getWorkerType,
+} from './utils.ts'
 import {
   type IWorker,
   type IWorkerNode,
@@ -12,13 +19,6 @@ import {
   type WorkerType,
   type WorkerUsage,
 } from './worker.ts'
-import {
-  checkWorkerNodeArguments,
-  createWorker,
-  getWorkerId,
-  getWorkerType,
-} from './utils.ts'
-import { PriorityQueue } from '../priority-queue.ts'
 
 /**
  * Worker node.

@@ -30,7 +30,7 @@ export class PriorityQueue<T> {
    * The number of filled prioritized buckets.
    */
   public get buckets(): number {
-    return this.bucketSize === Infinity
+    return this.bucketSize === Number.POSITIVE_INFINITY
       ? 1
       : Math.trunc(this.nodeArray.length / this.bucketSize)
   }
@@ -40,8 +40,11 @@ export class PriorityQueue<T> {
    *
    * @param bucketSize - Prioritized bucket size. @defaultValue Infinity
    */
-  public constructor(bucketSize = Infinity) {
-    if (bucketSize !== Infinity && !Number.isSafeInteger(bucketSize)) {
+  public constructor(bucketSize = Number.POSITIVE_INFINITY) {
+    if (
+      bucketSize !== Number.POSITIVE_INFINITY &&
+      !Number.isSafeInteger(bucketSize)
+    ) {
       throw new TypeError('bucketSize must be an integer')
     }
     if (bucketSize < 1) {
@@ -60,7 +63,7 @@ export class PriorityQueue<T> {
    */
   public enqueue(data: T, priority?: number): number {
     priority = priority ?? 0
-    const startIndex = this.bucketSize === Infinity
+    const startIndex = this.bucketSize === Number.POSITIVE_INFINITY
       ? 0
       : this.buckets * this.bucketSize
     let inserted = false
@@ -84,7 +87,7 @@ export class PriorityQueue<T> {
    * @returns The dequeued data or `undefined` if the priority queue is empty.
    */
   public dequeue(bucket = 0): T | undefined {
-    if (this.bucketSize !== Infinity && bucket > 0) {
+    if (this.bucketSize !== Number.POSITIVE_INFINITY && bucket > 0) {
       while (bucket > 0) {
         const index = bucket * this.bucketSize
         if (this.nodeArray[index] != null) {

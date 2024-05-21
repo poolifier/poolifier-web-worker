@@ -1,11 +1,11 @@
+import { randomInt } from 'node:crypto'
 import { expect } from 'expect'
+import { CircularBuffer } from '../../../src/circular-buffer.ts'
 import {
   DynamicThreadPool,
   FixedThreadPool,
   WorkerChoiceStrategies,
 } from '../../../src/mod.ts'
-import { CircularBuffer } from '../../../src/circular-buffer.ts'
-import { randomInt } from 'node:crypto'
 
 Deno.test({
   name: 'Selection strategies test suite',

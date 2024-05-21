@@ -1,12 +1,12 @@
-import type { IWorker } from '../worker.ts'
 import type { IPool } from '../pool.ts'
+import { DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS } from '../utils.ts'
+import type { IWorker } from '../worker.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
 import type {
   IWorkerChoiceStrategy,
   TaskStatisticsRequirements,
   WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
-import { DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS } from '../utils.ts'
 
 /**
  * Selects the next worker with a weighted round robin scheduling algorithm.

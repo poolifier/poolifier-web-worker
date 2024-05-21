@@ -132,7 +132,7 @@ export class FairShareWorkerChoiceStrategy<
       ?.strategyData
       ?.virtualTaskEndTimestamp
     const now = performance.now()
-    return now < (virtualTaskEndTimestamp ?? -Infinity)
+    return now < (virtualTaskEndTimestamp ?? Number.NEGATIVE_INFINITY)
       ? virtualTaskEndTimestamp!
       : now
   }

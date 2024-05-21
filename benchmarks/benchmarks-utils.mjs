@@ -1,6 +1,5 @@
-import { randomInt } from 'node:crypto'
 import { strictEqual } from 'node:assert'
-import { bench, clear, group, run } from '@poolifier/tatami-ng'
+import { randomInt } from 'node:crypto'
 import {
   existsSync,
   mkdirSync,
@@ -8,6 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
+import { bench, clear, group, run } from '@poolifier/tatami-ng'
 import {
   DynamicThreadPool,
   FixedThreadPool,

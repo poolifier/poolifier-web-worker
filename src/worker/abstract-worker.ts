@@ -12,7 +12,6 @@ import {
   isAsyncFunction,
   isPlainObject,
 } from '../utils.ts'
-import { KillBehaviors, type WorkerOptions } from './worker-options.ts'
 import type {
   TaskAsyncFunction,
   TaskFunction,
@@ -26,6 +25,7 @@ import {
   checkValidTaskFunctionObjectEntry,
   checkValidWorkerOptions,
 } from './utils.ts'
+import { KillBehaviors, type WorkerOptions } from './worker-options.ts'
 
 const DEFAULT_MAX_INACTIVE_TIME = 60000
 const DEFAULT_WORKER_OPTIONS: WorkerOptions = {

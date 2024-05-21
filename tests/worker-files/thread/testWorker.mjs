@@ -1,6 +1,6 @@
 import { KillBehaviors, ThreadWorker } from '../../../src/mod.ts'
-import { executeTaskFunction } from '../../test-utils.mjs'
 import { TaskFunctions } from '../../test-types.mjs'
+import { executeTaskFunction } from '../../test-utils.mjs'
 
 /**
  * @param data

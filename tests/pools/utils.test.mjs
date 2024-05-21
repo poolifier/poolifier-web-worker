@@ -1,5 +1,6 @@
 import { expect } from 'expect'
 import { CircularBuffer } from '../../src/circular-buffer.ts'
+import { WorkerTypes } from '../../src/mod.ts'
 import {
   createWorker,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
@@ -8,7 +9,6 @@ import {
   getWorkerId,
   getWorkerType,
 } from '../../src/pools/utils.ts'
-import { WorkerTypes } from '../../src/mod.ts'
 import { MeasurementHistorySize } from '../../src/pools/worker.ts'
 
 Deno.test('Pool utils test suite', async (t) => {

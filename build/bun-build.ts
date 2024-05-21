@@ -1,7 +1,7 @@
-import { entryPoints, esmBuildDir } from './config.ts'
 import { existsSync, rmSync } from 'node:fs'
 import { build } from 'bun'
 import dts from 'bun-plugin-dts'
+import { entryPoints, esmBuildDir } from './config.ts'
 
 if (existsSync(esmBuildDir)) {
   rmSync(esmBuildDir, { recursive: true })

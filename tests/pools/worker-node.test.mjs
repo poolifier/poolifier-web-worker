@@ -1,9 +1,9 @@
 import { expect } from 'expect'
-import { WorkerTypes } from '../../src/mod.ts'
-import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 import { CircularBuffer } from '../../src/circular-buffer.ts'
-import { PriorityQueue } from '../../src/priority-queue.ts'
+import { WorkerTypes } from '../../src/mod.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'
+import { PriorityQueue } from '../../src/priority-queue.ts'
+import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 
 Deno.test({
   name: 'Worker node test suite',

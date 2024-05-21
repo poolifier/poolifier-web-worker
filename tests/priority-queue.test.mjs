@@ -14,7 +14,7 @@ Deno.test('Priority queue test suite', async (t) => {
       new RangeError('bucketSize must be greater than or equal to 1'),
     )
     let priorityQueue = new PriorityQueue()
-    expect(priorityQueue.bucketSize).toBe(Infinity)
+    expect(priorityQueue.bucketSize).toBe(Number.POSITIVE_INFINITY)
     expect(priorityQueue.buckets).toBe(1)
     expect(priorityQueue.size).toBe(0)
     expect(priorityQueue.maxSize).toBe(0)

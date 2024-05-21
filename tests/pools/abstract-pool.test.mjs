@@ -1,5 +1,6 @@
 import { assertSpyCall, returnsNext, stub } from '@std/testing/mock'
 import { expect } from 'expect'
+import { CircularBuffer } from '../../src/circular-buffer.ts'
 import {
   DynamicThreadPool,
   FixedThreadPool,
@@ -8,12 +9,11 @@ import {
   WorkerChoiceStrategies,
   WorkerTypes,
 } from '../../src/mod.ts'
-import { waitPoolEvents } from '../test-utils.mjs'
 import { version } from '../../src/pools/version.ts'
-import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
-import { CircularBuffer } from '../../src/circular-buffer.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'
 import { PriorityQueue } from '../../src/priority-queue.ts'
+import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
+import { waitPoolEvents } from '../test-utils.mjs'
 
 Deno.test({
   name: 'Abstract pool test suite',

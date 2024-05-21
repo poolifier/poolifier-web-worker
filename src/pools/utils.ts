@@ -1,3 +1,4 @@
+import type { MessageValue, Task } from '../utility-types.ts'
 import {
   average,
   environment,
@@ -8,12 +9,13 @@ import {
   min,
   runtime,
 } from '../utils.ts'
+import type { TasksQueueOptions } from './pool.ts'
 import {
   type MeasurementStatisticsRequirements,
   WorkerChoiceStrategies,
   type WorkerChoiceStrategy,
 } from './selection-strategies/selection-strategies-types.ts'
-import type { TasksQueueOptions } from './pool.ts'
+import type { WorkerChoiceStrategiesContext } from './selection-strategies/worker-choice-strategies-context.ts'
 import {
   type IWorker,
   type IWorkerNode,
@@ -23,8 +25,6 @@ import {
   WorkerTypes,
   type WorkerUsage,
 } from './worker.ts'
-import type { MessageValue, Task } from '../utility-types.ts'
-import type { WorkerChoiceStrategiesContext } from './selection-strategies/worker-choice-strategies-context.ts'
 
 let exportedUpdateMeasurementStatistics: (
   measurementStatistics: MeasurementStatistics,
@@ -230,11 +230,11 @@ const updateMeasurementStatistics = (
       measurementValue
     measurementStatistics.minimum = min(
       measurementValue,
-      measurementStatistics.minimum ?? Infinity,
+      measurementStatistics.minimum ?? Number.POSITIVE_INFINITY,
     )
     measurementStatistics.maximum = max(
       measurementValue,
-      measurementStatistics.maximum ?? -Infinity,
+      measurementStatistics.maximum ?? Number.NEGATIVE_INFINITY,
     )
     if (measurementRequirements.average || measurementRequirements.median) {
       measurementStatistics.history.put(measurementValue)

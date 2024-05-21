@@ -141,7 +141,7 @@ Deno.test('Utils test suite', async (t) => {
     expect(isAsyncFunction('')).toBe(false)
     expect(isAsyncFunction([])).toBe(false)
     expect(isAsyncFunction(new Date())).toBe(false)
-    expect(isAsyncFunction(new RegExp('[a-z]', 'i'))).toBe(false)
+    expect(isAsyncFunction(/[a-z]/i)).toBe(false)
     expect(isAsyncFunction(new Error())).toBe(false)
     expect(isAsyncFunction(new Map())).toBe(false)
     expect(isAsyncFunction(new Set())).toBe(false)
@@ -197,14 +197,14 @@ Deno.test('Utils test suite', async (t) => {
   })
 
   await t.step('Verify min() behavior', () => {
-    expect(min()).toBe(Infinity)
+    expect(min()).toBe(Number.POSITIVE_INFINITY)
     expect(min(1, 2)).toBe(1)
     expect(min(2, 1)).toBe(1)
     expect(min(1, 1)).toBe(1)
   })
 
   await t.step('Verify max() behavior', () => {
-    expect(max()).toBe(-Infinity)
+    expect(max()).toBe(Number.NEGATIVE_INFINITY)
     expect(max(1, 2)).toBe(2)
     expect(max(2, 1)).toBe(2)
     expect(max(1, 1)).toBe(1)
