@@ -10,7 +10,7 @@ and this project adheres to
 
 ### Changed
 
-- Switch to optimized circular buffer implementation to store tasks execution
+- Switch to optimized circular buffer implementation to store task execution
   measurements.
 
 ## [0.4.7] - 2024-05-20
