@@ -40,7 +40,9 @@ Deno.test({
         }
         expect(
           buildWorkerChoiceStrategyOptions(pool, workerChoiceStrategyOptions),
-        ).toStrictEqual(workerChoiceStrategyOptions)
+        ).toStrictEqual(
+          workerChoiceStrategyOptions,
+        )
         await pool.destroy()
       },
     )

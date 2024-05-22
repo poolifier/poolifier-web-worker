@@ -471,19 +471,27 @@ Deno.test('Worker choice strategies context test suite', async (t) => {
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .average,
-      ).toBe(false)
+      ).toBe(
+        false,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .median,
-      ).toBe(true)
+      ).toBe(
+        true,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .average,
-      ).toBe(false)
+      ).toBe(
+        false,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .median,
-      ).toBe(true)
+      ).toBe(
+        true,
+      )
       workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
         dynamicPool,
         [wwrWorkerChoiceStrategy],
@@ -495,19 +503,27 @@ Deno.test('Worker choice strategies context test suite', async (t) => {
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .average,
-      ).toBe(false)
+      ).toBe(
+        false,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .median,
-      ).toBe(true)
+      ).toBe(
+        true,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .average,
-      ).toBe(false)
+      ).toBe(
+        false,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .median,
-      ).toBe(true)
+      ).toBe(
+        true,
+      )
       const fsWorkerChoiceStrategy = WorkerChoiceStrategies.FAIR_SHARE
       workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
         fixedPool,
@@ -520,19 +536,27 @@ Deno.test('Worker choice strategies context test suite', async (t) => {
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .average,
-      ).toBe(false)
+      ).toBe(
+        false,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .median,
-      ).toBe(true)
+      ).toBe(
+        true,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .average,
-      ).toBe(false)
+      ).toBe(
+        false,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .median,
-      ).toBe(true)
+      ).toBe(
+        true,
+      )
       workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
         dynamicPool,
         [fsWorkerChoiceStrategy],
@@ -544,19 +568,27 @@ Deno.test('Worker choice strategies context test suite', async (t) => {
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .average,
-      ).toBe(false)
+      ).toBe(
+        false,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().runTime
           .median,
-      ).toBe(true)
+      ).toBe(
+        true,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .average,
-      ).toBe(false)
+      ).toBe(
+        false,
+      )
       expect(
         workerChoiceStrategiesContext.getTaskStatisticsRequirements().waitTime
           .median,
-      ).toBe(true)
+      ).toBe(
+        true,
+      )
     },
   )
 

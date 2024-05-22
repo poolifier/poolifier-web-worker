@@ -94,8 +94,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   public enqueueTask(task: Task<Data>): number {
     const tasksQueueSize = this.tasksQueue.enqueue(task, task.priority)
     if (
-      !this.setBackPressureFlag &&
-      this.hasBackPressure() &&
+      !this.setBackPressureFlag && this.hasBackPressure() &&
       !this.info.backPressure
     ) {
       this.setBackPressureFlag = true
@@ -114,8 +113,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   public dequeueTask(bucket?: number): Task<Data> | undefined {
     const task = this.tasksQueue.dequeue(bucket)
     if (
-      !this.setBackPressureFlag &&
-      !this.hasBackPressure() &&
+      !this.setBackPressureFlag && !this.hasBackPressure() &&
       this.info.backPressure
     ) {
       this.setBackPressureFlag = true

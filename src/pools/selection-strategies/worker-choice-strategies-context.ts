@@ -152,8 +152,8 @@ export class WorkerChoiceStrategiesContext<
    * @throws {@link https://nodejs.org/api/errors.html#class-error} If after computed retries the worker node key is null or undefined.
    */
   public execute(
-    workerChoiceStrategy: WorkerChoiceStrategy = this
-      .defaultWorkerChoiceStrategy,
+    workerChoiceStrategy: WorkerChoiceStrategy =
+      this.defaultWorkerChoiceStrategy,
   ): number {
     return this.executeStrategy(
       this.workerChoiceStrategies.get(workerChoiceStrategy)!,

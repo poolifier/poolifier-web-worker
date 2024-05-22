@@ -455,8 +455,8 @@ Deno.test({
         )
         expect(pool.opts.workerChoiceStrategyOptions).toBeUndefined()
         for (
-          const [, workerChoiceStrategy] of pool
-            .workerChoiceStrategiesContext.workerChoiceStrategies
+          const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
+            .workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual({
             runTime: { median: false },
@@ -496,8 +496,8 @@ Deno.test({
           elu: { median: true },
         })
         for (
-          const [, workerChoiceStrategy] of pool
-            .workerChoiceStrategiesContext.workerChoiceStrategies
+          const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
+            .workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual({
             runTime: { median: true },
@@ -537,8 +537,8 @@ Deno.test({
           elu: { median: false },
         })
         for (
-          const [, workerChoiceStrategy] of pool
-            .workerChoiceStrategiesContext.workerChoiceStrategies
+          const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
+            .workerChoiceStrategies
         ) {
           expect(workerChoiceStrategy.opts).toStrictEqual({
             runTime: { median: false },
@@ -1359,9 +1359,8 @@ Deno.test({
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       expect(dynamicThreadPool.hasTaskFunction(DEFAULT_TASK_NAME)).toBe(true)
-      expect(
-        dynamicThreadPool.hasTaskFunction('jsonIntegerSerialization'),
-      ).toBe(true)
+      expect(dynamicThreadPool.hasTaskFunction('jsonIntegerSerialization'))
+        .toBe(true)
       expect(dynamicThreadPool.hasTaskFunction('factorial')).toBe(true)
       expect(dynamicThreadPool.hasTaskFunction('fibonacci')).toBe(true)
       expect(dynamicThreadPool.hasTaskFunction('unknown')).toBe(false)
@@ -1391,24 +1390,22 @@ Deno.test({
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
-      await expect(
-        dynamicThreadPool.addTaskFunction(0, () => {}),
-      ).rejects.toThrow(new TypeError('name argument must be a string'))
-      await expect(
-        dynamicThreadPool.addTaskFunction('', () => {}),
-      ).rejects.toThrow(
-        new TypeError('name argument must not be an empty string'),
-      )
-      await expect(
-        dynamicThreadPool.addTaskFunction('test', 0),
-      ).rejects.toThrow(
-        new TypeError('taskFunction property must be a function'),
-      )
-      await expect(
-        dynamicThreadPool.addTaskFunction('test', ''),
-      ).rejects.toThrow(
-        new TypeError('taskFunction property must be a function'),
-      )
+      await expect(dynamicThreadPool.addTaskFunction(0, () => {})).rejects
+        .toThrow(
+          new TypeError('name argument must be a string'),
+        )
+      await expect(dynamicThreadPool.addTaskFunction('', () => {})).rejects
+        .toThrow(
+          new TypeError('name argument must not be an empty string'),
+        )
+      await expect(dynamicThreadPool.addTaskFunction('test', 0)).rejects
+        .toThrow(
+          new TypeError('taskFunction property must be a function'),
+        )
+      await expect(dynamicThreadPool.addTaskFunction('test', '')).rejects
+        .toThrow(
+          new TypeError('taskFunction property must be a function'),
+        )
       await expect(
         dynamicThreadPool.addTaskFunction('test', { taskFunction: 0 }),
       ).rejects.toThrow(
@@ -1508,9 +1505,8 @@ Deno.test({
             },
           },
         })
-        expect(
-          workerNode.getTaskFunctionWorkerUsage('echo').tasks.executed,
-        ).toBeGreaterThan(0)
+        expect(workerNode.getTaskFunctionWorkerUsage('echo').tasks.executed)
+          .toBeGreaterThan(0)
         if (
           workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate ==
             null
@@ -1533,7 +1529,9 @@ Deno.test({
         } else {
           expect(
             workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate,
-          ).toBeGreaterThan(0)
+          ).toBeGreaterThan(
+            0,
+          )
         }
       }
       await dynamicThreadPool.destroy()
@@ -1550,11 +1548,12 @@ Deno.test({
         { name: DEFAULT_TASK_NAME },
         { name: 'test' },
       ])
-      await expect(
-        dynamicThreadPool.removeTaskFunction('test'),
-      ).rejects.toThrow(
-        new Error('Cannot remove a task function not handled on the pool side'),
-      )
+      await expect(dynamicThreadPool.removeTaskFunction('test')).rejects
+        .toThrow(
+          new Error(
+            'Cannot remove a task function not handled on the pool side',
+          ),
+        )
       const echoTaskFunction = (data) => {
         return data
       }
@@ -1645,13 +1644,12 @@ Deno.test({
         )
         await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
         const workerId = dynamicThreadPool.workerNodes[0].info.id
-        await expect(
-          dynamicThreadPool.setDefaultTaskFunction(0),
-        ).rejects.toThrow(
-          new Error(
-            `Task function operation 'default' failed on worker ${workerId} with error: 'TypeError: name parameter is not a string'`,
-          ),
-        )
+        await expect(dynamicThreadPool.setDefaultTaskFunction(0)).rejects
+          .toThrow(
+            new Error(
+              `Task function operation 'default' failed on worker ${workerId} with error: 'TypeError: name parameter is not a string'`,
+            ),
+          )
         await expect(
           dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME),
         ).rejects.toThrow(
@@ -1659,40 +1657,35 @@ Deno.test({
             `Task function operation 'default' failed on worker ${workerId} with error: 'Error: Cannot set the default task function reserved name as the default task function'`,
           ),
         )
-        await expect(
-          dynamicThreadPool.setDefaultTaskFunction('unknown'),
-        ).rejects.toThrow(
-          new Error(
-            `Task function operation 'default' failed on worker ${workerId} with error: 'Error: Cannot set the default task function to a non-existing task function'`,
-          ),
-        )
-        await expect(
-          dynamicThreadPool.setDefaultTaskFunction(0),
-        ).rejects.toThrow()
+        await expect(dynamicThreadPool.setDefaultTaskFunction('unknown'))
+          .rejects.toThrow(
+            new Error(
+              `Task function operation 'default' failed on worker ${workerId} with error: 'Error: Cannot set the default task function to a non-existing task function'`,
+            ),
+          )
+        await expect(dynamicThreadPool.setDefaultTaskFunction(0)).rejects
+          .toThrow()
         await expect(
           dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME),
         ).rejects.toThrow()
-        await expect(
-          dynamicThreadPool.setDefaultTaskFunction('unknown'),
-        ).rejects.toThrow()
+        await expect(dynamicThreadPool.setDefaultTaskFunction('unknown'))
+          .rejects.toThrow()
         expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
           { name: DEFAULT_TASK_NAME },
           { name: 'jsonIntegerSerialization' },
           { name: 'factorial' },
           { name: 'fibonacci' },
         ])
-        await expect(
-          dynamicThreadPool.setDefaultTaskFunction('factorial'),
-        ).resolves.toBe(true)
+        await expect(dynamicThreadPool.setDefaultTaskFunction('factorial'))
+          .resolves.toBe(true)
         expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
           { name: DEFAULT_TASK_NAME },
           { name: 'factorial' },
           { name: 'jsonIntegerSerialization' },
           { name: 'fibonacci' },
         ])
-        await expect(
-          dynamicThreadPool.setDefaultTaskFunction('fibonacci'),
-        ).resolves.toBe(true)
+        await expect(dynamicThreadPool.setDefaultTaskFunction('fibonacci'))
+          .resolves.toBe(true)
         expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
           { name: DEFAULT_TASK_NAME },
           { name: 'fibonacci' },
@@ -1770,13 +1763,12 @@ Deno.test({
                 .tasks.executed,
             ).toBeGreaterThan(0)
           }
-          expect(
-            workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME),
-          ).toStrictEqual(
-            workerNode.getTaskFunctionWorkerUsage(
-              workerNode.info.taskFunctionsProperties[1].name,
-            ),
-          )
+          expect(workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME))
+            .toStrictEqual(
+              workerNode.getTaskFunctionWorkerUsage(
+                workerNode.info.taskFunctionsProperties[1].name,
+              ),
+            )
         }
         await pool.destroy()
       },
@@ -1849,13 +1841,12 @@ Deno.test({
                 .tasks.executed,
             ).toBeGreaterThan(0)
           }
-          expect(
-            workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME),
-          ).toStrictEqual(
-            workerNode.getTaskFunctionWorkerUsage(
-              workerNode.info.taskFunctionsProperties[1].name,
-            ),
-          )
+          expect(workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME))
+            .toStrictEqual(
+              workerNode.getTaskFunctionWorkerUsage(
+                workerNode.info.taskFunctionsProperties[1].name,
+              ),
+            )
         }
         await pool.destroy()
       },
@@ -1868,9 +1859,8 @@ Deno.test({
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const workerNodeKey = 0
-      await expect(
-        pool.sendKillMessageToWorker(workerNodeKey),
-      ).resolves.toBeUndefined()
+      await expect(pool.sendKillMessageToWorker(workerNodeKey)).resolves
+        .toBeUndefined()
       // Simulates destroyWorkerNode()
       pool.workerNodes[workerNodeKey].terminate()
       await pool.destroy()
@@ -1890,15 +1880,14 @@ Deno.test({
           taskFunction: (() => {}).toString(),
         }),
       ).resolves.toBe(true)
-      expect(
-        pool.workerNodes[workerNodeKey].info.taskFunctionsProperties,
-      ).toStrictEqual([
-        { name: DEFAULT_TASK_NAME },
-        { name: 'test' },
-        {
-          name: 'empty',
-        },
-      ])
+      expect(pool.workerNodes[workerNodeKey].info.taskFunctionsProperties)
+        .toStrictEqual([
+          { name: DEFAULT_TASK_NAME },
+          { name: 'test' },
+          {
+            name: 'empty',
+          },
+        ])
       await pool.destroy()
     })
 

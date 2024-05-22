@@ -45,9 +45,7 @@ const buildCpusInfo = async (): Promise<{ speed: number }[]> => {
     if (cpu.speed == null || cpu.speed === 0) {
       cpu.speed = cpus.find((cpu) =>
         cpu.speed != null && cpu.speed !== 0
-      )?.speed ??
-        estCpuSpeed ??
-        2000
+      )?.speed ?? estCpuSpeed ?? 2000
     }
   }
   return cpus

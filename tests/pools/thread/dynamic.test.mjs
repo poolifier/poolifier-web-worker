@@ -187,9 +187,7 @@ Deno.test({
 
     await t.step('Verify that a pool with zero worker works', async () => {
       for (
-        const workerChoiceStrategy of Object.values(
-          WorkerChoiceStrategies,
-        )
+        const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
       ) {
         const pool = new DynamicThreadPool(
           0,

@@ -296,7 +296,8 @@ export abstract class AbstractPool<
       minSize: this.minimumNumberOfWorkers,
       maxSize: this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
       ...(this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
-            .runTime.aggregate === true &&
+            .runTime.aggregate ===
+          true &&
         this.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
           .waitTime.aggregate &&
         {
@@ -312,8 +313,10 @@ export abstract class AbstractPool<
       ),
       ...(this.opts.enableTasksQueue === true && {
         stealingWorkerNodes: this.workerNodes.reduce(
-          (accumulator, workerNode) =>
-            workerNode.info.stealing ? accumulator + 1 : accumulator,
+          (
+            accumulator,
+            workerNode,
+          ) => (workerNode.info.stealing ? accumulator + 1 : accumulator),
           0,
         ),
       }),
@@ -362,7 +365,8 @@ export abstract class AbstractPool<
         0,
       ),
       ...(this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
-            .runTime.aggregate === true && {
+            .runTime.aggregate ===
+          true && {
         runTime: {
           minimum: round(
             min(
@@ -381,7 +385,8 @@ export abstract class AbstractPool<
             ),
           ),
           ...(this.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
-            .runTime.average && {
+            .runTime
+            .average && {
             average: round(
               average(
                 this.workerNodes.reduce<number[]>(
@@ -411,7 +416,8 @@ export abstract class AbstractPool<
         },
       }),
       ...(this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
-            .waitTime.aggregate === true && {
+            .waitTime.aggregate ===
+          true && {
         waitTime: {
           minimum: round(
             min(
@@ -430,7 +436,8 @@ export abstract class AbstractPool<
             ),
           ),
           ...(this.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
-            .waitTime.average && {
+            .waitTime
+            .average && {
             average: round(
               average(
                 this.workerNodes.reduce<number[]>(
@@ -444,7 +451,8 @@ export abstract class AbstractPool<
             ),
           }),
           ...(this.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
-            .waitTime.median && {
+            .waitTime
+            .median && {
             median: round(
               median(
                 this.workerNodes.reduce<number[]>(
@@ -550,8 +558,8 @@ export abstract class AbstractPool<
    * @returns The worker node key if the worker id is found in the pool worker nodes, `-1` otherwise.
    */
   private getWorkerNodeKeyByWorkerId(workerId: string | undefined): number {
-    return this.workerNodes.findIndex(
-      (workerNode) => workerNode.info.id === workerId,
+    return this.workerNodes.findIndex((workerNode) =>
+      workerNode.info.id === workerId
     )
   }
 
@@ -708,10 +716,8 @@ export abstract class AbstractPool<
    * The pool filling boolean status.
    */
   protected get full(): boolean {
-    return (
-      this.workerNodes.length >=
-        (this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers)
-    )
+    return this.workerNodes.length >=
+      (this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers)
   }
 
   /**
@@ -805,14 +811,14 @@ export abstract class AbstractPool<
           responsesReceived.push(message)
           if (responsesReceived.length === this.workerNodes.length) {
             if (
-              responsesReceived.every(
-                (message) => message.taskFunctionOperationStatus === true,
+              responsesReceived.every((message) =>
+                message.taskFunctionOperationStatus === true
               )
             ) {
               resolve(true)
             } else if (
-              responsesReceived.some(
-                (message) => message.taskFunctionOperationStatus === false,
+              responsesReceived.some((message) =>
+                message.taskFunctionOperationStatus === false
               )
             ) {
               const errorResponse = responsesReceived.find(
@@ -1003,9 +1009,8 @@ export abstract class AbstractPool<
     return new Set([
       this.opts.workerChoiceStrategy!,
       ...(this.listTaskFunctionsProperties()
-        .map(
-          (taskFunctionProperties: TaskFunctionProperties) =>
-            taskFunctionProperties.strategy,
+        .map((taskFunctionProperties: TaskFunctionProperties) =>
+          taskFunctionProperties.strategy
         )
         .filter(
           (strategy: WorkerChoiceStrategy | undefined) => strategy != null,
@@ -1052,9 +1057,7 @@ export abstract class AbstractPool<
         return
       }
       if (
-        name != null &&
-        typeof name === 'string' &&
-        name.trim().length === 0
+        name != null && typeof name === 'string' && name.trim().length === 0
       ) {
         reject(new TypeError('name argument must not be an empty string'))
         return
@@ -1101,8 +1104,10 @@ export abstract class AbstractPool<
     this.startingMinimumNumberOfWorkers = true
     while (
       this.workerNodes.reduce(
-        (accumulator, workerNode) =>
-          !workerNode.info.dynamic ? accumulator + 1 : accumulator,
+        (
+          accumulator,
+          workerNode,
+        ) => (!workerNode.info.dynamic ? accumulator + 1 : accumulator),
         0,
       ) < this.minimumNumberOfWorkers
     ) {
@@ -1197,7 +1202,8 @@ export abstract class AbstractPool<
       this.opts.tasksQueueOptions?.tasksFinishedTimeout ??
         getDefaultTasksQueueOptions(
           this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
-        ).tasksFinishedTimeout,
+        )
+          .tasksFinishedTimeout,
     )
     await this.sendKillMessageToWorker(workerNodeKey)
     workerNode.terminate()
@@ -1245,9 +1251,10 @@ export abstract class AbstractPool<
       this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(task.name!) !=
         null
     ) {
-      const taskFunctionWorkerUsage = this.workerNodes[
-        workerNodeKey
-      ].getTaskFunctionWorkerUsage(task.name!)
+      const taskFunctionWorkerUsage = this.workerNodes[workerNodeKey]
+        .getTaskFunctionWorkerUsage(
+          task.name!,
+        )
       ;++taskFunctionWorkerUsage!.tasks.executing
       updateWaitTimeWorkerUsage(
         this.workerChoiceStrategiesContext,
@@ -1288,11 +1295,13 @@ export abstract class AbstractPool<
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(
           message.taskPerformance!.name,
-        ) != null
+        ) !=
+        null
     ) {
-      const taskFunctionWorkerUsage = this.workerNodes[
-        workerNodeKey
-      ].getTaskFunctionWorkerUsage(message.taskPerformance!.name)
+      const taskFunctionWorkerUsage = this.workerNodes[workerNodeKey]
+        .getTaskFunctionWorkerUsage(
+          message.taskPerformance!.name,
+        )
       updateTaskStatisticsWorkerUsage(taskFunctionWorkerUsage!, message)
       updateRunTimeWorkerUsage(
         this.workerChoiceStrategiesContext,
@@ -1386,7 +1395,8 @@ export abstract class AbstractPool<
     }
     if (
       this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
-        .waitTime.aggregate === true
+        .waitTime.aggregate ===
+        true
     ) {
       workerNode.usage.waitTime.aggregate = min(
         ...this.workerNodes.map(
@@ -1434,8 +1444,7 @@ export abstract class AbstractPool<
         }),
       )
       if (
-        this.started &&
-        !this.destroying &&
+        this.started && !this.destroying &&
         this.opts.restartWorkerOnError === true
       ) {
         if (workerNode.info.dynamic) {
@@ -1445,9 +1454,7 @@ export abstract class AbstractPool<
         }
       }
       if (
-        this.started &&
-        !this.destroying &&
-        this.opts.enableTasksQueue === true
+        this.started && !this.destroying && this.opts.enableTasksQueue === true
       ) {
         this.redistributeQueuedTasks(this.workerNodes.indexOf(workerNode))
       }
@@ -1466,8 +1473,7 @@ export abstract class AbstractPool<
       () => {
         this.removeWorkerNode(workerNode)
         if (
-          this.started &&
-          !this.startingMinimumNumberOfWorkers &&
+          this.started && !this.startingMinimumNumberOfWorkers &&
           !this.destroying
         ) {
           this.startMinimumNumberOfWorkers(true)
@@ -1637,7 +1643,8 @@ export abstract class AbstractPool<
       statistics: {
         runTime:
           this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
-            .runTime.aggregate ?? false,
+            .runTime.aggregate ??
+            false,
         // elu: this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
         //   .elu.aggregate ?? false,
       },
@@ -1736,9 +1743,8 @@ export abstract class AbstractPool<
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
-      workerNode.getTaskFunctionWorkerUsage(
-        taskName,
-      )!.tasks.sequentiallyStolen = 0
+      workerNode.getTaskFunctionWorkerUsage(taskName)!.tasks
+        .sequentiallyStolen = 0
     }
   }
 
@@ -1942,8 +1948,7 @@ export abstract class AbstractPool<
       this.promiseResponseMap.delete(taskId!)
       workerNode?.dispatchEvent(new Event('taskFinished'))
       if (
-        this.opts.enableTasksQueue === true &&
-        !this.destroying &&
+        this.opts.enableTasksQueue === true && !this.destroying &&
         workerNode != null
       ) {
         const workerNodeTasksUsage = workerNode.usage.tasks
@@ -2016,7 +2021,8 @@ export abstract class AbstractPool<
       tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
         getDefaultTasksQueueOptions(
           this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
-        ).size,
+        )
+          .size,
       tasksQueueBucketSize:
         (this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers) * 2,
     })
@@ -2076,8 +2082,8 @@ export abstract class AbstractPool<
   private hasBackPressure(): boolean {
     return (
       this.opts.enableTasksQueue === true &&
-      this.workerNodes.findIndex(
-          (workerNode) => !workerNode.hasBackPressure(),
+      this.workerNodes.findIndex((workerNode) =>
+          !workerNode.hasBackPressure()
         ) === -1
     )
   }

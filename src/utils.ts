@@ -67,10 +67,8 @@ export const average = (dataSet: number[]): number => {
   } else if (Array.isArray(dataSet) && dataSet.length === 1) {
     return dataSet[0]
   }
-  return (
-    dataSet.reduce((accumulator, number) => accumulator + number, 0) /
+  return dataSet.reduce((accumulator, number) => accumulator + number, 0) /
     dataSet.length
-  )
 }
 
 /**
@@ -89,8 +87,7 @@ export const median = (dataSet: number[]): number => {
   const sortedDataSet = dataSet.slice().sort((a, b) => a - b)
   return (
     (sortedDataSet[(sortedDataSet.length - 1) >> 1] +
-      sortedDataSet[sortedDataSet.length >> 1]) /
-    2
+      sortedDataSet[sortedDataSet.length >> 1]) / 2
   )
 }
 
@@ -290,20 +287,19 @@ export const runtime: JavaScriptRuntimes | 'unknown' = (() => {
   return 'unknown'
 })()
 
-const isMainThread: boolean | undefined = await (async (): Promise<
-  boolean | undefined
-> => {
-  return await {
-    unknown: unsupportedJsRuntime,
-    browser: () => undefined,
-    deno: () => undefined,
-    bun: async () => {
-      // deno-lint-ignore ban-ts-comment
-      // @ts-ignore
-      return (await import('node:worker_threads')).isMainThread
-    },
-  }[runtime]()
-})()
+const isMainThread: boolean | undefined =
+  await (async (): Promise<boolean | undefined> => {
+    return await {
+      unknown: unsupportedJsRuntime,
+      browser: () => undefined,
+      deno: () => undefined,
+      bun: async () => {
+        // deno-lint-ignore ban-ts-comment
+        // @ts-ignore
+        return (await import('node:worker_threads')).isMainThread
+      },
+    }[runtime]()
+  })()
 
 /**
  * The current environment name.

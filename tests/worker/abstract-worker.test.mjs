@@ -32,9 +32,10 @@ Deno.test('Abstract worker test suite', async (t) => {
       expect(() => new ThreadWorker(() => {}, { maxInactiveTime: '' })).toThrow(
         new TypeError('maxInactiveTime option is not an integer'),
       )
-      expect(
-        () => new ThreadWorker(() => {}, { maxInactiveTime: 0.5 }),
-      ).toThrow(new TypeError('maxInactiveTime option is not an integer'))
+      expect(() => new ThreadWorker(() => {}, { maxInactiveTime: 0.5 }))
+        .toThrow(
+          new TypeError('maxInactiveTime option is not an integer'),
+        )
       expect(() => new ThreadWorker(() => {}, { maxInactiveTime: 0 })).toThrow(
         new TypeError(
           'maxInactiveTime option is not a positive integer greater or equal than 5',
@@ -175,16 +176,18 @@ Deno.test('Abstract worker test suite', async (t) => {
           "taskFunction object 'taskFunction' property '' is not a function",
         ),
       )
-      expect(
-        () => new ThreadWorker({ fn1: { taskFunction: fn1, priority: '' } }),
-      ).toThrow(new TypeError("Invalid property 'priority': ''"))
-      expect(
-        () => new ThreadWorker({ fn1: { taskFunction: fn1, priority: -21 } }),
+      expect(() =>
+        new ThreadWorker({ fn1: { taskFunction: fn1, priority: '' } })
+      ).toThrow(
+        new TypeError("Invalid property 'priority': ''"),
+      )
+      expect(() =>
+        new ThreadWorker({ fn1: { taskFunction: fn1, priority: -21 } })
       ).toThrow(
         new RangeError("Property 'priority' must be between -20 and 19"),
       )
-      expect(
-        () => new ThreadWorker({ fn1: { taskFunction: fn1, priority: 20 } }),
+      expect(() =>
+        new ThreadWorker({ fn1: { taskFunction: fn1, priority: 20 } })
       ).toThrow(
         new RangeError("Property 'priority' must be between -20 and 19"),
       )

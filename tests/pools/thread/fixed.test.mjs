@@ -156,9 +156,8 @@ Deno.test({
         expect(workerNode.usage.tasks.maxQueued).toBe(
           maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency,
         )
-        expect(
-          workerNode.usage.tasks.sequentiallyStolen,
-        ).toBeGreaterThanOrEqual(0)
+        expect(workerNode.usage.tasks.sequentiallyStolen)
+          .toBeGreaterThanOrEqual(0)
         expect(workerNode.usage.tasks.sequentiallyStolen).toBeLessThanOrEqual(
           numberOfThreads * maxMultiplier,
         )
@@ -247,10 +246,12 @@ Deno.test({
           data,
         })
         expect(
-          errorPool.workerNodes.some(
-            (workerNode) => workerNode.usage.tasks.failed === 1,
+          errorPool.workerNodes.some((workerNode) =>
+            workerNode.usage.tasks.failed === 1
           ),
-        ).toBe(true)
+        ).toBe(
+          true,
+        )
       },
     )
 
@@ -282,8 +283,8 @@ Deno.test({
           data,
         })
         expect(
-          asyncErrorPool.workerNodes.some(
-            (workerNode) => workerNode.usage.tasks.failed === 1,
+          asyncErrorPool.workerNodes.some((workerNode) =>
+            workerNode.usage.tasks.failed === 1
           ),
         ).toBe(true)
       },
@@ -357,9 +358,8 @@ Deno.test({
       pool.workerNodes[workerNodeKey].addEventListener('exit', () => {
         ;++exitEvent
       })
-      await expect(
-        pool.destroyWorkerNode(workerNodeKey),
-      ).resolves.toBeUndefined()
+      await expect(pool.destroyWorkerNode(workerNodeKey)).resolves
+        .toBeUndefined()
       expect(exitEvent).toBe(1)
       // Simulates an illegitimate worker node destroy and the minimum number of worker nodes is guaranteed
       expect(pool.workerNodes.length).toBe(numberOfThreads)

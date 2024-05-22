@@ -21,8 +21,7 @@ export const checkValidWorkerOptions = (
     )
   }
   if (
-    opts?.maxInactiveTime != null &&
-    !Number.isSafeInteger(opts.maxInactiveTime)
+    opts?.maxInactiveTime != null && !Number.isSafeInteger(opts.maxInactiveTime)
   ) {
     throw new TypeError('maxInactiveTime option is not an integer')
   }
