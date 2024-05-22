@@ -251,31 +251,32 @@ Deno.test({
         { name: 'fn1' },
         { name: 'fn2' },
       ]
-      expect(threadWorkerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME))
-        .toStrictEqual({
-          tasks: {
-            executed: 0,
-            executing: 0,
-            queued: 0,
-            sequentiallyStolen: 0,
-            stolen: 0,
-            failed: 0,
-          },
-          runTime: {
+      expect(
+        threadWorkerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME),
+      ).toStrictEqual({
+        tasks: {
+          executed: 0,
+          executing: 0,
+          queued: 0,
+          sequentiallyStolen: 0,
+          stolen: 0,
+          failed: 0,
+        },
+        runTime: {
+          history: expect.any(CircularBuffer),
+        },
+        waitTime: {
+          history: expect.any(CircularBuffer),
+        },
+        elu: {
+          idle: {
             history: expect.any(CircularBuffer),
           },
-          waitTime: {
+          active: {
             history: expect.any(CircularBuffer),
           },
-          elu: {
-            idle: {
-              history: expect.any(CircularBuffer),
-            },
-            active: {
-              history: expect.any(CircularBuffer),
-            },
-          },
-        })
+        },
+      })
       expect(threadWorkerNode.getTaskFunctionWorkerUsage('fn1')).toStrictEqual({
         tasks: {
           executed: 0,

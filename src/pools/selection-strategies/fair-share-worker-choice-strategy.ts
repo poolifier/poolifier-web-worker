@@ -129,7 +129,8 @@ export class FairShareWorkerChoiceStrategy<
     workerNodeKey: number,
   ): number {
     const virtualTaskEndTimestamp = this.pool.workerNodes[workerNodeKey]
-      ?.strategyData?.virtualTaskEndTimestamp
+      ?.strategyData
+      ?.virtualTaskEndTimestamp
     const now = performance.now()
     return now < (virtualTaskEndTimestamp ?? Number.NEGATIVE_INFINITY)
       ? virtualTaskEndTimestamp!

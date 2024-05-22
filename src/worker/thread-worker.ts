@@ -18,12 +18,14 @@ import type { WorkerOptions } from './worker-options.ts'
  * @author [Alessandro Pio Ardizio](https://github.com/pioardi)
  * @since 0.0.1
  */
-export class ThreadWorker<Data = unknown, Response = unknown>
-  extends AbstractWorker<
-    WorkerGlobalScope & typeof globalThis,
-    Data,
-    Response
-  > {
+export class ThreadWorker<
+  Data = unknown,
+  Response = unknown,
+> extends AbstractWorker<
+  WorkerGlobalScope & typeof globalThis,
+  Data,
+  Response
+> {
   /**
    * Message port used to communicate with the main worker.
    */

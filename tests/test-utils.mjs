@@ -62,9 +62,10 @@ export const sleepTaskFunction = async (
 ) => {
   return await new Promise((resolve, reject) => {
     setTimeout(
-      () => (rejection === true
-        ? reject(new Error(rejectionMessage))
-        : resolve(data)),
+      () =>
+        rejection === true
+          ? reject(new Error(rejectionMessage))
+          : resolve(data),
       ms,
     )
   })

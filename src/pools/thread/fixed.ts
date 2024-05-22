@@ -18,12 +18,10 @@ export type ThreadPoolOptions = PoolOptions
  * @author [Alessandro Pio Ardizio](https://github.com/pioardi)
  * @since 0.0.1
  */
-export class FixedThreadPool<Data = unknown, Response = unknown>
-  extends AbstractPool<
-    Worker,
-    Data,
-    Response
-  > {
+export class FixedThreadPool<
+  Data = unknown,
+  Response = unknown,
+> extends AbstractPool<Worker, Data, Response> {
   /**
    * Constructs a new poolifier fixed thread pool.
    *

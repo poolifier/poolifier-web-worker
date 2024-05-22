@@ -13,11 +13,10 @@ import { FixedThreadPool, type ThreadPoolOptions } from './fixed.ts'
  * @author [Alessandro Pio Ardizio](https://github.com/pioardi)
  * @since 0.0.1
  */
-export class DynamicThreadPool<Data = unknown, Response = unknown>
-  extends FixedThreadPool<
-    Data,
-    Response
-  > {
+export class DynamicThreadPool<
+  Data = unknown,
+  Response = unknown,
+> extends FixedThreadPool<Data, Response> {
   /**
    * Constructs a new poolifier dynamic thread pool.
    *

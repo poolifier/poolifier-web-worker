@@ -44,10 +44,9 @@ Deno.test({
         expect(pool.opts.workerChoiceStrategy).toBe(
           WorkerChoiceStrategies.ROUND_ROBIN,
         )
-        expect(pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy)
-          .toBe(
-            WorkerChoiceStrategies.ROUND_ROBIN,
-          )
+        expect(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).toBe(WorkerChoiceStrategies.ROUND_ROBIN)
         // We need to clean up the resources after our test
         await pool.destroy()
       },
@@ -57,7 +56,9 @@ Deno.test({
       'Verify available strategies are taken at pool creation',
       async () => {
         for (
-          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+          const workerChoiceStrategy of Object.values(
+            WorkerChoiceStrategies,
+          )
         ) {
           const pool = new FixedThreadPool(
             max,
@@ -68,10 +69,9 @@ Deno.test({
             { workerChoiceStrategy },
           )
           expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
-          expect(pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy)
-            .toBe(
-              workerChoiceStrategy,
-            )
+          expect(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).toBe(workerChoiceStrategy)
           await pool.destroy()
         }
       },
@@ -81,7 +81,9 @@ Deno.test({
       'Verify available strategies can be set after pool creation',
       async () => {
         for (
-          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+          const workerChoiceStrategy of Object.values(
+            WorkerChoiceStrategies,
+          )
         ) {
           const pool = new FixedThreadPool(
             max,
@@ -92,14 +94,15 @@ Deno.test({
           )
           pool.setWorkerChoiceStrategy(workerChoiceStrategy)
           expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
-          expect(pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy)
-            .toBe(
-              workerChoiceStrategy,
-            )
+          expect(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).toBe(workerChoiceStrategy)
           await pool.destroy()
         }
         for (
-          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+          const workerChoiceStrategy of Object.values(
+            WorkerChoiceStrategies,
+          )
         ) {
           const pool = new DynamicThreadPool(
             min,
@@ -111,10 +114,9 @@ Deno.test({
           )
           pool.setWorkerChoiceStrategy(workerChoiceStrategy)
           expect(pool.opts.workerChoiceStrategy).toBe(workerChoiceStrategy)
-          expect(pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy)
-            .toBe(
-              workerChoiceStrategy,
-            )
+          expect(
+            pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+          ).toBe(workerChoiceStrategy)
           await pool.destroy()
         }
       },
@@ -124,7 +126,9 @@ Deno.test({
       'Verify available strategies default internals at pool creation',
       async () => {
         for (
-          const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)
+          const workerChoiceStrategy of Object.values(
+            WorkerChoiceStrategies,
+          )
         ) {
           const pool = new FixedThreadPool(
             max,
@@ -137,14 +141,12 @@ Deno.test({
           expect(
             pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
               workerChoiceStrategy,
-            )
-              .nextWorkerNodeKey,
+            ).nextWorkerNodeKey,
           ).toBe(0)
           expect(
             pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
               workerChoiceStrategy,
-            )
-              .previousWorkerNodeKey,
+            ).previousWorkerNodeKey,
           ).toBe(0)
           if (
             workerChoiceStrategy === WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN
@@ -152,8 +154,7 @@ Deno.test({
             expect(
               pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
-              )
-                .workerNodeVirtualTaskExecutionTime,
+              ).workerNodeVirtualTaskExecutionTime,
             ).toBe(0)
           } else if (
             workerChoiceStrategy ===
@@ -162,33 +163,28 @@ Deno.test({
             expect(
               pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
-              )
-                .workerNodeVirtualTaskExecutionTime,
+              ).workerNodeVirtualTaskExecutionTime,
             ).toBe(0)
             expect(
               pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
-              )
-                .roundId,
+              ).roundId,
             ).toBe(0)
             expect(
               pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
-              )
-                .workerNodeId,
+              ).workerNodeId,
             ).toBe(0)
             expect(
               pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                 workerChoiceStrategy,
-              )
-                .roundWeights.length,
+              ).roundWeights.length,
             ).toBe(1)
             expect(
               Number.isSafeInteger(
                 pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
                   workerChoiceStrategy,
-                )
-                  .roundWeights[0],
+                ).roundWeights[0],
               ),
             ).toBe(true)
           }
@@ -1384,8 +1380,9 @@ Deno.test({
           //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
           //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
           // }
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeGreaterThan(0)
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeGreaterThan(0)
         }
         expect(
           pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
@@ -1489,8 +1486,9 @@ Deno.test({
           //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
           //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
           // }
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeGreaterThan(0)
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeGreaterThan(0)
         }
         expect(
           pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
@@ -1599,8 +1597,9 @@ Deno.test({
           //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
           //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
           // }
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeGreaterThan(0)
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeGreaterThan(0)
         }
         expect(
           pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
@@ -1635,8 +1634,9 @@ Deno.test({
         }
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         for (const workerNode of pool.workerNodes) {
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeGreaterThan(0)
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeGreaterThan(0)
         }
         await pool.destroy()
         pool = new DynamicThreadPool(
@@ -1654,8 +1654,9 @@ Deno.test({
         }
         pool.setWorkerChoiceStrategy(workerChoiceStrategy)
         for (const workerNode of pool.workerNodes) {
-          expect(workerNode.strategyData.virtualTaskEndTimestamp)
-            .toBeGreaterThan(0)
+          expect(
+            workerNode.strategyData.virtualTaskEndTimestamp,
+          ).toBeGreaterThan(0)
         }
         // We need to clean up the resources after our test
         await pool.destroy()

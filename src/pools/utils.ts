@@ -96,7 +96,8 @@ export const checkValidPriority = (priority: number | undefined): void => {
     throw new TypeError(`Invalid property 'priority': '${priority}'`)
   }
   if (
-    priority != null && Number.isSafeInteger(priority) &&
+    priority != null &&
+    Number.isSafeInteger(priority) &&
     (priority < -20 || priority > 19)
   ) {
     throw new RangeError("Property 'priority' must be between -20 and 19")
@@ -129,7 +130,8 @@ export const checkValidTasksQueueOptions = (
     )
   }
   if (
-    tasksQueueOptions?.concurrency != null && tasksQueueOptions.concurrency <= 0
+    tasksQueueOptions?.concurrency != null &&
+    tasksQueueOptions.concurrency <= 0
   ) {
     throw new RangeError(
       `Invalid worker node tasks concurrency: ${tasksQueueOptions.concurrency} is a negative integer or zero`,
@@ -283,7 +285,8 @@ export const updateTaskStatisticsWorkerUsage = <Response = unknown>(
 ): void => {
   const workerTaskStatistics = workerUsage.tasks
   if (
-    workerTaskStatistics.executing != null && workerTaskStatistics.executing > 0
+    workerTaskStatistics.executing != null &&
+    workerTaskStatistics.executing > 0
   ) {
     ;--workerTaskStatistics.executing
   }
@@ -345,7 +348,8 @@ export const updateEluWorkerUsage = <
     if (message.taskPerformance?.elu != null) {
       if (workerUsage.elu.utilization != null) {
         workerUsage.elu.utilization = (workerUsage.elu.utilization +
-          message.taskPerformance.elu.utilization) / 2
+          message.taskPerformance.elu.utilization) /
+          2
       } else {
         workerUsage.elu.utilization = message.taskPerformance.elu.utilization
       }
