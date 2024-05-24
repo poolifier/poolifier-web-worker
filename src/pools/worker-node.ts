@@ -218,17 +218,17 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
         failed: 0,
       },
       runTime: {
-        history: new CircularBuffer<number>(MeasurementHistorySize),
+        history: new CircularBuffer(MeasurementHistorySize),
       },
       waitTime: {
-        history: new CircularBuffer<number>(MeasurementHistorySize),
+        history: new CircularBuffer(MeasurementHistorySize),
       },
       elu: {
         idle: {
-          history: new CircularBuffer<number>(MeasurementHistorySize),
+          history: new CircularBuffer(MeasurementHistorySize),
         },
         active: {
-          history: new CircularBuffer<number>(MeasurementHistorySize),
+          history: new CircularBuffer(MeasurementHistorySize),
         },
       },
     }
@@ -260,17 +260,17 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
         failed: 0,
       },
       runTime: {
-        history: new CircularBuffer<number>(MeasurementHistorySize),
+        history: new CircularBuffer(MeasurementHistorySize),
       },
       waitTime: {
-        history: new CircularBuffer<number>(MeasurementHistorySize),
+        history: new CircularBuffer(MeasurementHistorySize),
       },
       elu: {
         idle: {
-          history: new CircularBuffer<number>(MeasurementHistorySize),
+          history: new CircularBuffer(MeasurementHistorySize),
         },
         active: {
-          history: new CircularBuffer<number>(MeasurementHistorySize),
+          history: new CircularBuffer(MeasurementHistorySize),
         },
       },
     }
