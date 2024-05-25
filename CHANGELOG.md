@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.9] - 2024-05-25
+
+### Changed
+
+- Optimize circular buffer implementation to store task execution measurements.
+
 ## [0.4.8] - 2024-05-22
 
 ### Changed
