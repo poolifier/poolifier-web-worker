@@ -535,9 +535,7 @@ export abstract class AbstractPool<
     } else if (this.getWorkerNodeKeyByWorkerId(message.workerId) === -1) {
       throw new Error(
         `Worker message received from unknown worker '${message.workerId}': ${
-          JSON.stringify(
-            message,
-          )
+          JSON.stringify(message)
         }`,
       )
     }
