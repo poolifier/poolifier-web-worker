@@ -71,4 +71,8 @@ export type {
 } from './utility-types.ts'
 export type { CircularBuffer } from './circular-buffer.ts'
 export type { PriorityQueue, PriorityQueueNode } from './priority-queue.ts'
+export type {
+  FixedPriorityQueue,
+  FixedPriorityQueueNode,
+} from './fixed-priority-queue.ts'
 export { availableParallelism } from './utils.ts'

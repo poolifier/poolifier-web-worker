@@ -1,3 +1,4 @@
+import { defaultBucketSize } from '../priority-queue.ts'
 import type {
   MessageValue,
   PromiseResponseWrapper,
@@ -535,7 +536,9 @@ export abstract class AbstractPool<
     } else if (this.getWorkerNodeKeyByWorkerId(message.workerId) === -1) {
       throw new Error(
         `Worker message received from unknown worker '${message.workerId}': ${
-          JSON.stringify(message)
+          JSON.stringify(
+            message,
+          )
         }`,
       )
     }
@@ -2015,8 +2018,7 @@ export abstract class AbstractPool<
         getDefaultTasksQueueOptions(
           this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
         ).size,
-      tasksQueueBucketSize:
-        (this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers) * 2,
+      tasksQueueBucketSize: defaultBucketSize,
     })
     // Flag the worker node as ready at pool startup.
     if (this.starting) {

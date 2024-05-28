@@ -11,7 +11,7 @@ import {
 } from '../../src/mod.ts'
 import { version } from '../../src/pools/version.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'
-import { PriorityQueue } from '../../src/priority-queue.ts'
+import { defaultBucketSize, PriorityQueue } from '../../src/priority-queue.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 import { waitPoolEvents } from '../test-utils.mjs'
 
@@ -826,7 +826,7 @@ Deno.test({
           expect(workerNode.tasksQueue).toBeInstanceOf(PriorityQueue)
           expect(workerNode.tasksQueue.size).toBe(0)
           expect(workerNode.tasksQueue.maxSize).toBe(0)
-          expect(workerNode.tasksQueue.bucketSize).toBe(numberOfWorkers * 2)
+          expect(workerNode.tasksQueue.bucketSize).toBe(defaultBucketSize)
         }
         await pool.destroy()
         pool = new DynamicThreadPool(
@@ -839,7 +839,7 @@ Deno.test({
           expect(workerNode.tasksQueue).toBeInstanceOf(PriorityQueue)
           expect(workerNode.tasksQueue.size).toBe(0)
           expect(workerNode.tasksQueue.maxSize).toBe(0)
-          expect(workerNode.tasksQueue.bucketSize).toBe(numberOfWorkers * 2)
+          expect(workerNode.tasksQueue.bucketSize).toBe(defaultBucketSize)
         }
         await pool.destroy()
       },
