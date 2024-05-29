@@ -11,7 +11,11 @@ Deno.test({
     const threadWorkerNode = new WorkerNode(
       WorkerTypes.web,
       new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-      { tasksQueueBackPressureSize: 12, tasksQueueBucketSize: 6 },
+      {
+        tasksQueueBackPressureSize: 12,
+        tasksQueueBucketSize: 6,
+        tasksQueuePriority: true,
+      },
     )
 
     await t.step('Worker node instantiation', () => {
@@ -23,7 +27,6 @@ Deno.test({
           new WorkerNode(
             'invalidWorkerType',
             new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-            { tasksQueueBackPressureSize: 12 },
           ),
       ).toThrow(
         new TypeError(
@@ -50,7 +53,7 @@ Deno.test({
           ),
       ).toThrow(
         new TypeError(
-          'Cannot construct a worker node with invalid options: must be a plain object',
+          'Cannot construct a worker node with invalid worker node options: must be a plain object',
         ),
       )
       expect(
@@ -159,7 +162,10 @@ Deno.test({
           new WorkerNode(
             WorkerTypes.web,
             new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-            { tasksQueueBackPressureSize: 12, tasksQueueBucketSize: 0 },
+            {
+              tasksQueueBackPressureSize: 12,
+              tasksQueueBucketSize: 0,
+            },
           ),
       ).toThrow(
         new RangeError(
@@ -171,11 +177,45 @@ Deno.test({
           new WorkerNode(
             WorkerTypes.web,
             new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-            { tasksQueueBackPressureSize: 12, tasksQueueBucketSize: -1 },
+            {
+              tasksQueueBackPressureSize: 12,
+              tasksQueueBucketSize: -1,
+            },
           ),
       ).toThrow(
         new RangeError(
           'Cannot construct a worker node with a tasks queue bucket size option that is not a positive integer',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              tasksQueueBackPressureSize: 12,
+              tasksQueueBucketSize: 6,
+            },
+          ),
+      ).toThrow(
+        new RangeError(
+          'Cannot construct a worker node without a tasks queue priority option',
+        ),
+      )
+      expect(
+        () =>
+          new WorkerNode(
+            WorkerTypes.web,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              tasksQueueBackPressureSize: 12,
+              tasksQueueBucketSize: 6,
+              tasksQueuePriority: 'invalidTasksQueuePriority',
+            },
+          ),
+      ).toThrow(
+        new RangeError(
+          'Cannot construct a worker node with a tasks queue priority option that is not a boolean',
         ),
       )
       expect(threadWorkerNode).toBeInstanceOf(WorkerNode)
@@ -218,6 +258,7 @@ Deno.test({
       expect(threadWorkerNode.tasksQueue).toBeInstanceOf(PriorityQueue)
       expect(threadWorkerNode.tasksQueue.size).toBe(0)
       expect(threadWorkerNode.tasksQueue.bucketSize).toBe(6)
+      expect(threadWorkerNode.tasksQueue.enablePriority).toBe(true)
       expect(threadWorkerNode.tasksQueueSize()).toBe(
         threadWorkerNode.tasksQueue.size,
       )

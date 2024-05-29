@@ -827,6 +827,7 @@ Deno.test({
           expect(workerNode.tasksQueue.size).toBe(0)
           expect(workerNode.tasksQueue.maxSize).toBe(0)
           expect(workerNode.tasksQueue.bucketSize).toBe(defaultBucketSize)
+          expect(workerNode.tasksQueue.enablePriority).toBe(false)
         }
         await pool.destroy()
         pool = new DynamicThreadPool(
@@ -840,6 +841,7 @@ Deno.test({
           expect(workerNode.tasksQueue.size).toBe(0)
           expect(workerNode.tasksQueue.maxSize).toBe(0)
           expect(workerNode.tasksQueue.bucketSize).toBe(defaultBucketSize)
+          expect(workerNode.tasksQueue.enablePriority).toBe(false)
         }
         await pool.destroy()
       },
@@ -1809,10 +1811,11 @@ Deno.test({
             { name: DEFAULT_TASK_NAME },
             { name: 'jsonIntegerSerialization' },
             { name: 'factorial' },
-            { name: 'fibonacci' },
+            { name: 'fibonacci', priority: -5 },
           ])
           expect(workerNode.taskFunctionsUsage.size).toBe(3)
           expect(workerNode.usage.tasks.executed).toBeGreaterThan(0)
+          expect(workerNode.tasksQueue.enablePriority).toBe(true)
           for (
             const taskFunctionProperties of pool.listTaskFunctionsProperties()
           ) {

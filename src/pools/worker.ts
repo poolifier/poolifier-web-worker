@@ -253,6 +253,7 @@ export interface WorkerNodeOptions {
   workerOptions?: WorkerOptions
   tasksQueueBackPressureSize: number | undefined
   tasksQueueBucketSize: number | undefined
+  tasksQueuePriority: boolean | undefined
 }
 
 /**
@@ -290,6 +291,12 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
    * This is the number of tasks that can be enqueued before the worker node has back pressure.
    */
   tasksQueueBackPressureSize: number
+  /**
+   * Sets tasks queue priority.
+   *
+   * @param enablePriority - Whether to enable tasks queue priority.
+   */
+  readonly setTasksQueuePriority: (enablePriority: boolean) => void
   /**
    * Tasks queue size.
    *

@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Optimize tasks queue implementation.
+- Enable prioritized tasks queueing only when necessary.
+
 ## [0.4.9] - 2024-05-25
 
 ### Changed
