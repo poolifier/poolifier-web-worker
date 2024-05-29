@@ -284,7 +284,6 @@ Deno.test('Priority queue test suite', async (t) => {
   await t.step('Verify enablePriority setter behavior', () => {
     const priorityQueue = new PriorityQueue(2)
     expect(priorityQueue.enablePriority).toBe(false)
-
     priorityQueue.enqueue(1)
     priorityQueue.enqueue(2)
     priorityQueue.enqueue(3)

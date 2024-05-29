@@ -1736,6 +1736,7 @@ Deno.test({
           ])
           expect(workerNode.taskFunctionsUsage.size).toBe(3)
           expect(workerNode.usage.tasks.executed).toBeGreaterThan(0)
+          expect(workerNode.tasksQueue.enablePriority).toBe(false)
           for (
             const taskFunctionProperties of pool.listTaskFunctionsProperties()
           ) {

@@ -39,7 +39,7 @@ export class PriorityQueue<T> {
    */
   public constructor(
     bucketSize: number = defaultBucketSize,
-    enablePriority: boolean = false,
+    enablePriority = false,
   ) {
     if (!Number.isSafeInteger(bucketSize)) {
       throw new TypeError(

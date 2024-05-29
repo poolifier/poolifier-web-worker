@@ -37,10 +37,7 @@ export class FixedPriorityQueue<T> {
    * @param enablePriority - Whether to enable priority. @defaultValue false
    * @returns FixedPriorityQueue.
    */
-  constructor(
-    size: number = defaultQueueSize,
-    enablePriority: boolean = false,
-  ) {
+  constructor(size: number = defaultQueueSize, enablePriority = false) {
     this.checkSize(size)
     this.capacity = size
     this.enablePriority = enablePriority
