@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.10] - 2024-05-29
+
 ### Changed
 
 - Optimize tasks queue implementation.
