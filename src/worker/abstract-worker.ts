@@ -406,7 +406,7 @@ export abstract class AbstractWorker<
   /**
    * Handles a kill message sent by the main worker.
    *
-   * @param message - The kill message.
+   * @param _message - The kill message.
    */
   protected handleKillMessage(_message: MessageValue<Data>): void {
     this.stopCheckActive()

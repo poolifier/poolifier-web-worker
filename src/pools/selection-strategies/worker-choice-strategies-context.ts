@@ -135,6 +135,7 @@ export class WorkerChoiceStrategiesContext<
   /**
    * Updates the worker node key in the active worker choice strategies in the context internals.
    *
+   * @param workerNodeKey - The worker node key.
    * @returns `true` if the update is successful, `false` otherwise.
    */
   public update(workerNodeKey: number): boolean {
@@ -245,6 +246,7 @@ export class WorkerChoiceStrategiesContext<
    *
    * @param workerChoiceStrategy - The worker choice strategy to add.
    * @param opts - The worker choice strategy options.
+   * @param pool - The pool instance.
    * @returns The worker choice strategies.
    */
   private addWorkerChoiceStrategy(

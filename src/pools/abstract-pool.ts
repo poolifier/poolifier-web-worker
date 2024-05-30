@@ -1097,6 +1097,8 @@ export abstract class AbstractPool<
 
   /**
    * Starts the minimum number of workers.
+   *
+   * @param initWorkerNodeUsage - Whether to initialize the worker node usage or not. @defaultValue false
    */
   private startMinimumNumberOfWorkers(initWorkerNodeUsage = false): void {
     this.startingMinimumNumberOfWorkers = true
@@ -1886,6 +1888,8 @@ export abstract class AbstractPool<
 
   /**
    * This method is the message listener registered on each worker.
+   *
+   * @param message - The message received from the worker.
    */
   protected readonly workerMessageListener = (
     message: MessageValue<Response>,
