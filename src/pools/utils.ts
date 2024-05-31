@@ -93,7 +93,7 @@ export const checkDynamicPoolSize = (
 
 export const checkValidPriority = (priority: number | undefined): void => {
   if (priority != null && !Number.isSafeInteger(priority)) {
-    throw new TypeError(`Invalid property 'priority': '${priority}'`)
+    throw new TypeError(`Invalid property 'priority': '${priority.toString()}'`)
   }
   if (
     priority != null &&
@@ -134,7 +134,7 @@ export const checkValidTasksQueueOptions = (
     tasksQueueOptions.concurrency <= 0
   ) {
     throw new RangeError(
-      `Invalid worker node tasks concurrency: ${tasksQueueOptions.concurrency} is a negative integer or zero`,
+      `Invalid worker node tasks concurrency: ${tasksQueueOptions.concurrency.toString()} is a negative integer or zero`,
     )
   }
   if (
@@ -147,7 +147,7 @@ export const checkValidTasksQueueOptions = (
   }
   if (tasksQueueOptions?.size != null && tasksQueueOptions.size <= 0) {
     throw new RangeError(
-      `Invalid worker node tasks queue size: ${tasksQueueOptions.size} is a negative integer or zero`,
+      `Invalid worker node tasks queue size: ${tasksQueueOptions.size.toString()} is a negative integer or zero`,
     )
   }
 }

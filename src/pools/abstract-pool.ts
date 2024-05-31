@@ -535,7 +535,7 @@ export abstract class AbstractPool<
       throw new Error('Worker message received without worker id')
     } else if (this.getWorkerNodeKeyByWorkerId(message.workerId) === -1) {
       throw new Error(
-        `Worker message received from unknown worker '${message.workerId}': ${
+        `Worker message received from unknown worker '${message.workerId.toString()}': ${
           JSON.stringify(
             message,
           )
@@ -775,7 +775,7 @@ export abstract class AbstractPool<
           } else {
             reject(
               new Error(
-                `Task function operation '${message.taskFunctionOperation}' failed on worker ${message.workerId} with error: '${message.workerError?.message}'`,
+                `Task function operation '${message.taskFunctionOperation?.toString()}' failed on worker ${message.workerId?.toString()} with error: '${message.workerError?.message}'`,
               ),
             )
           }
@@ -821,7 +821,7 @@ export abstract class AbstractPool<
               )
               reject(
                 new Error(
-                  `Task function operation '${message.taskFunctionOperation}' failed on worker ${errorResponse?.workerId} with error: '${errorResponse?.workerError?.message}'`,
+                  `Task function operation '${message.taskFunctionOperation}' failed on worker ${errorResponse?.workerId?.toString()} with error: '${errorResponse?.workerError?.message}'`,
                 ),
               )
             }
@@ -1173,7 +1173,7 @@ export abstract class AbstractPool<
         } else if (message.kill === 'failure') {
           reject(
             new Error(
-              `Kill message handling failed on worker ${message.workerId}`,
+              `Kill message handling failed on worker ${message.workerId?.toString()}`,
             ),
           )
         }
@@ -1758,7 +1758,7 @@ export abstract class AbstractPool<
     const workerInfo = this.getWorkerInfo(workerNodeKey)
     if (workerInfo == null) {
       throw new Error(
-        `Worker node with key '${workerNodeKey}' not found in pool`,
+        `Worker node with key '${workerNodeKey.toString()}' not found in pool`,
       )
     }
     if (
@@ -1868,7 +1868,7 @@ export abstract class AbstractPool<
         const workerInfo = this.getWorkerInfo(workerNodeKey)
         if (workerInfo == null) {
           throw new Error(
-            `Worker node with key '${workerNodeKey}' not found in pool`,
+            `Worker node with key '${workerNodeKey.toString()}' not found in pool`,
           )
         }
         workerInfo.stealing = true
@@ -1926,7 +1926,7 @@ export abstract class AbstractPool<
   private handleWorkerReadyResponse(message: MessageValue<Response>): void {
     const { workerId, ready, taskFunctionsProperties } = message
     if (ready == null || !ready) {
-      throw new Error(`Worker ${workerId} failed to initialize`)
+      throw new Error(`Worker ${workerId?.toString()} failed to initialize`)
     }
     const workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
     const workerNode = this.workerNodes[workerNodeKey]

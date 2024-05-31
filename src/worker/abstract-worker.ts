@@ -411,7 +411,7 @@ export abstract class AbstractWorker<
   protected handleKillMessage(_message: MessageValue<Data>): void {
     this.stopCheckActive()
     if (isAsyncFunction(this.opts.killHandler)) {
-      ;(this.opts.killHandler() as Promise<void>)
+      ;(this.opts.killHandler as (() => Promise<void>))()
         .then(() => {
           this.sendToMainWorker({ kill: 'success' })
         })
@@ -420,7 +420,7 @@ export abstract class AbstractWorker<
         })
     } else {
       try {
-        this.opts.killHandler?.() as void
+        ;(this.opts.killHandler as (() => void) | undefined)?.()
         this.sendToMainWorker({ kill: 'success' })
       } catch {
         this.sendToMainWorker({ kill: 'failure' })
@@ -439,7 +439,7 @@ export abstract class AbstractWorker<
       throw new Error('Message worker id is not set')
     } else if (message.workerId !== this.id) {
       throw new Error(
-        `Message worker id ${message.workerId} does not match the worker id ${this.id}`,
+        `Message worker id ${message.workerId.toString()} does not match the worker id ${this.id}`,
       )
     }
   }
@@ -530,7 +530,7 @@ export abstract class AbstractWorker<
       this.sendToMainWorker({
         workerError: {
           name: name!,
-          message: `Task function '${name}' not found`,
+          message: `Task function '${name!}' not found`,
           data,
         },
         taskId,
