@@ -389,15 +389,16 @@ export abstract class AbstractWorker<
         }
         break
     }
+    const { status, error } = response
     this.sendToMainWorker({
       taskFunctionOperation,
-      taskFunctionOperationStatus: response.status,
+      taskFunctionOperationStatus: status,
       taskFunctionProperties,
-      ...(!response.status &&
-        response.error != null && {
+      ...(!status &&
+        error != null && {
         workerError: {
           name: taskFunctionProperties.name,
-          message: this.handleError(response.error as Error | string),
+          message: this.handleError(error as Error | string),
         },
       }),
     })
@@ -411,7 +412,7 @@ export abstract class AbstractWorker<
   protected handleKillMessage(_message: MessageValue<Data>): void {
     this.stopCheckActive()
     if (isAsyncFunction(this.opts.killHandler)) {
-      ;(this.opts.killHandler as (() => Promise<void>))()
+      ;(this.opts.killHandler as () => Promise<void>)()
         .then(() => {
           this.sendToMainWorker({ kill: 'success' })
         })
