@@ -1037,7 +1037,7 @@ export abstract class AbstractPool<
   public async execute(
     data?: Data,
     name?: string,
-    transferList?: Transferable[],
+    transferList?: readonly Transferable[],
   ): Promise<Response> {
     return await new Promise<Response>((resolve, reject) => {
       if (!this.started) {
@@ -1093,6 +1093,17 @@ export abstract class AbstractPool<
         this.enqueueTask(workerNodeKey, task)
       }
     })
+  }
+
+  /** @inheritDoc */
+  public mapExecute(
+    data: Iterable<Data>,
+    name?: string,
+    transferList?: readonly Transferable[],
+  ): Promise<Response[]> {
+    return Promise.all(
+      [...data].map((data) => this.execute(data, name, transferList)),
+    )
   }
 
   /**
@@ -1367,7 +1378,7 @@ export abstract class AbstractPool<
   protected abstract sendToWorker(
     workerNodeKey: number,
     message: MessageValue<Data>,
-    transferList?: Transferable[],
+    transferList?: readonly Transferable[],
   ): void
 
   /**

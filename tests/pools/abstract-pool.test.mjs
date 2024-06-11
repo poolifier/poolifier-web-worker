@@ -1785,6 +1785,46 @@ Deno.test({
       },
     )
 
+    await t.step('Verify that mapExecute() is working', async () => {
+      const pool = new DynamicThreadPool(
+        Math.floor(numberOfWorkers / 2),
+        numberOfWorkers,
+        new URL(
+          './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
+          import.meta.url,
+        ),
+      )
+      let results = await pool.mapExecute([{}, {}, {}, {}])
+      expect(results).toStrictEqual([
+        { ok: 1 },
+        { ok: 1 },
+        { ok: 1 },
+        { ok: 1 },
+      ])
+      expect(pool.info.executingTasks).toBe(0)
+      expect(pool.info.executedTasks).toBe(4)
+      results = await pool.mapExecute(
+        [
+          { n: 10 },
+          { n: 20 },
+          { n: 30 },
+          {
+            n: 40,
+          },
+        ],
+        'factorial',
+      )
+      expect(results).toStrictEqual([
+        3628800n,
+        2432902008176640000n,
+        265252859812191058636308480000000n,
+        815915283247897734345611269596115894272000000000n,
+      ])
+      expect(pool.info.executingTasks).toBe(0)
+      expect(pool.info.executedTasks).toBe(8)
+      await pool.destroy()
+    })
+
     await t.step(
       'Verify that task function objects worker is working',
       async () => {

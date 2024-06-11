@@ -46,7 +46,7 @@ export class FixedThreadPool<
   protected sendToWorker(
     workerNodeKey: number,
     message: MessageValue<Data>,
-    transferList?: Transferable[],
+    transferList?: readonly Transferable[],
   ): void {
     this.workerNodes[workerNodeKey]?.messageChannel?.port1.postMessage(
       {
