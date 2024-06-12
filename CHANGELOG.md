@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.11] - 2024-06-12
+
 ### Changed
 
 - Add mapExecute() helper to execute a task function on an iterable data's
