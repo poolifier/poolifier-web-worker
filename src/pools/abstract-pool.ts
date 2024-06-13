@@ -1101,8 +1101,17 @@ export abstract class AbstractPool<
     name?: string,
     transferList?: readonly Transferable[],
   ): Promise<Response[]> {
+    if (data == null) {
+      throw new TypeError('data argument must be a defined iterable')
+    }
+    if (typeof data[Symbol.iterator] !== 'function') {
+      throw new TypeError('data argument must be an iterable')
+    }
+    if (!Array.isArray(data)) {
+      data = [...data]
+    }
     return Promise.all(
-      [...data].map((data) => this.execute(data, name, transferList)),
+      (data as Data[]).map((data) => this.execute(data, name, transferList)),
     )
   }
 

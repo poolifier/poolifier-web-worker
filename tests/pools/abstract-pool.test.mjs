@@ -1794,6 +1794,12 @@ Deno.test({
           import.meta.url,
         ),
       )
+      expect(() => pool.mapExecute()).toThrow(
+        new TypeError('data argument must be a defined iterable'),
+      )
+      expect(() => pool.mapExecute(0)).toThrow(
+        new Error('data argument must be an iterable'),
+      )
       let results = await pool.mapExecute([{}, {}, {}, {}])
       expect(results).toStrictEqual([
         { ok: 1 },
@@ -1822,6 +1828,18 @@ Deno.test({
       ])
       expect(pool.info.executingTasks).toBe(0)
       expect(pool.info.executedTasks).toBe(8)
+      results = await pool.mapExecute(
+        new Set([{ n: 10 }, { n: 20 }, { n: 30 }, { n: 40 }]),
+        'factorial',
+      )
+      expect(results).toStrictEqual([
+        3628800n,
+        2432902008176640000n,
+        265252859812191058636308480000000n,
+        815915283247897734345611269596115894272000000000n,
+      ])
+      expect(pool.info.executingTasks).toBe(0)
+      expect(pool.info.executedTasks).toBe(12)
       await pool.destroy()
     })
 
