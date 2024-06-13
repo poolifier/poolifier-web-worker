@@ -1798,7 +1798,7 @@ Deno.test({
         new TypeError('data argument must be a defined iterable'),
       )
       expect(() => pool.mapExecute(0)).toThrow(
-        new Error('data argument must be an iterable'),
+        new TypeError('data argument must be an iterable'),
       )
       let results = await pool.mapExecute([{}, {}, {}, {}])
       expect(results).toStrictEqual([
