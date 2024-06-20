@@ -139,20 +139,25 @@ export class PriorityQueue<T> {
       }
     }
     const data = tail!.dequeue()
-    if (tail!.empty() && tail!.next != null) {
-      if (!tailChanged) {
+    if (tail!.empty()) {
+      if (!tailChanged && tail!.next != null) {
         this.tail = tail!.next
+        delete tail!.next
       } else {
         let node: PriorityQueueNode<T> | undefined = this.tail
         while (node != null) {
-          if (node.next === tail) {
+          if (node.next === tail && tail!.next != null) {
             node.next = tail!.next
+            delete tail!.next
+            break
+          } else if (node.next === tail && tail!.next == null) {
+            delete node.next
+            this.head = node
             break
           }
           node = node.next
         }
       }
-      delete tail!.next
     }
     return data
   }

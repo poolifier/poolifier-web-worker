@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix priority queue dequeue() from the last prioritized bucket.
+
 ## [0.4.11] - 2024-06-12
 
 ### Changed
