@@ -135,15 +135,15 @@ export class PriorityQueue<T> {
         }
         ;++currentBucket
         tail = tail.next
-        tailChanged = true
       }
+      tailChanged = tail !== this.tail
     }
     const data = tail!.dequeue()
     if (tail!.empty()) {
       if (!tailChanged && tail!.next != null) {
         this.tail = tail!.next
         delete tail!.next
-      } else {
+      } else if (tailChanged) {
         let node: PriorityQueueNode<T> | undefined = this.tail
         while (node != null) {
           if (node.next === tail && tail!.next != null) {
