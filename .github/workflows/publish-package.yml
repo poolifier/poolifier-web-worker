@@ -19,8 +19,8 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: 1.x
+        # with:
+        #   bun-version: 1.x
 
       - name: Format Check
         run: deno task format:check
@@ -70,8 +70,8 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: 1.x
+        # with:
+        #   bun-version: 1.x
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
