@@ -38,7 +38,6 @@ jobs:
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.x
-          no-cache: true
 
       - name: Format Check
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
