@@ -17,7 +17,7 @@
 [![Npm Version](https://badgen.net/npm/v/poolifier-web-worker?icon=npm)](https://www.npmjs.com/package/poolifier-web-worker)
 [![Npm Weekly Downloads](https://badgen.net/npm/dw/poolifier-web-worker?icon=npm)](https://www.npmjs.com/package/poolifier-web-worker)
 [![JSR Version](https://jsr.io/badges/@poolifier/poolifier-web-worker)](https://jsr.io/@poolifier/poolifier-web-worker)
-[![Javascript Standard Style Guide](<https://badgen.net/static/code style/standard/green>)](https://standardjs.com)
+[![neostandard Javascript Code Style](<https://badgen.net/static/code style/neostandard/green>)](https://github.com/neostandard/neostandard)
 [![Discord](https://badgen.net/discord/online-members/vXxZhyb3b6?icon=discord&label=discord&color=green)](https://discord.gg/vXxZhyb3b6)
 [![Open Collective](https://opencollective.com/poolifier/tiers/badge.svg)](https://opencollective.com/poolifier)
 [![PRs Welcome](https://badgen.net/static/PRs/welcome/green)](https://makeapullrequest.com)
@@ -148,7 +148,7 @@ for more details**:
 <!-- deno-fmt-ignore -->
 
 ```js
-<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.11/browser/mod.js'</script>
+<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.12/browser/mod.js'</script>
 ```
 
 ```js
@@ -158,7 +158,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
-} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.11/browser/mod.js'
+} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.12/browser/mod.js'
 </script>
 ```
 

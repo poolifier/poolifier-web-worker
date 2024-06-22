@@ -1,7 +1,7 @@
 import {
   availableParallelism,
   FixedThreadPool,
-} from 'jsr:@poolifier/poolifier-web-worker@^0.4.11'
+} from 'jsr:@poolifier/poolifier-web-worker@^0.4.12'
 
 const pool = new FixedThreadPool(
   availableParallelism(),

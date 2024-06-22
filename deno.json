@@ -1,6 +1,6 @@
 {
   "name": "@poolifier/poolifier-web-worker",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "exports": "./src/mod.ts",
   "compilerOptions": {
     "lib": ["deno.worker"],
@@ -31,10 +31,10 @@
     "singleQuote": true
   },
   "imports": {
-    "@poolifier/tatami-ng": "jsr:@poolifier/tatami-ng@^0.4.13",
+    "@poolifier/tatami-ng": "jsr:@poolifier/tatami-ng@^0.4.15",
     "@std/assert": "jsr:@std/assert@^0.226.0",
-    "@std/cli": "jsr:@std/cli@^0.224.6",
-    "@std/testing": "jsr:@std/testing@^0.225.1",
+    "@std/cli": "jsr:@std/cli@^0.224.7",
+    "@std/testing": "jsr:@std/testing@^0.225.3",
     "expect": "npm:expect@^29.7.0"
   },
   "publish": {

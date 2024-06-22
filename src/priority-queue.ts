@@ -59,6 +59,8 @@ export class PriorityQueue<T> {
 
   /**
    * The priority queue size.
+   *
+   * @returns The priority queue size.
    */
   public get size(): number {
     let node: PriorityQueueNode<T> | undefined = this.tail
@@ -87,6 +89,8 @@ export class PriorityQueue<T> {
 
   /**
    * The number of filled prioritized buckets.
+   *
+   * @returns The number of filled prioritized buckets.
    */
   public get buckets(): number {
     return Math.trunc(this.size / this.bucketSize)
@@ -131,24 +135,29 @@ export class PriorityQueue<T> {
         }
         ;++currentBucket
         tail = tail.next
-        tailChanged = true
       }
+      tailChanged = tail !== this.tail
     }
     const data = tail!.dequeue()
-    if (tail!.empty() && tail!.next != null) {
-      if (!tailChanged) {
+    if (tail!.empty()) {
+      if (!tailChanged && tail!.next != null) {
         this.tail = tail!.next
-      } else {
+        delete tail!.next
+      } else if (tailChanged) {
         let node: PriorityQueueNode<T> | undefined = this.tail
         while (node != null) {
-          if (node.next === tail) {
+          if (node.next === tail && tail!.next != null) {
             node.next = tail!.next
+            delete tail!.next
+            break
+          } else if (node.next === tail && tail!.next == null) {
+            delete node.next
+            this.head = node
             break
           }
           node = node.next
         }
       }
-      delete tail!.next
     }
     return data
   }

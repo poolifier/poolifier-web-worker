@@ -464,7 +464,9 @@ export abstract class AbstractPool<
   }
 
   /**
-   * The pool readiness boolean status.
+   * Whether the pool is ready or not.
+   *
+   * @returns The pool readiness boolean status.
    */
   private get ready(): boolean {
     if (this.empty) {
@@ -482,7 +484,9 @@ export abstract class AbstractPool<
   }
 
   /**
-   * The pool emptiness boolean status.
+   * Whether the pool is empty or not.
+   *
+   * @returns The pool emptiness boolean status.
    */
   protected get empty(): boolean {
     return this.minimumNumberOfWorkers === 0 && this.workerNodes.length === 0
@@ -706,7 +710,7 @@ export abstract class AbstractPool<
   /**
    * Whether the pool is full or not.
    *
-   * The pool filling boolean status.
+   * @returns The pool fullness boolean status.
    */
   protected get full(): boolean {
     return (
@@ -718,7 +722,7 @@ export abstract class AbstractPool<
   /**
    * Whether the pool is busy or not.
    *
-   * The pool busyness boolean status.
+   * @returns The pool busyness boolean status.
    */
   protected abstract get busy(): boolean
 
@@ -1101,8 +1105,17 @@ export abstract class AbstractPool<
     name?: string,
     transferList?: readonly Transferable[],
   ): Promise<Response[]> {
+    if (data == null) {
+      throw new TypeError('data argument must be a defined iterable')
+    }
+    if (typeof data[Symbol.iterator] !== 'function') {
+      throw new TypeError('data argument must be an iterable')
+    }
+    if (!Array.isArray(data)) {
+      data = [...data]
+    }
     return Promise.all(
-      [...data].map((data) => this.execute(data, name, transferList)),
+      (data as Data[]).map((data) => this.execute(data, name, transferList)),
     )
   }
 
@@ -1112,6 +1125,9 @@ export abstract class AbstractPool<
    * @param initWorkerNodeUsage - Whether to initialize the worker node usage or not. @defaultValue false
    */
   private startMinimumNumberOfWorkers(initWorkerNodeUsage = false): void {
+    if (this.minimumNumberOfWorkers === 0) {
+      return
+    }
     this.startingMinimumNumberOfWorkers = true
     while (
       this.workerNodes.reduce(
