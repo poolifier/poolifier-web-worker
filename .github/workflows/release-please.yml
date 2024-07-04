@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      release-created: ${{ steps.release.outputs.release_created }}
+      release_created: ${{ steps.release.outputs.release_created }}
 
     steps:
       - uses: googleapis/release-please-action@v4
@@ -22,7 +22,7 @@ jobs:
   build-release:
     needs: release-please
     runs-on: ubuntu-latest
-    if: needs.release-please.outputs.release-created
+    if: needs.release-please.outputs.release_created
 
     steps:
       - name: Checkout

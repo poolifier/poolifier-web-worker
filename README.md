@@ -144,6 +144,7 @@ for more details**:
 
 ### Browser
 
+<!-- x-release-please-start-version -->
 <!-- deno-fmt-ignore -->
 
 ```js
@@ -160,6 +161,8 @@ import {
 } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.12/browser/mod.js'
 </script>
 ```
+
+<!-- x-release-please-end -->
 
 ### Example code
 

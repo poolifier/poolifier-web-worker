@@ -18,6 +18,8 @@
           "path": "dist/package.json",
           "jsonpath": "$.version"
         },
+        "examples/deno/javascript/*.js",
+        "README.md",
         "sonar-project.properties",
         "src/pools/version.ts"
       ]
