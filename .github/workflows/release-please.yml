@@ -11,6 +11,7 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    if: github.repository == 'poolifier/poolifier-web-worker'
 
     permissions:
       contents: write
