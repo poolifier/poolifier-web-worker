@@ -8,9 +8,110 @@ on:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+
+    outputs:
+      release-created: ${{ steps.release.outputs.release_created }}
+
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
           config-file: .github/release-please/config.json
           manifest-file: .github/release-please/manifest.json
+
+  build-release:
+    needs: release-please
+    runs-on: ubuntu-latest
+    if: needs.release-please.outputs.release-created
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        # with:
+        #   bun-version: 1.x
+
+      - name: Format Check
+        run: deno task format:check
+
+      - name: Lint
+        run: deno task lint
+
+      - name: Tests with Coverage
+        run: deno task test:coverage
+
+      - name: Bundle
+        run: deno task bundle
+
+  publish-jsr:
+    needs: build-release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Publish Release
+        if: ${{ contains(github.ref_name, '-') == false }}
+        run: deno publish
+
+  publish-npm:
+    needs: build-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        # with:
+        #   bun-version: 1.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Bundle
+        run: deno task bundle
+
+      - name: Publish Release
+        if: ${{ contains(github.ref_name, '-') == false }}
+        run: cd dist && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish Pre-Release
+        if: ${{ contains(github.ref_name, '-') == true && contains(github.ref_name, '-beta') == false }}
+        run: cd dist && npm publish --tag next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish Beta Release
+        if: ${{ contains(github.ref_name, '-beta') == true }}
+        run: cd dist && npm publish --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
