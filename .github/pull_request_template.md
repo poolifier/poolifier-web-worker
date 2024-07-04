@@ -5,7 +5,7 @@
 
 ## PR Checklist
 
-- [ ] Please ensure PR title follows
+- [ ] Please ensure title follows
       [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).
 - [ ] Please add a description of your changes.
 - [ ] We need your changes to come with unit tests in order to keep this project
