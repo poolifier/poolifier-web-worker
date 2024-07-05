@@ -8,38 +8,46 @@ and this project adheres to
 
 ## [0.4.13](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.12...v0.4.13) (2024-07-05)
 
-
 ### 🚀 Features
 
-* release with release-please ([bc35b50](https://github.com/poolifier/poolifier-web-worker/commit/bc35b5019b23e07f1053989efca9c29009069f36))
-
+- release with release-please
+  ([bc35b50](https://github.com/poolifier/poolifier-web-worker/commit/bc35b5019b23e07f1053989efca9c29009069f36))
 
 ### 🐞 Fixes
 
-* ensure checks are run on release PR ([71c26f3](https://github.com/poolifier/poolifier-web-worker/commit/71c26f39ac6e82fcc67c5c06f6364f86e26062f1))
-
+- ensure checks are run on release PR
+  ([71c26f3](https://github.com/poolifier/poolifier-web-worker/commit/71c26f39ac6e82fcc67c5c06f6364f86e26062f1))
 
 ### 📚 Documentation
 
-* ensure version is bumped on release in examples ([a9b9dce](https://github.com/poolifier/poolifier-web-worker/commit/a9b9dce33870d434292a9cfa56c01518114eec51))
-* refine contribution documentation ([c0c1ac7](https://github.com/poolifier/poolifier-web-worker/commit/c0c1ac75a96b1a9257fbf1e0d4e08eb1ebb32e26))
-* refine PR template ([369d51c](https://github.com/poolifier/poolifier-web-worker/commit/369d51c26335a21e352ae6511484115fc3bd0740))
-* refine README.md ([a25a2d1](https://github.com/poolifier/poolifier-web-worker/commit/a25a2d167c24e292767c988743c631bf96378225))
-* refine README.md badges ([4d91cd9](https://github.com/poolifier/poolifier-web-worker/commit/4d91cd994f0f9bfdd14cd02a6d9a6bb193f948d8))
-
+- ensure version is bumped on release in examples
+  ([a9b9dce](https://github.com/poolifier/poolifier-web-worker/commit/a9b9dce33870d434292a9cfa56c01518114eec51))
+- refine contribution documentation
+  ([c0c1ac7](https://github.com/poolifier/poolifier-web-worker/commit/c0c1ac75a96b1a9257fbf1e0d4e08eb1ebb32e26))
+- refine PR template
+  ([369d51c](https://github.com/poolifier/poolifier-web-worker/commit/369d51c26335a21e352ae6511484115fc3bd0740))
+- refine README.md
+  ([a25a2d1](https://github.com/poolifier/poolifier-web-worker/commit/a25a2d167c24e292767c988743c631bf96378225))
+- refine README.md badges
+  ([4d91cd9](https://github.com/poolifier/poolifier-web-worker/commit/4d91cd994f0f9bfdd14cd02a6d9a6bb193f948d8))
 
 ### ✨ Polish
 
-* **ci:** cleanup GH action ([a4b1ef1](https://github.com/poolifier/poolifier-web-worker/commit/a4b1ef1cb7392a6b26cfa42b6d9e83176d1660b6))
-
+- **ci:** cleanup GH action
+  ([a4b1ef1](https://github.com/poolifier/poolifier-web-worker/commit/a4b1ef1cb7392a6b26cfa42b6d9e83176d1660b6))
 
 ### 🤖 Automation
 
-* **ci:** add autofix GH action ([9fde7c1](https://github.com/poolifier/poolifier-web-worker/commit/9fde7c167f55b1dae67706fde7cd3f8850bf96d7))
-* **ci:** do not cancel workflow of autofix.ci fails ([d1fe8c4](https://github.com/poolifier/poolifier-web-worker/commit/d1fe8c47614406f90149af707c768e4f4eb39c65))
-* **deps-dev:** apply updates ([2b2a96a](https://github.com/poolifier/poolifier-web-worker/commit/2b2a96aa1ef2ae087e6b47af78e7eb523f058aa4))
-* **deps-dev:** apply updates ([7394780](https://github.com/poolifier/poolifier-web-worker/commit/739478062ce0b765349b28bff91e500af6af450d))
-* **deps:** Bump oven-sh/setup-bun from 1 to 2 ([d5c4430](https://github.com/poolifier/poolifier-web-worker/commit/d5c44308a6645a083e95e549e16ecc66fedbfb44))
+- **ci:** add autofix GH action
+  ([9fde7c1](https://github.com/poolifier/poolifier-web-worker/commit/9fde7c167f55b1dae67706fde7cd3f8850bf96d7))
+- **ci:** do not cancel workflow of autofix.ci fails
+  ([d1fe8c4](https://github.com/poolifier/poolifier-web-worker/commit/d1fe8c47614406f90149af707c768e4f4eb39c65))
+- **deps-dev:** apply updates
+  ([2b2a96a](https://github.com/poolifier/poolifier-web-worker/commit/2b2a96aa1ef2ae087e6b47af78e7eb523f058aa4))
+- **deps-dev:** apply updates
+  ([7394780](https://github.com/poolifier/poolifier-web-worker/commit/739478062ce0b765349b28bff91e500af6af450d))
+- **deps:** Bump oven-sh/setup-bun from 1 to 2
+  ([d5c4430](https://github.com/poolifier/poolifier-web-worker/commit/d5c44308a6645a083e95e549e16ecc66fedbfb44))
 
 ## [0.4.12] - 2024-06-21
 
