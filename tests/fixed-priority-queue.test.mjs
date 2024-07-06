@@ -1,9 +1,7 @@
 import { expect } from 'expect'
 
-import {
-  defaultQueueSize,
-  FixedPriorityQueue,
-} from '../src/fixed-priority-queue.ts'
+import { FixedPriorityQueue } from '../src/fixed-priority-queue.ts'
+import { defaultQueueSize } from '../src/utility-types.ts'
 
 Deno.test('Fixed priority queue test suite', async (t) => {
   await t.step('Verify constructor() behavior', () => {
@@ -13,23 +11,16 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     expect(() => new FixedPriorityQueue(-1)).toThrow(
       new RangeError('Invalid fixed priority queue size: -1 < 0'),
     )
-    let fixedPriorityQueue = new FixedPriorityQueue()
+    const fixedPriorityQueue = new FixedPriorityQueue()
     expect(fixedPriorityQueue.start).toBe(0)
     expect(fixedPriorityQueue.size).toBe(0)
     expect(fixedPriorityQueue.nodeArray).toBeInstanceOf(Array)
     expect(fixedPriorityQueue.capacity).toBe(defaultQueueSize)
-    expect(fixedPriorityQueue.enablePriority).toBe(false)
-    fixedPriorityQueue = new FixedPriorityQueue(2, true)
-    expect(fixedPriorityQueue.start).toBe(0)
-    expect(fixedPriorityQueue.size).toBe(0)
-    expect(fixedPriorityQueue.nodeArray).toBeInstanceOf(Array)
-    expect(fixedPriorityQueue.capacity).toBe(2)
-    expect(fixedPriorityQueue.enablePriority).toBe(true)
   })
 
   await t.step('Verify enqueue() behavior', () => {
     const queueSize = 5
-    const fixedPriorityQueue = new FixedPriorityQueue(queueSize, true)
+    const fixedPriorityQueue = new FixedPriorityQueue(queueSize)
     let rtSize = fixedPriorityQueue.enqueue(1)
     expect(fixedPriorityQueue.start).toBe(0)
     expect(fixedPriorityQueue.size).toBe(1)
@@ -81,12 +72,12 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     ])
     expect(fixedPriorityQueue.capacity).toBe(queueSize)
     expect(() => fixedPriorityQueue.enqueue(4)).toThrow(
-      new Error('Priority queue is full'),
+      new Error('Fixed priority queue is full'),
     )
   })
 
   await t.step('Verify get() behavior', () => {
-    const fixedPriorityQueue = new FixedPriorityQueue(defaultQueueSize, true)
+    const fixedPriorityQueue = new FixedPriorityQueue()
     fixedPriorityQueue.enqueue(1)
     fixedPriorityQueue.enqueue(2, -1)
     fixedPriorityQueue.enqueue(3)
@@ -98,7 +89,7 @@ Deno.test('Fixed priority queue test suite', async (t) => {
 
   await t.step('Verify dequeue() behavior', () => {
     const queueSize = 5
-    const fixedPriorityQueue = new FixedPriorityQueue(queueSize, true)
+    const fixedPriorityQueue = new FixedPriorityQueue(queueSize)
     fixedPriorityQueue.enqueue(1)
     fixedPriorityQueue.enqueue(2, -1)
     fixedPriorityQueue.enqueue(3)

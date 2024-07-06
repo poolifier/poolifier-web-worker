@@ -1,9 +1,9 @@
-import { defaultBucketSize } from '../priority-queue.ts'
-import type {
-  MessageValue,
-  PromiseResponseWrapper,
-  Task,
-  TaskFunctionProperties,
+import {
+  defaultBucketSize,
+  type MessageValue,
+  type PromiseResponseWrapper,
+  type Task,
+  type TaskFunctionProperties,
 } from '../utility-types.ts'
 import {
   average,

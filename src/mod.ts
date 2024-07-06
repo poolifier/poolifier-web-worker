@@ -60,6 +60,7 @@ export type {
   TaskSyncFunction,
 } from './worker/task-functions.ts'
 export type {
+  IFixedQueue,
   MessageValue,
   PromiseResponseWrapper,
   Task,
@@ -70,9 +71,5 @@ export type {
   Writable,
 } from './utility-types.ts'
 export type { CircularBuffer } from './circular-buffer.ts'
-export type { PriorityQueue, PriorityQueueNode } from './priority-queue.ts'
-export type {
-  FixedPriorityQueue,
-  FixedPriorityQueueNode,
-} from './fixed-priority-queue.ts'
+export type { PriorityQueue } from './priority-queue.ts'
 export { availableParallelism } from './utils.ts'

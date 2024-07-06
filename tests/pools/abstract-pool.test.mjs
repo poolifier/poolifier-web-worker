@@ -11,7 +11,8 @@ import {
 } from '../../src/mod.ts'
 import { version } from '../../src/pools/version.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'
-import { defaultBucketSize, PriorityQueue } from '../../src/priority-queue.ts'
+import { PriorityQueue } from '../../src/priority-queue.ts'
+import { defaultBucketSize } from '../../src/utility-types.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 import { waitPoolEvents } from '../test-utils.mjs'
 
