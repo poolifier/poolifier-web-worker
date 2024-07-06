@@ -6,10 +6,10 @@ import { defaultQueueSize } from '../src/utility-types.ts'
 Deno.test('Fixed priority queue test suite', async (t) => {
   await t.step('Verify constructor() behavior', () => {
     expect(() => new FixedPriorityQueue('')).toThrow(
-      new TypeError("Invalid fixed priority queue size: '' is not an integer"),
+      new TypeError("Invalid fixed queue size: '' is not an integer"),
     )
     expect(() => new FixedPriorityQueue(-1)).toThrow(
-      new RangeError('Invalid fixed priority queue size: -1 < 0'),
+      new RangeError('Invalid fixed queue size: -1 < 0'),
     )
     const fixedPriorityQueue = new FixedPriorityQueue()
     expect(fixedPriorityQueue.start).toBe(0)
