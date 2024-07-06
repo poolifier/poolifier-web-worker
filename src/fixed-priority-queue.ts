@@ -1,5 +1,5 @@
 /**
- * Default buffer size.
+ * Default queue size.
  */
 export const defaultQueueSize = 2048
 
