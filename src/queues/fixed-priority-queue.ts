@@ -1,5 +1,5 @@
 import { AbstractFixedQueue } from './abstract-fixed-queue.ts'
-import type { IFixedQueue } from './utility-types.ts'
+import type { IFixedQueue } from './queue-types.ts'
 
 /**
  * Fixed priority queue.

@@ -1,5 +1,5 @@
 import { CircularBuffer } from '../circular-buffer.ts'
-import { PriorityQueue } from '../priority-queue.ts'
+import { PriorityQueue } from '../queues/priority-queue.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import { DEFAULT_TASK_NAME } from '../utils.ts'
 import {

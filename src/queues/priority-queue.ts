@@ -1,13 +1,13 @@
 // Copyright Jerome Benoit. 2024. All Rights Reserved.
 
-import { FixedPriorityQueue } from './fixed-priority-queue.ts'
-import { FixedQueue } from './fixed-queue.ts'
+import { FixedPriorityQueue } from '../queues/fixed-priority-queue.ts'
+import { FixedQueue } from '../queues/fixed-queue.ts'
 import {
   defaultBucketSize,
   type FixedQueueNode,
   type IFixedQueue,
   type PriorityQueueNode,
-} from './utility-types.ts'
+} from './queue-types.ts'
 
 /**
  * Priority queue.

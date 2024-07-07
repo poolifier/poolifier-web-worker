@@ -2,7 +2,7 @@ import {
   defaultQueueSize,
   type FixedQueueNode,
   type IFixedQueue,
-} from './utility-types.ts'
+} from './queue-types.ts'
 
 /**
  * Base fixed queue class

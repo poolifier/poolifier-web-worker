@@ -1,7 +1,7 @@
 import { expect } from 'expect'
 
-import { FixedQueue } from '../src/fixed-queue.ts'
-import { defaultQueueSize } from '../src/utility-types.ts'
+import { FixedQueue } from '../../src/queues/fixed-queue.ts'
+import { defaultQueueSize } from '../../src/queues/queue-types.ts'
 
 Deno.test('Fixed queue test suite', async (t) => {
   await t.step('Verify constructor() behavior', () => {

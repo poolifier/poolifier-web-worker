@@ -1,9 +1,9 @@
-import {
-  defaultBucketSize,
-  type MessageValue,
-  type PromiseResponseWrapper,
-  type Task,
-  type TaskFunctionProperties,
+import { defaultBucketSize } from '../queues/queue-types.ts'
+import type {
+  MessageValue,
+  PromiseResponseWrapper,
+  Task,
+  TaskFunctionProperties,
 } from '../utility-types.ts'
 import {
   average,

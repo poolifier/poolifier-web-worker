@@ -1,8 +1,9 @@
 import { AbstractFixedQueue } from './abstract-fixed-queue.ts'
-import type { IFixedQueue } from './utility-types.ts'
+import type { IFixedQueue } from './queue-types.ts'
 
 /**
  * Fixed queue.
+ *
  * @typeParam T - Type of fixed queue data.
  * @internal
  */

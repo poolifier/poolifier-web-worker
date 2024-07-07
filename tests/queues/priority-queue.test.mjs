@@ -1,9 +1,9 @@
 import { expect } from 'expect'
 
-import { FixedPriorityQueue } from '../src/fixed-priority-queue.ts'
-import { FixedQueue } from '../src/fixed-queue.ts'
-import { PriorityQueue } from '../src/priority-queue.ts'
-import { defaultBucketSize } from '../src/utility-types.ts'
+import { FixedPriorityQueue } from '../../src/queues/fixed-priority-queue.ts'
+import { FixedQueue } from '../../src/queues/fixed-queue.ts'
+import { PriorityQueue } from '../../src/queues/priority-queue.ts'
+import { defaultBucketSize } from '../../src/queues/queue-types.ts'
 
 Deno.test('Priority queue test suite', async (t) => {
   await t.step('Verify constructor() behavior', () => {
