@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.14](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.13...v0.4.14) (2024-07-07)
+
+### ⚡ Performance
+
+- optimize tasks queuing implementation
+  ([4c4cdc0](https://github.com/poolifier/poolifier-web-worker/commit/4c4cdc0978a2f87c348cc1441bf8993ce8eba562))
+
+### ✨ Polish
+
+- factor out fixed queue common code in an abstract class
+  ([55070de](https://github.com/poolifier/poolifier-web-worker/commit/55070dee5570bdbf4e8d4e72d227ab82d772ebb4))
+- move queueing code into its own directory
+  ([f8f1e26](https://github.com/poolifier/poolifier-web-worker/commit/f8f1e266d9dbe4bcab6111af53f133b90485e485))
+
 ## [0.4.13](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.12...v0.4.13) (2024-07-05)
 
 ### 🚀 Features
