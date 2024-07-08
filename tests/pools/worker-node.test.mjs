@@ -2,6 +2,7 @@ import { expect } from 'expect'
 import { CircularBuffer } from '../../src/circular-buffer.ts'
 import { WorkerTypes } from '../../src/mod.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'
+import { MeasurementHistorySize } from '../../src/pools/worker.ts'
 import { PriorityQueue } from '../../src/queues/priority-queue.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 
@@ -253,6 +254,18 @@ Deno.test({
           },
         },
       })
+      expect(threadWorkerNode.usage.runTime.history.items.length).toBe(
+        MeasurementHistorySize,
+      )
+      expect(threadWorkerNode.usage.waitTime.history.items.length).toBe(
+        MeasurementHistorySize,
+      )
+      expect(threadWorkerNode.usage.elu.idle.history.items.length).toBe(
+        MeasurementHistorySize,
+      )
+      expect(threadWorkerNode.usage.elu.active.history.items.length).toBe(
+        MeasurementHistorySize,
+      )
       expect(threadWorkerNode.messageChannel).toBeInstanceOf(MessageChannel)
       expect(threadWorkerNode.tasksQueueBackPressureSize).toBe(12)
       expect(threadWorkerNode.tasksQueue).toBeInstanceOf(PriorityQueue)
