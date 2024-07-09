@@ -3,7 +3,7 @@
   "module": "pool.ts",
   "type": "module",
   "scripts": {
-    "start": "bun run pool.ts"
+    "start": "bun pool.ts"
   },
   "dependencies": {
     "@poolifier/poolifier-web-worker": "npm:@jsr/poolifier__poolifier-web-worker"

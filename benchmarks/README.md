@@ -32,6 +32,6 @@ poolifier cloned repository and run:
 
 #### Bun
 
-- `bun run ./benchmarks/internal/bench.mjs -t tatami-ng`
+- `bun ./benchmarks/internal/bench.mjs -t tatami-ng`
 
 ### [Results](https://bencher.dev/perf/poolifier-web-worker)
