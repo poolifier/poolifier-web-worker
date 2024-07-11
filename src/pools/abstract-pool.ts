@@ -1277,11 +1277,11 @@ export abstract class AbstractPool<
     ) {
       const taskFunctionWorkerUsage = this.workerNodes[
         workerNodeKey
-      ].getTaskFunctionWorkerUsage(task.name!)
-      ;++taskFunctionWorkerUsage!.tasks.executing
+      ].getTaskFunctionWorkerUsage(task.name!)!
+      ;++taskFunctionWorkerUsage.tasks.executing
       updateWaitTimeWorkerUsage(
         this.workerChoiceStrategiesContext,
-        taskFunctionWorkerUsage!,
+        taskFunctionWorkerUsage,
         task,
       )
     }
@@ -1316,22 +1316,23 @@ export abstract class AbstractPool<
     }
     if (
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      message.taskPerformance?.name != null &&
       this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(
-          message.taskPerformance!.name,
+          message.taskPerformance.name,
         ) != null
     ) {
       const taskFunctionWorkerUsage = this.workerNodes[
         workerNodeKey
-      ].getTaskFunctionWorkerUsage(message.taskPerformance!.name)
-      updateTaskStatisticsWorkerUsage(taskFunctionWorkerUsage!, message)
+      ].getTaskFunctionWorkerUsage(message.taskPerformance.name)!
+      updateTaskStatisticsWorkerUsage(taskFunctionWorkerUsage, message)
       updateRunTimeWorkerUsage(
         this.workerChoiceStrategiesContext,
-        taskFunctionWorkerUsage!,
+        taskFunctionWorkerUsage,
         message,
       )
       updateEluWorkerUsage(
         this.workerChoiceStrategiesContext,
-        taskFunctionWorkerUsage!,
+        taskFunctionWorkerUsage,
         message,
       )
       needWorkerChoiceStrategiesUpdate = true
