@@ -1,6 +1,6 @@
 {
   "name": "poolifier-web-worker",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "description": "poolifier-web-worker",
   "repository": {
     "type": "git",

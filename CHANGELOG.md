@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.15](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.14...v0.4.15) (2024-07-11)
+
+
+### 🐞 Bug Fixes
+
+* null exception when a task errored ([328023f](https://github.com/poolifier/poolifier-web-worker/commit/328023fdcb13631d7f97182fc37ee162406ccfed)), closes [#49](https://github.com/poolifier/poolifier-web-worker/issues/49)
+
+
+### ✨ Polish
+
+* **priority-queue:** cleanup intermediate variables namespace ([a550353](https://github.com/poolifier/poolifier-web-worker/commit/a550353fb054b0fbabffe7f2a6de2635e5af03d3))
+
+
+### 🧪 Tests
+
+* improve WorkerNode init coverage ([7210f30](https://github.com/poolifier/poolifier-web-worker/commit/7210f30076c1771172871ad84c23c52e70344886))
+* revert incorrect change ([53fb53d](https://github.com/poolifier/poolifier-web-worker/commit/53fb53da3e8204cd8467ca9cea178b871ae79119))
+
+
+### 📚 Documentation
+
+* cleanup bun runtime usage ([f802707](https://github.com/poolifier/poolifier-web-worker/commit/f802707b748a602d40d65b6d9f1b51b3949f71f7))
+* fix PR template formatting ([1d79921](https://github.com/poolifier/poolifier-web-worker/commit/1d79921cde2b2bff2b4c2e3c60ca353a405bbaeb))
+* flag WorkerChoiceStrategiesContext class as internal ([ba6948a](https://github.com/poolifier/poolifier-web-worker/commit/ba6948adfedbc03ac6439fdadc804007812b8505))
+
 ## [0.4.14](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.13...v0.4.14) (2024-07-07)
 
 ### ⚡ Performance
