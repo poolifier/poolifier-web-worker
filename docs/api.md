@@ -6,6 +6,7 @@
   - [`pool = new FixedThreadPool(numberOfThreads, fileURL, opts)`](#pool--new-fixedthreadpoolnumberofthreads-fileurl-opts)
   - [`pool = new DynamicThreadPool(min, max, fileURL, opts)`](#pool--new-dynamicthreadpoolmin-max-fileurl-opts)
   - [`pool.execute(data, name, transferList)`](#poolexecutedata-name-transferlist)
+  - [`pool.mapExecute(data, name, transferList)`](#poolmapexecutedata-name-transferlist)
   - [`pool.start()`](#poolstart)
   - [`pool.destroy()`](#pooldestroy)
   - [`pool.hasTaskFunction(name)`](#poolhastaskfunctionname)
