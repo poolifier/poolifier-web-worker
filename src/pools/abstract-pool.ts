@@ -75,7 +75,7 @@ export abstract class AbstractPool<
   Response = unknown,
 > implements IPool<Worker, Data, Response> {
   /** @inheritDoc */
-  public readonly workerNodes: Array<IWorkerNode<Worker, Data>> = []
+  public readonly workerNodes: IWorkerNode<Worker, Data>[] = []
 
   /** @inheritDoc */
   public eventTarget?: EventTarget

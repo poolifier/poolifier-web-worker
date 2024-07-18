@@ -243,7 +243,7 @@ export interface IPool<
    *
    * @internal
    */
-  readonly workerNodes: Array<IWorkerNode<Worker, Data>>
+  readonly workerNodes: IWorkerNode<Worker, Data>[]
   /**
    * Pool event target.
    *
