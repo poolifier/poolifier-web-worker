@@ -769,7 +769,7 @@ Deno.test({
           )
         expect(() => pool.setTasksQueueOptions({ tasksStealingRatio: 1.1 }))
           .toThrow(
-            new TypeError(
+            new RangeError(
               'Invalid worker node tasks stealing ratio: must be between 0 and 1',
             ),
           )
