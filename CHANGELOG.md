@@ -8,26 +8,29 @@ and this project adheres to
 
 ## [0.4.16](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.15...v0.4.16) (2024-07-18)
 
-
 ### 🚀 Features
 
-* add ratio of worker nodes in a pool allowed to perform concurrent tasks stealing ([7b7defe](https://github.com/poolifier/poolifier-web-worker/commit/7b7defe886aad719ad1c6fe89d62617334355ee9))
-
+- add ratio of worker nodes in a pool allowed to perform concurrent tasks
+  stealing
+  ([7b7defe](https://github.com/poolifier/poolifier-web-worker/commit/7b7defe886aad719ad1c6fe89d62617334355ee9))
 
 ### 🧪 Tests
 
-* fix error type expectation ([218cb7e](https://github.com/poolifier/poolifier-web-worker/commit/218cb7ee22a4c672fa79f48ea321e21f264d8126))
-
+- fix error type expectation
+  ([218cb7e](https://github.com/poolifier/poolifier-web-worker/commit/218cb7ee22a4c672fa79f48ea321e21f264d8126))
 
 ### 📚 Documentation
 
-* **api.md:** add missing ToC entry ([96badd7](https://github.com/poolifier/poolifier-web-worker/commit/96badd714cb0de978df30eb2ed710bddbd6b94c7))
-* **api.md:** document tasksStealingRatio tasks queue option ([9ed8a69](https://github.com/poolifier/poolifier-web-worker/commit/9ed8a69dd758400c14d9b2e49f35377b005ef7a3))
-
+- **api.md:** add missing ToC entry
+  ([96badd7](https://github.com/poolifier/poolifier-web-worker/commit/96badd714cb0de978df30eb2ed710bddbd6b94c7))
+- **api.md:** document tasksStealingRatio tasks queue option
+  ([9ed8a69](https://github.com/poolifier/poolifier-web-worker/commit/9ed8a69dd758400c14d9b2e49f35377b005ef7a3))
 
 ### 🤖 Automation
 
-* **deps:** Bump github/combine-prs from 5.0.0 to 5.1.0 ([#51](https://github.com/poolifier/poolifier-web-worker/issues/51)) ([81a44af](https://github.com/poolifier/poolifier-web-worker/commit/81a44af3c98b4aa672215fd0bf86a36c92bd9d83))
+- **deps:** Bump github/combine-prs from 5.0.0 to 5.1.0
+  ([#51](https://github.com/poolifier/poolifier-web-worker/issues/51))
+  ([81a44af](https://github.com/poolifier/poolifier-web-worker/commit/81a44af3c98b4aa672215fd0bf86a36c92bd9d83))
 
 ## [0.4.15](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.14...v0.4.15) (2024-07-11)
 
