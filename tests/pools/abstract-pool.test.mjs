@@ -275,6 +275,7 @@ Deno.test({
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
           tasksStealingOnBackPressure: false,
+          tasksStealingRatio: 0.6,
           tasksFinishedTimeout: 2000,
         },
         workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED,
@@ -442,6 +443,36 @@ Deno.test({
       ).toThrow(
         new TypeError(
           'Invalid worker node tasks queue size: must be an integer',
+        ),
+      )
+      expect(
+        () =>
+          new FixedThreadPool(
+            numberOfWorkers,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              enableTasksQueue: true,
+              tasksQueueOptions: { tasksStealingRatio: '' },
+            },
+          ),
+      ).toThrow(
+        new TypeError(
+          'Invalid worker node tasks stealing ratio: must be a number',
+        ),
+      )
+      expect(
+        () =>
+          new FixedThreadPool(
+            numberOfWorkers,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              enableTasksQueue: true,
+              tasksQueueOptions: { tasksStealingRatio: 1.1 },
+            },
+          ),
+      ).toThrow(
+        new RangeError(
+          'Invalid worker node tasks stealing ratio: must be between 0 and 1',
         ),
       )
     })
@@ -614,6 +645,7 @@ Deno.test({
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
           tasksStealingOnBackPressure: false,
+          tasksStealingRatio: 0.6,
           tasksFinishedTimeout: 2000,
         })
         pool.enableTasksQueue(true, { concurrency: 2 })
@@ -623,6 +655,7 @@ Deno.test({
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
           tasksStealingOnBackPressure: false,
+          tasksStealingRatio: 0.6,
           tasksFinishedTimeout: 2000,
         })
         pool.enableTasksQueue(false)
@@ -645,6 +678,7 @@ Deno.test({
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
           tasksStealingOnBackPressure: false,
+          tasksStealingRatio: 0.6,
           tasksFinishedTimeout: 2000,
         })
         for (const workerNode of pool.workerNodes) {
@@ -657,6 +691,7 @@ Deno.test({
           size: 2,
           taskStealing: false,
           tasksStealingOnBackPressure: false,
+          tasksStealingRatio: 0.5,
           tasksFinishedTimeout: 3000,
         })
         expect(pool.opts.tasksQueueOptions).toStrictEqual({
@@ -664,6 +699,7 @@ Deno.test({
           size: 2,
           taskStealing: false,
           tasksStealingOnBackPressure: false,
+          tasksStealingRatio: 0.5,
           tasksFinishedTimeout: 3000,
         })
         for (const workerNode of pool.workerNodes) {
@@ -678,10 +714,11 @@ Deno.test({
         })
         expect(pool.opts.tasksQueueOptions).toStrictEqual({
           concurrency: 1,
-          size: Math.pow(numberOfWorkers, 2),
+          size: 2,
           taskStealing: true,
           tasksStealingOnBackPressure: true,
-          tasksFinishedTimeout: 2000,
+          tasksStealingRatio: 0.5,
+          tasksFinishedTimeout: 3000,
         })
         for (const workerNode of pool.workerNodes) {
           expect(workerNode.tasksQueueBackPressureSize).toBe(
@@ -724,6 +761,18 @@ Deno.test({
             'Invalid worker node tasks queue size: must be an integer',
           ),
         )
+        expect(() => pool.setTasksQueueOptions({ tasksStealingRatio: '' }))
+          .toThrow(
+            new TypeError(
+              'Invalid worker node tasks stealing ratio: must be a number',
+            ),
+          )
+        expect(() => pool.setTasksQueueOptions({ tasksStealingRatio: 1.1 }))
+          .toThrow(
+            new TypeError(
+              'Invalid worker node tasks stealing ratio: must be between 0 and 1',
+            ),
+          )
         await pool.destroy()
       },
     )

@@ -597,7 +597,10 @@ export abstract class AbstractPool<
   ): boolean {
     this.checkValidWorkerChoiceStrategyOptions(workerChoiceStrategyOptions)
     if (workerChoiceStrategyOptions != null) {
-      this.opts.workerChoiceStrategyOptions = workerChoiceStrategyOptions
+      this.opts.workerChoiceStrategyOptions = {
+        ...this.opts.workerChoiceStrategyOptions,
+        ...workerChoiceStrategyOptions,
+      }
       this.workerChoiceStrategiesContext?.setOptions(
         this.opts.workerChoiceStrategyOptions,
       )
@@ -661,6 +664,7 @@ export abstract class AbstractPool<
       ...getDefaultTasksQueueOptions(
         this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
       ),
+      ...this.opts.tasksQueueOptions,
       ...tasksQueueOptions,
     }
   }
@@ -1792,7 +1796,10 @@ export abstract class AbstractPool<
     if (
       this.cannotStealTask() ||
       (this.info.stealingWorkerNodes ?? 0) >
-        Math.floor(this.workerNodes.length / 2)
+        Math.round(
+          this.workerNodes.length *
+            this.opts.tasksQueueOptions!.tasksStealingRatio!,
+        )
     ) {
       if (previousStolenTask != null) {
         workerInfo.stealing = false
@@ -1867,7 +1874,10 @@ export abstract class AbstractPool<
       this.cannotStealTask() ||
       this.hasBackPressure() ||
       (this.info.stealingWorkerNodes ?? 0) >
-        Math.floor(this.workerNodes.length / 2)
+        Math.round(
+          this.workerNodes.length *
+            this.opts.tasksQueueOptions!.tasksStealingRatio!,
+        )
     ) {
       return
     }

@@ -29,6 +29,7 @@ Deno.test('Pool utils test suite', async (t) => {
       size: Math.pow(poolMaxSize, 2),
       taskStealing: true,
       tasksStealingOnBackPressure: false,
+      tasksStealingRatio: 0.6,
       tasksFinishedTimeout: 2000,
     })
   })
