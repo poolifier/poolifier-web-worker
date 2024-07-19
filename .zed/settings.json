@@ -3,5 +3,5 @@
   "code_actions_on_format": {
     "source.fixAll.deno": true
   },
-"formatter": "language_server"
+  "formatter": "language_server"
 }
