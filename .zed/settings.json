@@ -1,0 +1,7 @@
+{
+  "language_servers": ["deno", "json-language-server"],
+  "code_actions_on_format": {
+    "source.fixAll.deno": true
+  },
+"formatter": "language_server"
+}
