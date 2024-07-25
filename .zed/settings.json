@@ -1,5 +1,12 @@
 {
-  "language_servers": ["deno", "json-language-server"],
+  "language_servers": [
+    "deno",
+    "!typescript-language-server",
+    "!vtsls",
+    "!eslint",
+    "!biome",
+    "..."
+  ],
   "code_actions_on_format": {
     "source.fixAll.deno": true
   },
