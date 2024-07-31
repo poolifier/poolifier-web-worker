@@ -1,3 +1,4 @@
+import { describe, it } from '@std/testing/bdd'
 import { expect } from 'expect'
 import { CircularBuffer } from '../../src/circular-buffer.ts'
 import { WorkerTypes } from '../../src/mod.ts'
@@ -11,18 +12,16 @@ import {
 } from '../../src/pools/utils.ts'
 import { MeasurementHistorySize } from '../../src/pools/worker.ts'
 
-Deno.test('Pool utils test suite', async (t) => {
-  await t.step(
-    'Verify DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS values',
-    () => {
-      expect(DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS).toStrictEqual({
-        aggregate: false,
-        average: false,
-        median: false,
-      })
-    },
-  )
-  await t.step('Verify getDefaultTasksQueueOptions() behavior', () => {
+describe('Pool utils test suite', () => {
+  it('Verify DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS values', () => {
+    expect(DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS).toStrictEqual({
+      aggregate: false,
+      average: false,
+      median: false,
+    })
+  })
+
+  it('Verify getDefaultTasksQueueOptions() behavior', () => {
     const poolMaxSize = 4
     expect(getDefaultTasksQueueOptions(poolMaxSize)).toStrictEqual({
       concurrency: 1,
@@ -34,7 +33,7 @@ Deno.test('Pool utils test suite', async (t) => {
     })
   })
 
-  await t.step('Verify updateMeasurementStatistics() behavior', () => {
+  it('Verify updateMeasurementStatistics() behavior', () => {
     const measurementStatistics = {
       history: new CircularBuffer(MeasurementHistorySize),
     }
@@ -104,7 +103,7 @@ Deno.test('Pool utils test suite', async (t) => {
     })
   })
 
-  await t.step('Verify createWorker() behavior', () => {
+  it('Verify createWorker() behavior', () => {
     const worker = createWorker(
       WorkerTypes.web,
       new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
@@ -114,7 +113,7 @@ Deno.test('Pool utils test suite', async (t) => {
     worker.terminate()
   })
 
-  await t.step('Verify getWorkerType() behavior', () => {
+  it('Verify getWorkerType() behavior', () => {
     const worker = new Worker(
       new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       {
@@ -125,7 +124,7 @@ Deno.test('Pool utils test suite', async (t) => {
     worker.terminate()
   })
 
-  await t.step('Verify getWorkerId() behavior', () => {
+  it('Verify getWorkerId() behavior', () => {
     const worker = new Worker(
       new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       {

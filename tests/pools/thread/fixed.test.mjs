@@ -1,87 +1,103 @@
+import { after, before, describe, it } from '@std/testing/bdd'
 import { expect } from 'expect'
 import { FixedThreadPool, PoolEvents } from '../../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../../src/utils.ts'
 import { TaskFunctions } from '../../test-types.mjs'
 import { waitPoolEvents, waitWorkerNodeEvents } from '../../test-utils.mjs'
 
-Deno.test({
+describe({
   name: 'Fixed thread pool test suite',
-  fn: async (t) => {
+  sanitizeResources: false,
+  fn: () => {
     const numberOfThreads = 6
     const tasksConcurrency = 2
-    const pool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-      {
-        errorEventHandler: (e) => console.error(e),
-      },
-    )
-    const queuePool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-      {
-        enableTasksQueue: true,
-        tasksQueueOptions: {
-          concurrency: tasksConcurrency,
+    let pool,
+      queuePool,
+      emptyPool,
+      echoPool,
+      errorPool,
+      asyncErrorPool,
+      asyncPool
+
+    before(() => {
+      pool = new FixedThreadPool(
+        numberOfThreads,
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+        {
+          errorEventHandler: (e) => console.error(e),
         },
-        errorEventHandler: (e) => console.error(e),
-      },
-    )
-    const emptyPool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./../../worker-files/thread/emptyWorker.mjs', import.meta.url),
-    )
-    const echoPool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./../../worker-files/thread/echoWorker.mjs', import.meta.url),
-    )
-    const errorPool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./../../worker-files/thread/errorWorker.mjs', import.meta.url),
-      {
-        errorEventHandler: (e) => console.error(e),
-      },
-    )
-    const asyncErrorPool = new FixedThreadPool(
-      numberOfThreads,
-      new URL(
-        './../../worker-files/thread/asyncErrorWorker.mjs',
-        import.meta.url,
-      ),
-      {
-        errorEventHandler: (e) => console.error(e),
-      },
-    )
-    const asyncPool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./../../worker-files/thread/asyncWorker.mjs', import.meta.url),
-    )
+      )
+      queuePool = new FixedThreadPool(
+        numberOfThreads,
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+        {
+          enableTasksQueue: true,
+          tasksQueueOptions: {
+            concurrency: tasksConcurrency,
+          },
+          errorEventHandler: (e) => console.error(e),
+        },
+      )
+      emptyPool = new FixedThreadPool(
+        numberOfThreads,
+        new URL('./../../worker-files/thread/emptyWorker.mjs', import.meta.url),
+      )
+      echoPool = new FixedThreadPool(
+        numberOfThreads,
+        new URL('./../../worker-files/thread/echoWorker.mjs', import.meta.url),
+      )
+      errorPool = new FixedThreadPool(
+        numberOfThreads,
+        new URL('./../../worker-files/thread/errorWorker.mjs', import.meta.url),
+        {
+          errorEventHandler: (e) => console.error(e),
+        },
+      )
+      asyncErrorPool = new FixedThreadPool(
+        numberOfThreads,
+        new URL(
+          './../../worker-files/thread/asyncErrorWorker.mjs',
+          import.meta.url,
+        ),
+        {
+          errorEventHandler: (e) => console.error(e),
+        },
+      )
+      asyncPool = new FixedThreadPool(
+        numberOfThreads,
+        new URL('./../../worker-files/thread/asyncWorker.mjs', import.meta.url),
+      )
+    })
 
-    await t.step(
-      'Verify that the function is executed in a worker thread',
-      async () => {
-        let result = await pool.execute({
-          function: TaskFunctions.fibonacci,
-        })
-        expect(result).toBe(354224848179261915075n)
-        result = await pool.execute({
-          function: TaskFunctions.factorial,
-        })
-        expect(result).toBe(
-          93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000n,
-        )
-      },
-    )
+    after(async () => {
+      // We need to clean up the resources after our tests
+      await echoPool.destroy()
+      await asyncPool.destroy()
+      await errorPool.destroy()
+      await asyncErrorPool.destroy()
+      await emptyPool.destroy()
+      await queuePool.destroy()
+    })
 
-    await t.step(
-      'Verify that is possible to invoke the execute() method without input',
-      async () => {
-        const result = await pool.execute()
-        expect(result).toStrictEqual({ ok: 1 })
-      },
-    )
+    it('Verify that the function is executed in a worker thread', async () => {
+      let result = await pool.execute({
+        function: TaskFunctions.fibonacci,
+      })
+      expect(result).toBe(354224848179261915075n)
+      result = await pool.execute({
+        function: TaskFunctions.factorial,
+      })
+      expect(result).toBe(
+        93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000n,
+      )
+    })
 
-    await t.step("Verify that 'ready' event is emitted", async () => {
+    it('Verify that is possible to invoke the execute() method without input', async () => {
+      const result = await pool.execute()
+      expect(result).toStrictEqual({ ok: 1 })
+    })
+
+    it("Verify that 'ready' event is emitted", async () => {
       const pool = new FixedThreadPool(
         numberOfThreads,
         new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
@@ -96,7 +112,7 @@ Deno.test({
       await pool.destroy()
     })
 
-    await t.step("Verify that 'busy' event is emitted", async () => {
+    it("Verify that 'busy' event is emitted", async () => {
       const promises = new Set()
       let poolBusy = 0
       pool.eventTarget.addEventListener(PoolEvents.busy, () => ++poolBusy)
@@ -109,7 +125,7 @@ Deno.test({
       expect(poolBusy).toBe(numberOfThreads + 1)
     })
 
-    await t.step('Verify that tasks queuing is working', async () => {
+    it('Verify that tasks queuing is working', async () => {
       const promises = new Set()
       const maxMultiplier = 3 // Must be greater than tasksConcurrency
       for (let i = 0; i < numberOfThreads * maxMultiplier; i++) {
@@ -175,121 +191,103 @@ Deno.test({
       )
     })
 
-    await t.step(
-      'Verify that is possible to have a worker that return undefined',
-      async () => {
-        const result = await emptyPool.execute()
-        expect(result).toBeUndefined()
-      },
-    )
+    it('Verify that is possible to have a worker that return undefined', async () => {
+      const result = await emptyPool.execute()
+      expect(result).toBeUndefined()
+    })
 
-    await t.step(
-      'Verify that data are sent to the worker correctly',
-      async () => {
-        const data = { f: 10 }
-        const result = await echoPool.execute(data)
-        expect(result).toStrictEqual(data)
-      },
-    )
+    it('Verify that data are sent to the worker correctly', async () => {
+      const data = { f: 10 }
+      const result = await echoPool.execute(data)
+      expect(result).toStrictEqual(data)
+    })
 
-    await t.step(
-      'Verify that transferable objects are sent to the worker correctly',
-      async () => {
-        let error
-        let result
-        try {
-          result = await pool.execute(undefined, undefined, [
-            new ArrayBuffer(16),
-            new MessageChannel().port1,
-          ])
-        } catch (e) {
-          error = e
-        }
-        expect(result).toStrictEqual({ ok: 1 })
-        expect(error).toBeUndefined()
-        try {
-          result = await pool.execute(undefined, undefined, [
-            new SharedArrayBuffer(16),
-          ])
-        } catch (e) {
-          error = e
-        }
-        expect(result).toStrictEqual({ ok: 1 })
-        expect(error).toBeInstanceOf(Error)
-      },
-    )
+    it('Verify that transferable objects are sent to the worker correctly', async () => {
+      let error
+      let result
+      try {
+        result = await pool.execute(undefined, undefined, [
+          new ArrayBuffer(16),
+          new MessageChannel().port1,
+        ])
+      } catch (e) {
+        error = e
+      }
+      expect(result).toStrictEqual({ ok: 1 })
+      expect(error).toBeUndefined()
+      try {
+        result = await pool.execute(undefined, undefined, [
+          new SharedArrayBuffer(16),
+        ])
+      } catch (e) {
+        error = e
+      }
+      expect(result).toStrictEqual({ ok: 1 })
+      expect(error).toBeInstanceOf(Error)
+    })
 
-    await t.step(
-      'Verify that error handling is working properly:sync',
-      async () => {
-        const data = { f: 10 }
-        let taskError
-        errorPool.eventTarget.addEventListener(
-          PoolEvents.taskError,
-          (event) => {
-            taskError = event.error
-          },
-        )
-        let inError
-        try {
-          await errorPool.execute(data)
-        } catch (e) {
-          inError = e
-        }
-        expect(inError).toBeDefined()
-        expect(inError).toBeInstanceOf(Error)
-        expect(inError.message).toBeDefined()
-        expect(typeof inError.message === 'string').toBe(true)
-        expect(inError.message).toBe('Error Message from ThreadWorker')
-        expect(taskError).toStrictEqual({
-          name: DEFAULT_TASK_NAME,
-          message: new Error('Error Message from ThreadWorker'),
-          data,
-        })
-        expect(
-          errorPool.workerNodes.some(
-            (workerNode) => workerNode.usage.tasks.failed === 1,
-          ),
-        ).toBe(true)
-      },
-    )
+    it('Verify that error handling is working properly:sync', async () => {
+      const data = { f: 10 }
+      let taskError
+      errorPool.eventTarget.addEventListener(PoolEvents.taskError, (event) => {
+        taskError = event.error
+      })
+      let inError
+      try {
+        await errorPool.execute(data)
+      } catch (e) {
+        inError = e
+      }
+      expect(inError).toBeDefined()
+      expect(inError).toBeInstanceOf(Error)
+      expect(inError.message).toBeDefined()
+      expect(typeof inError.message === 'string').toBe(true)
+      expect(inError.message).toBe('Error Message from ThreadWorker')
+      expect(taskError).toStrictEqual({
+        name: DEFAULT_TASK_NAME,
+        message: new Error('Error Message from ThreadWorker'),
+        data,
+      })
+      expect(
+        errorPool.workerNodes.some(
+          (workerNode) => workerNode.usage.tasks.failed === 1,
+        ),
+      ).toBe(true)
+    })
 
-    await t.step(
-      'Verify that error handling is working properly:async',
-      async () => {
-        const data = { f: 10 }
-        let taskError
-        asyncErrorPool.eventTarget.addEventListener(
-          PoolEvents.taskError,
-          (event) => {
-            taskError = event.error
-          },
-        )
-        let inError
-        try {
-          await asyncErrorPool.execute(data)
-        } catch (e) {
-          inError = e
-        }
-        expect(inError).toBeDefined()
-        expect(inError).toBeInstanceOf(Error)
-        expect(inError.message).toBeDefined()
-        expect(typeof inError.message === 'string').toBe(true)
-        expect(inError.message).toBe('Error Message from ThreadWorker:async')
-        expect(taskError).toStrictEqual({
-          name: DEFAULT_TASK_NAME,
-          message: new Error('Error Message from ThreadWorker:async'),
-          data,
-        })
-        expect(
-          asyncErrorPool.workerNodes.some(
-            (workerNode) => workerNode.usage.tasks.failed === 1,
-          ),
-        ).toBe(true)
-      },
-    )
+    it('Verify that error handling is working properly:async', async () => {
+      const data = { f: 10 }
+      let taskError
+      asyncErrorPool.eventTarget.addEventListener(
+        PoolEvents.taskError,
+        (event) => {
+          taskError = event.error
+        },
+      )
+      let inError
+      try {
+        await asyncErrorPool.execute(data)
+      } catch (e) {
+        inError = e
+      }
+      expect(inError).toBeDefined()
+      expect(inError).toBeInstanceOf(Error)
+      expect(inError.message).toBeDefined()
+      expect(typeof inError.message === 'string').toBe(true)
+      expect(inError.message).toBe('Error Message from ThreadWorker:async')
+      expect(taskError).toStrictEqual({
+        name: DEFAULT_TASK_NAME,
+        message: new Error('Error Message from ThreadWorker:async'),
+        data,
+      })
+      expect(
+        asyncErrorPool.workerNodes.some(
+          (workerNode) => workerNode.usage.tasks.failed === 1,
+        ),
+      ).toBe(true)
+    })
 
-    await t.step('Verify that async function is working properly', async () => {
+    it('Verify that async function is working properly', async () => {
       const data = { f: 10 }
       const startTime = performance.now()
       const result = await asyncPool.execute(data)
@@ -298,7 +296,7 @@ Deno.test({
       expect(usedTime).toBeGreaterThanOrEqual(2000)
     })
 
-    await t.step('Shutdown test', async () => {
+    it('Shutdown test', async () => {
       const exitPromise = waitWorkerNodeEvents(pool, 'exit', numberOfThreads)
       let poolDestroy = 0
       pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
@@ -311,7 +309,7 @@ Deno.test({
       expect(poolDestroy).toBe(1)
     })
 
-    await t.step('Verify that thread pool options are checked', async () => {
+    it('Verify that thread pool options are checked', async () => {
       const workerFilePath = './../../worker-files/thread/testWorker.mjs'
       let pool = new FixedThreadPool(
         numberOfThreads,
@@ -334,7 +332,7 @@ Deno.test({
       await pool.destroy()
     })
 
-    await t.step('Should work even without opts in input', async () => {
+    it('Should work even without opts in input', async () => {
       const workerFilePath = './../../worker-files/thread/testWorker.mjs'
       const pool = new FixedThreadPool(
         numberOfThreads,
@@ -346,7 +344,7 @@ Deno.test({
       await pool.destroy()
     })
 
-    await t.step('Verify destroyWorkerNode()', async () => {
+    it('Verify destroyWorkerNode()', async () => {
       const workerFilePath = './../../worker-files/thread/testWorker.mjs'
       const pool = new FixedThreadPool(
         numberOfThreads,
@@ -366,7 +364,7 @@ Deno.test({
       await pool.destroy()
     })
 
-    await t.step('Verify that a pool with zero worker fails', () => {
+    it('Verify that a pool with zero worker fails', () => {
       expect(
         () =>
           new FixedThreadPool(
@@ -378,15 +376,5 @@ Deno.test({
           ),
       ).toThrow('Cannot instantiate a fixed pool with zero worker')
     })
-
-    // We need to clean up the resources after our steps
-    await echoPool.destroy()
-    await asyncPool.destroy()
-    await errorPool.destroy()
-    await asyncErrorPool.destroy()
-    await emptyPool.destroy()
-    await queuePool.destroy()
   },
-  sanitizeResources: false,
-  sanitizeOps: false,
 })
