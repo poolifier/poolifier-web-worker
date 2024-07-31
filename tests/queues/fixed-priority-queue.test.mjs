@@ -1,10 +1,11 @@
+import { describe, it } from '@std/testing/bdd'
 import { expect } from 'expect'
 
 import { FixedPriorityQueue } from '../../src/queues/fixed-priority-queue.ts'
 import { defaultQueueSize } from '../../src/queues/queue-types.ts'
 
-Deno.test('Fixed priority queue test suite', async (t) => {
-  await t.step('Verify constructor() behavior', () => {
+describe('Fixed priority queue test suite', () => {
+  it('Verify constructor() behavior', () => {
     expect(() => new FixedPriorityQueue('')).toThrow(
       new TypeError("Invalid fixed queue size: '' is not an integer"),
     )
@@ -18,7 +19,7 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     expect(fixedPriorityQueue.capacity).toBe(defaultQueueSize)
   })
 
-  await t.step('Verify enqueue() behavior', () => {
+  it('Verify enqueue() behavior', () => {
     const queueSize = 5
     const fixedPriorityQueue = new FixedPriorityQueue(queueSize)
     let rtSize = fixedPriorityQueue.enqueue(1)
@@ -76,7 +77,7 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     )
   })
 
-  await t.step('Verify get() behavior', () => {
+  it('Verify get() behavior', () => {
     const fixedPriorityQueue = new FixedPriorityQueue()
     fixedPriorityQueue.enqueue(1)
     fixedPriorityQueue.enqueue(2, -1)
@@ -87,7 +88,7 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     expect(fixedPriorityQueue.get(3)).toBe(undefined)
   })
 
-  await t.step('Verify dequeue() behavior', () => {
+  it('Verify dequeue() behavior', () => {
     const queueSize = 5
     const fixedPriorityQueue = new FixedPriorityQueue(queueSize)
     fixedPriorityQueue.enqueue(1)
@@ -138,7 +139,7 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     expect(fixedPriorityQueue.capacity).toBe(queueSize)
   })
 
-  await t.step('Verify iterator behavior', () => {
+  it('Verify iterator behavior', () => {
     const fixedPriorityQueue = new FixedPriorityQueue()
     fixedPriorityQueue.enqueue(1)
     fixedPriorityQueue.enqueue(2)
@@ -156,7 +157,7 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     }
   })
 
-  await t.step('Verify empty() behavior', () => {
+  it('Verify empty() behavior', () => {
     const fixedPriorityQueue = new FixedPriorityQueue()
     expect(fixedPriorityQueue.empty()).toBe(true)
     fixedPriorityQueue.enqueue(1)
@@ -165,7 +166,7 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     expect(fixedPriorityQueue.empty()).toBe(true)
   })
 
-  await t.step('Verify full() behavior', () => {
+  it('Verify full() behavior', () => {
     const fixedPriorityQueue = new FixedPriorityQueue(2)
     expect(fixedPriorityQueue.full()).toBe(false)
     fixedPriorityQueue.enqueue(1)
@@ -176,7 +177,7 @@ Deno.test('Fixed priority queue test suite', async (t) => {
     expect(fixedPriorityQueue.full()).toBe(false)
   })
 
-  await t.step('Verify clear() behavior', () => {
+  it('Verify clear() behavior', () => {
     const fixedPriorityQueue = new FixedPriorityQueue()
     fixedPriorityQueue.start = 1
     fixedPriorityQueue.size = 2

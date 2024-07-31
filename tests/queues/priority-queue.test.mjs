@@ -1,3 +1,4 @@
+import { describe, it } from '@std/testing/bdd'
 import { expect } from 'expect'
 
 import { FixedPriorityQueue } from '../../src/queues/fixed-priority-queue.ts'
@@ -5,8 +6,8 @@ import { FixedQueue } from '../../src/queues/fixed-queue.ts'
 import { PriorityQueue } from '../../src/queues/priority-queue.ts'
 import { defaultBucketSize } from '../../src/queues/queue-types.ts'
 
-Deno.test('Priority queue test suite', async (t) => {
-  await t.step('Verify constructor() behavior', () => {
+describe('Priority queue test suite', () => {
+  it('Verify constructor() behavior', () => {
     expect(() => new PriorityQueue('')).toThrow(
       new TypeError("Invalid bucket size: '' is not an integer"),
     )
@@ -38,7 +39,7 @@ Deno.test('Priority queue test suite', async (t) => {
     expect(priorityQueue.tail).toStrictEqual(priorityQueue.head)
   })
 
-  await t.step('Verify default bucket size enqueue() behavior', () => {
+  it('Verify default bucket size enqueue() behavior', () => {
     const priorityQueue = new PriorityQueue(defaultBucketSize, true)
     let rtSize = priorityQueue.enqueue(1)
     expect(priorityQueue.buckets).toBe(0)
@@ -102,7 +103,7 @@ Deno.test('Priority queue test suite', async (t) => {
     expect(priorityQueue.tail).toStrictEqual(priorityQueue.head)
   })
 
-  await t.step('Verify bucketSize=2 enqueue() behavior', () => {
+  it('Verify bucketSize=2 enqueue() behavior', () => {
     const priorityQueue = new PriorityQueue(2, true)
     let rtSize = priorityQueue.enqueue(1)
     expect(priorityQueue.buckets).toBe(0)
@@ -199,7 +200,7 @@ Deno.test('Priority queue test suite', async (t) => {
     expect(priorityQueue.tail).not.toStrictEqual(priorityQueue.head)
   })
 
-  await t.step('Verify default bucket size dequeue() behavior', () => {
+  it('Verify default bucket size dequeue() behavior', () => {
     const priorityQueue = new PriorityQueue(defaultBucketSize, true)
     priorityQueue.enqueue(1)
     priorityQueue.enqueue(2, -1)
@@ -236,7 +237,7 @@ Deno.test('Priority queue test suite', async (t) => {
     expect(priorityQueue.tail).toStrictEqual(priorityQueue.head)
   })
 
-  await t.step('Verify bucketSize=2 dequeue() behavior', () => {
+  it('Verify bucketSize=2 dequeue() behavior', () => {
     const priorityQueue = new PriorityQueue(2, true)
     priorityQueue.enqueue(1)
     priorityQueue.enqueue(2)
@@ -300,7 +301,7 @@ Deno.test('Priority queue test suite', async (t) => {
     expect(priorityQueue.tail).toStrictEqual(priorityQueue.head)
   })
 
-  await t.step('Verify enablePriority setter behavior', () => {
+  it('Verify enablePriority setter behavior', () => {
     const priorityQueue = new PriorityQueue(2)
     expect(priorityQueue.enablePriority).toBe(false)
     priorityQueue.enqueue(1)
@@ -327,7 +328,7 @@ Deno.test('Priority queue test suite', async (t) => {
     expect(buckets).toBe(2)
   })
 
-  await t.step('Verify iterator behavior', () => {
+  it('Verify iterator behavior', () => {
     const priorityQueue = new PriorityQueue(2)
     priorityQueue.enqueue(1)
     priorityQueue.enqueue(2)
@@ -339,7 +340,7 @@ Deno.test('Priority queue test suite', async (t) => {
     }
   })
 
-  await t.step('Verify clear() behavior', () => {
+  it('Verify clear() behavior', () => {
     const priorityQueue = new PriorityQueue(2)
     priorityQueue.enqueue(1)
     priorityQueue.enqueue(2)
