@@ -1,10 +1,11 @@
+import { describe, it } from '@std/testing/bdd'
 import { assertSpyCalls, stub } from '@std/testing/mock'
 import { expect } from 'expect'
 import { ThreadWorker } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 
-Deno.test('Thread worker test suite', async (t) => {
-  await t.step('Verify worker properties value after initialization', () => {
+describe('Thread worker test suite', () => {
+  it('Verify worker properties value after initialization', () => {
     const worker = new ThreadWorker(() => {})
     expect(worker.isMain).toBe(true)
     expect(worker.mainWorker).toStrictEqual(self)
@@ -12,27 +13,24 @@ Deno.test('Thread worker test suite', async (t) => {
     expect(worker.taskFunctions.size).toBe(2)
   })
 
-  await t.step(
-    'Verify that sync kill handler is called when worker is killed',
-    () => {
-      const worker = new ThreadWorker(() => {}, {
-        killHandler: stub(() => {}),
-      })
-      worker.port = {
-        postMessage: stub(() => {}),
-        close: stub(() => {}),
-      }
-      worker.handleKillMessage()
-      assertSpyCalls(worker.port.postMessage, 1)
-      assertSpyCalls(worker.port.close, 1)
-      assertSpyCalls(worker.opts.killHandler, 1)
-      worker.opts.killHandler.restore()
-      worker.port.postMessage.restore()
-      worker.port.close.restore()
-    },
-  )
+  it('Verify that sync kill handler is called when worker is killed', () => {
+    const worker = new ThreadWorker(() => {}, {
+      killHandler: stub(() => {}),
+    })
+    worker.port = {
+      postMessage: stub(() => {}),
+      close: stub(() => {}),
+    }
+    worker.handleKillMessage()
+    assertSpyCalls(worker.port.postMessage, 1)
+    assertSpyCalls(worker.port.close, 1)
+    assertSpyCalls(worker.opts.killHandler, 1)
+    worker.opts.killHandler.restore()
+    worker.port.postMessage.restore()
+    worker.port.close.restore()
+  })
 
-  await t.step('Verify that removeTaskFunction() is working', () => {
+  it('Verify that removeTaskFunction() is working', () => {
     const fn1 = () => {
       return 1
     }
@@ -89,7 +87,7 @@ Deno.test('Thread worker test suite', async (t) => {
     worker.port.postMessage.restore()
   })
 
-  await t.step('Verify that handleError() method is working properly', () => {
+  it('Verify that handleError() method is working properly', () => {
     const error = new Error('Error as an error')
     const worker = new ThreadWorker(() => {})
     expect(worker.handleError(error)).toBeInstanceOf(Error)
@@ -98,16 +96,13 @@ Deno.test('Thread worker test suite', async (t) => {
     expect(worker.handleError(errorMessage)).toStrictEqual(errorMessage)
   })
 
-  await t.step(
-    'Verify that sendToMainWorker() method invokes the port property postMessage() method',
-    () => {
-      const worker = new ThreadWorker(() => {})
-      worker.port = {
-        postMessage: stub(() => {}),
-      }
-      worker.sendToMainWorker({ ok: 1 })
-      assertSpyCalls(worker.port.postMessage, 1)
-      worker.port.postMessage.restore()
-    },
-  )
+  it('Verify that sendToMainWorker() method invokes the port property postMessage() method', () => {
+    const worker = new ThreadWorker(() => {})
+    worker.port = {
+      postMessage: stub(() => {}),
+    }
+    worker.sendToMainWorker({ ok: 1 })
+    assertSpyCalls(worker.port.postMessage, 1)
+    worker.port.postMessage.restore()
+  })
 })

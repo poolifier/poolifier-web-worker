@@ -1,10 +1,11 @@
+import { describe, it } from '@std/testing/bdd'
 import { expect } from 'expect'
 
 import { FixedQueue } from '../../src/queues/fixed-queue.ts'
 import { defaultQueueSize } from '../../src/queues/queue-types.ts'
 
-Deno.test('Fixed queue test suite', async (t) => {
-  await t.step('Verify constructor() behavior', () => {
+describe('Fixed queue test suite', () => {
+  it('Verify constructor() behavior', () => {
     expect(() => new FixedQueue('')).toThrow(
       new TypeError("Invalid fixed queue size: '' is not an integer"),
     )
@@ -18,7 +19,7 @@ Deno.test('Fixed queue test suite', async (t) => {
     expect(fixedQueue.capacity).toBe(defaultQueueSize)
   })
 
-  await t.step('Verify enqueue() behavior', () => {
+  it('Verify enqueue() behavior', () => {
     const queueSize = 5
     const fixedQueue = new FixedQueue(queueSize)
     let rtSize = fixedQueue.enqueue(1)
@@ -74,7 +75,7 @@ Deno.test('Fixed queue test suite', async (t) => {
     )
   })
 
-  await t.step('Verify get() behavior', () => {
+  it('Verify get() behavior', () => {
     const fixedQueue = new FixedQueue()
     fixedQueue.enqueue(1)
     fixedQueue.enqueue(2, -1)
@@ -85,7 +86,7 @@ Deno.test('Fixed queue test suite', async (t) => {
     expect(fixedQueue.get(3)).toBe(undefined)
   })
 
-  await t.step('Verify dequeue() behavior', () => {
+  it('Verify dequeue() behavior', () => {
     const queueSize = 5
     const fixedQueue = new FixedQueue(queueSize)
     fixedQueue.enqueue(1)
@@ -136,7 +137,7 @@ Deno.test('Fixed queue test suite', async (t) => {
     expect(fixedQueue.capacity).toBe(queueSize)
   })
 
-  await t.step('Verify iterator behavior', () => {
+  it('Verify iterator behavior', () => {
     const fixedQueue = new FixedQueue()
     fixedQueue.enqueue(1)
     fixedQueue.enqueue(2)
@@ -154,7 +155,7 @@ Deno.test('Fixed queue test suite', async (t) => {
     }
   })
 
-  await t.step('Verify empty() behavior', () => {
+  it('Verify empty() behavior', () => {
     const fixedQueue = new FixedQueue()
     expect(fixedQueue.empty()).toBe(true)
     fixedQueue.enqueue(1)
@@ -163,7 +164,7 @@ Deno.test('Fixed queue test suite', async (t) => {
     expect(fixedQueue.empty()).toBe(true)
   })
 
-  await t.step('Verify full() behavior', () => {
+  it('Verify full() behavior', () => {
     const fixedQueue = new FixedQueue(2)
     expect(fixedQueue.full()).toBe(false)
     fixedQueue.enqueue(1)
@@ -174,7 +175,7 @@ Deno.test('Fixed queue test suite', async (t) => {
     expect(fixedQueue.full()).toBe(false)
   })
 
-  await t.step('Verify clear() behavior', () => {
+  it('Verify clear() behavior', () => {
     const fixedQueue = new FixedQueue()
     fixedQueue.start = 1
     fixedQueue.size = 2
