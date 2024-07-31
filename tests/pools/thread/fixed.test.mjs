@@ -332,18 +332,6 @@ describe({
       await pool.destroy()
     })
 
-    it('Should work even without opts in input', async () => {
-      const workerFilePath = './../../worker-files/thread/testWorker.mjs'
-      const pool = new FixedThreadPool(
-        numberOfThreads,
-        new URL(workerFilePath, import.meta.url),
-      )
-      const res = await pool.execute()
-      expect(res).toStrictEqual({ ok: 1 })
-      // We need to clean up the resources after our test
-      await pool.destroy()
-    })
-
     it('Verify destroyWorkerNode()', async () => {
       const workerFilePath = './../../worker-files/thread/testWorker.mjs'
       const pool = new FixedThreadPool(

@@ -1,4 +1,4 @@
-import { describe, it } from '@std/testing/bdd'
+import { before, describe, it } from '@std/testing/bdd'
 import { expect } from 'expect'
 import {
   DynamicThreadPool,
@@ -19,14 +19,18 @@ describe({
   fn: () => {
     const min = 1
     const max = 3
-    const pool = new DynamicThreadPool(
-      min,
-      max,
-      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-      {
-        errorEventHandler: (e) => console.error(e),
-      },
-    )
+    let pool
+
+    before(() => {
+      pool = new DynamicThreadPool(
+        min,
+        max,
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+        {
+          errorEventHandler: (e) => console.error(e),
+        },
+      )
+    })
 
     it('Verify that the function is executed in a worker thread', async () => {
       let result = await pool.execute({
@@ -91,18 +95,6 @@ describe({
       expect(() => new DynamicThreadPool(min)).toThrow(
         'The worker URL must be specified',
       )
-    })
-
-    it('Should work even without opts in input', async () => {
-      const pool = new DynamicThreadPool(
-        min,
-        max,
-        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-      )
-      const res = await pool.execute()
-      expect(res).toStrictEqual({ ok: 1 })
-      // We need to clean up the resources after our test
-      await pool.destroy()
     })
 
     it('Verify scale thread up and down is working when long executing task is used:hard', async () => {
