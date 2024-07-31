@@ -1,4 +1,5 @@
 import { randomInt } from 'node:crypto'
+import { describe, it } from '@std/testing/bdd'
 import { expect } from 'expect'
 import { availableParallelism, KillBehaviors } from '../src/mod.ts'
 import {
@@ -21,37 +22,37 @@ import {
   sleep,
 } from '../src/utils.ts'
 
-Deno.test('Utils test suite', async (t) => {
-  await t.step('Verify DEFAULT_TASK_NAME value', () => {
+describe('Utils test suite', () => {
+  it('Verify DEFAULT_TASK_NAME value', () => {
     expect(DEFAULT_TASK_NAME).toBe('default')
   })
 
-  await t.step('Verify EMPTY_FUNCTION value', () => {
+  it('Verify EMPTY_FUNCTION value', () => {
     expect(EMPTY_FUNCTION).toStrictEqual(expect.any(Function))
   })
 
-  await t.step('Verify availableParallelism() behavior', () => {
+  it('Verify availableParallelism() behavior', () => {
     const parallelism = availableParallelism()
     expect(typeof parallelism === 'number').toBe(true)
     expect(Number.isSafeInteger(parallelism)).toBe(true)
     expect(parallelism).toBe(navigator.hardwareConcurrency)
   })
 
-  await t.step('Verify sleep() behavior', async () => {
+  it('Verify sleep() behavior', async () => {
     const start = performance.now()
     await sleep(1000)
     const elapsed = performance.now() - start
     expect(elapsed).toBeGreaterThanOrEqual(1000)
   })
 
-  await t.step('Verify exponentialDelay() behavior', () => {
+  it('Verify exponentialDelay() behavior', () => {
     const delay = exponentialDelay(randomInt(1000))
     expect(typeof delay === 'number').toBe(true)
     expect(delay).toBeGreaterThanOrEqual(Number.MIN_VALUE)
     expect(delay).toBeLessThanOrEqual(Number.MAX_VALUE)
   })
 
-  await t.step('Verify average() computation', () => {
+  it('Verify average() computation', () => {
     expect(average([])).toBe(0)
     expect(average([0.08])).toBe(0.08)
     expect(average([0.25, 4.75, 3.05, 6.04, 1.01, 2.02, 5.03])).toBe(
@@ -62,14 +63,14 @@ Deno.test('Utils test suite', async (t) => {
     )
   })
 
-  await t.step('Verify median() computation', () => {
+  it('Verify median() computation', () => {
     expect(median([])).toBe(0)
     expect(median([0.08])).toBe(0.08)
     expect(median([0.25, 4.75, 3.05, 6.04, 1.01, 2.02, 5.03])).toBe(3.05)
     expect(median([0.25, 4.75, 3.05, 6.04, 1.01, 2.02])).toBe(2.535)
   })
 
-  await t.step('Verify round() behavior', () => {
+  it('Verify round() behavior', () => {
     expect(round(0)).toBe(0)
     expect(round(0.5, 0)).toBe(1)
     expect(round(0.5)).toBe(0.5)
@@ -83,7 +84,7 @@ Deno.test('Utils test suite', async (t) => {
     expect(round(-5.015)).toBe(-5.02)
   })
 
-  await t.step('Verify isPlainObject() behavior', () => {
+  it('Verify isPlainObject() behavior', () => {
     expect(isPlainObject(null)).toBe(false)
     expect(isPlainObject(undefined)).toBe(false)
     expect(isPlainObject(true)).toBe(false)
@@ -120,7 +121,7 @@ Deno.test('Utils test suite', async (t) => {
     expect(isPlainObject({ a: 1 })).toBe(true)
   })
 
-  await t.step('Verify isKillBehavior() behavior', () => {
+  it('Verify isKillBehavior() behavior', () => {
     expect(isKillBehavior(KillBehaviors.SOFT, KillBehaviors.SOFT)).toBe(true)
     expect(isKillBehavior(KillBehaviors.SOFT, KillBehaviors.HARD)).toBe(false)
     expect(isKillBehavior(KillBehaviors.HARD, KillBehaviors.HARD)).toBe(true)
@@ -132,7 +133,7 @@ Deno.test('Utils test suite', async (t) => {
     expect(isKillBehavior(KillBehaviors.SOFT, 'unknown')).toBe(false)
   })
 
-  await t.step('Verify isAsyncFunction() behavior', () => {
+  it('Verify isAsyncFunction() behavior', () => {
     expect(isAsyncFunction(null)).toBe(false)
     expect(isAsyncFunction(undefined)).toBe(false)
     expect(isAsyncFunction(true)).toBe(false)
@@ -189,28 +190,28 @@ Deno.test('Utils test suite', async (t) => {
     expect(isAsyncFunction(TestClass.testStaticAsync)).toBe(true)
   })
 
-  await t.step('Verify secureRandom() behavior', () => {
+  it('Verify secureRandom() behavior', () => {
     const randomNumber = secureRandom()
     expect(typeof randomNumber === 'number').toBe(true)
     expect(randomNumber).toBeGreaterThanOrEqual(0)
     expect(randomNumber).toBeLessThan(1)
   })
 
-  await t.step('Verify min() behavior', () => {
+  it('Verify min() behavior', () => {
     expect(min()).toBe(Number.POSITIVE_INFINITY)
     expect(min(1, 2)).toBe(1)
     expect(min(2, 1)).toBe(1)
     expect(min(1, 1)).toBe(1)
   })
 
-  await t.step('Verify max() behavior', () => {
+  it('Verify max() behavior', () => {
     expect(max()).toBe(Number.NEGATIVE_INFINITY)
     expect(max(1, 2)).toBe(2)
     expect(max(2, 1)).toBe(2)
     expect(max(1, 1)).toBe(1)
   })
 
-  await t.step('Verify once() behavior', () => {
+  it('Verify once() behavior', () => {
     let called = 0
     const fn = () => ++called
     const onceFn = once(fn, this)
@@ -225,17 +226,17 @@ Deno.test('Utils test suite', async (t) => {
     expect(result3).toBe(1)
   })
 
-  await t.step('Verify isWebWorker value', () => {
+  it('Verify isWebWorker value', () => {
     expect(isWebWorker).toBe(false)
   })
 
-  await t.step('Verify JavaScriptRuntimes values', () => {
+  it('Verify JavaScriptRuntimes values', () => {
     expect(JavaScriptRuntimes.bun).toBe('bun')
     expect(JavaScriptRuntimes.deno).toBe('deno')
     expect(JavaScriptRuntimes.browser).toBe('browser')
   })
 
-  await t.step('Verify runtime value', () => {
+  it('Verify runtime value', () => {
     expect(runtime).toBe(JavaScriptRuntimes.deno)
   })
 })
