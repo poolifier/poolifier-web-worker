@@ -1,4 +1,4 @@
-import { describe, it } from '@std/testing/bdd'
+import { after, before, describe, it } from '@std/testing/bdd'
 import { expect } from 'expect'
 
 import { FixedThreadPool } from '../../../src/mod.ts'
@@ -8,12 +8,21 @@ import {
 } from '../../../src/pools/selection-strategies/selection-strategies-utils.ts'
 
 describe('Selection strategies utils test suite', () => {
-  it('Verify buildWorkerChoiceStrategyOptions() behavior', async () => {
-    const numberOfThreads = 4
-    const pool = new FixedThreadPool(
+  const numberOfThreads = 4
+  let pool
+
+  before(() => {
+    pool = new FixedThreadPool(
       numberOfThreads,
       new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
     )
+  })
+
+  after(async () => {
+    await pool.destroy()
+  })
+
+  it('Verify buildWorkerChoiceStrategyOptions() behavior', () => {
     expect(buildWorkerChoiceStrategyOptions(pool)).toStrictEqual({
       runTime: { median: false },
       waitTime: { median: false },
@@ -35,15 +44,9 @@ describe('Selection strategies utils test suite', () => {
     expect(
       buildWorkerChoiceStrategyOptions(pool, workerChoiceStrategyOptions),
     ).toStrictEqual(workerChoiceStrategyOptions)
-    await pool.destroy()
   })
 
-  it('Verify getWorkerChoiceStrategiesRetries() behavior', async () => {
-    const numberOfThreads = 4
-    const pool = new FixedThreadPool(
-      numberOfThreads,
-      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-    )
+  it('Verify getWorkerChoiceStrategiesRetries() behavior', () => {
     expect(getWorkerChoiceStrategiesRetries(pool)).toBe(pool.info.maxSize * 2)
     const workerChoiceStrategyOptions = {
       runTime: { median: true },
@@ -60,6 +63,5 @@ describe('Selection strategies utils test suite', () => {
       pool.info.maxSize +
         Object.keys(workerChoiceStrategyOptions.weights).length,
     )
-    await pool.destroy()
   })
 })

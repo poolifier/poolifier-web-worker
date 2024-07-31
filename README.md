@@ -148,7 +148,7 @@ for more details**:
 <!-- deno-fmt-ignore -->
 
 ```js
-<script type="module">import {ThreadWorker} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.16/browser/mod.js'</script>
+<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.16/browser/mod.js'</script>
 ```
 
 ```js
