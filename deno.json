@@ -32,9 +32,9 @@
   },
   "imports": {
     "@poolifier/tatami-ng": "jsr:@poolifier/tatami-ng@^0.5.5",
-    "@std/assert": "jsr:@std/assert@^1.0.1",
-    "@std/cli": "jsr:@std/cli@^1.0.1",
-    "@std/testing": "jsr:@std/testing@^0.225.3",
+    "@std/assert": "jsr:@std/assert@^1.0.2",
+    "@std/cli": "jsr:@std/cli@^1.0.2",
+    "@std/testing": "jsr:@std/testing@^1.0.0",
     "expect": "npm:expect@^29.7.0"
   },
   "publish": {
