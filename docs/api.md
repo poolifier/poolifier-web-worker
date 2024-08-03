@@ -209,7 +209,7 @@ An object with these properties:
     milliseconds at worker termination.
 
   Default:
-  `{ size: (pool maximum size)^2, concurrency: 1, taskStealing: true, tasksStealingOnBackPressure: false, tasksFinishedTimeout: 2000 }`
+  `{ size: (pool maximum size)^2, concurrency: 1, taskStealing: true, tasksStealingOnBackPressure: false, tasksStealingRatio: 0.6, tasksFinishedTimeout: 2000 }`
 
 - `workerOptions` (optional) - An object with the worker options to pass to
   worker. See
