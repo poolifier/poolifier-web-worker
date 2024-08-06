@@ -8,17 +8,20 @@ and this project adheres to
 
 ## [0.4.17](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.16...v0.4.17) (2024-08-06)
 
-
 ### 🧪 Tests
 
-* **refactor:** switch to BDD style ([#55](https://github.com/poolifier/poolifier-web-worker/issues/55)) ([749e33e](https://github.com/poolifier/poolifier-web-worker/commit/749e33e7d5a74ac7868ed1535d766fab48da2ae1))
-* remove duplicate tests ([b119ad3](https://github.com/poolifier/poolifier-web-worker/commit/b119ad38c2e528a0ac4f6863adb8b6604f237580))
-
+- **refactor:** switch to BDD style
+  ([#55](https://github.com/poolifier/poolifier-web-worker/issues/55))
+  ([749e33e](https://github.com/poolifier/poolifier-web-worker/commit/749e33e7d5a74ac7868ed1535d766fab48da2ae1))
+- remove duplicate tests
+  ([b119ad3](https://github.com/poolifier/poolifier-web-worker/commit/b119ad38c2e528a0ac4f6863adb8b6604f237580))
 
 ### 📚 Documentation
 
-* add documentation on enablePrority priority queue getter/setter ([3ed4555](https://github.com/poolifier/poolifier-web-worker/commit/3ed4555072c09f6844d3d65fe22b8461231eb510))
-* **api:** add missing tasksStealingRatio default value ([4814bef](https://github.com/poolifier/poolifier-web-worker/commit/4814bef1fb4367f4d5c1380e4d2b7cf9cbab50d1))
+- add documentation on enablePrority priority queue getter/setter
+  ([3ed4555](https://github.com/poolifier/poolifier-web-worker/commit/3ed4555072c09f6844d3d65fe22b8461231eb510))
+- **api:** add missing tasksStealingRatio default value
+  ([4814bef](https://github.com/poolifier/poolifier-web-worker/commit/4814bef1fb4367f4d5c1380e4d2b7cf9cbab50d1))
 
 ## [0.4.16](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.15...v0.4.16) (2024-07-18)
 
