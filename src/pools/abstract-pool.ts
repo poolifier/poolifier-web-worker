@@ -1106,7 +1106,7 @@ export abstract class AbstractPool<
     if (transferList != null && !Array.isArray(transferList)) {
       throw new TypeError('transferList argument must be an array')
     }
-    return this.internalExecute(data, name, transferList)
+    return await this.internalExecute(data, name, transferList)
   }
 
   /** @inheritDoc */
