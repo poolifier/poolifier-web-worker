@@ -234,6 +234,7 @@ describe('Worker node test suite', () => {
       dynamic: false,
       ready: false,
       stealing: false,
+      stolen: false,
       backPressure: false,
     })
     expect(threadWorkerNode.usage).toStrictEqual({

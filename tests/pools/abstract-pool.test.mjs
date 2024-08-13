@@ -881,6 +881,7 @@ describe({
           dynamic: false,
           ready: true,
           stealing: false,
+          stolen: false,
           backPressure: false,
         })
       }
@@ -898,6 +899,7 @@ describe({
           dynamic: false,
           ready: true,
           stealing: false,
+          stolen: false,
           backPressure: false,
         })
       }
@@ -1263,6 +1265,7 @@ describe({
         workerNodes: expect.any(Number),
         idleWorkerNodes: expect.any(Number),
         stealingWorkerNodes: expect.any(Number),
+        stolenWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         executedTasks: expect.any(Number),
         executingTasks: expect.any(Number),

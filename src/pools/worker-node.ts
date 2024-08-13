@@ -200,6 +200,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       dynamic: false,
       ready: false,
       stealing: false,
+      stolen: false,
       backPressure: false,
     }
   }
