@@ -936,9 +936,6 @@ describe({
       expect(pool.info.ready).toBe(false)
       expect(pool.workerNodes).toStrictEqual([])
       expect(pool.readyEventEmitted).toBe(false)
-      await expect(pool.execute()).rejects.toThrow(
-        new Error('Cannot execute a task on not started pool'),
-      )
       pool.start()
       expect(pool.info.started).toBe(true)
       expect(pool.info.ready).toBe(true)
@@ -1770,11 +1767,23 @@ describe({
           import.meta.url,
         ),
       )
-      expect(() => pool.mapExecute()).toThrow(
+      await expect(pool.mapExecute()).rejects.toThrow(
         new TypeError('data argument must be a defined iterable'),
       )
-      expect(() => pool.mapExecute(0)).toThrow(
+      await expect(pool.mapExecute(0)).rejects.toThrow(
         new TypeError('data argument must be an iterable'),
+      )
+      await expect(pool.mapExecute([undefined], 0)).rejects.toThrow(
+        new TypeError('name argument must be a string'),
+      )
+      await expect(pool.mapExecute([undefined], '')).rejects.toThrow(
+        new TypeError('name argument must not be an empty string'),
+      )
+      await expect(pool.mapExecute([undefined], undefined, {})).rejects.toThrow(
+        new TypeError('transferList argument must be an array'),
+      )
+      await expect(pool.mapExecute([undefined], 'unknown')).rejects.toBe(
+        "Task function 'unknown' not found",
       )
       let results = await pool.mapExecute([{}, {}, {}, {}])
       expect(results).toStrictEqual([
@@ -1894,6 +1903,9 @@ describe({
         )
       }
       await pool.destroy()
+      await expect(pool.mapExecute()).rejects.toThrow(
+        new Error('Cannot execute task(s) on not started pool'),
+      )
     })
 
     it('Verify sendKillMessageToWorker()', async () => {

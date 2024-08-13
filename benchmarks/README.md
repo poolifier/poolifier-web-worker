@@ -5,6 +5,9 @@ Welcome to poolifier benchmarks.
 ## Table of contents
 
 - [Folder Structure](#folder-structure)
+
+<!-- - [Poolifier benchmark versus other worker pools](#poolifier-benchmark-versus-other-worker-pools) -->
+
 - [Poolifier internal benchmark](#poolifier-internal-benchmark)
   - [Usage](#usage)
   - [Results](#results)
