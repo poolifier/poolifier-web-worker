@@ -262,7 +262,7 @@ describe({
           concurrency: 2,
           size: Math.pow(numberOfWorkers, 2),
           taskStealing: true,
-          tasksStealingOnBackPressure: false,
+          tasksStealingOnBackPressure: true,
           tasksStealingRatio: 0.6,
           tasksFinishedTimeout: 2000,
         },
@@ -627,7 +627,7 @@ describe({
         concurrency: 1,
         size: Math.pow(numberOfWorkers, 2),
         taskStealing: true,
-        tasksStealingOnBackPressure: false,
+        tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
         tasksFinishedTimeout: 2000,
       })
@@ -637,7 +637,7 @@ describe({
         concurrency: 2,
         size: Math.pow(numberOfWorkers, 2),
         taskStealing: true,
-        tasksStealingOnBackPressure: false,
+        tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
         tasksFinishedTimeout: 2000,
       })
@@ -657,7 +657,7 @@ describe({
         concurrency: 1,
         size: Math.pow(numberOfWorkers, 2),
         taskStealing: true,
-        tasksStealingOnBackPressure: false,
+        tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
         tasksFinishedTimeout: 2000,
       })
