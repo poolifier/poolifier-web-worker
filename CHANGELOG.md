@@ -8,10 +8,10 @@ and this project adheres to
 
 ## [0.4.19](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.18...v0.4.19) (2024-08-14)
 
-
 ### 🐞 Bug Fixes
 
-* reduce race condition at task response handling during pool destroy ([7227fec](https://github.com/poolifier/poolifier-web-worker/commit/7227fec68ac43c55da4da5200baca2b388789627))
+- reduce race condition at task response handling during pool destroy
+  ([7227fec](https://github.com/poolifier/poolifier-web-worker/commit/7227fec68ac43c55da4da5200baca2b388789627))
 
 ## [0.4.18](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.17...v0.4.18) (2024-08-14)
 
