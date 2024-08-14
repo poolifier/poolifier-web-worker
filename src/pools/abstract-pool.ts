@@ -1558,7 +1558,8 @@ export abstract class AbstractPool<
         (isKillBehavior(KillBehaviors.SOFT, message.kill) &&
           this.isWorkerNodeIdle(localWorkerNodeKey) &&
           workerInfo != null &&
-          (!workerInfo.continuousStealing || !workerInfo.stealing))
+          !workerInfo.continuousStealing &&
+          !workerInfo.stealing)
       ) {
         // Flag the worker node as not ready immediately
         this.flagWorkerNodeAsNotReady(localWorkerNodeKey)
