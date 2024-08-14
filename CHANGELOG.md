@@ -6,6 +6,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.17](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.16...v0.4.17) (2024-08-13)
+
+### 🚀 Features
+
+- reenable tasks stealing under back pressure by default
+  ([a944273](https://github.com/poolifier/poolifier-web-worker/commit/a9442739a14027a2668e7d433bb8e3ca6db813b2))
+
+### 🐞 Bug Fixes
+
+- protect worker node tasks queue from concurrent tasks stealing
+  ([dd85b2d](https://github.com/poolifier/poolifier-web-worker/commit/dd85b2d896674f5dc9572abca19fb6656f45442d))
+
+### ⚡ Performance
+
+- do mapExecute() args sanity checks once
+  ([633afa3](https://github.com/poolifier/poolifier-web-worker/commit/633afa3d465f14b6e64f10ec49f9f77717c58f8d))
+
+### 🧪 Tests
+
+- **refactor:** switch to BDD style
+  ([#55](https://github.com/poolifier/poolifier-web-worker/issues/55))
+  ([749e33e](https://github.com/poolifier/poolifier-web-worker/commit/749e33e7d5a74ac7868ed1535d766fab48da2ae1))
+- remove duplicate tests
+  ([b119ad3](https://github.com/poolifier/poolifier-web-worker/commit/b119ad38c2e528a0ac4f6863adb8b6604f237580))
+
+### 📚 Documentation
+
+- add documentation on enablePrority priority queue getter/setter
+  ([3ed4555](https://github.com/poolifier/poolifier-web-worker/commit/3ed4555072c09f6844d3d65fe22b8461231eb510))
+- **api:** add missing tasksStealingRatio default value
+  ([4814bef](https://github.com/poolifier/poolifier-web-worker/commit/4814bef1fb4367f4d5c1380e4d2b7cf9cbab50d1))
+
 ## [0.4.16](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.15...v0.4.16) (2024-07-18)
 
 ### 🚀 Features
