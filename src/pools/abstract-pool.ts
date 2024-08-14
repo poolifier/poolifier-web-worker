@@ -2024,14 +2024,7 @@ export abstract class AbstractPool<
       }
       this.afterTaskExecutionHook(workerNodeKey, message)
       this.promiseResponseMap.delete(taskId!)
-      // FIXME: cannot be theoretically undefined
-      workerNode?.dispatchEvent(new Event('taskFinished'))
-      if (
-        this.opts.enableTasksQueue === true &&
-        !this.destroying &&
-        // FIXME: cannot be theoretically undefined
-        workerNode != null
-      ) {
+      if (this.opts.enableTasksQueue === true && !this.destroying) {
         const workerNodeTasksUsage = workerNode.usage.tasks
         if (
           this.tasksQueueSize(workerNodeKey) > 0 &&
@@ -2051,6 +2044,8 @@ export abstract class AbstractPool<
           )
         }
       }
+      // FIXME: cannot be theoretically undefined. Schedule in the next tick to avoid race conditions?
+      workerNode?.dispatchEvent(new Event('taskFinished'))
     }
   }
 
