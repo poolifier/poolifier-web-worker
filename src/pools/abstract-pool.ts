@@ -314,14 +314,7 @@ export abstract class AbstractPool<
       ...(this.opts.enableTasksQueue === true && {
         stealingWorkerNodes: this.workerNodes.reduce(
           (accumulator, workerNode) =>
-            workerNode.info.stealing ? accumulator + 1 : accumulator,
-          0,
-        ),
-      }),
-      ...(this.opts.enableTasksQueue === true && {
-        stolenWorkerNodes: this.workerNodes.reduce(
-          (accumulator, workerNode) =>
-            workerNode.info.stolen ? accumulator + 1 : accumulator,
+            workerNode.info.continuousStealing ? accumulator + 1 : accumulator,
           0,
         ),
       }),
@@ -1562,7 +1555,7 @@ export abstract class AbstractPool<
               workerUsage.tasks.executing === 0 &&
               this.tasksQueueSize(localWorkerNodeKey) === 0 &&
               workerInfo != null &&
-              !workerInfo.stealing)))
+              !workerInfo.continuousStealing)))
       ) {
         // Flag the worker node as not ready immediately
         this.flagWorkerNodeAsNotReady(localWorkerNodeKey)
@@ -1755,14 +1748,15 @@ export abstract class AbstractPool<
 
   private updateTaskSequentiallyStolenStatisticsWorkerUsage(
     workerNodeKey: number,
-    taskName: string,
+    taskName?: string,
     previousTaskName?: string,
   ): void {
     const workerNode = this.workerNodes[workerNodeKey]
-    if (workerNode?.usage != null) {
+    if (workerNode?.usage != null && taskName != null) {
       ;++workerNode.usage.tasks.sequentiallyStolen
     }
     if (
+      taskName != null &&
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
@@ -1784,13 +1778,14 @@ export abstract class AbstractPool<
 
   private resetTaskSequentiallyStolenStatisticsWorkerUsage(
     workerNodeKey: number,
-    taskName: string,
+    taskName?: string,
   ): void {
     const workerNode = this.workerNodes[workerNodeKey]
     if (workerNode?.usage != null) {
       workerNode.usage.tasks.sequentiallyStolen = 0
     }
     if (
+      taskName != null &&
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
@@ -1823,15 +1818,15 @@ export abstract class AbstractPool<
     }
     destinationWorkerInfo.stealing = true
     sourceWorkerNode.info.stolen = true
-    const task = sourceWorkerNode.dequeueLastPrioritizedTask()!
+    const stolenTask = sourceWorkerNode.dequeueLastPrioritizedTask()!
     sourceWorkerNode.info.stolen = false
     destinationWorkerInfo.stealing = false
-    this.handleTask(destinationWorkerNodeKey, task)
+    this.handleTask(destinationWorkerNodeKey, stolenTask)
     this.updateTaskStolenStatisticsWorkerUsage(
       destinationWorkerNodeKey,
-      task.name!,
+      stolenTask.name!,
     )
-    return task
+    return stolenTask
   }
 
   private readonly handleWorkerNodeIdleEvent = (
@@ -1844,6 +1839,13 @@ export abstract class AbstractPool<
         "WorkerNode event detail 'workerNodeKey' property must be defined",
       )
     }
+    const workerNodeInfo = this.getWorkerInfo(workerNodeKey)
+    if (workerNodeInfo == null) {
+      throw new Error(
+        `Worker node with key '${workerNodeKey.toString()}' not found in pool`,
+      )
+    }
+    const workerNodeTasksUsage = this.workerNodes[workerNodeKey].usage.tasks
     if (
       this.cannotStealTask() ||
       (this.info.stealingWorkerNodes ?? 0) >
@@ -1852,34 +1854,36 @@ export abstract class AbstractPool<
             this.opts.tasksQueueOptions!.tasksStealingRatio!,
         )
     ) {
-      if (previousStolenTask != null) {
+      workerNodeInfo.continuousStealing = false
+      if (workerNodeTasksUsage.sequentiallyStolen > 0) {
         this.resetTaskSequentiallyStolenStatisticsWorkerUsage(
           workerNodeKey,
-          previousStolenTask.name!,
+          previousStolenTask?.name,
         )
       }
       return
     }
-    const workerNodeTasksUsage = this.workerNodes[workerNodeKey].usage.tasks
     if (
-      previousStolenTask != null &&
-      (workerNodeTasksUsage.executing > 0 ||
-        this.tasksQueueSize(workerNodeKey) > 0)
+      workerNodeInfo.continuousStealing ||
+      workerNodeTasksUsage.executing > 0 ||
+      this.tasksQueueSize(workerNodeKey) > 0
     ) {
-      this.resetTaskSequentiallyStolenStatisticsWorkerUsage(
-        workerNodeKey,
-        previousStolenTask.name!,
-      )
+      workerNodeInfo.continuousStealing = false
+      if (workerNodeTasksUsage.sequentiallyStolen > 0) {
+        this.resetTaskSequentiallyStolenStatisticsWorkerUsage(
+          workerNodeKey,
+          previousStolenTask?.name,
+        )
+      }
       return
     }
+    workerNodeInfo.continuousStealing = true
     const stolenTask = this.workerNodeStealTask(workerNodeKey)
-    if (stolenTask != null) {
-      this.updateTaskSequentiallyStolenStatisticsWorkerUsage(
-        workerNodeKey,
-        stolenTask.name!,
-        previousStolenTask?.name,
-      )
-    }
+    this.updateTaskSequentiallyStolenStatisticsWorkerUsage(
+      workerNodeKey,
+      stolenTask?.name,
+      previousStolenTask?.name,
+    )
     sleep(exponentialDelay(workerNodeTasksUsage.sequentiallyStolen))
       .then(() => {
         this.handleWorkerNodeIdleEvent(event, stolenTask)
@@ -2007,7 +2011,7 @@ export abstract class AbstractPool<
   }
 
   private handleTaskExecutionResponse(message: MessageValue<Response>): void {
-    const { workerId, taskId, workerError, data } = message
+    const { taskId, workerError, data } = message
     const promiseResponse = this.promiseResponseMap.get(taskId!)
     if (promiseResponse != null) {
       const { resolve, reject, workerNodeKey } = promiseResponse
@@ -2022,10 +2026,12 @@ export abstract class AbstractPool<
       }
       this.afterTaskExecutionHook(workerNodeKey, message)
       this.promiseResponseMap.delete(taskId!)
+      // FIXME: cannot be theoretically undefined
       workerNode?.dispatchEvent(new Event('taskFinished'))
       if (
         this.opts.enableTasksQueue === true &&
         !this.destroying &&
+        // FIXME: cannot be theoretically undefined
         workerNode != null
       ) {
         const workerNodeTasksUsage = workerNode.usage.tasks
@@ -2041,12 +2047,11 @@ export abstract class AbstractPool<
         }
         if (
           workerNodeTasksUsage.executing === 0 &&
-          this.tasksQueueSize(workerNodeKey) === 0 &&
-          workerNodeTasksUsage.sequentiallyStolen === 0
+          this.tasksQueueSize(workerNodeKey) === 0
         ) {
           workerNode.dispatchEvent(
             new CustomEvent<WorkerNodeEventDetail>('idle', {
-              detail: { workerId, workerNodeKey },
+              detail: { workerNodeKey },
             }),
           )
         }

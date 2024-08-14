@@ -882,6 +882,7 @@ describe({
           ready: true,
           stealing: false,
           stolen: false,
+          continuousStealing: false,
           backPressure: false,
         })
       }
@@ -900,6 +901,7 @@ describe({
           ready: true,
           stealing: false,
           stolen: false,
+          continuousStealing: false,
           backPressure: false,
         })
       }
@@ -1260,9 +1262,8 @@ describe({
         minSize: expect.any(Number),
         maxSize: expect.any(Number),
         workerNodes: expect.any(Number),
-        idleWorkerNodes: expect.any(Number),
         stealingWorkerNodes: expect.any(Number),
-        stolenWorkerNodes: expect.any(Number),
+        idleWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         executedTasks: expect.any(Number),
         executingTasks: expect.any(Number),
