@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.18](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.17...v0.4.18) (2024-08-14)
+
+### 🐞 Bug Fixes
+
+- ensure task stealing can't start twice on the same worker node
+  ([6d81a8e](https://github.com/poolifier/poolifier-web-worker/commit/6d81a8ef8f87cb114d2f6a43cbdf4ba1f5dc3503))
+- fix dynamic worker node killing condition
+  ([6b3780e](https://github.com/poolifier/poolifier-web-worker/commit/6b3780eaed43d3eaf5403c746b6c90f6eaf91a84))
+- trigger continuous tasks stealing under proper conditions
+  ([ed3da2d](https://github.com/poolifier/poolifier-web-worker/commit/ed3da2d3cd34343ef212be566a8a30b5c36d3da6))
+
+### 🧪 Tests
+
+- silence leaks detection false positive on windows
+  ([96a0e78](https://github.com/poolifier/poolifier-web-worker/commit/96a0e78c7ebcb57c8abac808d6348b3d46c05feb))
+
+### 📚 Documentation
+
+- refine code comment about task stealing conditions
+  ([2459840](https://github.com/poolifier/poolifier-web-worker/commit/2459840281529cfd22d04ae765e0c606f9abe3ef))
+
 ## [0.4.17](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.16...v0.4.17) (2024-08-13)
 
 ### 🚀 Features
