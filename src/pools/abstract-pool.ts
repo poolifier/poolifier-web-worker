@@ -304,11 +304,6 @@ export abstract class AbstractPool<
           utilization: round(this.utilization),
         }),
       workerNodes: this.workerNodes.length,
-      idleWorkerNodes: this.workerNodes.reduce(
-        (accumulator, _, workerNodeKey) =>
-          this.isWorkerNodeIdle(workerNodeKey) ? accumulator + 1 : accumulator,
-        0,
-      ),
       ...(this.opts.enableTasksQueue === true && {
         stealingWorkerNodes: this.workerNodes.reduce(
           (accumulator, workerNode) =>
@@ -316,6 +311,11 @@ export abstract class AbstractPool<
           0,
         ),
       }),
+      idleWorkerNodes: this.workerNodes.reduce(
+        (accumulator, _, workerNodeKey) =>
+          this.isWorkerNodeIdle(workerNodeKey) ? accumulator + 1 : accumulator,
+        0,
+      ),
       busyWorkerNodes: this.workerNodes.reduce(
         (accumulator, _, workerNodeKey) =>
           this.isWorkerNodeBusy(workerNodeKey) ? accumulator + 1 : accumulator,

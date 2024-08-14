@@ -7,6 +7,7 @@ import { waitPoolEvents, waitWorkerNodeEvents } from '../../test-utils.mjs'
 
 describe({
   name: 'Fixed thread pool test suite',
+  sanitizeOps: false,
   sanitizeResources: false,
   fn: () => {
     const numberOfThreads = 6
