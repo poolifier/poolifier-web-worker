@@ -1849,7 +1849,6 @@ export abstract class AbstractPool<
         `Worker node with key '${workerNodeKey.toString()}' not found in pool`,
       )
     }
-    const workerNodeTasksUsage = this.workerNodes[workerNodeKey].usage.tasks
     if (
       !workerNodeInfo.continuousStealing &&
       (this.cannotStealTask() ||
@@ -1861,6 +1860,7 @@ export abstract class AbstractPool<
     ) {
       return
     }
+    const workerNodeTasksUsage = this.workerNodes[workerNodeKey].usage.tasks
     if (
       workerNodeInfo.continuousStealing &&
       (workerNodeTasksUsage.executing > 0 ||
