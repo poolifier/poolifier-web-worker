@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.19](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.18...v0.4.19) (2024-08-14)
+
+### 🐞 Bug Fixes
+
+- reduce race condition at task response handling during pool destroy
+  ([7227fec](https://github.com/poolifier/poolifier-web-worker/commit/7227fec68ac43c55da4da5200baca2b388789627))
+
 ## [0.4.18](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.17...v0.4.18) (2024-08-14)
 
 ### 🐞 Bug Fixes
