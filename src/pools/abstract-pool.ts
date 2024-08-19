@@ -307,8 +307,8 @@ export abstract class AbstractPool<
       ...(this.opts.enableTasksQueue === true && {
         stealingWorkerNodes: this.workerNodes.reduce(
           (accumulator, workerNode) =>
-            (workerNode.info.continuousStealing ||
-                workerNode.info.backPressureStealing)
+            workerNode.info.continuousStealing ||
+              workerNode.info.backPressureStealing
               ? accumulator + 1
               : accumulator,
           0,
