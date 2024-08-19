@@ -8,17 +8,19 @@ and this project adheres to
 
 ## [0.4.20](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.19...v0.4.20) (2024-08-19)
 
-
 ### 🐞 Bug Fixes
 
-* account for all stealing worker nodes ([039ec77](https://github.com/poolifier/poolifier-web-worker/commit/039ec771bc9773cb2f2fff53f2fe1abff58e0a46))
-
+- account for all stealing worker nodes
+  ([039ec77](https://github.com/poolifier/poolifier-web-worker/commit/039ec771bc9773cb2f2fff53f2fe1abff58e0a46))
 
 ### ✨ Polish
 
-* define a variable only when needed ([145c656](https://github.com/poolifier/poolifier-web-worker/commit/145c65685a35f8bc3457f6f4965ea4e7db1aabfb))
-* display back pressured worker nodes in pool info ([51a3b96](https://github.com/poolifier/poolifier-web-worker/commit/51a3b960d816356436a9dd8a5e9edd4cb169ed6c))
-* format properly || condition ([da6bafa](https://github.com/poolifier/poolifier-web-worker/commit/da6bafa1b8fe43d229b8c53cf79852fee6f67cea))
+- define a variable only when needed
+  ([145c656](https://github.com/poolifier/poolifier-web-worker/commit/145c65685a35f8bc3457f6f4965ea4e7db1aabfb))
+- display back pressured worker nodes in pool info
+  ([51a3b96](https://github.com/poolifier/poolifier-web-worker/commit/51a3b960d816356436a9dd8a5e9edd4cb169ed6c))
+- format properly || condition
+  ([da6bafa](https://github.com/poolifier/poolifier-web-worker/commit/da6bafa1b8fe43d229b8c53cf79852fee6f67cea))
 
 ## [0.4.19](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.18...v0.4.19) (2024-08-14)
 
