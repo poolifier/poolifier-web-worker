@@ -307,7 +307,10 @@ export abstract class AbstractPool<
       ...(this.opts.enableTasksQueue === true && {
         stealingWorkerNodes: this.workerNodes.reduce(
           (accumulator, workerNode) =>
-            workerNode.info.continuousStealing ? accumulator + 1 : accumulator,
+            (workerNode.info.continuousStealing ||
+                workerNode.info.backPressureStealing)
+              ? accumulator + 1
+              : accumulator,
           0,
         ),
       }),
@@ -1559,7 +1562,7 @@ export abstract class AbstractPool<
           this.isWorkerNodeIdle(localWorkerNodeKey) &&
           workerInfo != null &&
           !workerInfo.continuousStealing &&
-          !workerInfo.stealing)
+          !workerInfo.backPressureStealing)
       ) {
         // Flag the worker node as not ready immediately
         this.flagWorkerNodeAsNotReady(localWorkerNodeKey)
@@ -1946,7 +1949,12 @@ export abstract class AbstractPool<
         workerNode.usage.tasks.queued <
           this.opts.tasksQueueOptions!.size! - sizeOffset
       ) {
+        if (workerNode.info.backPressureStealing) {
+          continue
+        }
+        workerNode.info.backPressureStealing = true
         this.stealTask(sourceWorkerNode, workerNodeKey)
+        workerNode.info.backPressureStealing = false
       }
     }
   }
