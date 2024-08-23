@@ -84,7 +84,7 @@ describe({
       pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
       await pool.destroy()
       const numberOfExitEvents = await exitPromise
-      expect(pool.started).toBe(false)
+      expect(pool.info.started).toBe(false)
       expect(pool.readyEventEmitted).toBe(false)
       expect(pool.workerNodes.length).toBe(0)
       expect(numberOfExitEvents).toBe(min)
@@ -176,12 +176,16 @@ describe({
             import.meta.url,
           ),
           {
+            startWorkers: false,
             workerChoiceStrategy,
           },
         )
-        expect(pool.starting).toBe(false)
-        expect(pool.readyEventEmitted).toBe(false)
         for (let run = 0; run < 2; run++) {
+          expect(pool.info.started).toBe(false)
+          expect(pool.info.ready).toBe(false)
+          pool.start()
+          expect(pool.info.started).toBe(true)
+          expect(pool.info.ready).toBe(true)
           run % 2 !== 0 && pool.enableTasksQueue(true)
           const maxMultiplier = 4
           const promises = new Set()
@@ -190,15 +194,13 @@ describe({
             promises.add(pool.execute())
           }
           await Promise.all(promises)
-          expect(pool.readyEventEmitted).toBe(true)
           expect(pool.workerNodes.length).toBeGreaterThan(pool.info.minSize)
           expect(pool.workerNodes.length).toBeLessThanOrEqual(pool.info.maxSize)
           await waitPoolEvents(pool, PoolEvents.empty, 1)
-          expect(pool.readyEventEmitted).toBe(false)
           expect(pool.workerNodes.length).toBe(pool.info.minSize)
+          // We need to clean up the resources after our test
+          await pool.destroy()
         }
-        // We need to clean up the resources after our test
-        await pool.destroy()
       }
     })
   },

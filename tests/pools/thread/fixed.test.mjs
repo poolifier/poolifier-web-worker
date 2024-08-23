@@ -303,7 +303,7 @@ describe({
       pool.eventTarget.addEventListener(PoolEvents.destroy, () => ++poolDestroy)
       await pool.destroy()
       const numberOfExitEvents = await exitPromise
-      expect(pool.started).toBe(false)
+      expect(pool.info.started).toBe(false)
       expect(pool.readyEventEmitted).toBe(false)
       expect(pool.workerNodes.length).toBe(0)
       expect(numberOfExitEvents).toBe(numberOfThreads)

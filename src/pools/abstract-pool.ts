@@ -477,8 +477,11 @@ export abstract class AbstractPool<
    * @returns The pool readiness boolean status.
    */
   private get ready(): boolean {
-    if (this.empty) {
+    if (!this.started) {
       return false
+    }
+    if (this.empty) {
+      return true
     }
     return (
       this.workerNodes.reduce(
@@ -2146,7 +2149,6 @@ export abstract class AbstractPool<
       this.eventTarget?.dispatchEvent(
         new CustomEvent<PoolInfo>(PoolEvents.empty, { detail: this.info }),
       )
-      this.readyEventEmitted = false
     }
   }
 
