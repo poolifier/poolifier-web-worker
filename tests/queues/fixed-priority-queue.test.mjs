@@ -147,13 +147,13 @@ describe('Fixed priority queue test suite', () => {
     let i = fixedPriorityQueue.start + 1
     for (const value of fixedPriorityQueue) {
       expect(value).toBe(i)
-      ;++i
+      ++i
     }
     fixedPriorityQueue.dequeue()
     i = fixedPriorityQueue.start + 1
     for (const value of fixedPriorityQueue) {
       expect(value).toBe(i)
-      ;++i
+      ++i
     }
   })
 

@@ -316,12 +316,12 @@ export const updateTaskStatisticsWorkerUsage = <Response = unknown>(
     workerTaskStatistics.executing != null &&
     workerTaskStatistics.executing > 0
   ) {
-    ;--workerTaskStatistics.executing
+    --workerTaskStatistics.executing
   }
   if (message.workerError == null) {
-    ;++workerTaskStatistics.executed
+    ++workerTaskStatistics.executed
   } else {
-    ;++workerTaskStatistics.failed
+    ++workerTaskStatistics.failed
   }
 }
 
@@ -458,7 +458,7 @@ export const waitWorkerNodeEvents = async <
       case 'idle':
       case 'exit':
         workerNode.addEventListener(workerNodeEvent, () => {
-          ;++events
+          ++events
           if (events === numberOfEventsToWait) {
             resolve(events)
           }

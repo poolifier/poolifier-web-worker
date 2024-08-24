@@ -145,13 +145,13 @@ describe('Fixed queue test suite', () => {
     let i = fixedQueue.start + 1
     for (const value of fixedQueue) {
       expect(value).toBe(i)
-      ;++i
+      ++i
     }
     fixedQueue.dequeue()
     i = fixedQueue.start + 1
     for (const value of fixedQueue) {
       expect(value).toBe(i)
-      ;++i
+      ++i
     }
   })
 

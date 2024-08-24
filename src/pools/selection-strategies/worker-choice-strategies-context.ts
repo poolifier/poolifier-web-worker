@@ -176,10 +176,10 @@ export class WorkerChoiceStrategiesContext<
     do {
       workerNodeKey = workerChoiceStrategy.choose()
       if (workerNodeKey == null && chooseCount > 0) {
-        ;++retriesCount
-        ;++this.retriesCount
+        ++retriesCount
+        ++this.retriesCount
       }
-      ;++chooseCount
+      ++chooseCount
     } while (workerNodeKey == null && retriesCount < this.retries)
     if (workerNodeKey == null) {
       throw new Error(
