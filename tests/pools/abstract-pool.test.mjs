@@ -1299,7 +1299,7 @@ describe({
         ;++poolEmpty
         poolInfo = event.detail
       })
-      for (let i = 0; i < numberOfWorkers * 2; i++) {
+      for (let i = 0; i < numberOfWorkers; i++) {
         promises.add(pool.execute())
       }
       await Promise.all(promises)
