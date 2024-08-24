@@ -3,7 +3,7 @@ import { expect } from 'expect'
 import { FixedThreadPool, PoolEvents } from '../../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../../src/utils.ts'
 import { TaskFunctions } from '../../test-types.mjs'
-import { waitPoolEvents, waitWorkerNodeEvents } from '../../test-utils.mjs'
+import { waitWorkerNodeEvents } from '../../test-utils.mjs'
 
 describe({
   name: 'Fixed thread pool test suite',
@@ -96,34 +96,6 @@ describe({
     it('Verify that is possible to invoke the execute() method without input', async () => {
       const result = await pool.execute()
       expect(result).toStrictEqual({ ok: 1 })
-    })
-
-    it("Verify that 'ready' event is emitted", async () => {
-      const pool = new FixedThreadPool(
-        numberOfThreads,
-        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-        {
-          errorEventHandler: (e) => console.error(e),
-        },
-      )
-      let poolReady = 0
-      pool.eventTarget.addEventListener(PoolEvents.ready, () => ++poolReady)
-      await waitPoolEvents(pool, PoolEvents.ready, 1)
-      expect(poolReady).toBe(1)
-      await pool.destroy()
-    })
-
-    it("Verify that 'busy' event is emitted", async () => {
-      const promises = new Set()
-      let poolBusy = 0
-      pool.eventTarget.addEventListener(PoolEvents.busy, () => ++poolBusy)
-      for (let i = 0; i < numberOfThreads * 2; i++) {
-        promises.add(pool.execute())
-      }
-      await Promise.all(promises)
-      // The `busy` event is triggered when the number of submitted tasks at once reach the number of fixed pool workers.
-      // So in total numberOfThreads + 1 times for a loop submitting up to numberOfThreads * 2 tasks to the fixed pool.
-      expect(poolBusy).toBe(numberOfThreads + 1)
     })
 
     it('Verify that tasks queuing is working', async () => {

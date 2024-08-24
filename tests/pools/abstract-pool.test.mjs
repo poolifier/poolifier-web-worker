@@ -1286,6 +1286,45 @@ describe({
       await pool.destroy()
     })
 
+    it("Verify that pool event target 'empty' event can register a callback", async () => {
+      const pool = new DynamicThreadPool(
+        0,
+        numberOfWorkers,
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+      )
+      const promises = new Set()
+      let poolEmpty = 0
+      let poolInfo
+      pool.eventTarget.addEventListener(PoolEvents.empty, (event) => {
+        ;++poolEmpty
+        poolInfo = event.detail
+      })
+      for (let i = 0; i < numberOfWorkers * 2; i++) {
+        promises.add(pool.execute())
+      }
+      await Promise.all(promises)
+      await waitPoolEvents(pool, PoolEvents.empty, 1)
+      expect(poolEmpty).toBe(1)
+      expect(poolInfo).toStrictEqual({
+        version,
+        type: PoolTypes.dynamic,
+        worker: WorkerTypes.web,
+        started: true,
+        ready: true,
+        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        strategyRetries: expect.any(Number),
+        minSize: expect.any(Number),
+        maxSize: expect.any(Number),
+        workerNodes: expect.any(Number),
+        idleWorkerNodes: expect.any(Number),
+        busyWorkerNodes: expect.any(Number),
+        executedTasks: expect.any(Number),
+        executingTasks: expect.any(Number),
+        failedTasks: expect.any(Number),
+      })
+      await pool.destroy()
+    })
+
     it('Verify that destroy() waits for queued tasks to finish', async () => {
       const tasksFinishedTimeout = 2500
       const pool = new FixedThreadPool(
