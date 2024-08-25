@@ -63,8 +63,8 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
       return undefined
     }
     const index = this.start
-    ;--this.size
-    ;++this.start
+    --this.size
+    ++this.start
     if (this.start === this.capacity) {
       this.start = 0
     }
@@ -90,8 +90,8 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
           }
         }
         const value = this.nodeArray[index].data
-        ;++index
-        ;++i
+        ++index
+        ++i
         if (index === this.capacity) {
           index = 0
         }

@@ -314,7 +314,7 @@ describe({
       const workerNodeKey = 0
       let exitEvent = 0
       pool.workerNodes[workerNodeKey].addEventListener('exit', () => {
-        ;++exitEvent
+        ++exitEvent
       })
       await expect(
         pool.destroyWorkerNode(workerNodeKey),

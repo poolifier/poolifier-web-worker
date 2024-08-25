@@ -313,7 +313,7 @@ describe('Priority queue test suite', () => {
     while (node != null) {
       expect(node).toBeInstanceOf(FixedQueue)
       node = node.next
-      ;++buckets
+      ++buckets
     }
     expect(buckets).toBe(2)
     priorityQueue.enablePriority = true
@@ -323,7 +323,7 @@ describe('Priority queue test suite', () => {
     while (node != null) {
       expect(node).toBeInstanceOf(FixedPriorityQueue)
       node = node.next
-      ;++buckets
+      ++buckets
     }
     expect(buckets).toBe(2)
   })
@@ -336,7 +336,7 @@ describe('Priority queue test suite', () => {
     let i = 1
     for (const value of priorityQueue) {
       expect(value).toBe(i)
-      ;++i
+      ++i
     }
   })
 

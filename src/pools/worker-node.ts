@@ -254,7 +254,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
             name === this.info.taskFunctionsProperties![1].name) ||
           (task.name !== DEFAULT_TASK_NAME && name === task.name)
         ) {
-          ;++taskFunctionQueueSize
+          ++taskFunctionQueueSize
         }
       }
       return taskFunctionQueueSize

@@ -55,7 +55,7 @@ export class CircularBuffer {
     this.items[this.writeIdx] = number
     this.writeIdx = this.writeIdx === this.maxArrayIdx ? 0 : this.writeIdx + 1
     if (this.size < this.items.length) {
-      ;++this.size
+      ++this.size
     }
   }
 
@@ -71,7 +71,7 @@ export class CircularBuffer {
     }
     this.items[this.readIdx] = -1
     this.readIdx = this.readIdx === this.maxArrayIdx ? 0 : this.readIdx + 1
-    ;--this.size
+    --this.size
     return number
   }
 

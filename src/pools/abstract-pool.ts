@@ -1304,7 +1304,7 @@ export abstract class AbstractPool<
   ): void {
     if (this.workerNodes[workerNodeKey]?.usage != null) {
       const workerUsage = this.workerNodes[workerNodeKey].usage
-      ;++workerUsage.tasks.executing
+      ++workerUsage.tasks.executing
       updateWaitTimeWorkerUsage(
         this.workerChoiceStrategiesContext,
         workerUsage,
@@ -1319,7 +1319,7 @@ export abstract class AbstractPool<
       const taskFunctionWorkerUsage = this.workerNodes[
         workerNodeKey
       ].getTaskFunctionWorkerUsage(task.name!)!
-      ;++taskFunctionWorkerUsage.tasks.executing
+      ++taskFunctionWorkerUsage.tasks.executing
       updateWaitTimeWorkerUsage(
         this.workerChoiceStrategiesContext,
         taskFunctionWorkerUsage,
@@ -1753,13 +1753,13 @@ export abstract class AbstractPool<
   ): void {
     const workerNode = this.workerNodes[workerNodeKey]
     if (workerNode?.usage != null) {
-      ;++workerNode.usage.tasks.stolen
+      ++workerNode.usage.tasks.stolen
     }
     if (
       this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
-      ;++workerNode.getTaskFunctionWorkerUsage(taskName)!.tasks.stolen
+      ++workerNode.getTaskFunctionWorkerUsage(taskName)!.tasks.stolen
     }
   }
 
@@ -1770,7 +1770,7 @@ export abstract class AbstractPool<
   ): void {
     const workerNode = this.workerNodes[workerNodeKey]
     if (workerNode?.usage != null && taskName != null) {
-      ;++workerNode.usage.tasks.sequentiallyStolen
+      ++workerNode.usage.tasks.sequentiallyStolen
     }
     if (
       taskName != null &&
@@ -1786,7 +1786,7 @@ export abstract class AbstractPool<
           previousTaskName === taskName &&
           taskFunctionWorkerUsage.tasks.sequentiallyStolen > 0)
       ) {
-        ;++taskFunctionWorkerUsage.tasks.sequentiallyStolen
+        ++taskFunctionWorkerUsage.tasks.sequentiallyStolen
       } else if (taskFunctionWorkerUsage.tasks.sequentiallyStolen > 0) {
         taskFunctionWorkerUsage.tasks.sequentiallyStolen = 0
       }
@@ -2215,7 +2215,7 @@ export abstract class AbstractPool<
         workerNodeKey,
         this.dequeueTask(workerNodeKey) as Task<Data>,
       )
-      ;++flushedTasks
+      ++flushedTasks
     }
     this.workerNodes[workerNodeKey].clearTasksQueue()
     return flushedTasks

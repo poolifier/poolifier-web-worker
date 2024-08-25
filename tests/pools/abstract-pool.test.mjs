@@ -1133,7 +1133,7 @@ describe({
       let poolInfo
       let poolReady = 0
       pool.eventTarget.addEventListener(PoolEvents.ready, (event) => {
-        ;++poolReady
+        ++poolReady
         poolInfo = event.detail
       })
       await waitPoolEvents(pool, PoolEvents.ready, 1)
@@ -1167,7 +1167,7 @@ describe({
       let poolBusy = 0
       let poolInfo
       pool.eventTarget.addEventListener(PoolEvents.busy, (event) => {
-        ;++poolBusy
+        ++poolBusy
         poolInfo = event.detail
       })
       for (let i = 0; i < numberOfWorkers * 2; i++) {
@@ -1207,7 +1207,7 @@ describe({
       let poolFull = 0
       let poolInfo
       pool.eventTarget.addEventListener(PoolEvents.full, (event) => {
-        ;++poolFull
+        ++poolFull
         poolInfo = event.detail
       })
       for (let i = 0; i < numberOfWorkers * 2; i++) {
@@ -1248,7 +1248,7 @@ describe({
       let poolBackPressure = 0
       let poolInfo
       pool.eventTarget.addEventListener(PoolEvents.backPressure, (event) => {
-        ;++poolBackPressure
+        ++poolBackPressure
         poolInfo = event.detail
       })
       for (let i = 0; i < numberOfWorkers + 1; i++) {
@@ -1296,7 +1296,7 @@ describe({
       let poolEmpty = 0
       let poolInfo
       pool.eventTarget.addEventListener(PoolEvents.empty, (event) => {
-        ;++poolEmpty
+        ++poolEmpty
         poolInfo = event.detail
       })
       for (let i = 0; i < numberOfWorkers; i++) {
@@ -1339,7 +1339,7 @@ describe({
       let tasksFinished = 0
       for (const workerNode of pool.workerNodes) {
         workerNode.addEventListener('taskFinished', () => {
-          ;++tasksFinished
+          ++tasksFinished
         })
       }
       for (let i = 0; i < numberOfWorkers * maxMultiplier; i++) {
@@ -1368,7 +1368,7 @@ describe({
       let tasksFinished = 0
       for (const workerNode of pool.workerNodes) {
         workerNode.addEventListener('taskFinished', () => {
-          ;++tasksFinished
+          ++tasksFinished
         })
       }
       for (let i = 0; i < numberOfWorkers * maxMultiplier; i++) {

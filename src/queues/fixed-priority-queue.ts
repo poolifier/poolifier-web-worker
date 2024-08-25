@@ -24,7 +24,7 @@ export class FixedPriorityQueue<T> extends AbstractFixedQueue<T>
         inserted = true
         break
       }
-      ;++index
+      ++index
       if (index === this.capacity) {
         index = 0
       }

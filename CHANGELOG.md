@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.21](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.20...v0.4.21) (2024-08-24)
+
+### 🐞 Bug Fixes
+
+- fix pool ready status with zero min size dynamic pool
+  ([cebb8d8](https://github.com/poolifier/poolifier-web-worker/commit/cebb8d85701be4376b92ea97f71e6cabd39f9592))
+
+### 🧪 Tests
+
+- add pool empty event test
+  ([e353778](https://github.com/poolifier/poolifier-web-worker/commit/e353778b3657122d216ea08bd5f9528d9bbcd6f4))
+- optimize pool empty event test
+  ([e49f64a](https://github.com/poolifier/poolifier-web-worker/commit/e49f64a279e58c4e74f083b572b2555b2111d05c))
+
+### 📚 Documentation
+
+- refine a code comment
+  ([1dc8bf2](https://github.com/poolifier/poolifier-web-worker/commit/1dc8bf2a39f9876a96b43730d6722e64fc5b5613))
+
+### 🤖 Automation
+
+- **deps:** Bump sonarsource/sonarcloud-github-action
+  ([#59](https://github.com/poolifier/poolifier-web-worker/issues/59))
+  ([d35a85f](https://github.com/poolifier/poolifier-web-worker/commit/d35a85fb3108222f358aa516d24124f15a3430b9))
+
 ## [0.4.20](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.19...v0.4.20) (2024-08-19)
 
 ### 🐞 Bug Fixes

@@ -98,7 +98,7 @@ export class PriorityQueue<T> {
       if (node.next == null) {
         head = currentNode
       }
-      ;++buckets
+      ++buckets
       node = node.next
     }
     this.head = head!
@@ -148,7 +148,7 @@ export class PriorityQueue<T> {
         if (currentBucket === bucket) {
           break
         }
-        ;++currentBucket
+        ++currentBucket
         tail = tail.next
       }
       tailChanged = tail !== this.tail
@@ -203,7 +203,7 @@ export class PriorityQueue<T> {
             done: true,
           }
         }
-        ;++index
+        ++index
         if (index === node.capacity && node.next != null) {
           node = node.next
           index = 0
