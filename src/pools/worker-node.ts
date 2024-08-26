@@ -144,8 +144,12 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
     this.tasksQueue.clear()
   }
 
-  /** @inheritdoc */
-  public hasBackPressure(): boolean {
+  /**
+   * Whether the worker node has back pressure (i.e. its tasks queue is full).
+   *
+   * @returns `true` if the worker node has back pressure, `false` otherwise.
+   */
+  private hasBackPressure(): boolean {
     return this.tasksQueue.size >= this.tasksQueueBackPressureSize
   }
 

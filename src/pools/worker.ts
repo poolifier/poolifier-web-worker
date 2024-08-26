@@ -342,12 +342,6 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
    */
   readonly clearTasksQueue: () => void
   /**
-   * Whether the worker node has back pressure (i.e. its tasks queue is full).
-   *
-   * @returns `true` if the worker node has back pressure, `false` otherwise.
-   */
-  readonly hasBackPressure: () => boolean
-  /**
    * Terminates the worker node.
    */
   readonly terminate: () => void
