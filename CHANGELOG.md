@@ -8,16 +8,17 @@ and this project adheres to
 
 ## [0.4.22](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.21...v0.4.22) (2024-08-26)
 
-
 ### 🐞 Bug Fixes
 
-* ensure no deleted dynamic worker can be used to steal task(s) ([5c504d4](https://github.com/poolifier/poolifier-web-worker/commit/5c504d4960df7e8540bf60282d14c57c6ca07eb5))
-
+- ensure no deleted dynamic worker can be used to steal task(s)
+  ([5c504d4](https://github.com/poolifier/poolifier-web-worker/commit/5c504d4960df7e8540bf60282d14c57c6ca07eb5))
 
 ### ✨ Polish
 
-* cleanup worker node back pressure detection implementation ([1e0e4b5](https://github.com/poolifier/poolifier-web-worker/commit/1e0e4b5fe86713aacaa5348557bc58f2a7e7be3e))
-* cleanup worker node state conditions check ([5d8036c](https://github.com/poolifier/poolifier-web-worker/commit/5d8036cbc745b0fb568673022190b47c0485e969))
+- cleanup worker node back pressure detection implementation
+  ([1e0e4b5](https://github.com/poolifier/poolifier-web-worker/commit/1e0e4b5fe86713aacaa5348557bc58f2a7e7be3e))
+- cleanup worker node state conditions check
+  ([5d8036c](https://github.com/poolifier/poolifier-web-worker/commit/5d8036cbc745b0fb568673022190b47c0485e969))
 
 ## [0.4.21](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.20...v0.4.21) (2024-08-24)
 
