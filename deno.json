@@ -3,9 +3,7 @@
   "version": "0.4.21",
   "exports": "./src/mod.ts",
   "compilerOptions": {
-    "lib": [
-      "deno.worker"
-    ],
+    "lib": ["deno.worker"],
     "strict": true
   },
   "tasks": {
@@ -26,9 +24,7 @@
     "documentation": "deno doc ./src/mod.ts"
   },
   "test": {
-    "include": [
-      "./tests/**/*.test.mjs"
-    ]
+    "include": ["./tests/**/*.test.mjs"]
   },
   "fmt": {
     "semiColons": false,
@@ -42,18 +38,8 @@
     "expect": "npm:expect@^29.7.0"
   },
   "publish": {
-    "include": [
-      "LICENSE",
-      "README.md",
-      "deno.json",
-      "src/**/*.ts"
-    ]
+    "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
   },
   "lock": false,
-  "exclude": [
-    "./coverage",
-    "./dist/browser",
-    "./dist/esm",
-    "./npm"
-  ]
+  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"]
 }
