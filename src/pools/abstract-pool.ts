@@ -302,6 +302,9 @@ export abstract class AbstractPool<
       worker: this.worker,
       started: this.started,
       ready: this.ready,
+      ...(this.opts.enableTasksQueue === true && {
+        backPressure: this.backPressure,
+      }),
       defaultStrategy: this.opts.workerChoiceStrategy!,
       strategyRetries: this.workerChoiceStrategiesContext?.retriesCount ?? 0,
       minSize: this.minimumNumberOfWorkers,
@@ -366,9 +369,6 @@ export abstract class AbstractPool<
             accumulator + (workerNode.usage.tasks.maxQueued ?? 0),
           0,
         ),
-      }),
-      ...(this.opts.enableTasksQueue === true && {
-        backPressure: this.backPressure,
       }),
       ...(this.opts.enableTasksQueue === true && {
         stolenTasks: this.workerNodes.reduce(
