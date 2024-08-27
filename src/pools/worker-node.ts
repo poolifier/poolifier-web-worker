@@ -145,9 +145,9 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   }
 
   /**
-   * Whether the worker node has back pressure (i.e. its tasks queue is full).
+   * Whether the worker node is back pressured or not.
    *
-   * @returns `true` if the worker node has back pressure, `false` otherwise.
+   * @returns `true` if the worker node is back pressured, `false` otherwise.
    */
   private hasBackPressure(): boolean {
     return this.tasksQueue.size >= this.tasksQueueBackPressureSize

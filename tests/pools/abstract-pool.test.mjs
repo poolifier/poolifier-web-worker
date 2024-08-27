@@ -1,5 +1,4 @@
 import { describe, it } from '@std/testing/bdd'
-import { assertSpyCall, returnsNext, stub } from '@std/testing/mock'
 import { expect } from 'expect'
 import { CircularBuffer } from '../../src/circular-buffer.ts'
 import {
@@ -1243,7 +1242,10 @@ describe({
           enableTasksQueue: true,
         },
       )
-      stub(pool, 'hasBackPressure', returnsNext(Array(10).fill(true)))
+      // Stubbing getter is not yet supported
+      Object.defineProperty(pool, 'backPressure', {
+        get: () => true,
+      })
       const promises = new Set()
       let poolBackPressure = 0
       let poolInfo
@@ -1279,10 +1281,6 @@ describe({
         stolenTasks: expect.any(Number),
         failedTasks: expect.any(Number),
       })
-      assertSpyCall(pool.hasBackPressure, 6, {
-        returned: true,
-      })
-      pool.hasBackPressure.restore()
       await pool.destroy()
     })
 

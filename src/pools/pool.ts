@@ -259,7 +259,7 @@ export interface IPool<
    * - `'error'`: Emitted when an uncaught error occurs.
    * - `'messageerror'`: Emitted when an error occurs while processing a message event.
    * - `'taskError'`: Emitted when an error occurs while executing a task.
-   * - `'backPressure'`: Emitted when all worker nodes have back pressure (i.e. their tasks queue is full: queue size \>= maximum queue size).
+   * - `'backPressure'`: Emitted when the number of workers created in the pool has reached the maximum size expected and are back pressured (i.e. their tasks queue is full: queue size \>= maximum queue size).
    */
   readonly eventTarget?: EventTarget
   /**
