@@ -8,20 +8,20 @@ and this project adheres to
 
 ## [0.4.23](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.22...v0.4.23) (2024-08-27)
 
-
 ### 🐞 Bug Fixes
 
-* fix pool back pressure semantic on dynamic pool ([00e2a3f](https://github.com/poolifier/poolifier-web-worker/commit/00e2a3ffd712997e7faf01693ecd3773c2b08ec0))
-
+- fix pool back pressure semantic on dynamic pool
+  ([00e2a3f](https://github.com/poolifier/poolifier-web-worker/commit/00e2a3ffd712997e7faf01693ecd3773c2b08ec0))
 
 ### ⚡ Performance
 
-* track pool busy and back pressure lifecycle via events ([a58ab3b](https://github.com/poolifier/poolifier-web-worker/commit/a58ab3b38b53c10a643593fd13f2edfb1fd76154))
-
+- track pool busy and back pressure lifecycle via events
+  ([a58ab3b](https://github.com/poolifier/poolifier-web-worker/commit/a58ab3b38b53c10a643593fd13f2edfb1fd76154))
 
 ### 📚 Documentation
 
-* format README.md ([7c585a0](https://github.com/poolifier/poolifier-web-worker/commit/7c585a0948f1f029c0ecfe00bad77320b1806da9))
+- format README.md
+  ([7c585a0](https://github.com/poolifier/poolifier-web-worker/commit/7c585a0948f1f029c0ecfe00bad77320b1806da9))
 
 ## [0.4.22](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.21...v0.4.22) (2024-08-26)
 
