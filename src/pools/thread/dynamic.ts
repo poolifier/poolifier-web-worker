@@ -45,8 +45,8 @@ export class DynamicThreadPool<
 
   /** @inheritDoc */
   protected checkAndEmitDynamicWorkerCreationEvents(): void {
-    if (this.full) {
-      this.eventTarget?.dispatchEvent(
+    if (this.eventTarget != null && this.full) {
+      this.eventTarget.dispatchEvent(
         new CustomEvent<PoolInfo>(PoolEvents.full, { detail: this.info }),
       )
     }

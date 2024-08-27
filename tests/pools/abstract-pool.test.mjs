@@ -942,11 +942,15 @@ describe({
       expect(pool.info.ready).toBe(false)
       expect(pool.workerNodes).toStrictEqual([])
       expect(pool.readyEventEmitted).toBe(false)
+      expect(pool.busyEventEmitted).toBe(false)
+      expect(pool.backPressureEventEmitted).toBe(false)
       pool.start()
       expect(pool.info.started).toBe(true)
       expect(pool.info.ready).toBe(true)
       await waitPoolEvents(pool, PoolEvents.ready, 1)
       expect(pool.readyEventEmitted).toBe(true)
+      expect(pool.busyEventEmitted).toBe(false)
+      expect(pool.backPressureEventEmitted).toBe(false)
       expect(pool.workerNodes.length).toBe(numberOfWorkers)
       for (const workerNode of pool.workerNodes) {
         expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -1157,26 +1161,48 @@ describe({
       await pool.destroy()
     })
 
-    it("Verify that pool event target 'busy' event can register a callback", async () => {
+    it("Verify that pool event target 'busy' and 'busyEnd' events can register a callback", async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const promises = new Set()
       let poolBusy = 0
-      let poolInfo
+      let poolBusyInfo
       pool.eventTarget.addEventListener(PoolEvents.busy, (event) => {
         ++poolBusy
-        poolInfo = event.detail
+        poolBusyInfo = event.detail
+      })
+      let poolBusyEnd = 0
+      let poolBusyEndInfo
+      pool.eventTarget.addEventListener(PoolEvents.busyEnd, (event) => {
+        ++poolBusyEnd
+        poolBusyEndInfo = event.detail
       })
       for (let i = 0; i < numberOfWorkers * 2; i++) {
         promises.add(pool.execute())
       }
       await Promise.all(promises)
-      // The `busy` event is triggered when the number of submitted tasks at once reach the number of fixed pool workers.
-      // So in total numberOfWorkers + 1 times for a loop submitting up to numberOfWorkers * 2 tasks to the fixed pool.
-      expect(poolBusy).toBe(numberOfWorkers + 1)
-      expect(poolInfo).toStrictEqual({
+      expect(poolBusy).toBe(1)
+      expect(poolBusyInfo).toStrictEqual({
+        version,
+        type: PoolTypes.fixed,
+        worker: WorkerTypes.web,
+        started: true,
+        ready: true,
+        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        strategyRetries: expect.any(Number),
+        minSize: expect.any(Number),
+        maxSize: expect.any(Number),
+        workerNodes: expect.any(Number),
+        idleWorkerNodes: expect.any(Number),
+        busyWorkerNodes: expect.any(Number),
+        executedTasks: expect.any(Number),
+        executingTasks: expect.any(Number),
+        failedTasks: expect.any(Number),
+      })
+      expect(poolBusyEnd).toBe(1)
+      expect(poolBusyEndInfo).toStrictEqual({
         version,
         type: PoolTypes.fixed,
         worker: WorkerTypes.web,
@@ -1234,7 +1260,7 @@ describe({
       await pool.destroy()
     })
 
-    it("Verify that pool event target 'backPressure' event can register a callback", async () => {
+    it("Verify that pool event target 'backPressure' and 'backPressureEnd' events can register a callback", async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
@@ -1242,28 +1268,31 @@ describe({
           enableTasksQueue: true,
         },
       )
-      // Stubbing getter is not yet supported
-      Object.defineProperty(pool, 'backPressure', {
-        get: () => true,
-      })
       const promises = new Set()
       let poolBackPressure = 0
-      let poolInfo
+      let poolBackPressureInfo
       pool.eventTarget.addEventListener(PoolEvents.backPressure, (event) => {
         ++poolBackPressure
-        poolInfo = event.detail
+        poolBackPressureInfo = event.detail
       })
-      for (let i = 0; i < numberOfWorkers + 1; i++) {
+      let poolBackPressureEnd = 0
+      let PoolBackPressureEndInfo
+      pool.eventTarget.addEventListener(PoolEvents.backPressureEnd, (event) => {
+        ++poolBackPressureEnd
+        PoolBackPressureEndInfo = event.detail
+      })
+      for (let i = 0; i < numberOfWorkers * 10; i++) {
         promises.add(pool.execute())
       }
       await Promise.all(promises)
       expect(poolBackPressure).toBe(1)
-      expect(poolInfo).toStrictEqual({
+      expect(poolBackPressureInfo).toStrictEqual({
         version,
         type: PoolTypes.fixed,
         worker: WorkerTypes.web,
         started: true,
         ready: true,
+        backPressure: true,
         defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: expect.any(Number),
         minSize: expect.any(Number),
@@ -1277,7 +1306,30 @@ describe({
         executingTasks: expect.any(Number),
         maxQueuedTasks: expect.any(Number),
         queuedTasks: expect.any(Number),
-        backPressure: true,
+        stolenTasks: expect.any(Number),
+        failedTasks: expect.any(Number),
+      })
+      expect(poolBackPressureEnd).toBe(1)
+      expect(PoolBackPressureEndInfo).toStrictEqual({
+        version,
+        type: PoolTypes.fixed,
+        worker: WorkerTypes.web,
+        started: true,
+        ready: true,
+        backPressure: false,
+        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        strategyRetries: expect.any(Number),
+        minSize: expect.any(Number),
+        maxSize: expect.any(Number),
+        workerNodes: expect.any(Number),
+        idleWorkerNodes: expect.any(Number),
+        busyWorkerNodes: expect.any(Number),
+        stealingWorkerNodes: expect.any(Number),
+        backPressureWorkerNodes: expect.any(Number),
+        executedTasks: expect.any(Number),
+        executingTasks: expect.any(Number),
+        maxQueuedTasks: expect.any(Number),
+        queuedTasks: expect.any(Number),
         stolenTasks: expect.any(Number),
         failedTasks: expect.any(Number),
       })

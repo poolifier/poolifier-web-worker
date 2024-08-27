@@ -135,6 +135,14 @@ export abstract class AbstractPool<
    */
   private readyEventEmitted: boolean
   /**
+   * Whether the pool back pressure event has been emitted or not.
+   */
+  private backPressureEventEmitted: boolean
+  /**
+   * Whether the pool busy event has been emitted or not.
+   */
+  private busyEventEmitted: boolean
+  /**
    * The start timestamp of the pool.
    */
   private startTimestamp?: number
@@ -189,6 +197,8 @@ export abstract class AbstractPool<
     this.destroying = false
     this.startingMinimumNumberOfWorkers = false
     this.readyEventEmitted = false
+    this.busyEventEmitted = false
+    this.backPressureEventEmitted = false
     if (this.opts.startWorkers === true) {
       this.start()
     }
@@ -326,8 +336,10 @@ export abstract class AbstractPool<
       }),
       ...(this.opts.enableTasksQueue === true && {
         backPressureWorkerNodes: this.workerNodes.reduce(
-          (accumulator, workerNode) =>
-            workerNode.info.backPressure ? accumulator + 1 : accumulator,
+          (accumulator, _, workerNodeKey) =>
+            this.isWorkerNodeBackPressured(workerNodeKey)
+              ? accumulator + 1
+              : accumulator,
           0,
         ),
       }),
@@ -773,6 +785,11 @@ export abstract class AbstractPool<
       )
     }
     return workerNode.info.ready && workerNode.usage.tasks.executing === 0
+  }
+
+  private isWorkerNodeBackPressured(workerNodeKey: number): boolean {
+    const workerNode = this.workerNodes[workerNodeKey]
+    return workerNode.info.ready && workerNode.info.backPressure
   }
 
   private isWorkerNodeBusy(workerNodeKey: number): boolean {
@@ -1221,10 +1238,14 @@ export abstract class AbstractPool<
         await this.destroyWorkerNode(workerNodeKey)
       }),
     )
-    this.eventTarget?.dispatchEvent(
-      new CustomEvent<PoolInfo>(PoolEvents.destroy, { detail: this.info }),
-    )
-    this.readyEventEmitted = false
+    if (this.eventTarget != null) {
+      this.eventTarget.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.destroy, { detail: this.info }),
+      )
+      this.readyEventEmitted = false
+      this.busyEventEmitted = false
+      this.backPressureEventEmitted = false
+    }
     delete this.startTimestamp
     this.destroying = false
     this.started = false
@@ -2001,8 +2022,8 @@ export abstract class AbstractPool<
   }
 
   private checkAndEmitReadyEvent(): void {
-    if (!this.readyEventEmitted && this.ready) {
-      this.eventTarget?.dispatchEvent(
+    if (this.eventTarget != null && !this.readyEventEmitted && this.ready) {
+      this.eventTarget.dispatchEvent(
         new CustomEvent<PoolInfo>(PoolEvents.ready, { detail: this.info }),
       )
       this.readyEventEmitted = true
@@ -2038,6 +2059,7 @@ export abstract class AbstractPool<
         resolve(data!)
       }
       this.afterTaskExecutionHook(workerNodeKey, message)
+      this.checkAndEmitTaskExecutionFinishedEvents()
       this.promiseResponseMap.delete(taskId!)
       if (this.opts.enableTasksQueue === true && !this.destroying) {
         if (
@@ -2063,20 +2085,50 @@ export abstract class AbstractPool<
   }
 
   private checkAndEmitTaskExecutionEvents(): void {
-    if (this.busy) {
-      this.eventTarget?.dispatchEvent(
+    if (this.eventTarget != null && !this.busyEventEmitted && this.busy) {
+      this.eventTarget.dispatchEvent(
         new CustomEvent<PoolInfo>(PoolEvents.busy, { detail: this.info }),
       )
+      this.busyEventEmitted = true
+    }
+  }
+
+  private checkAndEmitTaskExecutionFinishedEvents(): void {
+    if (this.eventTarget != null && this.busyEventEmitted && !this.busy) {
+      this.eventTarget.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.busyEnd, { detail: this.info }),
+      )
+      this.busyEventEmitted = false
     }
   }
 
   private checkAndEmitTaskQueuingEvents(): void {
-    if (this.backPressure) {
-      this.eventTarget?.dispatchEvent(
+    if (
+      this.eventTarget != null &&
+      !this.backPressureEventEmitted &&
+      this.backPressure
+    ) {
+      this.eventTarget.dispatchEvent(
         new CustomEvent<PoolInfo>(PoolEvents.backPressure, {
           detail: this.info,
         }),
       )
+      this.backPressureEventEmitted = true
+    }
+  }
+
+  private checkAndEmitTaskDequeuingEvents(): void {
+    if (
+      this.eventTarget != null &&
+      this.backPressureEventEmitted &&
+      !this.backPressure
+    ) {
+      this.eventTarget.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.backPressureEnd, {
+          detail: this.info,
+        }),
+      )
+      this.backPressureEventEmitted = false
     }
   }
 
@@ -2140,8 +2192,8 @@ export abstract class AbstractPool<
   }
 
   private checkAndEmitEmptyEvent(): void {
-    if (this.empty) {
-      this.eventTarget?.dispatchEvent(
+    if (this.eventTarget != null && this.empty) {
+      this.eventTarget.dispatchEvent(
         new CustomEvent<PoolInfo>(PoolEvents.empty, { detail: this.info }),
       )
     }
@@ -2175,12 +2227,13 @@ export abstract class AbstractPool<
    */
   protected internalBackPressure(): boolean {
     return (
-      this.opts.enableTasksQueue === true &&
       this.workerNodes.reduce(
-          (accumulator, workerNode) =>
-            workerNode.info.backPressure ? accumulator + 1 : accumulator,
-          0,
-        ) === this.workerNodes.length
+        (accumulator, _, workerNodeKey) =>
+          this.isWorkerNodeBackPressured(workerNodeKey)
+            ? accumulator + 1
+            : accumulator,
+        0,
+      ) === this.workerNodes.length
     )
   }
 
@@ -2203,7 +2256,9 @@ export abstract class AbstractPool<
   }
 
   private dequeueTask(workerNodeKey: number): Task<Data> | undefined {
-    return this.workerNodes[workerNodeKey].dequeueTask()
+    const task = this.workerNodes[workerNodeKey].dequeueTask()
+    this.checkAndEmitTaskDequeuingEvents()
+    return task
   }
 
   private tasksQueueSize(workerNodeKey: number): number {
