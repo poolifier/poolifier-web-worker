@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.24](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.23...v0.4.24) (2024-08-28)
+
+
+### ⚡ Performance
+
+* reduce useless branching at pool info building ([1184246](https://github.com/poolifier/poolifier-web-worker/commit/1184246942bdc0c39a6ac9c0912b3a2e35fdebf5))
+* track dynamic pool full lifecycle via events ([5415178](https://github.com/poolifier/poolifier-web-worker/commit/541517837cede8f2b5a06b64ef41eb7aca9bda83))
+
+
+### ✨ Polish
+
+* cleanup pool information ordering ([91eb092](https://github.com/poolifier/poolifier-web-worker/commit/91eb092f3c1c6cff5e6e3eb5a5772236d3a08ce6))
+* merge dynamic pool events emission code ([2babd9d](https://github.com/poolifier/poolifier-web-worker/commit/2babd9db1e9fd48d660582b12f03e45249e4a71b))
+
 ## [0.4.23](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.22...v0.4.23) (2024-08-27)
 
 ### 🐞 Bug Fixes
