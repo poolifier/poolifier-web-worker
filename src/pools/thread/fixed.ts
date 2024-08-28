@@ -118,6 +118,11 @@ export class FixedThreadPool<
   }
 
   /** @inheritDoc */
+  protected checkAndEmitDynamicWorkerDestructionEvents(): void {
+    /* noop */
+  }
+
+  /** @inheritDoc */
   protected get type(): PoolType {
     return PoolTypes.fixed
   }

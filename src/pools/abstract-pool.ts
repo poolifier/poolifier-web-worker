@@ -1233,8 +1233,6 @@ export abstract class AbstractPool<
         new CustomEvent<PoolInfo>(PoolEvents.destroy, { detail: this.info }),
       )
       this.readyEventEmitted = false
-      this.busyEventEmitted = false
-      this.backPressureEventEmitted = false
     }
     delete this.startTimestamp
     this.destroying = false
@@ -2128,6 +2126,11 @@ export abstract class AbstractPool<
   protected abstract checkAndEmitDynamicWorkerCreationEvents(): void
 
   /**
+   * Emits dynamic worker destruction events.
+   */
+  protected abstract checkAndEmitDynamicWorkerDestructionEvents(): void
+
+  /**
    * Gets the worker information given its worker node key.
    *
    * @param workerNodeKey - The worker node key.
@@ -2199,8 +2202,10 @@ export abstract class AbstractPool<
     if (workerNodeKey !== -1) {
       this.workerNodes.splice(workerNodeKey, 1)
       this.workerChoiceStrategiesContext?.remove(workerNodeKey)
+      workerNode.info.dynamic &&
+        this.checkAndEmitDynamicWorkerDestructionEvents()
+      this.checkAndEmitEmptyEvent()
     }
-    this.checkAndEmitEmptyEvent()
   }
 
   protected flagWorkerNodeAsNotReady(workerNodeKey: number): void {

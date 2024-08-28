@@ -46,6 +46,7 @@ export const PoolEvents: Readonly<{
   busy: 'busy'
   busyEnd: 'busyEnd'
   full: 'full'
+  fullEnd: 'fullEnd'
   empty: 'empty'
   destroy: 'destroy'
   error: 'error'
@@ -59,6 +60,7 @@ export const PoolEvents: Readonly<{
     busy: 'busy',
     busyEnd: 'busyEnd',
     full: 'full',
+    fullEnd: 'fullEnd',
     empty: 'empty',
     destroy: 'destroy',
     error: 'error',
@@ -259,6 +261,7 @@ export interface IPool<
    * - `'busy'`: Emitted when the number of workers created in the pool has reached the maximum size expected and are executing concurrently their tasks quota.
    * - `'busyEnd'`: Emitted when the number of workers created in the pool has reached the maximum size expected and are no longer executing concurrently their tasks quota.
    * - `'full'`: Emitted when the pool is dynamic and the number of workers created has reached the maximum size expected.
+   * - `'fullEnd'`: Emitted when the pool is dynamic and the number of workers created has no longer reached the maximum size expected.
    * - `'empty'`: Emitted when the pool is dynamic with a minimum number of workers set to zero and the number of workers has reached the minimum size expected.
    * - `'destroy'`: Emitted when the pool is destroyed.
    * - `'error'`: Emitted when an uncaught error occurs.

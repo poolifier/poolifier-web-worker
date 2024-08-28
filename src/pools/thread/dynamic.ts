@@ -18,6 +18,11 @@ export class DynamicThreadPool<
   Response = unknown,
 > extends FixedThreadPool<Data, Response> {
   /**
+   * Whether the pool full event has been emitted or not.
+   */
+  private fullEventEmitted: boolean
+
+  /**
    * Constructs a new poolifier dynamic thread pool.
    *
    * @param min - Minimum number of threads which are always active.
@@ -36,6 +41,7 @@ export class DynamicThreadPool<
       this.minimumNumberOfWorkers,
       this.maximumNumberOfWorkers!,
     )
+    this.fullEventEmitted = false
   }
 
   /** @inheritDoc */
@@ -45,10 +51,21 @@ export class DynamicThreadPool<
 
   /** @inheritDoc */
   protected checkAndEmitDynamicWorkerCreationEvents(): void {
-    if (this.eventTarget != null && this.full) {
+    if (this.eventTarget != null && !this.fullEventEmitted && this.full) {
       this.eventTarget.dispatchEvent(
         new CustomEvent<PoolInfo>(PoolEvents.full, { detail: this.info }),
       )
+      this.fullEventEmitted = true
+    }
+  }
+
+  /** @inheritDoc */
+  protected checkAndEmitDynamicWorkerDestructionEvents(): void {
+    if (this.eventTarget != null && this.fullEventEmitted && !this.full) {
+      this.eventTarget.dispatchEvent(
+        new CustomEvent<PoolInfo>(PoolEvents.fullEnd, { detail: this.info }),
+      )
+      this.fullEventEmitted = false
     }
   }
 

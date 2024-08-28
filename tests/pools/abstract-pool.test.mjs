@@ -1149,9 +1149,9 @@ describe({
         ready: true,
         defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: expect.any(Number),
-        minSize: expect.any(Number),
-        maxSize: expect.any(Number),
-        workerNodes: expect.any(Number),
+        minSize: Math.floor(numberOfWorkers / 2),
+        maxSize: numberOfWorkers,
+        workerNodes: Math.floor(numberOfWorkers / 2),
         idleWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         executedTasks: expect.any(Number),
@@ -1192,9 +1192,9 @@ describe({
         ready: true,
         defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: expect.any(Number),
-        minSize: expect.any(Number),
-        maxSize: expect.any(Number),
-        workerNodes: expect.any(Number),
+        minSize: numberOfWorkers,
+        maxSize: numberOfWorkers,
+        workerNodes: numberOfWorkers,
         idleWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         executedTasks: expect.any(Number),
@@ -1210,9 +1210,9 @@ describe({
         ready: true,
         defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: expect.any(Number),
-        minSize: expect.any(Number),
-        maxSize: expect.any(Number),
-        workerNodes: expect.any(Number),
+        minSize: numberOfWorkers,
+        maxSize: numberOfWorkers,
+        workerNodes: numberOfWorkers,
         idleWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         executedTasks: expect.any(Number),
@@ -1222,7 +1222,7 @@ describe({
       await pool.destroy()
     })
 
-    it("Verify that pool event target 'full' event can register a callback", async () => {
+    it("Verify that pool event target 'full' and 'fullEnd' events can register a callback", async () => {
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
@@ -1230,17 +1230,23 @@ describe({
       )
       const promises = new Set()
       let poolFull = 0
-      let poolInfo
+      let poolFullInfo
       pool.eventTarget.addEventListener(PoolEvents.full, (event) => {
         ++poolFull
-        poolInfo = event.detail
+        poolFullInfo = event.detail
+      })
+      let poolFullEnd = 0
+      let poolFullEndInfo
+      pool.eventTarget.addEventListener(PoolEvents.fullEnd, (event) => {
+        ++poolFullEnd
+        poolFullEndInfo = event.detail
       })
       for (let i = 0; i < numberOfWorkers * 2; i++) {
         promises.add(pool.execute())
       }
       await Promise.all(promises)
       expect(poolFull).toBe(1)
-      expect(poolInfo).toStrictEqual({
+      expect(poolFullInfo).toStrictEqual({
         version,
         type: PoolTypes.dynamic,
         worker: WorkerTypes.web,
@@ -1248,9 +1254,28 @@ describe({
         ready: true,
         defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: expect.any(Number),
-        minSize: expect.any(Number),
-        maxSize: expect.any(Number),
-        workerNodes: expect.any(Number),
+        minSize: Math.floor(numberOfWorkers / 2),
+        maxSize: numberOfWorkers,
+        workerNodes: numberOfWorkers,
+        idleWorkerNodes: expect.any(Number),
+        busyWorkerNodes: expect.any(Number),
+        executedTasks: expect.any(Number),
+        executingTasks: expect.any(Number),
+        failedTasks: expect.any(Number),
+      })
+      await waitPoolEvents(pool, PoolEvents.fullEnd, 1)
+      expect(poolFullEnd).toBe(1)
+      expect(poolFullEndInfo).toStrictEqual({
+        version,
+        type: PoolTypes.dynamic,
+        worker: WorkerTypes.web,
+        started: true,
+        ready: true,
+        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        strategyRetries: expect.any(Number),
+        minSize: Math.floor(numberOfWorkers / 2),
+        maxSize: numberOfWorkers,
+        workerNodes: Math.floor(numberOfWorkers / 2),
         idleWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         executedTasks: expect.any(Number),
@@ -1295,9 +1320,9 @@ describe({
         backPressure: true,
         defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: expect.any(Number),
-        minSize: expect.any(Number),
-        maxSize: expect.any(Number),
-        workerNodes: expect.any(Number),
+        minSize: numberOfWorkers,
+        maxSize: numberOfWorkers,
+        workerNodes: numberOfWorkers,
         idleWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         stealingWorkerNodes: expect.any(Number),
@@ -1319,9 +1344,9 @@ describe({
         backPressure: false,
         defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: expect.any(Number),
-        minSize: expect.any(Number),
-        maxSize: expect.any(Number),
-        workerNodes: expect.any(Number),
+        minSize: numberOfWorkers,
+        maxSize: numberOfWorkers,
+        workerNodes: numberOfWorkers,
         idleWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         stealingWorkerNodes: expect.any(Number),
@@ -1363,11 +1388,11 @@ describe({
         ready: true,
         defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
         strategyRetries: expect.any(Number),
-        minSize: expect.any(Number),
-        maxSize: expect.any(Number),
-        workerNodes: expect.any(Number),
-        idleWorkerNodes: expect.any(Number),
-        busyWorkerNodes: expect.any(Number),
+        minSize: 0,
+        maxSize: numberOfWorkers,
+        workerNodes: 0,
+        idleWorkerNodes: 0,
+        busyWorkerNodes: 0,
         executedTasks: expect.any(Number),
         executingTasks: expect.any(Number),
         failedTasks: expect.any(Number),
