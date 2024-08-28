@@ -2184,14 +2184,6 @@ export abstract class AbstractPool<
     return workerNodeKey
   }
 
-  private checkAndEmitEmptyEvent(): void {
-    if (this.eventTarget != null && this.empty) {
-      this.eventTarget.dispatchEvent(
-        new CustomEvent<PoolInfo>(PoolEvents.empty, { detail: this.info }),
-      )
-    }
-  }
-
   /**
    * Removes the worker node from the pool worker nodes.
    *
@@ -2204,7 +2196,6 @@ export abstract class AbstractPool<
       this.workerChoiceStrategiesContext?.remove(workerNodeKey)
       workerNode.info.dynamic &&
         this.checkAndEmitDynamicWorkerDestructionEvents()
-      this.checkAndEmitEmptyEvent()
     }
   }
 
