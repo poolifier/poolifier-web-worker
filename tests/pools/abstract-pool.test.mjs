@@ -1302,10 +1302,10 @@ describe({
         poolBackPressureInfo = event.detail
       })
       let poolBackPressureEnd = 0
-      let PoolBackPressureEndInfo
+      let poolBackPressureEndInfo
       pool.eventTarget.addEventListener(PoolEvents.backPressureEnd, (event) => {
         ++poolBackPressureEnd
-        PoolBackPressureEndInfo = event.detail
+        poolBackPressureEndInfo = event.detail
       })
       for (let i = 0; i < numberOfWorkers * 10; i++) {
         promises.add(pool.execute())
@@ -1336,7 +1336,7 @@ describe({
         failedTasks: expect.any(Number),
       })
       expect(poolBackPressureEnd).toBe(1)
-      expect(PoolBackPressureEndInfo).toStrictEqual({
+      expect(poolBackPressureEndInfo).toStrictEqual({
         version,
         type: PoolTypes.fixed,
         worker: WorkerTypes.web,
@@ -1359,7 +1359,7 @@ describe({
         stolenTasks: expect.any(Number),
         failedTasks: expect.any(Number),
       })
-      expect(PoolBackPressureEndInfo.backPressureWorkerNodes).toBeLessThan(
+      expect(poolBackPressureEndInfo.backPressureWorkerNodes).toBeLessThan(
         numberOfWorkers,
       )
       await pool.destroy()
