@@ -1195,8 +1195,8 @@ describe({
         minSize: numberOfWorkers,
         maxSize: numberOfWorkers,
         workerNodes: numberOfWorkers,
-        idleWorkerNodes: expect.any(Number),
-        busyWorkerNodes: expect.any(Number),
+        idleWorkerNodes: 0,
+        busyWorkerNodes: numberOfWorkers,
         executedTasks: expect.any(Number),
         executingTasks: expect.any(Number),
         failedTasks: expect.any(Number),
@@ -1219,6 +1219,7 @@ describe({
         executingTasks: expect.any(Number),
         failedTasks: expect.any(Number),
       })
+      expect(poolBusyEndInfo.busyWorkerNodes).toBeLessThan(numberOfWorkers)
       await pool.destroy()
     })
 
@@ -1326,7 +1327,7 @@ describe({
         idleWorkerNodes: expect.any(Number),
         busyWorkerNodes: expect.any(Number),
         stealingWorkerNodes: expect.any(Number),
-        backPressureWorkerNodes: expect.any(Number),
+        backPressureWorkerNodes: numberOfWorkers,
         executedTasks: expect.any(Number),
         executingTasks: expect.any(Number),
         maxQueuedTasks: expect.any(Number),
@@ -1358,6 +1359,9 @@ describe({
         stolenTasks: expect.any(Number),
         failedTasks: expect.any(Number),
       })
+      expect(PoolBackPressureEndInfo.backPressureWorkerNodes).toBeLessThan(
+        numberOfWorkers,
+      )
       await pool.destroy()
     })
 
