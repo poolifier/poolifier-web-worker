@@ -13,17 +13,15 @@ const pool = new FixedThreadPool(
   },
 )
 
-let res
-
 try {
-  res = await pool.execute({ text: 'hello' }, 'fn0')
+  const res = await pool.execute({ text: 'hello' }, 'fn0')
   console.info(res)
 } catch (err) {
   console.error(err)
 }
 
 try {
-  res = await pool.execute({ text: 'multiple functions' }, 'fn1')
+  const res = await pool.execute({ text: 'multiple functions' }, 'fn1')
   console.info(res)
 } catch (err) {
   console.error(err)
