@@ -13,13 +13,20 @@ const pool = new FixedThreadPool(
   },
 )
 
-pool
-  .execute({ text: 'hello' }, 'fn0')
-  .then((res) => console.info(res))
-  .catch((err) => console.error(err))
-pool
-  .execute({ text: 'multiple functions' }, 'fn1')
-  .then((res) => console.info(res))
-  .catch((err) => console.error(err))
+let res
+
+try {
+  res = await pool.execute({ text: 'hello' }, 'fn0')
+  console.info(res)
+} catch (err) {
+  console.error(err)
+}
+
+try {
+  res = await pool.execute({ text: 'multiple functions' }, 'fn1')
+  console.info(res)
+} catch (err) {
+  console.error(err)
+}
 
 setTimeout(async () => await pool.destroy(), 3000)

@@ -22,18 +22,17 @@ let resolved = 0
 const start = performance.now()
 const iterations = 1000
 for (let i = 1; i <= iterations; i++) {
-  pool
-    .execute()
-    .then(() => {
-      resolved++
-      if (resolved === iterations) {
-        console.info(
-          `Time taken is ${(performance.now() - start).toFixed(2)}ms`,
-        )
-        console.info(`The pool was ready for ${poolReady} times`)
-        console.info(`The pool was busy for ${poolBusy} times`)
-        return pool.destroy()
-      }
-    })
-    .catch((err) => console.error(err))
+  try {
+    await pool.execute()
+    resolved++
+    if (resolved === iterations) {
+      console.info(`Time taken is ${(performance.now() - start).toFixed(2)}ms`)
+      console.info(`The pool was ready for ${poolReady} times`)
+      console.info(`The pool was busy for ${poolBusy} times`)
+      await pool.destroy()
+      break
+    }
+  } catch (err) {
+    console.error(err)
+  }
 }

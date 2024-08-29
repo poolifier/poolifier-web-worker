@@ -243,14 +243,12 @@ pool.eventTarget?.addEventListener(
 
 // the execute method signature is the same for both implementations,
 // so you can easily switch from one to another
-pool
-  .execute()
-  .then((res) => {
-    console.info(res)
-  })
-  .catch((err) => {
-    console.error(err)
-  })
+try {
+  const res = await pool.execute()
+  console.info(res)
+} catch (err) {
+  console.error(err)
+}
 ```
 
 Remember that workers can only send and receive structured-cloneable data.
