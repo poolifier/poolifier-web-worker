@@ -494,18 +494,6 @@ export abstract class AbstractPool<
   }
 
   /**
-   * Whether the pool is empty or not.
-   *
-   * @returns The pool emptiness boolean status.
-   */
-  protected get empty(): boolean {
-    return (
-      this.minimumNumberOfWorkers === 0 &&
-      this.workerNodes.length === this.minimumNumberOfWorkers
-    )
-  }
-
-  /**
    * The approximate pool utilization.
    *
    * @returns The pool utilization.
@@ -722,18 +710,6 @@ export abstract class AbstractPool<
         this.handleWorkerNodeBackPressureEvent as EventListener,
       )
     }
-  }
-
-  /**
-   * Whether the pool is full or not.
-   *
-   * @returns The pool fullness boolean status.
-   */
-  protected get full(): boolean {
-    return (
-      this.workerNodes.length >=
-        (this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers)
-    )
   }
 
   /**
