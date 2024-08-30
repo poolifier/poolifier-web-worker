@@ -1848,8 +1848,9 @@ export abstract class AbstractPool<
     if (
       !workerNode.info.continuousStealing &&
       (this.cannotStealTask() ||
+        this.opts.tasksQueueOptions?.tasksStealingRatio === 0 ||
         (this.info.stealingWorkerNodes ?? 0) >
-          Math.round(
+          Math.ceil(
             this.workerNodes.length *
               this.opts.tasksQueueOptions!.tasksStealingRatio!,
           ))
@@ -1913,8 +1914,9 @@ export abstract class AbstractPool<
     if (
       this.cannotStealTask() ||
       this.backPressure ||
+      this.opts.tasksQueueOptions?.tasksStealingRatio === 0 ||
       (this.info.stealingWorkerNodes ?? 0) >
-        Math.round(
+        Math.ceil(
           this.workerNodes.length *
             this.opts.tasksQueueOptions!.tasksStealingRatio!,
         )
