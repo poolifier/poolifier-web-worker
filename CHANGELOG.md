@@ -6,6 +6,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.25](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.24...v0.4.25) (2024-08-30)
+
+### 🐞 Bug Fixes
+
+- handle properly small or zero `tasksStealingRatio`
+  ([ab6e570](https://github.com/poolifier/poolifier-web-worker/commit/ab6e5700b536a70bdef6accd66fce91f5e45cd69))
+
+### ✨ Polish
+
+- move dynamic pool only getters to its own class
+  ([74970f2](https://github.com/poolifier/poolifier-web-worker/commit/74970f25d771c43eac26feb891305da0d73ba1b6))
+
+### 🧪 Tests
+
+- fix variable casing
+  ([a2727d7](https://github.com/poolifier/poolifier-web-worker/commit/a2727d7cea305b374232aa221698383c49d6d2b0))
+- refine pool event tests expectation
+  ([5bdf99a](https://github.com/poolifier/poolifier-web-worker/commit/5bdf99a7019550759e1ee369846eda83f049c4ef))
+
+### 📚 Documentation
+
+- cleanup code examples
+  ([28b119c](https://github.com/poolifier/poolifier-web-worker/commit/28b119c8bd08596863f44de4c4712963c5a6a8fc))
+- refine pool ready event emission condition
+  ([e7d0673](https://github.com/poolifier/poolifier-web-worker/commit/e7d0673f97e9302844aed9e7d7f1e6c5273ecbc3))
+- switch examples to top level await usage (ESM)
+  ([30781c3](https://github.com/poolifier/poolifier-web-worker/commit/30781c30f374e0e7585c5957ef9956e2c4851106))
+
 ## [0.4.24](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.23...v0.4.24) (2024-08-28)
 
 ### ⚡ Performance
