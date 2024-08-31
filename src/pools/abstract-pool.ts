@@ -342,9 +342,8 @@ export abstract class AbstractPool<
       ...(this.opts.enableTasksQueue === true && {
         backPressure: this.backPressure,
         stealingWorkerNodes: this.workerNodes.reduce(
-          (accumulator, workerNode) =>
-            workerNode.info.continuousStealing ||
-              workerNode.info.backPressureStealing
+          (accumulator, _, workerNodeKey) =>
+            this.isWorkerNodeStealing(workerNodeKey)
               ? accumulator + 1
               : accumulator,
           0,
@@ -741,18 +740,6 @@ export abstract class AbstractPool<
     )
   }
 
-  private isWorkerNodeIdle(workerNodeKey: number): boolean {
-    const workerNode = this.workerNodes[workerNodeKey]
-    if (this.opts.enableTasksQueue === true) {
-      return (
-        workerNode.info.ready &&
-        workerNode.usage.tasks.executing === 0 &&
-        this.tasksQueueSize(workerNodeKey) === 0
-      )
-    }
-    return workerNode.info.ready && workerNode.usage.tasks.executing === 0
-  }
-
   private isWorkerNodeBackPressured(workerNodeKey: number): boolean {
     const workerNode = this.workerNodes[workerNodeKey]
     return workerNode.info.ready && workerNode.info.backPressure
@@ -768,6 +755,27 @@ export abstract class AbstractPool<
       )
     }
     return workerNode.info.ready && workerNode.usage.tasks.executing > 0
+  }
+
+  private isWorkerNodeIdle(workerNodeKey: number): boolean {
+    const workerNode = this.workerNodes[workerNodeKey]
+    if (this.opts.enableTasksQueue === true) {
+      return (
+        workerNode.info.ready &&
+        workerNode.usage.tasks.executing === 0 &&
+        this.tasksQueueSize(workerNodeKey) === 0
+      )
+    }
+    return workerNode.info.ready && workerNode.usage.tasks.executing === 0
+  }
+
+  private isWorkerNodeStealing(workerNodeKey: number): boolean {
+    const workerNode = this.workerNodes[workerNodeKey]
+    return (
+      workerNode.info.ready &&
+      (workerNode.info.continuousStealing ||
+        workerNode.info.backPressureStealing)
+    )
   }
 
   private async sendTaskFunctionOperationToWorker(
@@ -1551,15 +1559,12 @@ export abstract class AbstractPool<
       const localWorkerNodeKey = this.getWorkerNodeKeyByWorkerId(
         message.workerId,
       )
-      const workerInfo = this.getWorkerInfo(localWorkerNodeKey)
       // Kill message received from worker
       if (
         isKillBehavior(KillBehaviors.HARD, message.kill) ||
         (isKillBehavior(KillBehaviors.SOFT, message.kill) &&
           this.isWorkerNodeIdle(localWorkerNodeKey) &&
-          workerInfo != null &&
-          !workerInfo.continuousStealing &&
-          !workerInfo.backPressureStealing)
+          !this.isWorkerNodeStealing(localWorkerNodeKey))
       ) {
         // Flag the worker node as not ready immediately
         this.flagWorkerNodeAsNotReady(localWorkerNodeKey)
