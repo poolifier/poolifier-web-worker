@@ -211,11 +211,8 @@ describe({
       } catch (e) {
         inError = e
       }
-      expect(inError).toBeDefined()
       expect(inError).toBeInstanceOf(Error)
-      expect(inError.message).toBeDefined()
-      expect(typeof inError.message === 'string').toBe(true)
-      expect(inError.message).toBe('Error Message from ThreadWorker')
+      expect(inError.message).toStrictEqual('Error Message from ThreadWorker')
       expect(taskError).toStrictEqual({
         name: DEFAULT_TASK_NAME,
         message: new Error('Error Message from ThreadWorker'),
@@ -243,11 +240,10 @@ describe({
       } catch (e) {
         inError = e
       }
-      expect(inError).toBeDefined()
       expect(inError).toBeInstanceOf(Error)
-      expect(inError.message).toBeDefined()
-      expect(typeof inError.message === 'string').toBe(true)
-      expect(inError.message).toBe('Error Message from ThreadWorker:async')
+      expect(inError.message).toStrictEqual(
+        'Error Message from ThreadWorker:async',
+      )
       expect(taskError).toStrictEqual({
         name: DEFAULT_TASK_NAME,
         message: new Error('Error Message from ThreadWorker:async'),
