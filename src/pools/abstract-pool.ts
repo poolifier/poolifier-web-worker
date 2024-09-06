@@ -1836,6 +1836,18 @@ export abstract class AbstractPool<
     return stolenTask
   }
 
+  private readonly isStealingRatioReached = (): boolean => {
+    return (
+      this.opts.tasksQueueOptions?.tasksStealingRatio === 0 ||
+      (this.info.stealingWorkerNodes ?? 0) >
+        Math.ceil(
+          this.workerNodes.length *
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.opts.tasksQueueOptions!.tasksStealingRatio!,
+        )
+    )
+  }
+
   private readonly handleWorkerNodeIdleEvent = (
     event: CustomEvent<WorkerNodeEventDetail>,
     previousStolenTask?: Task<Data>,
@@ -1852,13 +1864,7 @@ export abstract class AbstractPool<
     }
     if (
       !workerNode.info.continuousStealing &&
-      (this.cannotStealTask() ||
-        this.opts.tasksQueueOptions?.tasksStealingRatio === 0 ||
-        (this.info.stealingWorkerNodes ?? 0) >
-          Math.ceil(
-            this.workerNodes.length *
-              this.opts.tasksQueueOptions!.tasksStealingRatio!,
-          ))
+      (this.cannotStealTask() || this.isStealingRatioReached())
     ) {
       return
     }
@@ -1919,12 +1925,7 @@ export abstract class AbstractPool<
     if (
       this.cannotStealTask() ||
       this.backPressure ||
-      this.opts.tasksQueueOptions?.tasksStealingRatio === 0 ||
-      (this.info.stealingWorkerNodes ?? 0) >
-        Math.ceil(
-          this.workerNodes.length *
-            this.opts.tasksQueueOptions!.tasksStealingRatio!,
-        )
+      this.isStealingRatioReached()
     ) {
       return
     }
