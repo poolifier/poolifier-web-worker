@@ -1,4 +1,4 @@
-import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.4.25' // x-release-please-version
+import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.4.26' // x-release-please-version
 
 function yourFunction() {
   for (let i = 0; i <= 1000; i++) {

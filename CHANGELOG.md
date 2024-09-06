@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.26](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.25...v0.4.26) (2024-09-06)
+
+### ⚡ Performance
+
+- optimize backpressure task(s) stealing conditions
+  ([75ddbb8](https://github.com/poolifier/poolifier-web-worker/commit/75ddbb89038ca0df1a05a4879ebde041dcaee97f))
+
+### ✨ Polish
+
+- add `isWorkerNodeStealing()` helper
+  ([508b201](https://github.com/poolifier/poolifier-web-worker/commit/508b2015bba43e2019b0d2aadca1eaa468609295))
+- factor out stealing ratio conditions check into an helper
+  ([17369b6](https://github.com/poolifier/poolifier-web-worker/commit/17369b636797daff75a1a14e4a3a8d8451b5fabd))
+
+### 🧪 Tests
+
+- cleanup error handling expectations
+  ([ecf101e](https://github.com/poolifier/poolifier-web-worker/commit/ecf101edc4ffecb34e316c4a74b5e36bc85d27e6))
+
 ## [0.4.25](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.24...v0.4.25) (2024-08-30)
 
 ### 🐞 Bug Fixes
