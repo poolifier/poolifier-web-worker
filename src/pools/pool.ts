@@ -93,6 +93,8 @@ export interface PoolInfo {
   readonly utilization?: number
   /** Pool total worker nodes. */
   readonly workerNodes: number
+  /** Pool dynamic worker nodes. */
+  readonly dynamicWorkerNodes?: number
   /** Pool idle worker nodes. */
   readonly idleWorkerNodes: number
   /** Pool busy worker nodes. */

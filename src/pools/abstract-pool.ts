@@ -314,6 +314,13 @@ export abstract class AbstractPool<
           utilization: round(this.utilization),
         }),
       workerNodes: this.workerNodes.length,
+      ...(this.type === PoolTypes.dynamic && {
+        dynamicWorkerNodes: this.workerNodes.reduce(
+          (accumulator, workerNode) =>
+            workerNode.info.dynamic ? accumulator + 1 : accumulator,
+          0,
+        ),
+      }),
       idleWorkerNodes: this.workerNodes.reduce(
         (accumulator, _, workerNodeKey) =>
           this.isWorkerNodeIdle(workerNodeKey) ? accumulator + 1 : accumulator,
@@ -341,16 +348,16 @@ export abstract class AbstractPool<
       ),
       ...(this.opts.enableTasksQueue === true && {
         backPressure: this.backPressure,
-        stealingWorkerNodes: this.workerNodes.reduce(
+        backPressureWorkerNodes: this.workerNodes.reduce(
           (accumulator, _, workerNodeKey) =>
-            this.isWorkerNodeStealing(workerNodeKey)
+            this.isWorkerNodeBackPressured(workerNodeKey)
               ? accumulator + 1
               : accumulator,
           0,
         ),
-        backPressureWorkerNodes: this.workerNodes.reduce(
+        stealingWorkerNodes: this.workerNodes.reduce(
           (accumulator, _, workerNodeKey) =>
-            this.isWorkerNodeBackPressured(workerNodeKey)
+            this.isWorkerNodeStealing(workerNodeKey)
               ? accumulator + 1
               : accumulator,
           0,
