@@ -87,6 +87,7 @@ describe({
       expect(pool.info.started).toBe(false)
       expect(pool.info.ready).toBe(false)
       expect(pool.readyEventEmitted).toBe(false)
+      expect(pool.emptyEventEmitted).toBe(false)
       expect(pool.fullEventEmitted).toBe(false)
       expect(pool.busyEventEmitted).toBe(false)
       expect(pool.backPressureEventEmitted).toBe(false)

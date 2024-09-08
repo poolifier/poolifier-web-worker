@@ -18,14 +18,14 @@ export class DynamicThreadPool<
   Response = unknown,
 > extends FixedThreadPool<Data, Response> {
   /**
-   * Whether the pool full event has been emitted or not.
-   */
-  private fullEventEmitted: boolean
-
-  /**
    * Whether the pool empty event has been emitted or not
    */
   private emptyEventEmitted: boolean
+
+  /**
+   * Whether the pool full event has been emitted or not.
+   */
+  private fullEventEmitted: boolean
 
   /**
    * Constructs a new poolifier dynamic thread pool.
@@ -46,8 +46,8 @@ export class DynamicThreadPool<
       this.minimumNumberOfWorkers,
       this.maximumNumberOfWorkers!,
     )
-    this.fullEventEmitted = false
     this.emptyEventEmitted = false
+    this.fullEventEmitted = false
   }
 
   /** @inheritDoc */
