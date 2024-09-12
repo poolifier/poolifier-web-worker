@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.27](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.26...v0.4.27) (2024-09-08)
+
+### ⚡ Performance
+
+- track dynamic pool `empty` event lifecycle
+  ([1c82a75](https://github.com/poolifier/poolifier-web-worker/commit/1c82a75057c8ec28327bffb5a88e71bb601381b5))
+
+### ✨ Polish
+
+- add dynamic worker nodes count to pool info
+  ([27f1bca](https://github.com/poolifier/poolifier-web-worker/commit/27f1bcac4df2d3c2fc4100b43f2e0b3c96d70c76))
+
+### 🧪 Tests
+
+- refine dynamic pool shutdown test expectations
+  ([4562a61](https://github.com/poolifier/poolifier-web-worker/commit/4562a61f8f50a2d0af0dc28c1a81fccb4e8e5617))
+
+### 🤖 Automation
+
+- **sonar:** refine sonar-project.properties
+  ([e43d3d8](https://github.com/poolifier/poolifier-web-worker/commit/e43d3d833eb2e069d2c0b08b265a934c8f07486f))
+- **sonar:** refine sonar-project.properties
+  ([893e2a0](https://github.com/poolifier/poolifier-web-worker/commit/893e2a0738f14ecac932712038982f24eb137210))
+
 ## [0.4.26](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.25...v0.4.26) (2024-09-06)
 
 ### ⚡ Performance
