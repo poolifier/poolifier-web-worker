@@ -23,19 +23,20 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
 > extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
   implements IWorkerChoiceStrategy {
   /** @inheritDoc */
-  public readonly taskStatisticsRequirements: TaskStatisticsRequirements = {
-    runTime: {
-      aggregate: true,
-      average: true,
-      median: false,
-    },
-    waitTime: {
-      aggregate: true,
-      average: true,
-      median: false,
-    },
-    elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  }
+  public override readonly taskStatisticsRequirements:
+    TaskStatisticsRequirements = {
+      runTime: {
+        aggregate: true,
+        average: true,
+        median: false,
+      },
+      waitTime: {
+        aggregate: true,
+        average: true,
+        median: false,
+      },
+      elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+    }
 
   /**
    * Worker node virtual task execution time.

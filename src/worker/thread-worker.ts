@@ -73,7 +73,7 @@ export class ThreadWorker<
   }
 
   /** @inheritDoc */
-  protected handleKillMessage(message: MessageValue<Data>): void {
+  protected override handleKillMessage(message: MessageValue<Data>): void {
     super.handleKillMessage(message)
     this.port?.close()
   }
@@ -94,7 +94,7 @@ export class ThreadWorker<
    * @inheritDoc
    * @override
    */
-  protected handleError(error: Error | string): string {
+  protected override handleError(error: Error | string): string {
     return error as string
   }
 }

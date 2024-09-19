@@ -22,19 +22,20 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
 > extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
   implements IWorkerChoiceStrategy {
   /** @inheritDoc */
-  public readonly taskStatisticsRequirements: TaskStatisticsRequirements = {
-    runTime: {
-      aggregate: true,
-      average: true,
-      median: false,
-    },
-    waitTime: {
-      aggregate: true,
-      average: true,
-      median: false,
-    },
-    elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  }
+  public override readonly taskStatisticsRequirements:
+    TaskStatisticsRequirements = {
+      runTime: {
+        aggregate: true,
+        average: true,
+        median: false,
+      },
+      waitTime: {
+        aggregate: true,
+        average: true,
+        median: false,
+      },
+      elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+    }
 
   /**
    * Round id.
@@ -156,7 +157,9 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public setOptions(opts: WorkerChoiceStrategyOptions | undefined): void {
+  public override setOptions(
+    opts: WorkerChoiceStrategyOptions | undefined,
+  ): void {
     super.setOptions(opts)
     this.roundWeights = this.getRoundWeights()
   }
