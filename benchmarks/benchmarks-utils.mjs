@@ -7,7 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
-import { bench, clear, group, run } from '@poolifier/tatami-ng'
+import { bench, group, run } from '@poolifier/tatami-ng'
 import {
   DynamicThreadPool,
   FixedThreadPool,
@@ -217,7 +217,6 @@ export const runPoolifierBenchmarkTatamiNg = async (
       }
     }
     const report = await run()
-    clear()
     await pool.destroy()
     return report
   } catch (error) {
