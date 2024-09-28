@@ -1,8 +1,4 @@
-import {
-  availableParallelism,
-  runtime,
-  unsupportedJsRuntime,
-} from '../../utils.ts'
+import { availableParallelism, runtime } from '../../utils.ts'
 import type { IPool } from '../pool.ts'
 import type { IWorker } from '../worker.ts'
 import { FairShareWorkerChoiceStrategy } from './fair-share-worker-choice-strategy.ts'
@@ -67,7 +63,6 @@ const cpusCycleTimeWeight = (cpus: { speed: number }[]): number => {
 const computedDefaultWorkerWeight: number =
   await (async (): Promise<number> => {
     return await {
-      unknown: unsupportedJsRuntime,
       browser: () => {
         const estCpuSpeed = estimatedCpuSpeed()
         return cpusCycleTimeWeight(

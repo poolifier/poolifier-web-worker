@@ -259,15 +259,6 @@ const isDeno: boolean = !!(globalThis as any).Deno
 const isBrowser: boolean = !!(globalThis as any).navigator
 
 /**
- * Throws an error indicating that the current JavaScript runtime environment is unsupported.
- *
- * @internal
- */
-export const unsupportedJsRuntime = () => {
-  throw new Error('Unsupported JavaScript runtime environment')
-}
-
-/**
  * JavaScript runtime environments enumeration.
  *
  * @internal
@@ -279,22 +270,21 @@ export enum JavaScriptRuntimes {
 }
 
 /**
- * JavaScript runtime environments.
+ * JavaScript runtime environment.
  *
  * @internal
  */
-export const runtime: JavaScriptRuntimes | 'unknown' = (() => {
+export const runtime: JavaScriptRuntimes = (() => {
   if (isBun) return JavaScriptRuntimes.bun
   if (isDeno) return JavaScriptRuntimes.deno
   if (isBrowser) return JavaScriptRuntimes.browser
-  return 'unknown'
+  throw new Error('Unsupported JavaScript runtime environment')
 })()
 
 const isMainThread: boolean | undefined = await (async (): Promise<
   boolean | undefined
 > => {
   return await {
-    unknown: unsupportedJsRuntime,
     browser: () => undefined,
     deno: () => undefined,
     bun: async () => {
@@ -312,7 +302,6 @@ const isMainThread: boolean | undefined = await (async (): Promise<
  */
 export const environment: string = await (async (): Promise<string> => {
   return await {
-    unknown: unsupportedJsRuntime,
     browser: () => 'production',
     deno: () => {
       // deno-lint-ignore ban-ts-comment
