@@ -235,7 +235,15 @@ export const convertTatamiNgToBmf = (report) => {
             upper_value: stats?.max,
           },
           throughput: {
-            value: stats?.iter,
+            value: stats?.iters,
+            ...(typeof stats?.max === 'number' &&
+              stats.max > 0 && {
+              lower_value: 1e9 / stats.max,
+            }),
+            ...(typeof stats?.min === 'number' &&
+              stats.min > 0 && {
+              upper_value: 1e9 / stats.min,
+            }),
           },
         },
       }
