@@ -1,11 +1,11 @@
 import { availableParallelism, PoolTypes, WorkerTypes } from '../../src/mod.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
 import {
-  convertTatamiNgToBmf,
   runPoolifierBenchmarkDenoBench,
   runPoolifierBenchmarkTatamiNg,
   runtime,
 } from '../benchmarks-utils.mjs'
+import { bmf } from '@poolifier/tatami-ng'
 
 const poolSize = availableParallelism()
 const taskExecutions = 1
@@ -30,7 +30,7 @@ const runBenchmark = async () => {
       const { parseArgs } = await import('@std/cli/parse-args')
       switch (parseArgs(Deno.args).t) {
         case 'tatami-ng':
-          benchmarkReport = convertTatamiNgToBmf(
+          benchmarkReport = bmf(
             await runPoolifierBenchmarkTatamiNg(
               fixedThreadPoolGroupname,
               WorkerTypes.web,
@@ -44,7 +44,7 @@ const runBenchmark = async () => {
           )
           benchmarkReport = {
             ...benchmarkReport,
-            ...convertTatamiNgToBmf(
+            ...bmf(
               await runPoolifierBenchmarkTatamiNg(
                 dynamicThreadPoolGroupname,
                 WorkerTypes.web,
@@ -104,7 +104,7 @@ const runBenchmark = async () => {
       ) {
         case 'tatami-ng':
         default:
-          benchmarkReport = convertTatamiNgToBmf(
+          benchmarkReport = bmf(
             await runPoolifierBenchmarkTatamiNg(
               fixedThreadPoolGroupname,
               WorkerTypes.web,
@@ -118,7 +118,7 @@ const runBenchmark = async () => {
           )
           benchmarkReport = {
             ...benchmarkReport,
-            ...convertTatamiNgToBmf(
+            ...bmf(
               await runPoolifierBenchmarkTatamiNg(
                 dynamicThreadPoolGroupname,
                 WorkerTypes.web,
