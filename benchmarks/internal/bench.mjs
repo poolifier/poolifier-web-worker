@@ -16,16 +16,13 @@ const workerData = {
 const benchmarkReportFile = 'benchmark-report.json'
 let benchmarkReport
 
-const unsupportedJsRuntime = () => {
-  console.error(`Unsupported JavaScript runtime environment: ${runtime}`)
-}
-
 const runBenchmark = async () => {
   const fixedThreadPoolGroupname = `FixedThreadPool on ${runtime}`
   const dynamicThreadPoolGroupname = `DynamicThreadPool on ${runtime}`
   return await {
-    unknown: () => console.error('Unknown JavaScript runtime environment'),
-    browser: unsupportedJsRuntime,
+    browser: () => {
+      throw new Error('Benchmark on a browser runtime is not supported')
+    },
     deno: async () => {
       const { parseArgs } = await import('@std/cli/parse-args')
       switch (parseArgs(Deno.args).t) {
@@ -139,8 +136,6 @@ const runBenchmark = async () => {
           break
       }
     },
-    node: unsupportedJsRuntime,
-    workerd: unsupportedJsRuntime,
   }[runtime]()
 }
 

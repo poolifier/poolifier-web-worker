@@ -305,22 +305,22 @@ export const executeTaskFunction = (data) => {
 const JavaScriptRuntimes = {
   bun: 'bun',
   deno: 'deno',
-  node: 'node',
-  workerd: 'workerd',
+  // node: 'node',
+  // workerd: 'workerd',
   browser: 'browser',
 }
 
 const isBun = !!globalThis.Bun || !!globalThis.process?.versions?.bun
 const isDeno = !!globalThis.Deno
-const isNode = globalThis.process?.release?.name === 'node'
-const isWorkerd = globalThis.navigator?.userAgent === 'Cloudflare-Workers'
+// const isNode = globalThis.process?.release?.name === 'node'
+// const isWorkerd = globalThis.navigator?.userAgent === 'Cloudflare-Workers'
 const isBrowser = !!globalThis.navigator
 
 export const runtime = (() => {
   if (isBun) return JavaScriptRuntimes.bun
   if (isDeno) return JavaScriptRuntimes.deno
-  if (isNode) return JavaScriptRuntimes.node
-  if (isWorkerd) return JavaScriptRuntimes.workerd
+  // if (isNode) return JavaScriptRuntimes.node
+  // if (isWorkerd) return JavaScriptRuntimes.workerd
   if (isBrowser) return JavaScriptRuntimes.browser
-  return 'unknown'
+  throw new Error('Unsupported JavaScript runtime environment')
 })()
