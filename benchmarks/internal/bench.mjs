@@ -27,32 +27,30 @@ const runBenchmark = async () => {
       const { parseArgs } = await import('@std/cli/parse-args')
       switch (parseArgs(Deno.args).t) {
         case 'tatami-ng':
-          benchmarkReport = bmf(
-            await runPoolifierBenchmarkTatamiNg(
-              fixedThreadPoolGroupname,
+          benchmarkReport = await runPoolifierBenchmarkTatamiNg(
+            fixedThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.fixed,
+            poolSize,
+            bmf,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          benchmarkReport = {
+            ...benchmarkReport,
+            ...(await runPoolifierBenchmarkTatamiNg(
+              dynamicThreadPoolGroupname,
               WorkerTypes.web,
-              PoolTypes.fixed,
+              PoolTypes.dynamic,
               poolSize,
+              bmf,
               {
                 taskExecutions,
                 workerData,
               },
-            ),
-          )
-          benchmarkReport = {
-            ...benchmarkReport,
-            ...bmf(
-              await runPoolifierBenchmarkTatamiNg(
-                dynamicThreadPoolGroupname,
-                WorkerTypes.web,
-                PoolTypes.dynamic,
-                poolSize,
-                {
-                  taskExecutions,
-                  workerData,
-                },
-              ),
-            ),
+            )),
           }
           Deno.env.get('CI') != null &&
             Deno.writeTextFileSync(
@@ -101,32 +99,30 @@ const runBenchmark = async () => {
       ) {
         case 'tatami-ng':
         default:
-          benchmarkReport = bmf(
-            await runPoolifierBenchmarkTatamiNg(
-              fixedThreadPoolGroupname,
+          benchmarkReport = await runPoolifierBenchmarkTatamiNg(
+            fixedThreadPoolGroupname,
+            WorkerTypes.web,
+            PoolTypes.fixed,
+            poolSize,
+            bmf,
+            {
+              taskExecutions,
+              workerData,
+            },
+          )
+          benchmarkReport = {
+            ...benchmarkReport,
+            ...(await runPoolifierBenchmarkTatamiNg(
+              dynamicThreadPoolGroupname,
               WorkerTypes.web,
-              PoolTypes.fixed,
+              PoolTypes.dynamic,
               poolSize,
+              bmf,
               {
                 taskExecutions,
                 workerData,
               },
-            ),
-          )
-          benchmarkReport = {
-            ...benchmarkReport,
-            ...bmf(
-              await runPoolifierBenchmarkTatamiNg(
-                dynamicThreadPoolGroupname,
-                WorkerTypes.web,
-                PoolTypes.dynamic,
-                poolSize,
-                {
-                  taskExecutions,
-                  workerData,
-                },
-              ),
-            ),
+            )),
           }
           Bun.env.CI != null &&
             (await Bun.write(

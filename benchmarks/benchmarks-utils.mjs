@@ -149,6 +149,7 @@ export const runPoolifierBenchmarkTatamiNg = async (
   workerType,
   poolType,
   poolSize,
+  benchmarkReporter,
   { taskExecutions, workerData },
 ) => {
   try {
@@ -216,7 +217,7 @@ export const runPoolifierBenchmarkTatamiNg = async (
         }
       }
     }
-    const report = await run()
+    const report = await run({ reporter: benchmarkReporter })
     await pool.destroy()
     return report
   } catch (error) {
