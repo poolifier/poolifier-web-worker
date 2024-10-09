@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        deno: [v1.x, canary]
+        deno: [v1.x, v2.x, canary]
 
     name: Deno ${{ matrix.deno }} on ${{ matrix.os }}
 
@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis. This is needed for better sonar
 
       - name: Setup Deno ${{ matrix.deno }}
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
 
@@ -40,11 +40,11 @@ jobs:
           bun-version: latest
 
       - name: Format Check
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v2.x' }}
         run: deno task format:check
 
       - name: Lint
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v2.x' }}
         run: deno task lint
 
       - name: Tests with Coverage
@@ -54,11 +54,11 @@ jobs:
         run: deno task bundle
 
       - name: Coverage Report
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v2.x' }}
         run: deno task coverage:report
 
       - name: Fix Coverage Report Paths
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v2.x' }}
         working-directory: ./coverage
         run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' lcov.info
 
@@ -73,7 +73,7 @@ jobs:
           fi
 
       - name: SonarCloud Code Analysis
-        if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-web-worker' && matrix.os == 'ubuntu-latest' && matrix.deno == 'v1.x' }}
+        if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-web-worker' && matrix.os == 'ubuntu-latest' && matrix.deno == 'v2.x' }}
         uses: sonarsource/sonarcloud-github-action@v3.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
