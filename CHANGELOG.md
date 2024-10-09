@@ -6,6 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.28](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.27...v0.4.28) (2024-10-09)
+
+### 🚀 Features
+
+- add deno 2.x.x support
+  ([47dfca2](https://github.com/poolifier/poolifier-web-worker/commit/47dfca2a5f2db11cac95fb51298e6731e6cfb60e))
+- **benchmarks:** add bencher threshold checks
+  ([a0010ee](https://github.com/poolifier/poolifier-web-worker/commit/a0010ee454572f1487e270da8ff3a569b1d2a5ab))
+
+### 🐞 Bug Fixes
+
+- **benchmarks:** add upper/lower values to BMF throughput
+  ([d5ccee0](https://github.com/poolifier/poolifier-web-worker/commit/d5ccee0843c552153761f402d040908c4b8e1295))
+- **benchmarks:** fix BMF report upper/lower values
+  ([c352783](https://github.com/poolifier/poolifier-web-worker/commit/c352783ecff743dc86649f02030be25fbef9e20c))
+- fix benchmarks report conversion to BMF format
+  ([9d39cfe](https://github.com/poolifier/poolifier-web-worker/commit/9d39cfee5c200e176bcc5ce65fa79dd21ba3844f))
+
+### ✨ Polish
+
+- **benchmarks:** cleanup JS runtime detection code
+  ([8bd7fa6](https://github.com/poolifier/poolifier-web-worker/commit/8bd7fa6277633047de2b10628c9cab2d2450179e))
+- cleanup multiple JS runtime support implementation
+  ([ca64e63](https://github.com/poolifier/poolifier-web-worker/commit/ca64e63d6768eb55d234a375fc8c2a88337a5f8f))
+- cleanup task function ops validation
+  ([766352d](https://github.com/poolifier/poolifier-web-worker/commit/766352d6396c7da5ade57f07514d5c57126febe8))
+
+### 🤖 Automation
+
+- **ci:** add deno 2.x.x RC
+  ([a4c218d](https://github.com/poolifier/poolifier-web-worker/commit/a4c218dded5d1b8aaf409cbe8d9b4060ef1a5f7d))
+- **ci:** revert deno 2.x.x integration
+  ([d0bf8a9](https://github.com/poolifier/poolifier-web-worker/commit/d0bf8a92a40cd8883e133f5d289a1b14eca4660a))
+- **ci:** switch to deno v2.x.x
+  ([17e3705](https://github.com/poolifier/poolifier-web-worker/commit/17e3705be88b6996427a3cef7a1201c3dfd9c7f3))
+- **deps:** Bump sonarsource/sonarcloud-github-action
+  ([#68](https://github.com/poolifier/poolifier-web-worker/issues/68))
+  ([29df0a7](https://github.com/poolifier/poolifier-web-worker/commit/29df0a7a94e85ba2b4d724189701d83701e64e08))
+
 ## [0.4.27](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.26...v0.4.27) (2024-09-08)
 
 ### ⚡ Performance
