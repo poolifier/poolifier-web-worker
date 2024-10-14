@@ -148,7 +148,7 @@ for more details**:
 <!-- deno-fmt-ignore -->
 
 ```js
-<script type="module">import { ThreadWorker } from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.28/browser/mod.js'</script>
+<script type="module">import {ThreadWorker} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.4.28/browser/mod.js'</script>
 ```
 
 ```js
@@ -189,57 +189,28 @@ Instantiate your pool based on your needs :
 
 ```js
 // adapt import to the targeted JS runtime
-import {
-  availableParallelism,
-  DynamicThreadPool,
-  FixedThreadPool,
-  PoolEvents,
-} from '@poolifier/poolifier-web-worker'
+import { availableParallelism, DynamicThreadPool, FixedThreadPool, PoolEvents } from '@poolifier/poolifier-web-worker'
 
 // a fixed web worker pool
-const pool = new FixedThreadPool(
-  availableParallelism(),
-  new URL('./yourWorker.js', import.meta.url),
-  {
-    errorEventHandler: (e) => {
-      console.error(e)
-    },
+const pool = new FixedThreadPool(availableParallelism(), new URL('./yourWorker.js', import.meta.url), {
+  errorEventHandler: e => {
+    console.error(e)
   },
-)
+})
 
-pool.eventTarget?.addEventListener(
-  PoolEvents.ready,
-  () => console.info('Pool is ready'),
-)
-pool.eventTarget?.addEventListener(
-  PoolEvents.busy,
-  () => console.info('Pool is busy'),
-)
+pool.eventTarget?.addEventListener(PoolEvents.ready, () => console.info('Pool is ready'))
+pool.eventTarget?.addEventListener(PoolEvents.busy, () => console.info('Pool is busy'))
 
 // or a dynamic web worker pool
-const pool = new DynamicThreadPool(
-  Math.floor(availableParallelism() / 2),
-  availableParallelism(),
-  new URL('./yourWorker.js', import.meta.url),
-  {
-    errorEventHandler: (e) => {
-      console.error(e)
-    },
+const pool = new DynamicThreadPool(Math.floor(availableParallelism() / 2), availableParallelism(), new URL('./yourWorker.js', import.meta.url), {
+  errorEventHandler: e => {
+    console.error(e)
   },
-)
+})
 
-pool.eventTarget?.addEventListener(
-  PoolEvents.full,
-  () => console.info('Pool is full'),
-)
-pool.eventTarget?.addEventListener(
-  PoolEvents.ready,
-  () => console.info('Pool is ready'),
-)
-pool.eventTarget?.addEventListener(
-  PoolEvents.busy,
-  () => console.info('Pool is busy'),
-)
+pool.eventTarget?.addEventListener(PoolEvents.full, () => console.info('Pool is full'))
+pool.eventTarget?.addEventListener(PoolEvents.ready, () => console.info('Pool is ready'))
+pool.eventTarget?.addEventListener(PoolEvents.busy, () => console.info('Pool is busy'))
 
 // the execute method signature is the same for both implementations,
 // so you can easily switch from one to another
