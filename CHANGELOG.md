@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.29](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.28...v0.4.29) (2024-10-14)
+
+### ⚡ Performance
+
+- pre-create worker if needed at the end of task execution
+  ([cd7406c](https://github.com/poolifier/poolifier-web-worker/commit/cd7406cafa5367f6157ef373b7f9539f0ba1e8d4))
+
+### 📚 Documentation
+
+- **README.md:** revert reformatting
+  ([5561f4e](https://github.com/poolifier/poolifier-web-worker/commit/5561f4ee5be32274368df4f510f7cfed19fc3411))
+
+### 🤖 Automation
+
+- **deps:** Bump github/combine-prs from 5.1.0 to 5.2.0
+  ([3412820](https://github.com/poolifier/poolifier-web-worker/commit/341282043d9352054fcf0ad9c43b34745d4da164))
+
 ## [0.4.28](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.27...v0.4.28) (2024-10-09)
 
 ### 🚀 Features
