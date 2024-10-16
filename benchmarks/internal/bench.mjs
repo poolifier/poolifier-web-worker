@@ -1,3 +1,4 @@
+import { bmf } from '@poolifier/tatami-ng'
 import { availableParallelism, PoolTypes, WorkerTypes } from '../../src/mod.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
 import {
@@ -5,7 +6,6 @@ import {
   runPoolifierBenchmarkTatamiNg,
   runtime,
 } from '../benchmarks-utils.mjs'
-import { bmf } from '@poolifier/tatami-ng'
 
 const poolSize = availableParallelism()
 const taskExecutions = 1
