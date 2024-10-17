@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.30](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.29...v0.4.30) (2024-10-17)
+
+### ⚡ Performance
+
+- speed up isAsyncFunction() helper
+  ([8d451ae](https://github.com/poolifier/poolifier-web-worker/commit/8d451ae2199634b0aaff0ee0f9952730d01e7ce3))
+
+### 🤖 Automation
+
+- **ci:** fix deno.json formatting
+  ([83a3f4c](https://github.com/poolifier/poolifier-web-worker/commit/83a3f4ccce7c8fdaff9e1b5defa6f7bbc93a6b66))
+
 ## [0.4.29](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.28...v0.4.29) (2024-10-14)
 
 ### ⚡ Performance
