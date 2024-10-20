@@ -8,15 +8,15 @@ and this project adheres to
 
 ## [0.4.30](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.29...v0.4.30) (2024-10-20)
 
-
 ### ⚡ Performance
 
-* speed up isAsyncFunction() helper ([8d451ae](https://github.com/poolifier/poolifier-web-worker/commit/8d451ae2199634b0aaff0ee0f9952730d01e7ce3))
-
+- speed up isAsyncFunction() helper
+  ([8d451ae](https://github.com/poolifier/poolifier-web-worker/commit/8d451ae2199634b0aaff0ee0f9952730d01e7ce3))
 
 ### 🤖 Automation
 
-* **ci:** fix deno.json formatting ([83a3f4c](https://github.com/poolifier/poolifier-web-worker/commit/83a3f4ccce7c8fdaff9e1b5defa6f7bbc93a6b66))
+- **ci:** fix deno.json formatting
+  ([83a3f4c](https://github.com/poolifier/poolifier-web-worker/commit/83a3f4ccce7c8fdaff9e1b5defa6f7bbc93a6b66))
 
 ## [0.4.29](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.28...v0.4.29) (2024-10-14)
 
