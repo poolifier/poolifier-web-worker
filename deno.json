@@ -3,7 +3,9 @@
   "version": "0.4.29",
   "exports": "./src/mod.ts",
   "compilerOptions": {
-    "lib": ["deno.worker"],
+    "lib": [
+      "deno.worker"
+    ],
     "strict": true
   },
   "tasks": {
@@ -24,22 +26,34 @@
     "documentation": "deno doc ./src/mod.ts"
   },
   "test": {
-    "include": ["./tests/**/*.test.mjs"]
+    "include": [
+      "./tests/**/*.test.mjs"
+    ]
   },
   "fmt": {
     "semiColons": false,
     "singleQuote": true
   },
   "imports": {
-    "@poolifier/tatami-ng": "jsr:@poolifier/tatami-ng@^0.8.11",
+    "@poolifier/tatami-ng": "jsr:@poolifier/tatami-ng@^0.8.12",
     "@std/assert": "jsr:@std/assert@^1.0.6",
     "@std/cli": "jsr:@std/cli@^1.0.6",
     "@std/testing": "jsr:@std/testing@^1.0.3",
     "expect": "npm:expect@^29.7.0"
   },
   "publish": {
-    "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
+    "include": [
+      "LICENSE",
+      "README.md",
+      "deno.json",
+      "src/**/*.ts"
+    ]
   },
   "lock": false,
-  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"]
+  "exclude": [
+    "./coverage",
+    "./dist/browser",
+    "./dist/esm",
+    "./npm"
+  ]
 }
