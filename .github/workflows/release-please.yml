@@ -113,8 +113,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish Pre-Release
-        if: ${{ contains(github.ref_name, '-') == true && contains(github.ref_name, '-beta') == false }}
+      - name: Publish Release Candidate
+        if: ${{ contains(github.ref_name, '-rc') == true }}
         run: cd dist && npm publish --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -122,5 +122,11 @@ jobs:
       - name: Publish Beta Release
         if: ${{ contains(github.ref_name, '-beta') == true }}
         run: cd dist && npm publish --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish Alpha Release
+        if: ${{ contains(github.ref_name, '-alpha') == true }}
+        run: cd dist && npm publish --tag alpha
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
