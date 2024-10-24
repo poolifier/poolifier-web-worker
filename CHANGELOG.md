@@ -8,26 +8,27 @@ and this project adheres to
 
 ## [0.4.30](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.29...v0.4.30) (2024-10-24)
 
-
 ### 🐞 Bug Fixes
 
-* ensure error on the worker side is propagated unchanged to main ([22804e0](https://github.com/poolifier/poolifier-web-worker/commit/22804e0626aee9ead4282b711326883e56b9d796))
-
+- ensure error on the worker side is propagated unchanged to main
+  ([22804e0](https://github.com/poolifier/poolifier-web-worker/commit/22804e0626aee9ead4282b711326883e56b9d796))
 
 ### ⚡ Performance
 
-* speed up isAsyncFunction() helper ([8d451ae](https://github.com/poolifier/poolifier-web-worker/commit/8d451ae2199634b0aaff0ee0f9952730d01e7ce3))
-
+- speed up isAsyncFunction() helper
+  ([8d451ae](https://github.com/poolifier/poolifier-web-worker/commit/8d451ae2199634b0aaff0ee0f9952730d01e7ce3))
 
 ### ✨ Polish
 
-* silence tsc error ([2b678f8](https://github.com/poolifier/poolifier-web-worker/commit/2b678f804f067387231909fd481569d86f74d2c2))
-
+- silence tsc error
+  ([2b678f8](https://github.com/poolifier/poolifier-web-worker/commit/2b678f804f067387231909fd481569d86f74d2c2))
 
 ### 🤖 Automation
 
-* **ci:** fix deno.json formatting ([83a3f4c](https://github.com/poolifier/poolifier-web-worker/commit/83a3f4ccce7c8fdaff9e1b5defa6f7bbc93a6b66))
-* **ci:** handle various release type on npm registry ([9ab41fe](https://github.com/poolifier/poolifier-web-worker/commit/9ab41feae0119d107c9528fabaacbce5ac9b3281))
+- **ci:** fix deno.json formatting
+  ([83a3f4c](https://github.com/poolifier/poolifier-web-worker/commit/83a3f4ccce7c8fdaff9e1b5defa6f7bbc93a6b66))
+- **ci:** handle various release type on npm registry
+  ([9ab41fe](https://github.com/poolifier/poolifier-web-worker/commit/9ab41feae0119d107c9528fabaacbce5ac9b3281))
 
 ## [0.4.29](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.28...v0.4.29) (2024-10-14)
 
