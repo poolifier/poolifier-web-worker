@@ -89,12 +89,4 @@ export class ThreadWorker<
       } satisfies MessageValue<Response>,
     )
   }
-
-  /**
-   * @inheritDoc
-   * @override
-   */
-  protected override handleError(error: Error | string): string {
-    return error as string
-  }
 }

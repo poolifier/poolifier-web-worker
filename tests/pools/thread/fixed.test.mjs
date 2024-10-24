@@ -214,9 +214,9 @@ describe({
       expect(inError).toBeInstanceOf(Error)
       expect(inError.message).toStrictEqual('Error Message from ThreadWorker')
       expect(taskError).toStrictEqual({
-        name: DEFAULT_TASK_NAME,
-        message: new Error('Error Message from ThreadWorker'),
         data,
+        error: new Error('Error Message from ThreadWorker'),
+        name: DEFAULT_TASK_NAME,
       })
       expect(
         errorPool.workerNodes.some(
@@ -245,9 +245,9 @@ describe({
         'Error Message from ThreadWorker:async',
       )
       expect(taskError).toStrictEqual({
-        name: DEFAULT_TASK_NAME,
-        message: new Error('Error Message from ThreadWorker:async'),
         data,
+        error: new Error('Error Message from ThreadWorker:async'),
+        name: DEFAULT_TASK_NAME,
       })
       expect(
         asyncErrorPool.workerNodes.some(

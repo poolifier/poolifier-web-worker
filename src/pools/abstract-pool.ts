@@ -804,7 +804,7 @@ export abstract class AbstractPool<
           } else {
             reject(
               new Error(
-                `Task function operation '${message.taskFunctionOperation?.toString()}' failed on worker ${message.workerId?.toString()} with error: '${message.workerError?.message}'`,
+                `Task function operation '${message.taskFunctionOperation?.toString()}' failed on worker ${message.workerId?.toString()} with error: '${message.workerError?.error.message}'`,
               ),
             )
           }
@@ -850,7 +850,7 @@ export abstract class AbstractPool<
               )
               reject(
                 new Error(
-                  `Task function operation '${message.taskFunctionOperation}' failed on worker ${errorResponse?.workerId?.toString()} with error: '${errorResponse?.workerError?.message}'`,
+                  `Task function operation '${message.taskFunctionOperation}' failed on worker ${errorResponse?.workerId?.toString()} with error: '${errorResponse?.workerError?.error.message}'`,
                 ),
               )
             }
@@ -1499,13 +1499,7 @@ export abstract class AbstractPool<
     workerNode.worker.onerror = (errorEvent) => {
       workerNode.info.ready = false
       this.eventTarget?.dispatchEvent(
-        new ErrorEvent(PoolEvents.error, {
-          message: errorEvent.message,
-          filename: errorEvent.filename,
-          lineno: errorEvent.lineno,
-          colno: errorEvent.colno,
-          error: errorEvent.error,
-        }),
+        new ErrorEvent(PoolEvents.error, errorEvent),
       )
       if (
         this.started &&
@@ -2031,7 +2025,7 @@ export abstract class AbstractPool<
         this.eventTarget?.dispatchEvent(
           new ErrorEvent(PoolEvents.taskError, { error: workerError }),
         )
-        reject(workerError.message)
+        reject(workerError.error)
       } else {
         resolve(data!)
       }

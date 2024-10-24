@@ -402,8 +402,8 @@ export abstract class AbstractWorker<
       ...(!status &&
         error != null && {
         workerError: {
+          error,
           name: taskFunctionProperties.name,
-          message: this.handleError(error as Error | string),
         },
       }),
     })
@@ -515,16 +515,6 @@ export abstract class AbstractWorker<
   }
 
   /**
-   * Handles an error and convert it to a string so it can be sent back to the main worker.
-   *
-   * @param error - The error raised by the worker.
-   * @returns The error message.
-   */
-  protected handleError(error: Error | string): string {
-    return error instanceof Error ? error.message : error
-  }
-
-  /**
    * Runs the given task.
    *
    * @param task - The task to execute.
@@ -535,9 +525,9 @@ export abstract class AbstractWorker<
     if (!this.taskFunctions.has(taskFunctionName)) {
       this.sendToMainWorker({
         workerError: {
-          name: name!,
-          message: `Task function '${name!}' not found`,
           data,
+          error: new Error(`Task function '${name!}' not found`),
+          name,
         },
         taskId,
       })
@@ -574,9 +564,9 @@ export abstract class AbstractWorker<
     } catch (error) {
       this.sendToMainWorker({
         workerError: {
-          name: name!,
-          message: this.handleError(error as Error | string),
           data,
+          error: error as Error,
+          name,
         },
         taskId,
       })
@@ -609,9 +599,9 @@ export abstract class AbstractWorker<
       .catch((error) => {
         this.sendToMainWorker({
           workerError: {
-            name: name!,
-            message: this.handleError(error as Error | string),
             data,
+            error: error as Error,
+            name,
           },
           taskId,
         })

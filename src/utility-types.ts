@@ -8,17 +8,17 @@ import type { KillBehavior } from './worker/worker-options.ts'
  */
 export interface WorkerError<Data = unknown> {
   /**
-   * Task function name triggering the error.
-   */
-  readonly name: string
-  /**
-   * Error message.
-   */
-  readonly message: string
-  /**
    * Data triggering the error.
    */
   readonly data?: Data
+  /**
+   * Error object.
+   */
+  readonly error: Error
+  /**
+   * Task function name triggering the error.
+   */
+  readonly name?: string
 }
 
 /**
