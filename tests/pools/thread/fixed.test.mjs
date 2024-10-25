@@ -215,7 +215,7 @@ describe({
       expect(inError.message).toStrictEqual('Error Message from ThreadWorker')
       expect(taskError).toStrictEqual({
         data,
-        error: new Error('Error Message from ThreadWorker'),
+        error: inError,
         name: DEFAULT_TASK_NAME,
       })
       expect(
@@ -246,7 +246,7 @@ describe({
       )
       expect(taskError).toStrictEqual({
         data,
-        error: new Error('Error Message from ThreadWorker:async'),
+        error: inError,
         name: DEFAULT_TASK_NAME,
       })
       expect(
