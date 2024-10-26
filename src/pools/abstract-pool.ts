@@ -1082,11 +1082,6 @@ export abstract class AbstractPool<
         timestamp,
         taskId: crypto.randomUUID(),
       }
-      this.promiseResponseMap.set(task.taskId!, {
-        resolve,
-        reject,
-        workerNodeKey,
-      })
       if (
         this.opts.enableTasksQueue === false ||
         (this.opts.enableTasksQueue === true &&
@@ -1096,6 +1091,13 @@ export abstract class AbstractPool<
       } else {
         this.enqueueTask(workerNodeKey, task)
       }
+      queueMicrotask(() => {
+        this.promiseResponseMap.set(task.taskId!, {
+          resolve,
+          reject,
+          workerNodeKey,
+        })
+      })
     })
   }
 
@@ -2030,31 +2032,32 @@ export abstract class AbstractPool<
         resolve(data!)
       }
       this.afterTaskExecutionHook(workerNodeKey, message)
-      this.checkAndEmitTaskExecutionFinishedEvents()
-      this.promiseResponseMap.delete(taskId!)
-      if (this.opts.enableTasksQueue === true && !this.destroying) {
-        if (
-          !this.isWorkerNodeBusy(workerNodeKey) &&
-          this.tasksQueueSize(workerNodeKey) > 0
-        ) {
-          this.executeTask(
-            workerNodeKey,
-            this.dequeueTask(workerNodeKey) as Task<Data>,
-          )
+      queueMicrotask(() => {
+        this.checkAndEmitTaskExecutionFinishedEvents()
+        workerNode?.dispatchEvent(new Event('taskFinished'))
+        this.promiseResponseMap.delete(taskId!)
+        if (this.opts.enableTasksQueue === true && !this.destroying) {
+          if (
+            !this.isWorkerNodeBusy(workerNodeKey) &&
+            this.tasksQueueSize(workerNodeKey) > 0
+          ) {
+            this.executeTask(
+              workerNodeKey,
+              this.dequeueTask(workerNodeKey) as Task<Data>,
+            )
+          }
+          if (this.isWorkerNodeIdle(workerNodeKey)) {
+            workerNode.dispatchEvent(
+              new CustomEvent<WorkerNodeEventDetail>('idle', {
+                detail: { workerNodeKey },
+              }),
+            )
+          }
         }
-        if (this.isWorkerNodeIdle(workerNodeKey)) {
-          workerNode.dispatchEvent(
-            new CustomEvent<WorkerNodeEventDetail>('idle', {
-              detail: { workerNodeKey },
-            }),
-          )
+        if (this.shallCreateDynamicWorker()) {
+          this.createAndSetupDynamicWorkerNode()
         }
-      }
-      // FIXME: cannot be theoretically undefined. Schedule in the next tick to avoid race conditions?
-      workerNode?.dispatchEvent(new Event('taskFinished'))
-      if (this.shallCreateDynamicWorker()) {
-        this.createAndSetupDynamicWorkerNode()
-      }
+      })
     }
   }
 
