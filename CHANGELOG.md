@@ -8,15 +8,15 @@ and this project adheres to
 
 ## [0.4.31](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.30...v0.4.31) (2024-10-26)
 
-
 ### ⚡ Performance
 
-* use micro tasks in tasks handling code paths ([8abd0c2](https://github.com/poolifier/poolifier-web-worker/commit/8abd0c2e33accfc1572901c0c20cbbde4e85f531))
-
+- use micro tasks in tasks handling code paths
+  ([8abd0c2](https://github.com/poolifier/poolifier-web-worker/commit/8abd0c2e33accfc1572901c0c20cbbde4e85f531))
 
 ### 🧪 Tests
 
-* refine worker error handling expectation ([dbc6f71](https://github.com/poolifier/poolifier-web-worker/commit/dbc6f711610aa73edd14b85a041d7d2c3fd4ede0))
+- refine worker error handling expectation
+  ([dbc6f71](https://github.com/poolifier/poolifier-web-worker/commit/dbc6f711610aa73edd14b85a041d7d2c3fd4ede0))
 
 ## [0.4.30](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.29...v0.4.30) (2024-10-24)
 
