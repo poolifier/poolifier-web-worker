@@ -222,7 +222,7 @@ describe('Worker node test suite', () => {
           },
         ),
     ).toThrow(
-      new RangeError(
+      new TypeError(
         'Cannot construct a worker node with a tasks queue priority option that is not a boolean',
       ),
     )
