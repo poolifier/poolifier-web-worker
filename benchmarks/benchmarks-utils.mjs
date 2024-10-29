@@ -320,8 +320,8 @@ const isBrowser = !!globalThis.navigator
 export const runtime = (() => {
   if (isBun) return JSRuntime.bun
   if (isDeno) return JSRuntime.deno
-  // if (isNode) return JavaScriptRuntimes.node
-  // if (isWorkerd) return JavaScriptRuntimes.workerd
+  // if (isNode) return JSRuntime.node
+  // if (isWorkerd) return JSRuntime.workerd
   if (isBrowser) return JSRuntime.browser
   throw new Error('Unsupported JavaScript runtime environment')
 })()
