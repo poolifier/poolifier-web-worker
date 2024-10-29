@@ -303,7 +303,7 @@ export const executeTaskFunction = (data) => {
   }
 }
 
-const JavaScriptRuntimes = {
+const JSRuntime = {
   bun: 'bun',
   deno: 'deno',
   // node: 'node',
@@ -318,10 +318,10 @@ const isDeno = !!globalThis.Deno
 const isBrowser = !!globalThis.navigator
 
 export const runtime = (() => {
-  if (isBun) return JavaScriptRuntimes.bun
-  if (isDeno) return JavaScriptRuntimes.deno
+  if (isBun) return JSRuntime.bun
+  if (isDeno) return JSRuntime.deno
   // if (isNode) return JavaScriptRuntimes.node
   // if (isWorkerd) return JavaScriptRuntimes.workerd
-  if (isBrowser) return JavaScriptRuntimes.browser
+  if (isBrowser) return JSRuntime.browser
   throw new Error('Unsupported JavaScript runtime environment')
 })()

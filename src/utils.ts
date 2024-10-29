@@ -265,7 +265,7 @@ const isBrowser: boolean = !!(globalThis as any).navigator
  *
  * @internal
  */
-export enum JavaScriptRuntimes {
+export enum JSRuntime {
   bun = 'bun',
   deno = 'deno',
   browser = 'browser',
@@ -276,10 +276,10 @@ export enum JavaScriptRuntimes {
  *
  * @internal
  */
-export const runtime: JavaScriptRuntimes = (() => {
-  if (isBun) return JavaScriptRuntimes.bun
-  if (isDeno) return JavaScriptRuntimes.deno
-  if (isBrowser) return JavaScriptRuntimes.browser
+export const runtime: JSRuntime = (() => {
+  if (isBun) return JSRuntime.bun
+  if (isDeno) return JSRuntime.deno
+  if (isBrowser) return JSRuntime.browser
   throw new Error('Unsupported JavaScript runtime environment')
 })()
 

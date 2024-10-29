@@ -3,7 +3,7 @@ import {
   average,
   environment,
   isPlainObject,
-  JavaScriptRuntimes,
+  JSRuntime,
   max,
   median,
   min,
@@ -398,7 +398,7 @@ export const createWorker = <Worker extends IWorker>(
   switch (type) {
     case WorkerTypes.web:
       return new Worker(fileURL, {
-        ...(runtime === JavaScriptRuntimes.bun && { smol: true }),
+        ...(runtime === JSRuntime.bun && { smol: true }),
         ...opts.workerOptions,
         type: 'module',
       }) as Worker
