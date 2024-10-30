@@ -258,7 +258,9 @@ const isDeno: boolean = !!(globalThis as any).Deno
  * @internal
  */
 // deno-lint-ignore no-explicit-any
-const isBrowser: boolean = !!(globalThis as any).navigator
+const isBrowser: boolean = !!(globalThis as any).window &&
+  // deno-lint-ignore no-explicit-any
+  !!(globalThis as any).navigator
 
 /**
  * JavaScript runtime environments enumeration.
