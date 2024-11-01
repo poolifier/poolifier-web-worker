@@ -11,7 +11,7 @@ import {
   isKillBehavior,
   isPlainObject,
   isWebWorker,
-  JavaScriptRuntimes,
+  JSRuntime,
   max,
   median,
   min,
@@ -230,13 +230,13 @@ describe('Utils test suite', () => {
     expect(isWebWorker).toBe(false)
   })
 
-  it('Verify JavaScriptRuntimes values', () => {
-    expect(JavaScriptRuntimes.bun).toBe('bun')
-    expect(JavaScriptRuntimes.deno).toBe('deno')
-    expect(JavaScriptRuntimes.browser).toBe('browser')
+  it('Verify JSRuntime values', () => {
+    expect(JSRuntime.bun).toBe('bun')
+    expect(JSRuntime.deno).toBe('deno')
+    expect(JSRuntime.browser).toBe('browser')
   })
 
   it('Verify runtime value', () => {
-    expect(runtime).toBe(JavaScriptRuntimes.deno)
+    expect(runtime).toBe(JSRuntime.deno)
   })
 })
