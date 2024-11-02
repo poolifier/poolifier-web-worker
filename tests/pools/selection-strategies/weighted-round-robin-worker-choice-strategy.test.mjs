@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto'
+import { expect } from '@std/expect'
 import { after, before, describe, it } from '@std/testing/bdd'
-import { expect } from 'expect'
 import { FixedThreadPool } from '../../../src/mod.ts'
 import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/interleaved-weighted-round-robin-worker-choice-strategy.ts'
 import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.ts'

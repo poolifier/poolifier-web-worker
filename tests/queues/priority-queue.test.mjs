@@ -1,5 +1,5 @@
+import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
-import { expect } from 'expect'
 
 import { FixedPriorityQueue } from '../../src/queues/fixed-priority-queue.ts'
 import { FixedQueue } from '../../src/queues/fixed-queue.ts'

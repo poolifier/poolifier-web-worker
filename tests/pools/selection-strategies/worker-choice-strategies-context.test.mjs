@@ -1,6 +1,6 @@
+import { expect } from '@std/expect'
 import { after, before, describe, it } from '@std/testing/bdd'
 import { assertSpyCalls, returnsNext, stub } from '@std/testing/mock'
-import { expect } from 'expect'
 import {
   DynamicThreadPool,
   FixedThreadPool,

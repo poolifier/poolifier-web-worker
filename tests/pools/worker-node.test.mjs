@@ -1,5 +1,5 @@
+import { expect } from '@std/expect'
 import { after, before, describe, it } from '@std/testing/bdd'
-import { expect } from 'expect'
 import { CircularBuffer } from '../../src/circular-buffer.ts'
 import { WorkerTypes } from '../../src/mod.ts'
 import { WorkerNode } from '../../src/pools/worker-node.ts'

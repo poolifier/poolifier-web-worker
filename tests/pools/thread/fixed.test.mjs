@@ -1,5 +1,5 @@
+import { expect } from '@std/expect'
 import { after, before, describe, it } from '@std/testing/bdd'
-import { expect } from 'expect'
 import { FixedThreadPool, PoolEvents } from '../../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../../src/utils.ts'
 import { TaskFunctions } from '../../test-types.mjs'

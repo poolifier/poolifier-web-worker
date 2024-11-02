@@ -1,6 +1,6 @@
+import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
 import { assertSpyCalls, stub } from '@std/testing/mock'
-import { expect } from 'expect'
 import { ThreadWorker } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 

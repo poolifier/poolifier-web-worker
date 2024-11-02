@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto'
+import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
-import { expect } from 'expect'
 import { CircularBuffer } from '../../../src/circular-buffer.ts'
 import {
   DynamicThreadPool,

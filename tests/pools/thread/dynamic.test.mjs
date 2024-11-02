@@ -1,5 +1,5 @@
+import { expect } from '@std/expect'
 import { before, describe, it } from '@std/testing/bdd'
-import { expect } from 'expect'
 import {
   DynamicThreadPool,
   PoolEvents,

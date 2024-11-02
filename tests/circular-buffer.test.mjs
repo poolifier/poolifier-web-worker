@@ -1,5 +1,5 @@
+import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
-import { expect } from 'expect'
 import { CircularBuffer, defaultBufferSize } from '../src/circular-buffer.ts'
 
 describe('Circular buffer test suite', () => {
