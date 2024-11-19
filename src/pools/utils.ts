@@ -36,24 +36,25 @@ export { exportedUpdateMeasurementStatistics }
 /**
  * Default measurement statistics requirements.
  */
-export const DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS:
-  MeasurementStatisticsRequirements = {
-    aggregate: false,
-    average: false,
-    median: false,
-  }
+export const DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS: Readonly<
+  MeasurementStatisticsRequirements
+> = Object.freeze({
+  aggregate: false,
+  average: false,
+  median: false,
+})
 
 export const getDefaultTasksQueueOptions = (
   poolMaxSize: number,
-): Required<TasksQueueOptions> => {
-  return {
+): Required<Readonly<TasksQueueOptions>> => {
+  return Object.freeze({
     size: Math.pow(poolMaxSize, 2),
     concurrency: 1,
     taskStealing: true,
     tasksStealingOnBackPressure: true,
     tasksStealingRatio: 0.6,
     tasksFinishedTimeout: 2000,
-  }
+  })
 }
 
 export const checkFileURL = (fileURL: URL | undefined): void => {

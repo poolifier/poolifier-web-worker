@@ -28,7 +28,7 @@ import {
 import { KillBehaviors, type WorkerOptions } from './worker-options.ts'
 
 const DEFAULT_MAX_INACTIVE_TIME = 60000
-const DEFAULT_WORKER_OPTIONS: WorkerOptions = {
+const DEFAULT_WORKER_OPTIONS: Readonly<WorkerOptions> = Object.freeze({
   /**
    * The kill behavior option on this worker or its default value.
    */
@@ -42,7 +42,7 @@ const DEFAULT_WORKER_OPTIONS: WorkerOptions = {
    * The function to call when the worker is killed.
    */
   killHandler: EMPTY_FUNCTION,
-}
+})
 
 /**
  * Base class that implements some shared logic for all poolifier workers.
@@ -59,7 +59,8 @@ export abstract class AbstractWorker<
   /**
    * Worker id.
    */
-  protected abstract id?: `${string}-${string}-${string}-${string}-${string}`
+  protected abstract readonly id?:
+    `${string}-${string}-${string}-${string}-${string}`
   /**
    * Task function(s) object processed by the worker when the pool's `execute` method is invoked.
    */

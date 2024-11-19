@@ -23,7 +23,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
   implements IWorkerChoiceStrategy {
   /** @inheritDoc */
   public override readonly taskStatisticsRequirements:
-    TaskStatisticsRequirements = {
+    TaskStatisticsRequirements = Object.freeze({
       runTime: {
         aggregate: true,
         average: true,
@@ -35,7 +35,7 @@ export class InterleavedWeightedRoundRobinWorkerChoiceStrategy<
         median: false,
       },
       elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-    }
+    })
 
   /**
    * Round id.
