@@ -35,10 +35,10 @@ export abstract class AbstractWorkerChoiceStrategy<
   protected previousWorkerNodeKey = 0
 
   /** @inheritDoc */
-  public readonly strategyPolicy: StrategyPolicy = {
+  public readonly strategyPolicy: StrategyPolicy = Object.freeze({
     dynamicWorkerUsage: false,
     dynamicWorkerReady: true,
-  }
+  })
 
   /** @inheritDoc */
   public readonly taskStatisticsRequirements: TaskStatisticsRequirements =
