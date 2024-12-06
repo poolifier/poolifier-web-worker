@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.32](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.31...v0.4.32) (2024-12-06)
+
+
+### ✨ Polish
+
+* cleanup JS runtime detection code ([b366f0e](https://github.com/poolifier/poolifier-web-worker/commit/b366f0ecdc5e34a5942c73dd04ea8c9b1619e2a6))
+* flag some object literals as read only ([5d006d9](https://github.com/poolifier/poolifier-web-worker/commit/5d006d91350be07e369bd526d8732bfa5baf742b))
+* flag strategy policy property as read only ([5eeb19e](https://github.com/poolifier/poolifier-web-worker/commit/5eeb19ec2f269f466ad03db7e27e08e1e0165ac9))
+* migrate to @std/expect ([#73](https://github.com/poolifier/poolifier-web-worker/issues/73)) ([459c2f9](https://github.com/poolifier/poolifier-web-worker/commit/459c2f9307928971520a63d99ac17f7ca1b59647))
+* refine browser JS runtime detection ([a545ddd](https://github.com/poolifier/poolifier-web-worker/commit/a545ddd26bfd577ea28dd4dd4b4c0236138b5a60))
+
+
+### 🧪 Tests
+
+* remove unneeded Linux ignore ([4fd41ee](https://github.com/poolifier/poolifier-web-worker/commit/4fd41ee03fe16c848990c37c754be9aa69f7d2c1))
+
+
+### 🤖 Automation
+
+* **deps:** Bump autofix-ci/action ([#75](https://github.com/poolifier/poolifier-web-worker/issues/75)) ([037bdf4](https://github.com/poolifier/poolifier-web-worker/commit/037bdf42f865009caa433f11a478828a0ffdadc8))
+
 ## [0.4.31](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.30...v0.4.31) (2024-10-26)
 
 ### ⚡ Performance
