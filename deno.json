@@ -32,9 +32,9 @@
   },
   "imports": {
     "@poolifier/tatami-ng": "jsr:@poolifier/tatami-ng@^0.8.14",
-    "@std/cli": "jsr:@std/cli@^1.0.8",
-    "@std/expect": "jsr:@std/expect@^1.0.9",
-    "@std/testing": "jsr:@std/testing@^1.0.6"
+    "@std/cli": "jsr:@std/cli@^1.0.9",
+    "@std/expect": "jsr:@std/expect@^1.0.10",
+    "@std/testing": "jsr:@std/testing@^1.0.7"
   },
   "publish": {
     "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
