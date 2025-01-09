@@ -7,8 +7,7 @@ import {
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   exportedUpdateMeasurementStatistics,
   getDefaultTasksQueueOptions,
-  getWorkerId,
-  getWorkerType,
+  initWorkerInfo,
 } from '../../src/pools/utils.ts'
 import { MeasurementHistorySize } from '../../src/pools/worker.ts'
 
@@ -113,25 +112,25 @@ describe('Pool utils test suite', () => {
     worker.terminate()
   })
 
-  it('Verify getWorkerType() behavior', () => {
-    const worker = new Worker(
+  it('Verify initWorkerInfo() behavior', () => {
+    const worker = createWorker(
+      WorkerTypes.web,
       new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-      {
-        type: 'module',
-      },
+      {},
     )
-    expect(getWorkerType(worker)).toBe(WorkerTypes.web)
-    worker.terminate()
-  })
-
-  it('Verify getWorkerId() behavior', () => {
-    const worker = new Worker(
-      new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-      {
-        type: 'module',
-      },
-    )
-    expect(getWorkerId(worker)).toMatch(
+    const workerInfo = initWorkerInfo(worker)
+    expect(workerInfo).toStrictEqual({
+      backPressure: false,
+      backPressureStealing: false,
+      continuousStealing: false,
+      dynamic: false,
+      id: expect.any(String),
+      ready: false,
+      stealing: false,
+      stolen: false,
+      type: WorkerTypes.web,
+    })
+    expect(workerInfo.id).toMatch(
       /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
     )
     worker.terminate()

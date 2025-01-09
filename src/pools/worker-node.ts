@@ -5,8 +5,7 @@ import { DEFAULT_TASK_NAME } from '../utils.ts'
 import {
   checkWorkerNodeArguments,
   createWorker,
-  getWorkerId,
-  getWorkerType,
+  initWorkerInfo,
 } from './utils.ts'
 import {
   type IWorker,
@@ -58,7 +57,7 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
     this.worker = createWorker<Worker>(type, fileURL, {
       workerOptions: opts.workerOptions,
     })
-    this.info = this.initWorkerInfo(this.worker)
+    this.info = initWorkerInfo(this.worker)
     this.usage = this.initWorkerUsage()
     this.messageChannel = new MessageChannel()
     this.messageChannel.port1.onmessage = (
@@ -194,20 +193,6 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       this.messageChannel.port1.close()
       this.messageChannel.port2.close()
       delete this.messageChannel
-    }
-  }
-
-  private initWorkerInfo(worker: Worker): WorkerInfo {
-    return {
-      id: getWorkerId(worker),
-      type: getWorkerType(worker)!,
-      dynamic: false,
-      ready: false,
-      stealing: false,
-      stolen: false,
-      continuousStealing: false,
-      backPressureStealing: false,
-      backPressure: false,
     }
   }
 

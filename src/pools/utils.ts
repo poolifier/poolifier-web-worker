@@ -20,6 +20,7 @@ import {
   type IWorker,
   type IWorkerNode,
   type MeasurementStatistics,
+  type WorkerInfo,
   type WorkerNodeOptions,
   type WorkerType,
   WorkerTypes,
@@ -415,7 +416,7 @@ export const createWorker = <Worker extends IWorker>(
  * @returns The worker type of the given worker.
  * @internal
  */
-export const getWorkerType = (worker: IWorker): WorkerType | undefined => {
+const getWorkerType = (worker: IWorker): WorkerType | undefined => {
   if (worker instanceof Worker) {
     return WorkerTypes.web
   }
@@ -428,11 +429,25 @@ export const getWorkerType = (worker: IWorker): WorkerType | undefined => {
  * @returns The worker id of the given worker.
  * @internal
  */
-export const getWorkerId = (
+const getWorkerId = (
   worker: IWorker,
 ): `${string}-${string}-${string}-${string}-${string}` | undefined => {
   if (worker instanceof Worker) {
     return crypto.randomUUID()
+  }
+}
+
+export const initWorkerInfo = (worker: IWorker): WorkerInfo => {
+  return {
+    backPressure: false,
+    backPressureStealing: false,
+    continuousStealing: false,
+    dynamic: false,
+    id: getWorkerId(worker),
+    ready: false,
+    stealing: false,
+    stolen: false,
+    type: getWorkerType(worker)!,
   }
 }
 
