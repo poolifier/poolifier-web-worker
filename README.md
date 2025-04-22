@@ -112,7 +112,7 @@ You have to implement your worker by extending the _ThreadWorker_ class.
 ### Deno
 
 ```shell
-deno add @poolifier/poolifier-web-worker
+deno add jsr:@poolifier/poolifier-web-worker
 ```
 
 **See
