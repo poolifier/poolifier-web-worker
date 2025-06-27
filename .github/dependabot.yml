@@ -7,6 +7,3 @@ updates:
       interval: 'daily'
     labels:
       - 'github-actions'
-    reviewers:
-      - 'pioardi'
-      - 'jerome-benoit'
