@@ -60,6 +60,12 @@ export interface IFixedQueue<T> {
    */
   clear: () => void
   /**
+   * Deletes the given data from the fixed priority queue.
+   * @param data - Data to delete.
+   * @returns `true` if the data was deleted, `false` otherwise.
+   */
+  delete: (data: T) => boolean
+  /**
    * Returns an iterator for the fixed queue.
    * @returns An iterator for the fixed queue.
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols

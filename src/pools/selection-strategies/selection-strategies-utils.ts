@@ -54,8 +54,8 @@ const cpusCycleTimeWeight = (cpus: { speed: number }[]): number => {
   for (const cpu of cpus) {
     // CPU estimated cycle time
     const numberOfDigits = cpu.speed.toString().length - 1
-    const cpuCycleTime = 1 / (cpu.speed / Math.pow(10, numberOfDigits))
-    cpusCycleTimeWeight += cpuCycleTime * Math.pow(10, numberOfDigits)
+    const cpuCycleTime = 1 / (cpu.speed / 10 ** numberOfDigits)
+    cpusCycleTimeWeight += cpuCycleTime * 10 ** numberOfDigits
   }
   return Math.round(cpusCycleTimeWeight / cpus.length)
 }

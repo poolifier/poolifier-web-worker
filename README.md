@@ -55,6 +55,7 @@ Please consult our [general guidelines](#general-guidelines).
   - Tasks stealing under back pressure ✔
   - Tasks redistribution on worker error ✔
 - Support for sync and async task function ✔
+- Support for abortable task function ✔
 - Support for multiple task functions with per task function queuing priority
   and tasks distribution strategy ✔
 - Support for task functions

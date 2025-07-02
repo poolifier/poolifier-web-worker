@@ -8,6 +8,10 @@ import type { KillBehavior } from './worker/worker-options.ts'
  */
 export interface WorkerError<Data = unknown> {
   /**
+   * Whether the error is an abort error or not.
+   */
+  readonly aborted: boolean
+  /**
    * Data triggering the error.
    */
   readonly data?: Data
@@ -96,6 +100,10 @@ export interface TaskFunctionProperties {
  */
 export interface Task<Data = unknown> {
   /**
+   * Whether the task is abortable or not.
+   */
+  readonly abortable?: boolean
+  /**
    * Task name.
    */
   readonly name?: string
@@ -176,6 +184,11 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
    */
   readonly taskFunctionsProperties?: TaskFunctionProperties[]
   /**
+   * Task operation:
+   * - `'abort'` - Abort a task.
+   */
+  readonly taskOperation?: 'abort'
+  /**
    * Whether the worker computes the given statistics or not.
    */
   readonly statistics?: WorkerStatistics
@@ -200,6 +213,10 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
  * @internal
  */
 export interface PromiseResponseWrapper<Response = unknown> {
+  /**
+   * The task abort signal.
+   */
+  readonly abortSignal?: AbortSignal
   /**
    * Resolve callback to fulfill the promise.
    */

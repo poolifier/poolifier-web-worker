@@ -81,13 +81,21 @@ describe({
     })
 
     it('Verify that the function is executed in a worker thread', async () => {
-      let result = await pool.execute({
-        function: TaskFunctions.fibonacci,
-      })
+      let result = await pool.execute(
+        {
+          function: TaskFunctions.fibonacci,
+        },
+        'default',
+        AbortSignal.timeout(2000),
+      )
       expect(result).toBe(354224848179261915075n)
-      result = await pool.execute({
-        function: TaskFunctions.factorial,
-      })
+      result = await pool.execute(
+        {
+          function: TaskFunctions.factorial,
+        },
+        'default',
+        AbortSignal.timeout(2000),
+      )
       expect(result).toBe(
         93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000n,
       )
@@ -179,7 +187,7 @@ describe({
       let error
       let result
       try {
-        result = await pool.execute(undefined, undefined, [
+        result = await pool.execute(undefined, undefined, undefined, [
           new ArrayBuffer(16),
           new MessageChannel().port1,
         ])
@@ -189,7 +197,7 @@ describe({
       expect(result).toStrictEqual({ ok: 1 })
       expect(error).toBeUndefined()
       try {
-        result = await pool.execute(undefined, undefined, [
+        result = await pool.execute(undefined, undefined, undefined, [
           new SharedArrayBuffer(16),
         ])
       } catch (e) {
@@ -214,6 +222,7 @@ describe({
       expect(inError).toBeInstanceOf(Error)
       expect(inError.message).toStrictEqual('Error Message from ThreadWorker')
       expect(taskError).toStrictEqual({
+        aborted: false,
         data,
         error: inError,
         name: DEFAULT_TASK_NAME,
@@ -245,6 +254,7 @@ describe({
         'Error Message from ThreadWorker:async',
       )
       expect(taskError).toStrictEqual({
+        aborted: false,
         data,
         error: inError,
         name: DEFAULT_TASK_NAME,
@@ -254,6 +264,33 @@ describe({
           (workerNode) => workerNode.usage.tasks.failed === 1,
         ),
       ).toBe(true)
+    })
+
+    it('Verify that task can be aborted', async () => {
+      let error
+
+      try {
+        await asyncErrorPool.execute({}, 'default', AbortSignal.timeout(500))
+      } catch (e) {
+        error = e
+      }
+      expect(error).toBeInstanceOf(Error)
+      expect(error.name).toBe('TimeoutError')
+      expect(error.message).toBe('Signal timed out.')
+      expect(error.stack).toBeDefined()
+
+      const abortController = new AbortController()
+      setTimeout(() => {
+        abortController.abort(new Error('Task aborted'))
+      }, 500)
+      try {
+        await asyncErrorPool.execute({}, 'default', abortController.signal)
+      } catch (e) {
+        error = e
+      }
+      expect(error).toBeInstanceOf(Error)
+      expect(error.message).toBe('Task aborted')
+      expect(error.stack).toBeDefined()
     })
 
     it('Verify that async function is working properly', async () => {

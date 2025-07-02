@@ -134,6 +134,36 @@ export class PriorityQueue<T> {
   }
 
   /**
+   * Deletes the given data from the priority queue.
+   * @param data - Data to delete.
+   * @returns `true` if the data was deleted, `false` otherwise.
+   */
+  public delete(data: T): boolean {
+    let node: PriorityQueueNode<T> | undefined = this.tail
+    let prev: PriorityQueueNode<T> | undefined
+    while (node != null) {
+      if (node.delete(data)) {
+        if (node.empty()) {
+          if (node === this.tail && node.next != null) {
+            this.tail = node.next
+            delete node.next
+          } else if (node.next != null && prev != null) {
+            prev.next = node.next
+            delete node.next
+          } else if (node.next == null && prev != null) {
+            delete prev.next
+            this.head = prev
+          }
+        }
+        return true
+      }
+      prev = node
+      node = node.next
+    }
+    return false
+  }
+
+  /**
    * Dequeue data from the priority queue.
    *
    * @param bucket - The prioritized bucket to dequeue from.
@@ -165,7 +195,8 @@ export class PriorityQueue<T> {
             node.next = tail!.next
             delete tail!.next
             break
-          } else if (node.next === tail && tail!.next == null) {
+          }
+          if (node.next === tail && tail!.next == null) {
             delete node.next
             this.head = node
             break

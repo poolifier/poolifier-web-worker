@@ -262,7 +262,7 @@ describe({
         enableTasksQueue: true,
         tasksQueueOptions: {
           concurrency: 2,
-          size: Math.pow(numberOfWorkers, 2),
+          size: numberOfWorkers ** 2,
           taskStealing: true,
           tasksStealingOnBackPressure: true,
           tasksStealingRatio: 0.6,
@@ -627,7 +627,7 @@ describe({
       expect(pool.opts.enableTasksQueue).toBe(true)
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
         concurrency: 1,
-        size: Math.pow(numberOfWorkers, 2),
+        size: numberOfWorkers ** 2,
         taskStealing: true,
         tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
@@ -637,7 +637,7 @@ describe({
       expect(pool.opts.enableTasksQueue).toBe(true)
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
         concurrency: 2,
-        size: Math.pow(numberOfWorkers, 2),
+        size: numberOfWorkers ** 2,
         taskStealing: true,
         tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
@@ -657,7 +657,7 @@ describe({
       )
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
         concurrency: 1,
-        size: Math.pow(numberOfWorkers, 2),
+        size: numberOfWorkers ** 2,
         taskStealing: true,
         tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
@@ -888,6 +888,7 @@ describe({
           continuousStealing: false,
           backPressureStealing: false,
           backPressure: false,
+          queuedTaskAbortion: false,
         })
       }
       await pool.destroy()
@@ -908,6 +909,7 @@ describe({
           continuousStealing: false,
           backPressureStealing: false,
           backPressure: false,
+          queuedTaskAbortion: false,
         })
       }
       await pool.destroy()
@@ -971,8 +973,11 @@ describe({
         new TypeError('name argument must not be an empty string'),
       )
       await expect(pool.execute(undefined, undefined, {})).rejects.toThrow(
-        new TypeError('transferList argument must be an array'),
+        new TypeError('abortSignal argument must be an AbortSignal'),
       )
+      await expect(
+        pool.execute(undefined, undefined, new AbortController().signal, {}),
+      ).rejects.toThrow(new TypeError('transferList argument must be an array'))
       await expect(pool.execute(undefined, 'unknown')).rejects.toThrow(
         new Error("Task function 'unknown' not found"),
       )
@@ -1909,13 +1914,40 @@ describe({
       await expect(pool.mapExecute([undefined], '')).rejects.toThrow(
         new TypeError('name argument must not be an empty string'),
       )
-      await expect(pool.mapExecute([undefined], undefined, {})).rejects.toThrow(
-        new TypeError('transferList argument must be an array'),
+      await expect(pool.mapExecute([undefined], undefined, 0)).rejects.toThrow(
+        new TypeError('abortSignals argument must be an iterable'),
       )
+      await expect(
+        pool.mapExecute([undefined], undefined, [undefined]),
+      ).rejects.toThrow(
+        new TypeError(
+          'abortSignals argument must be an iterable of AbortSignal',
+        ),
+      )
+      await expect(
+        pool.mapExecute([undefined], undefined, [
+          new AbortController().signal,
+          new AbortController().signal,
+        ]),
+      ).rejects.toThrow(
+        new Error('data and abortSignals arguments must have the same length'),
+      )
+      await expect(
+        pool.mapExecute(
+          [undefined],
+          undefined,
+          [new AbortController().signal],
+          {},
+        ),
+      ).rejects.toThrow(new TypeError('transferList argument must be an array'))
       await expect(pool.mapExecute([undefined], 'unknown')).rejects.toThrow(
         new Error("Task function 'unknown' not found"),
       )
-      let results = await pool.mapExecute([{}, {}, {}, {}])
+      let results = await pool.mapExecute(
+        Array(4).fill({}),
+        'jsonIntegerSerialization',
+        Array(4).fill(AbortSignal.timeout(1000)),
+      )
       expect(results).toStrictEqual([
         { ok: 1 },
         { ok: 1 },
@@ -1936,6 +1968,7 @@ describe({
           },
         ],
         'factorial',
+        Array(4).fill(AbortSignal.timeout(1000)),
       )
       expect(results).toStrictEqual([
         3628800n,
@@ -1948,6 +1981,12 @@ describe({
       results = await pool.mapExecute(
         new Set([{ n: 10 }, { n: 20 }, { n: 30 }, { n: 40 }]),
         'factorial',
+        new Set([
+          AbortSignal.timeout(1000),
+          AbortSignal.timeout(1500),
+          AbortSignal.timeout(2000),
+          AbortSignal.timeout(2500),
+        ]),
       )
       expect(results).toStrictEqual([
         3628800n,

@@ -24,7 +24,7 @@ describe('Pool utils test suite', () => {
     const poolMaxSize = 4
     expect(getDefaultTasksQueueOptions(poolMaxSize)).toStrictEqual({
       concurrency: 1,
-      size: Math.pow(poolMaxSize, 2),
+      size: poolMaxSize ** 2,
       taskStealing: true,
       tasksStealingOnBackPressure: true,
       tasksStealingRatio: 0.6,
@@ -123,6 +123,7 @@ describe('Pool utils test suite', () => {
       backPressure: false,
       backPressureStealing: false,
       continuousStealing: false,
+      queuedTaskAbortion: false,
       dynamic: false,
       id: expect.any(String),
       ready: false,
