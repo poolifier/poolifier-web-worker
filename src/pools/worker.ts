@@ -1,4 +1,5 @@
 import type { CircularBuffer } from '../circular-buffer.ts'
+import type { PriorityQueue } from '../queues/priority-queue.ts'
 import type { Task, TaskFunctionProperties } from '../utility-types.ts'
 
 /**
@@ -138,6 +139,11 @@ export interface WorkerInfo {
    * Dynamic flag.
    */
   dynamic: boolean
+  /**
+   * Queued task abortion flag.
+   * This flag is set to `true` when worker node is aborting a queued task.
+   */
+  queuedTaskAbortion: boolean
   /**
    * Ready flag.
    */
@@ -298,6 +304,10 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
    */
   strategyData?: StrategyData
   /**
+   * Tasks queue.
+   */
+  readonly tasksQueue: PriorityQueue<Task<Data>>
+  /**
    * Message channel (worker thread only).
    */
   readonly messageChannel?: MessageChannel
@@ -342,6 +352,12 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
    */
   readonly clearTasksQueue: () => void
   /**
+   * Deletes a task from the tasks queue.
+   * @param task - The task to delete.
+   * @returns `true` if the task was deleted, `false` otherwise.
+   */
+  readonly deleteTask: (task: Task<Data>) => boolean
+  /**
    * Terminates the worker node.
    */
   readonly terminate: () => void
@@ -367,6 +383,7 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
  * @internal
  */
 export interface WorkerNodeEventDetail {
+  taskId?: `${string}-${string}-${string}-${string}-${string}`
   workerId?: `${string}-${string}-${string}-${string}-${string}`
   workerNodeKey?: number
 }

@@ -2,8 +2,8 @@ import { expect } from '@std/expect'
 import { after, before, describe, it } from '@std/testing/bdd'
 import { CircularBuffer } from '../../src/circular-buffer.ts'
 import { WorkerTypes } from '../../src/mod.ts'
-import { WorkerNode } from '../../src/pools/worker-node.ts'
 import { MeasurementHistorySize } from '../../src/pools/worker.ts'
+import { WorkerNode } from '../../src/pools/worker-node.ts'
 import { PriorityQueue } from '../../src/queues/priority-queue.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
 
@@ -238,6 +238,7 @@ describe('Worker node test suite', () => {
       continuousStealing: false,
       backPressureStealing: false,
       backPressure: false,
+      queuedTaskAbortion: false,
     })
     expect(threadWorkerNode.usage).toStrictEqual({
       tasks: {

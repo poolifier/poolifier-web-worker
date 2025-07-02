@@ -58,6 +58,18 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
   }
 
   /** @inheritdoc */
+  public delete(data: T): boolean {
+    const index = this.nodeArray.findIndex((node) => node?.data === data)
+    if (index !== -1) {
+      this.nodeArray.splice(index, 1)
+      this.nodeArray.length = this.capacity
+      --this.size
+      return true
+    }
+    return false
+  }
+
+  /** @inheritdoc */
   public dequeue(): T | undefined {
     if (this.empty()) {
       return undefined

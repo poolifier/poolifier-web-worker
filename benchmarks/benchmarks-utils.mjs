@@ -258,14 +258,13 @@ const fibonacci = (n) => {
 const factorial = (n) => {
   if (n === 0 || n === 1) {
     return 1n
-  } else {
-    n = BigInt(n)
-    let factorial = 1n
-    for (let i = 1n; i <= n; i++) {
-      factorial *= i
-    }
-    return factorial
   }
+  n = BigInt(n)
+  let factorial = 1n
+  for (let i = 1n; i <= n; i++) {
+    factorial *= i
+  }
+  return factorial
 }
 
 const readWriteFiles = (

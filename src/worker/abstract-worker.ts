@@ -12,6 +12,7 @@ import {
   isAsyncFunction,
   isPlainObject,
 } from '../utils.ts'
+import { AbortError } from './abort-error.ts'
 import type {
   TaskAsyncFunction,
   TaskFunction,
@@ -74,6 +75,13 @@ export abstract class AbstractWorker<
    */
   protected statistics?: WorkerStatistics
   /**
+   * Task abort functions processed by the worker when task operation 'abort' is received.Add commentMore actions
+   */
+  protected taskAbortFunctions: Map<
+    `${string}-${string}-${string}-${string}-${string}`,
+    () => void
+  >
+  /**
    * Handler id of the `activeInterval` worker activity check.
    */
   protected activeInterval?: number
@@ -95,6 +103,10 @@ export abstract class AbstractWorker<
       throw new Error('isMain parameter is mandatory')
     }
     this.checkTaskFunctions(taskFunctions)
+    this.taskAbortFunctions = new Map<
+      `${string}-${string}-${string}-${string}-${string}`,
+      () => void
+    >()
     this.checkWorkerOptions(this.opts)
     if (!this.isMain) {
       this.getMainWorker().addEventListener(
@@ -332,8 +344,14 @@ export abstract class AbstractWorker<
   ): void {
     const { data } = messageEvent
     this.checkMessageWorkerId(data)
-    const { statistics, checkActive, taskFunctionOperation, taskId, kill } =
-      data
+    const {
+      statistics,
+      checkActive,
+      taskFunctionOperation,
+      taskId,
+      taskOperation,
+      kill,
+    } = data
     if (statistics != null) {
       // Statistics message received
       this.statistics = statistics
@@ -346,6 +364,11 @@ export abstract class AbstractWorker<
     } else if (taskId != null && data != null) {
       // Task message received
       this.run(data)
+    } else if (taskOperation === 'abort' && taskId != null) {
+      // Abort task operation message received
+      if (this.taskAbortFunctions.has(taskId)) {
+        this.taskAbortFunctions.get(taskId)?.()
+      }
     } else if (kill === true) {
       // Kill message received
       this.handleKillMessage(data)
@@ -403,6 +426,7 @@ export abstract class AbstractWorker<
       ...(!status &&
         error != null && {
         workerError: {
+          aborted: error instanceof AbortError,
           error,
           name: taskFunctionProperties.name,
         },
@@ -444,11 +468,41 @@ export abstract class AbstractWorker<
   private checkMessageWorkerId(message: MessageValue<Data>): void {
     if (message.workerId == null) {
       throw new Error('Message worker id is not set')
-    } else if (message.workerId !== this.id) {
+    }
+    if (message.workerId !== this.id) {
       throw new Error(
         `Message worker id ${message.workerId.toString()} does not match the worker id ${this.id}`,
       )
     }
+  }
+
+  /**
+   * Gets abortable task function.
+   * An abortable promise is built to permit the task to be aborted.
+   * @param name - The name of the task.
+   * @param taskId - The task id.
+   * @returns The abortable task function.
+   */
+  private getAbortableTaskFunction(
+    name: string,
+    taskId: `${string}-${string}-${string}-${string}-${string}`,
+  ): TaskAsyncFunction<Data, Response> {
+    return async (data?: Data): Promise<Response> =>
+      await new Promise<Response>(
+        (resolve, reject: (reason?: unknown) => void) => {
+          this.taskAbortFunctions.set(taskId, () => {
+            reject(new AbortError(`Task '${name}' id '${taskId}' aborted`))
+          })
+          const taskFunction = this.taskFunctions.get(name)?.taskFunction
+          if (isAsyncFunction(taskFunction)) {
+            ;(taskFunction as TaskAsyncFunction<Data, Response>)(data)
+              .then(resolve)
+              .catch(reject)
+          } else {
+            resolve((taskFunction as TaskSyncFunction<Data, Response>)(data))
+          }
+        },
+      )
   }
 
   /**
@@ -521,11 +575,12 @@ export abstract class AbstractWorker<
    * @param task - The task to execute.
    */
   protected readonly run = (task: Task<Data>): void => {
-    const { name, taskId, data } = task
+    const { abortable, name, taskId, data } = task
     const taskFunctionName = name ?? DEFAULT_TASK_NAME
     if (!this.taskFunctions.has(taskFunctionName)) {
       this.sendToMainWorker({
         workerError: {
+          aborted: false,
           data,
           error: new Error(`Task function '${name!}' not found`),
           name,
@@ -534,7 +589,14 @@ export abstract class AbstractWorker<
       })
       return
     }
-    const fn = this.taskFunctions.get(taskFunctionName)?.taskFunction
+    let fn: TaskFunction<Data, Response>
+    if (abortable === true) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      fn = this.getAbortableTaskFunction(taskFunctionName, taskId!)
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      fn = this.taskFunctions.get(taskFunctionName)!.taskFunction
+    }
     if (isAsyncFunction(fn)) {
       this.runAsync(fn as TaskAsyncFunction<Data, Response>, task)
     } else {
@@ -552,7 +614,7 @@ export abstract class AbstractWorker<
     fn: TaskSyncFunction<Data, Response>,
     task: Task<Data>,
   ): void => {
-    const { name, taskId, data } = task
+    const { abortable, name, taskId, data } = task
     try {
       let taskPerformance = this.beginTaskPerformance(name)
       const res = fn(data)
@@ -565,6 +627,7 @@ export abstract class AbstractWorker<
     } catch (error) {
       this.sendToMainWorker({
         workerError: {
+          aborted: error instanceof AbortError,
           data,
           error: error as Error,
           name,
@@ -573,6 +636,9 @@ export abstract class AbstractWorker<
       })
     } finally {
       this.updateLastTaskTimestamp()
+      if (abortable === true) {
+        this.taskAbortFunctions.delete(taskId!)
+      }
     }
   }
 
@@ -586,7 +652,7 @@ export abstract class AbstractWorker<
     fn: TaskAsyncFunction<Data, Response>,
     task: Task<Data>,
   ): void => {
-    const { name, taskId, data } = task
+    const { abortable, name, taskId, data } = task
     let taskPerformance = this.beginTaskPerformance(name)
     fn(data)
       .then((res) => {
@@ -600,6 +666,7 @@ export abstract class AbstractWorker<
       .catch((error) => {
         this.sendToMainWorker({
           workerError: {
+            aborted: error instanceof AbortError,
             data,
             error: error as Error,
             name,
@@ -609,6 +676,9 @@ export abstract class AbstractWorker<
       })
       .finally(() => {
         this.updateLastTaskTimestamp()
+        if (abortable === true) {
+          this.taskAbortFunctions.delete(taskId!)
+        }
       })
       .catch(EMPTY_FUNCTION)
   }

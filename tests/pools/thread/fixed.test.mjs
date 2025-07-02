@@ -179,7 +179,7 @@ describe({
       let error
       let result
       try {
-        result = await pool.execute(undefined, undefined, [
+        result = await pool.execute(undefined, undefined, undefined, [
           new ArrayBuffer(16),
           new MessageChannel().port1,
         ])
@@ -189,7 +189,7 @@ describe({
       expect(result).toStrictEqual({ ok: 1 })
       expect(error).toBeUndefined()
       try {
-        result = await pool.execute(undefined, undefined, [
+        result = await pool.execute(undefined, undefined, undefined, [
           new SharedArrayBuffer(16),
         ])
       } catch (e) {
@@ -214,6 +214,7 @@ describe({
       expect(inError).toBeInstanceOf(Error)
       expect(inError.message).toStrictEqual('Error Message from ThreadWorker')
       expect(taskError).toStrictEqual({
+        aborted: false,
         data,
         error: inError,
         name: DEFAULT_TASK_NAME,
@@ -245,6 +246,7 @@ describe({
         'Error Message from ThreadWorker:async',
       )
       expect(taskError).toStrictEqual({
+        aborted: false,
         data,
         error: inError,
         name: DEFAULT_TASK_NAME,
@@ -254,6 +256,34 @@ describe({
           (workerNode) => workerNode.usage.tasks.failed === 1,
         ),
       ).toBe(true)
+    })
+
+    it.only('Verify that task can be aborted', async () => {
+      let error
+
+      try {
+        await asyncErrorPool.execute({}, 'default', AbortSignal.timeout(500))
+      } catch (e) {
+        error = e
+      }
+      console.info(error)
+      expect(error).toBeInstanceOf(Error)
+      expect(error.name).toBe('TimeoutError')
+      expect(error.message).toBe('The operation was aborted due to timeout')
+      expect(error.stack).toBeDefined()
+
+      const abortController = new AbortController()
+      setTimeout(() => {
+        abortController.abort(new Error('Task aborted'))
+      }, 500)
+      try {
+        await asyncErrorPool.execute({}, 'default', abortController.signal)
+      } catch (e) {
+        error = e
+      }
+      expect(error).toBeInstanceOf(Error)
+      expect(error.message).toBe('Task aborted')
+      expect(error.stack).toBeDefined()
     })
 
     it('Verify that async function is working properly', async () => {
