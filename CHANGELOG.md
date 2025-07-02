@@ -8,37 +8,52 @@ and this project adheres to
 
 ## [0.5.0](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.31...v0.5.0) (2025-07-02)
 
-
 ### ⚠ BREAKING CHANGES
 
-* add abortable task support ([#81](https://github.com/poolifier/poolifier-web-worker/issues/81))
+- add abortable task support
+  ([#81](https://github.com/poolifier/poolifier-web-worker/issues/81))
 
 ### 🚀 Features
 
-* add abortable task support ([#81](https://github.com/poolifier/poolifier-web-worker/issues/81)) ([7ff05c6](https://github.com/poolifier/poolifier-web-worker/commit/7ff05c60f4f350191f70e1de8fd596e136ab9872))
-
+- add abortable task support
+  ([#81](https://github.com/poolifier/poolifier-web-worker/issues/81))
+  ([7ff05c6](https://github.com/poolifier/poolifier-web-worker/commit/7ff05c60f4f350191f70e1de8fd596e136ab9872))
 
 ### ✨ Polish
 
-* cleanup JS runtime detection code ([b366f0e](https://github.com/poolifier/poolifier-web-worker/commit/b366f0ecdc5e34a5942c73dd04ea8c9b1619e2a6))
-* factor out worker info initialization ([4d9c6a4](https://github.com/poolifier/poolifier-web-worker/commit/4d9c6a486313883a80f1694ac280eaa55379bf6a))
-* flag some object literals as read only ([5d006d9](https://github.com/poolifier/poolifier-web-worker/commit/5d006d91350be07e369bd526d8732bfa5baf742b))
-* flag strategy policy property as read only ([5eeb19e](https://github.com/poolifier/poolifier-web-worker/commit/5eeb19ec2f269f466ad03db7e27e08e1e0165ac9))
-* migrate to @std/expect ([#73](https://github.com/poolifier/poolifier-web-worker/issues/73)) ([459c2f9](https://github.com/poolifier/poolifier-web-worker/commit/459c2f9307928971520a63d99ac17f7ca1b59647))
-* refine browser JS runtime detection ([a545ddd](https://github.com/poolifier/poolifier-web-worker/commit/a545ddd26bfd577ea28dd4dd4b4c0236138b5a60))
-
+- cleanup JS runtime detection code
+  ([b366f0e](https://github.com/poolifier/poolifier-web-worker/commit/b366f0ecdc5e34a5942c73dd04ea8c9b1619e2a6))
+- factor out worker info initialization
+  ([4d9c6a4](https://github.com/poolifier/poolifier-web-worker/commit/4d9c6a486313883a80f1694ac280eaa55379bf6a))
+- flag some object literals as read only
+  ([5d006d9](https://github.com/poolifier/poolifier-web-worker/commit/5d006d91350be07e369bd526d8732bfa5baf742b))
+- flag strategy policy property as read only
+  ([5eeb19e](https://github.com/poolifier/poolifier-web-worker/commit/5eeb19ec2f269f466ad03db7e27e08e1e0165ac9))
+- migrate to @std/expect
+  ([#73](https://github.com/poolifier/poolifier-web-worker/issues/73))
+  ([459c2f9](https://github.com/poolifier/poolifier-web-worker/commit/459c2f9307928971520a63d99ac17f7ca1b59647))
+- refine browser JS runtime detection
+  ([a545ddd](https://github.com/poolifier/poolifier-web-worker/commit/a545ddd26bfd577ea28dd4dd4b4c0236138b5a60))
 
 ### 🧪 Tests
 
-* remove unneeded Linux ignore ([4fd41ee](https://github.com/poolifier/poolifier-web-worker/commit/4fd41ee03fe16c848990c37c754be9aa69f7d2c1))
-
+- remove unneeded Linux ignore
+  ([4fd41ee](https://github.com/poolifier/poolifier-web-worker/commit/4fd41ee03fe16c848990c37c754be9aa69f7d2c1))
 
 ### 🤖 Automation
 
-* **deps:** Bump autofix-ci/action ([#75](https://github.com/poolifier/poolifier-web-worker/issues/75)) ([037bdf4](https://github.com/poolifier/poolifier-web-worker/commit/037bdf42f865009caa433f11a478828a0ffdadc8))
-* **deps:** Bump autofix-ci/action ([#79](https://github.com/poolifier/poolifier-web-worker/issues/79)) ([f1f8bac](https://github.com/poolifier/poolifier-web-worker/commit/f1f8bac189c68074316a06e261c05a35e21ac2bd))
-* **deps:** Bump sonarsource/sonarqube-scan-action from 4.1.0 to 4.2.1 ([#77](https://github.com/poolifier/poolifier-web-worker/issues/77)) ([00216f4](https://github.com/poolifier/poolifier-web-worker/commit/00216f46c37c05a28c0a2299774e030270aead74))
-* **deps:** Bump sonarsource/sonarqube-scan-action from 4.2.1 to 5.2.0 ([#80](https://github.com/poolifier/poolifier-web-worker/issues/80)) ([5f0ca95](https://github.com/poolifier/poolifier-web-worker/commit/5f0ca95d3407d6b548aaee52992c0d6aee0417de))
+- **deps:** Bump autofix-ci/action
+  ([#75](https://github.com/poolifier/poolifier-web-worker/issues/75))
+  ([037bdf4](https://github.com/poolifier/poolifier-web-worker/commit/037bdf42f865009caa433f11a478828a0ffdadc8))
+- **deps:** Bump autofix-ci/action
+  ([#79](https://github.com/poolifier/poolifier-web-worker/issues/79))
+  ([f1f8bac](https://github.com/poolifier/poolifier-web-worker/commit/f1f8bac189c68074316a06e261c05a35e21ac2bd))
+- **deps:** Bump sonarsource/sonarqube-scan-action from 4.1.0 to 4.2.1
+  ([#77](https://github.com/poolifier/poolifier-web-worker/issues/77))
+  ([00216f4](https://github.com/poolifier/poolifier-web-worker/commit/00216f46c37c05a28c0a2299774e030270aead74))
+- **deps:** Bump sonarsource/sonarqube-scan-action from 4.2.1 to 5.2.0
+  ([#80](https://github.com/poolifier/poolifier-web-worker/issues/80))
+  ([5f0ca95](https://github.com/poolifier/poolifier-web-worker/commit/5f0ca95d3407d6b548aaee52992c0d6aee0417de))
 
 ## [0.4.31](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.30...v0.4.31) (2024-10-26)
 
