@@ -1943,7 +1943,11 @@ describe({
       await expect(pool.mapExecute([undefined], 'unknown')).rejects.toThrow(
         new Error("Task function 'unknown' not found"),
       )
-      let results = await pool.mapExecute([{}, {}, {}, {}])
+      let results = await pool.mapExecute(
+        Array(4).fill({}),
+        'jsonIntegerSerialization',
+        Array(4).fill(AbortSignal.timeout(1000)),
+      )
       expect(results).toStrictEqual([
         { ok: 1 },
         { ok: 1 },
@@ -1964,6 +1968,7 @@ describe({
           },
         ],
         'factorial',
+        Array(4).fill(AbortSignal.timeout(1000)),
       )
       expect(results).toStrictEqual([
         3628800n,
@@ -1976,6 +1981,12 @@ describe({
       results = await pool.mapExecute(
         new Set([{ n: 10 }, { n: 20 }, { n: 30 }, { n: 40 }]),
         'factorial',
+        new Set([
+          AbortSignal.timeout(1000),
+          AbortSignal.timeout(1500),
+          AbortSignal.timeout(2000),
+          AbortSignal.timeout(2500),
+        ]),
       )
       expect(results).toStrictEqual([
         3628800n,

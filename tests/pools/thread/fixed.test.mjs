@@ -81,13 +81,21 @@ describe({
     })
 
     it('Verify that the function is executed in a worker thread', async () => {
-      let result = await pool.execute({
-        function: TaskFunctions.fibonacci,
-      })
+      let result = await pool.execute(
+        {
+          function: TaskFunctions.fibonacci,
+        },
+        'default',
+        AbortSignal.timeout(2000),
+      )
       expect(result).toBe(354224848179261915075n)
-      result = await pool.execute({
-        function: TaskFunctions.factorial,
-      })
+      result = await pool.execute(
+        {
+          function: TaskFunctions.factorial,
+        },
+        'default',
+        AbortSignal.timeout(2000),
+      )
       expect(result).toBe(
         93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000n,
       )
@@ -258,7 +266,7 @@ describe({
       ).toBe(true)
     })
 
-    it.only('Verify that task can be aborted', async () => {
+    it('Verify that task can be aborted', async () => {
       let error
 
       try {
@@ -266,10 +274,9 @@ describe({
       } catch (e) {
         error = e
       }
-      console.info(error)
       expect(error).toBeInstanceOf(Error)
       expect(error.name).toBe('TimeoutError')
-      expect(error.message).toBe('The operation was aborted due to timeout')
+      expect(error.message).toBe('Signal timed out.')
       expect(error.stack).toBeDefined()
 
       const abortController = new AbortController()
