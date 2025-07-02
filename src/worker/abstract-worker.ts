@@ -592,10 +592,8 @@ export abstract class AbstractWorker<
     }
     let fn: TaskFunction<Data, Response>
     if (abortable === true) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       fn = this.getAbortableTaskFunction(taskFunctionName, taskId!)
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       fn = this.taskFunctions.get(taskFunctionName)!.taskFunction
     }
     if (isAsyncFunction(fn)) {

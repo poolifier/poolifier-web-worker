@@ -1913,7 +1913,6 @@ export abstract class AbstractPool<
       (this.info.stealingWorkerNodes ?? 0) >
         Math.ceil(
           this.workerNodes.length *
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.opts.tasksQueueOptions!.tasksStealingRatio!,
         )
     )
@@ -2258,6 +2257,7 @@ export abstract class AbstractPool<
         if (taskId === task.taskId && abortable === true) {
           workerNode.info.queuedTaskAbortion = true
           workerNode.deleteTask(task)
+          this.promiseResponseMap.delete(taskId!)
           workerNode.info.queuedTaskAbortion = false
           reject(this.getAbortError(name!, taskId!))
           return
