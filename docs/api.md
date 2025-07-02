@@ -150,7 +150,7 @@ An object with these properties:
     based on tasks execution time (experimental)
   - `WorkerChoiceStrategies.FAIR_SHARE`: Submit tasks to worker by using a
     [fair share scheduling algorithm](./worker-choice-strategies.md#fair-share)
-    based on tasks execution time (the default) or ELU active time
+    based on tasks execution time (the default) <!-- or ELU active time  -->
 
   `WorkerChoiceStrategies.WEIGHTED_ROUND_ROBIN`,
   `WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN` and
