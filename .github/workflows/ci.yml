@@ -54,7 +54,7 @@ jobs:
         run: deno task bundle
 
       - name: Coverage Report
-        if: ${{ matrix.os == 'macos-latest' && matrix.deno == 'v2.x' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.deno == 'v2.x' }}
         run: deno task coverage:report
 
       - name: Check for SonarCloud Token Availability
@@ -68,7 +68,7 @@ jobs:
           fi
 
       - name: SonarCloud Code Analysis
-        if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-web-worker' && matrix.os == 'macos-latest' && matrix.deno == 'v2.x' }}
+        if: ${{ steps.sonar-token.outputs.available == 'true' && github.repository == 'poolifier/poolifier-web-worker' && matrix.os == 'ubuntu-latest' && matrix.deno == 'v2.x' }}
         uses: sonarsource/sonarqube-scan-action@v5.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
