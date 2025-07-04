@@ -19,7 +19,7 @@ Its goal is to distribute the load evenly across all workers. To achieve this,
 the strategy keeps track of the simple moving average task execution time for
 each worker and assigns the next task to the worker with the lowest task end
 prediction time:
-`task_end_prediction = max(current_time, task_end_prediction) + simple_moving_average_task_execution_time`.\
+`task_end_prediction = max(current_time, task_end_prediction) + simple_moving_average_task_execution_time`.
 
 <!-- By default, the strategy uses the simple moving average task execution time for
 each worker but it can be configured to use the simple moving average task event
