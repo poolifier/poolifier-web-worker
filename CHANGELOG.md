@@ -8,16 +8,17 @@ and this project adheres to
 
 ## [0.5.1](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.0...v0.5.1) (2025-07-04)
 
-
 ### 🧪 Tests
 
-* unignore GNU/Linux ([956a156](https://github.com/poolifier/poolifier-web-worker/commit/956a15674423586369e4a8b3aedc3c0a0e460770))
-
+- unignore GNU/Linux
+  ([956a156](https://github.com/poolifier/poolifier-web-worker/commit/956a15674423586369e4a8b3aedc3c0a0e460770))
 
 ### 📚 Documentation
 
-* tasks distribution refinements ([cc299fb](https://github.com/poolifier/poolifier-web-worker/commit/cc299fbf534f3f5fdc85bda992b38a754bbb53d0))
-* **worker-choice-strategies.md:** formatting ([6fc2246](https://github.com/poolifier/poolifier-web-worker/commit/6fc2246dc167ae0e6ebef8fa5ca6bfacfdd30e59))
+- tasks distribution refinements
+  ([cc299fb](https://github.com/poolifier/poolifier-web-worker/commit/cc299fbf534f3f5fdc85bda992b38a754bbb53d0))
+- **worker-choice-strategies.md:** formatting
+  ([6fc2246](https://github.com/poolifier/poolifier-web-worker/commit/6fc2246dc167ae0e6ebef8fa5ca6bfacfdd30e59))
 
 ## [0.5.0](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.31...v0.5.0) (2025-07-02)
 
