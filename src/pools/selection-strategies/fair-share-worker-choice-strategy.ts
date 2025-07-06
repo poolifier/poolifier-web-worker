@@ -1,4 +1,3 @@
-import { min } from '../../utils.ts'
 import type { IPool } from '../pool.ts'
 import type { IWorker } from '../worker.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
@@ -77,7 +76,10 @@ export class FairShareWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public remove(): boolean {
+  public remove(workerNodeKey: number): boolean {
+    if (this.pool.workerNodes[workerNodeKey]?.strategyData != null) {
+      delete this.pool.workerNodes[workerNodeKey].strategyData
+    }
     return true
   }
 
@@ -88,6 +90,10 @@ export class FairShareWorkerChoiceStrategy<
           return minWorkerNodeKey
         }
         if (minWorkerNodeKey === -1) {
+          workerNode.strategyData = {
+            virtualTaskEndTimestamp: this
+              .computeWorkerNodeVirtualTaskEndTimestamp(workerNodeKey),
+          }
           return workerNodeKey
         }
         if (workerNode.strategyData?.virtualTaskEndTimestamp == null) {
@@ -97,8 +103,7 @@ export class FairShareWorkerChoiceStrategy<
           }
         }
         return workerNode.strategyData.virtualTaskEndTimestamp! <
-            workerNodes[minWorkerNodeKey].strategyData!
-              .virtualTaskEndTimestamp!
+            workerNodes[minWorkerNodeKey].strategyData!.virtualTaskEndTimestamp!
           ? workerNodeKey
           : minWorkerNodeKey
       },

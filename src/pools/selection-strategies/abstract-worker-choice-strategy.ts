@@ -116,16 +116,18 @@ export abstract class AbstractWorkerChoiceStrategy<
   }
 
   /**
-   * Check the next worker node key.
+   * Check the worker node key.
    */
-  protected checkNextWorkerNodeKey(): void {
+  protected checkWorkerNodeKey(
+    workerNodeKey: number | undefined,
+  ): number | undefined {
     if (
-      this.nextWorkerNodeKey != null &&
-      (this.nextWorkerNodeKey < 0 ||
-        !this.isWorkerNodeReady(this.nextWorkerNodeKey))
+      workerNodeKey != null &&
+      (workerNodeKey < 0 || !this.isWorkerNodeReady(workerNodeKey))
     ) {
-      delete this.nextWorkerNodeKey
+      return undefined
     }
+    return workerNodeKey
   }
 
   /**

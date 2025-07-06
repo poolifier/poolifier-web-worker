@@ -871,10 +871,7 @@ export abstract class AbstractPool<
           )
         }
         for (const workerNodeKey of this.workerNodes.keys()) {
-          this.registerWorkerMessageListener(
-            workerNodeKey,
-            listener,
-          )
+          this.registerWorkerMessageListener(workerNodeKey, listener)
           this.sendToWorker(workerNodeKey, message)
         }
       })
