@@ -76,28 +76,44 @@ export class FairShareWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public remove(): boolean {
+  public remove(workerNodeKey: number): boolean {
+    if (
+      this.pool.workerNodes[workerNodeKey]?.strategyData
+        ?.virtualTaskEndTimestamp != null
+    ) {
+      delete this.pool.workerNodes[workerNodeKey].strategyData
+        .virtualTaskEndTimestamp
+    }
     return true
   }
 
   private fairShareNextWorkerNodeKey(): number | undefined {
-    return this.pool.workerNodes.reduce(
-      (minWorkerNodeKey, workerNode, workerNodeKey, workerNodes) => {
+    const chosenWorkerNodeKey = this.pool.workerNodes.reduce(
+      (minWorkerNodeKey: number, workerNode, workerNodeKey, workerNodes) => {
+        if (!this.isWorkerNodeReady(workerNodeKey)) {
+          return minWorkerNodeKey
+        }
+        if (minWorkerNodeKey === -1) {
+          workerNode.strategyData = {
+            virtualTaskEndTimestamp: this
+              .computeWorkerNodeVirtualTaskEndTimestamp(workerNodeKey),
+          }
+          return workerNodeKey
+        }
         if (workerNode.strategyData?.virtualTaskEndTimestamp == null) {
           workerNode.strategyData = {
             virtualTaskEndTimestamp: this
               .computeWorkerNodeVirtualTaskEndTimestamp(workerNodeKey),
           }
         }
-        return this.isWorkerNodeReady(workerNodeKey) &&
-            workerNode.strategyData.virtualTaskEndTimestamp! <
-              workerNodes[minWorkerNodeKey].strategyData!
-                .virtualTaskEndTimestamp!
+        return workerNode.strategyData.virtualTaskEndTimestamp! <
+            workerNodes[minWorkerNodeKey].strategyData!.virtualTaskEndTimestamp!
           ? workerNodeKey
           : minWorkerNodeKey
       },
-      0,
+      -1,
     )
+    return chosenWorkerNodeKey === -1 ? undefined : chosenWorkerNodeKey
   }
 
   /**

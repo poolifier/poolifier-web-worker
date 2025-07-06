@@ -20,6 +20,8 @@ export class PriorityQueue<T> {
   private tail!: PriorityQueueNode<T>
   private readonly bucketSize: number
   private priorityEnabled: boolean
+  /** The priority queue size. */
+  public size!: number
   /** The priority queue maximum size. */
   public maxSize!: number
 
@@ -48,21 +50,6 @@ export class PriorityQueue<T> {
   }
 
   /**
-   * The priority queue size.
-   *
-   * @returns The priority queue size.
-   */
-  public get size(): number {
-    let node: PriorityQueueNode<T> | undefined = this.tail
-    let size = 0
-    while (node != null) {
-      size += node.size
-      node = node.next
-    }
-    return size
-  }
-
-  /**
    * Whether priority is enabled.
    *
    * @returns Whether priority is enabled.
@@ -81,28 +68,11 @@ export class PriorityQueue<T> {
       return
     }
     this.priorityEnabled = enablePriority
-    let head: PriorityQueueNode<T>
-    let tail: PriorityQueueNode<T>
-    let prev: PriorityQueueNode<T> | undefined
-    let node: PriorityQueueNode<T> | undefined = this.tail
-    let buckets = 0
-    while (node != null) {
-      const currentNode = this.getPriorityQueueNode(node.nodeArray)
-      if (buckets === 0) {
-        tail = currentNode
-      }
-      if (prev != null) {
-        prev.next = currentNode
-      }
-      prev = currentNode
-      if (node.next == null) {
-        head = currentNode
-      }
-      ++buckets
-      node = node.next
+    const data: T[] = Array.from(this)
+    this.clear()
+    for (const dataItem of data) {
+      this.enqueue(dataItem)
     }
-    this.head = head!
-    this.tail = tail!
   }
 
   /**
@@ -126,11 +96,11 @@ export class PriorityQueue<T> {
       this.head = this.head.next = this.getPriorityQueueNode()
     }
     this.head.enqueue(data, priority)
-    const size = this.size
-    if (size > this.maxSize) {
-      this.maxSize = size
+    ++this.size
+    if (this.size > this.maxSize) {
+      this.maxSize = this.size
     }
-    return size
+    return this.size
   }
 
   /**
@@ -143,18 +113,17 @@ export class PriorityQueue<T> {
     let prev: PriorityQueueNode<T> | undefined
     while (node != null) {
       if (node.delete(data)) {
-        if (node.empty()) {
-          if (node === this.tail && node.next != null) {
-            this.tail = node.next
-            delete node.next
-          } else if (node.next != null && prev != null) {
-            prev.next = node.next
-            delete node.next
-          } else if (node.next == null && prev != null) {
-            delete prev.next
-            this.head = prev
+        if (node.empty() && this.head !== this.tail) {
+          if (node === this.tail) {
+            this.tail = node.next!
+          } else {
+            prev!.next = node.next
+            if (node === this.head) {
+              this.head = prev!
+            }
           }
         }
+        --this.size
         return true
       }
       prev = node
@@ -170,38 +139,39 @@ export class PriorityQueue<T> {
    * @returns The dequeued data or `undefined` if the priority queue is empty.
    */
   public dequeue(bucket?: number): T | undefined {
-    let tail: PriorityQueueNode<T> | undefined = this.tail
-    let tailChanged = false
+    if (this.size === 0) {
+      return undefined
+    }
+    let targetNode: PriorityQueueNode<T> | undefined = this.tail
+    let prev: PriorityQueueNode<T> | undefined
     if (bucket != null && bucket > 0) {
       let currentBucket = 1
-      while (tail != null) {
-        if (currentBucket === bucket) {
-          break
-        }
+      while (targetNode.next != null && currentBucket < bucket) {
+        prev = targetNode
+        targetNode = targetNode.next
         ++currentBucket
-        tail = tail.next
       }
-      tailChanged = tail !== this.tail
+      if (currentBucket < bucket || targetNode.empty() === true) {
+        return undefined
+      }
+    } else {
+      while (targetNode?.empty() === true && targetNode !== this.head) {
+        prev = targetNode
+        targetNode = targetNode.next
+      }
     }
-    const data = tail!.dequeue()
-    if (tail!.empty()) {
-      if (!tailChanged && tail!.next != null) {
-        this.tail = tail!.next
-        delete tail!.next
-      } else if (tailChanged) {
-        let node: PriorityQueueNode<T> | undefined = this.tail
-        while (node != null) {
-          if (node.next === tail && tail!.next != null) {
-            node.next = tail!.next
-            delete tail!.next
-            break
-          }
-          if (node.next === tail && tail!.next == null) {
-            delete node.next
-            this.head = node
-            break
-          }
-          node = node.next
+    if (targetNode?.empty() === true) {
+      return undefined
+    }
+    const data = targetNode!.dequeue()
+    --this.size
+    if (targetNode!.empty() && this.head !== this.tail) {
+      if (targetNode === this.tail) {
+        this.tail = this.tail.next!
+      } else {
+        prev!.next = targetNode!.next
+        if (targetNode === this.head) {
+          this.head = prev!
         }
       }
     }
@@ -213,6 +183,7 @@ export class PriorityQueue<T> {
    */
   public clear(): void {
     this.head = this.tail = this.getPriorityQueueNode()
+    this.size = 0
     this.maxSize = 0
   }
 
@@ -223,32 +194,37 @@ export class PriorityQueue<T> {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
    */
   public [Symbol.iterator](): Iterator<T> {
+    let node: PriorityQueueNode<T> | undefined = this.tail
     let index = 0
-    let node = this.tail
-    return {
-      next: () => {
-        const value = node.get(index) as T
-        if (value == null) {
-          return {
-            value: undefined,
-            done: true,
-          }
+    const getNextValue = (): IteratorResult<T> => {
+      if (node == null) {
+        return { done: true, value: undefined }
+      }
+
+      while (index >= node.size) {
+        node = node.next
+        index = 0
+        if (node == null) {
+          return { done: true, value: undefined }
         }
+      }
+
+      const value = node.get(index)
+      if (value == null) {
         ++index
-        if (index === node.capacity && node.next != null) {
-          node = node.next
-          index = 0
-        }
-        return {
-          value,
-          done: false,
-        }
-      },
+        return getNextValue()
+      }
+
+      ++index
+      return { done: false, value }
+    }
+    return {
+      next: getNextValue,
     }
   }
 
   private getPriorityQueueNode(
-    nodeArray?: FixedQueueNode<T>[],
+    nodeArray?: (FixedQueueNode<T> | undefined)[],
   ): PriorityQueueNode<T> {
     let fixedQueue: IFixedQueue<T>
     if (this.priorityEnabled) {

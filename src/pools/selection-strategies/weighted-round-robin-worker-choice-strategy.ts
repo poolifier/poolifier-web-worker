@@ -68,46 +68,46 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   public choose(): number | undefined {
     this.setPreviousWorkerNodeKey(this.nextWorkerNodeKey)
     this.weightedRoundRobinNextWorkerNodeKey()
-    this.checkNextWorkerNodeKey()
-    return this.nextWorkerNodeKey
+    if (!this.isWorkerNodeReady(this.nextWorkerNodeKey!)) {
+      return undefined
+    }
+    return this.checkWorkerNodeKey(this.nextWorkerNodeKey)
   }
 
   /** @inheritDoc */
   public remove(workerNodeKey: number): boolean {
     if (this.pool.workerNodes.length === 0) {
-      this.reset()
-      return true
+      return this.reset()
     }
     if (this.nextWorkerNodeKey === workerNodeKey) {
       this.workerNodeVirtualTaskExecutionTime = 0
-      if (this.nextWorkerNodeKey > this.pool.workerNodes.length - 1) {
-        this.nextWorkerNodeKey = this.pool.workerNodes.length - 1
-      }
     }
     if (
-      this.previousWorkerNodeKey === workerNodeKey &&
-      this.previousWorkerNodeKey > this.pool.workerNodes.length - 1
+      this.nextWorkerNodeKey != null &&
+      this.nextWorkerNodeKey >= workerNodeKey
     ) {
-      this.previousWorkerNodeKey = this.pool.workerNodes.length - 1
+      this.nextWorkerNodeKey =
+        (this.nextWorkerNodeKey - 1 + this.pool.workerNodes.length) %
+        this.pool.workerNodes.length
+      if (this.previousWorkerNodeKey >= workerNodeKey) {
+        this.previousWorkerNodeKey = this.nextWorkerNodeKey
+      }
     }
     return true
   }
 
   private weightedRoundRobinNextWorkerNodeKey(): number | undefined {
-    const workerWeight =
-      this.opts!.weights![this.nextWorkerNodeKey ?? this.previousWorkerNodeKey]
+    const workerNodeKey = this.nextWorkerNodeKey ?? this.previousWorkerNodeKey
+    const workerWeight = this.opts!.weights![workerNodeKey]
     if (this.workerNodeVirtualTaskExecutionTime < workerWeight) {
-      this.workerNodeVirtualTaskExecutionTime += this.getWorkerNodeTaskWaitTime(
-        this.nextWorkerNodeKey ?? this.previousWorkerNodeKey,
-      ) +
-        this.getWorkerNodeTaskRunTime(
-          this.nextWorkerNodeKey ?? this.previousWorkerNodeKey,
-        )
+      this.workerNodeVirtualTaskExecutionTime +=
+        this.getWorkerNodeTaskWaitTime(workerNodeKey) +
+        this.getWorkerNodeTaskRunTime(workerNodeKey)
     } else {
       this.nextWorkerNodeKey =
         this.nextWorkerNodeKey === this.pool.workerNodes.length - 1
           ? 0
-          : (this.nextWorkerNodeKey ?? this.previousWorkerNodeKey) + 1
+          : workerNodeKey + 1
       this.workerNodeVirtualTaskExecutionTime = 0
     }
     return this.nextWorkerNodeKey

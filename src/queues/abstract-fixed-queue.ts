@@ -17,7 +17,7 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
   /** @inheritdoc */
   public size!: number
   /** @inheritdoc */
-  public nodeArray: FixedQueueNode<T>[]
+  public nodeArray: (FixedQueueNode<T> | undefined)[]
 
   /**
    * Constructs a fixed queue.
@@ -54,15 +54,39 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
     if (index >= this.capacity) {
       index -= this.capacity
     }
-    return this.nodeArray[index].data
+    return this.nodeArray[index]!.data
   }
 
   /** @inheritdoc */
   public delete(data: T): boolean {
-    const index = this.nodeArray.findIndex((node) => node?.data === data)
-    if (index !== -1) {
-      this.nodeArray.splice(index, 1)
-      this.nodeArray.length = this.capacity
+    let currentPhysicalIndex = this.start
+    let logicalIndex = -1
+    for (let i = 0; i < this.size; i++) {
+      if (this.nodeArray[currentPhysicalIndex]?.data === data) {
+        logicalIndex = i
+        break
+      }
+      currentPhysicalIndex++
+      if (currentPhysicalIndex === this.capacity) {
+        currentPhysicalIndex = 0
+      }
+    }
+    if (logicalIndex !== -1) {
+      if (logicalIndex === this.size - 1) {
+        this.nodeArray[currentPhysicalIndex] = undefined
+        --this.size
+        return true
+      }
+      let physicalShiftIndex = currentPhysicalIndex
+      for (let i = logicalIndex; i < this.size - 1; i++) {
+        let nextPhysicalIndex = physicalShiftIndex + 1
+        if (nextPhysicalIndex === this.capacity) {
+          nextPhysicalIndex = 0
+        }
+        this.nodeArray[physicalShiftIndex] = this.nodeArray[nextPhysicalIndex]
+        physicalShiftIndex = nextPhysicalIndex
+      }
+      this.nodeArray[physicalShiftIndex] = undefined
       --this.size
       return true
     }
@@ -75,12 +99,12 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
       return undefined
     }
     const index = this.start
-    --this.size
     ++this.start
     if (this.start === this.capacity) {
       this.start = 0
     }
-    return this.nodeArray[index].data
+    --this.size
+    return this.nodeArray[index]!.data
   }
 
   /** @inheritdoc */
@@ -101,7 +125,7 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
             done: true,
           }
         }
-        const value = this.nodeArray[index].data
+        const value = this.nodeArray[index]!.data
         ++index
         ++i
         if (index === this.capacity) {

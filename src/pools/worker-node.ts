@@ -42,7 +42,6 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   public readonly tasksQueue: PriorityQueue<Task<Data>>
   /** @inheritdoc */
   public tasksQueueBackPressureSize: number
-  private setBackPressureFlag: boolean
   private readonly taskFunctionsUsage: Map<string, WorkerUsage>
 
   /**
@@ -84,7 +83,6 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       opts.tasksQueueBucketSize,
       opts.tasksQueuePriority,
     )
-    this.setBackPressureFlag = false
     this.taskFunctionsUsage = new Map<string, WorkerUsage>()
   }
 
@@ -101,19 +99,13 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   /** @inheritdoc */
   public enqueueTask(task: Task<Data>): number {
     const tasksQueueSize = this.tasksQueue.enqueue(task, task.priority)
-    if (
-      !this.setBackPressureFlag &&
-      this.hasBackPressure() &&
-      !this.info.backPressure
-    ) {
-      this.setBackPressureFlag = true
+    if (this.hasBackPressure() && !this.info.backPressure) {
       this.info.backPressure = true
       this.dispatchEvent(
         new CustomEvent<WorkerNodeEventDetail>('backPressure', {
           detail: { workerId: this.info.id },
         }),
       )
-      this.setBackPressureFlag = false
     }
     return tasksQueueSize
   }
@@ -121,14 +113,8 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   /** @inheritdoc */
   public dequeueTask(bucket?: number): Task<Data> | undefined {
     const task = this.tasksQueue.dequeue(bucket)
-    if (
-      !this.setBackPressureFlag &&
-      !this.hasBackPressure() &&
-      this.info.backPressure
-    ) {
-      this.setBackPressureFlag = true
+    if (!this.hasBackPressure() && this.info.backPressure) {
       this.info.backPressure = false
-      this.setBackPressureFlag = false
     }
     return task
   }
