@@ -8,15 +8,15 @@ and this project adheres to
 
 ## [0.5.2](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.1...v0.5.2) (2025-07-06)
 
-
 ### 🐞 Bug Fixes
 
-* fix worker usage statistics computation ([aa63d3d](https://github.com/poolifier/poolifier-web-worker/commit/aa63d3d562e7097e4ce4c3c48390ce753e024f87))
-
+- fix worker usage statistics computation
+  ([aa63d3d](https://github.com/poolifier/poolifier-web-worker/commit/aa63d3d562e7097e4ce4c3c48390ce753e024f87))
 
 ### ✨ Polish
 
-* align property deletion implementation ([2aed691](https://github.com/poolifier/poolifier-web-worker/commit/2aed691aba92fae847dbc3d1f8f1b8ddcdaaf6a5))
+- align property deletion implementation
+  ([2aed691](https://github.com/poolifier/poolifier-web-worker/commit/2aed691aba92fae847dbc3d1f8f1b8ddcdaaf6a5))
 
 ## [0.5.1](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.0...v0.5.1) (2025-07-06)
 
