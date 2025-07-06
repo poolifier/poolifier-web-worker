@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.0...v0.5.1) (2025-07-06)
+
+### 🐞 Bug Fixes
+
+- tasks queuing fixes
+  ([#83](https://github.com/poolifier/poolifier-web-worker/issues/83))
+  ([8c46b36](https://github.com/poolifier/poolifier-web-worker/commit/8c46b36b4c8ede097ee85b86a2a5555a5e0b1fcf))
+
+### 🧪 Tests
+
+- unignore GNU/Linux
+  ([956a156](https://github.com/poolifier/poolifier-web-worker/commit/956a15674423586369e4a8b3aedc3c0a0e460770))
+
+### 📚 Documentation
+
+- tasks distribution refinements
+  ([cc299fb](https://github.com/poolifier/poolifier-web-worker/commit/cc299fbf534f3f5fdc85bda992b38a754bbb53d0))
+- **worker-choice-strategies.md:** formatting
+  ([6fc2246](https://github.com/poolifier/poolifier-web-worker/commit/6fc2246dc167ae0e6ebef8fa5ca6bfacfdd30e59))
+
 ## [0.5.0](https://github.com/poolifier/poolifier-web-worker/compare/v0.4.31...v0.5.0) (2025-07-02)
 
 ### ⚠ BREAKING CHANGES
