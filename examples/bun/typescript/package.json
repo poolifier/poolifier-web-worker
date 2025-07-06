@@ -6,7 +6,7 @@
     "start": "bun pool.ts"
   },
   "dependencies": {
-    "@poolifier/poolifier-web-worker": "npm:@jsr/poolifier__poolifier-web-worker@^0.5.0"
+    "@poolifier/poolifier-web-worker": "npm:@jsr/poolifier__poolifier-web-worker@^0.5.1"
   },
   "devDependencies": {
     "@types/bun": "^1.2.18"
