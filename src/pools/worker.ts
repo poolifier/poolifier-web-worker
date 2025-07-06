@@ -66,8 +66,9 @@ export interface MeasurementStatistics {
  * @internal
  */
 export interface EventLoopUtilizationMeasurementStatistics {
-  readonly idle: MeasurementStatistics
   readonly active: MeasurementStatistics
+  count?: number
+  readonly idle: MeasurementStatistics
   utilization?: number
 }
 

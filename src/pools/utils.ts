@@ -1,3 +1,4 @@
+import worker from '../../examples/deno/typescript/worker.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import {
   average,
@@ -277,14 +278,14 @@ const updateMeasurementStatistics = (
           measurementStatistics.history.toArray(),
         )
       } else if (measurementStatistics.average != null) {
-        delete measurementStatistics.average
+        measurementStatistics.average = undefined
       }
       if (measurementRequirements.median) {
         measurementStatistics.median = median(
           measurementStatistics.history.toArray(),
         )
       } else if (measurementStatistics.median != null) {
-        delete measurementStatistics.median
+        measurementStatistics.median = undefined
       }
     }
   }
@@ -380,13 +381,11 @@ export const updateEluWorkerUsage = <
   )
   if (eluTaskStatisticsRequirements?.aggregate === true) {
     if (message.taskPerformance?.elu != null) {
-      if (workerUsage.elu.utilization != null) {
-        workerUsage.elu.utilization = (workerUsage.elu.utilization +
+      workerUsage.elu.count = (workerUsage.elu.count ?? 0) + 1
+      workerUsage.elu.utilization =
+        ((workerUsage.elu.utilization ?? 0) * (workerUsage.elu.count - 1) +
           message.taskPerformance.elu.utilization) /
-          2
-      } else {
-        workerUsage.elu.utilization = message.taskPerformance.elu.utilization
-      }
+        workerUsage.elu.count
     }
   }
 }
