@@ -117,6 +117,8 @@ export abstract class AbstractWorkerChoiceStrategy<
 
   /**
    * Check the worker node key.
+   * @param workerNodeKey - The worker node key to check.
+   * @returns The worker node key if it is valid, otherwise undefined.
    */
   protected checkWorkerNodeKey(
     workerNodeKey: number | undefined,

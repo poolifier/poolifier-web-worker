@@ -146,12 +146,12 @@ export class PriorityQueue<T> {
     let prev: PriorityQueueNode<T> | undefined
     if (bucket != null && bucket > 0) {
       let currentBucket = 1
-      while (targetNode?.next != null && currentBucket < bucket) {
+      while (targetNode.next != null && currentBucket < bucket) {
         prev = targetNode
         targetNode = targetNode.next
         ++currentBucket
       }
-      if (currentBucket < bucket || targetNode?.empty() === true) {
+      if (currentBucket < bucket || targetNode.empty() === true) {
         return undefined
       }
     } else {

@@ -77,8 +77,12 @@ export class FairShareWorkerChoiceStrategy<
 
   /** @inheritDoc */
   public remove(workerNodeKey: number): boolean {
-    if (this.pool.workerNodes[workerNodeKey]?.strategyData != null) {
+    if (
+      this.pool.workerNodes[workerNodeKey]?.strategyData
+        ?.virtualTaskEndTimestamp != null
+    ) {
       delete this.pool.workerNodes[workerNodeKey].strategyData
+        .virtualTaskEndTimestamp
     }
     return true
   }

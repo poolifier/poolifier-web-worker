@@ -51,7 +51,7 @@ export class LeastUsedWorkerChoiceStrategy<
 
   private leastUsedNextWorkerNodeKey(): number | undefined {
     const chosenWorkerNodeKey = this.pool.workerNodes.reduce(
-      (minWorkerNodeKey, workerNode, workerNodeKey, workerNodes) => {
+      (minWorkerNodeKey: number, workerNode, workerNodeKey, workerNodes) => {
         if (!this.isWorkerNodeReady(workerNodeKey)) {
           return minWorkerNodeKey
         }

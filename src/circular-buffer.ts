@@ -68,7 +68,7 @@ export class CircularBuffer {
    */
   public get(): number | undefined {
     if (this.empty()) {
-      return
+      return undefined
     }
     const number = this.items[this.readIdx]
     this.readIdx = this.readIdx === this.maxArrayIdx ? 0 : this.readIdx + 1

@@ -312,7 +312,7 @@ export abstract class AbstractPool<
       ...(this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
             .runTime.aggregate === true &&
         this.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
-            .waitTime.aggregate === true &&
+          .waitTime.aggregate &&
         {
           utilization: round(this.utilization),
         }),
@@ -851,7 +851,9 @@ export abstract class AbstractPool<
             )
             reject(
               new Error(
-                `Task function operation '${message.taskFunctionOperation}' failed on worker ${errorResponse?.workerId?.toString()} with error: '${errorResponse?.workerError?.error.message}'`,
+                `Task function operation '${message.taskFunctionOperation}' failed on worker ${errorResponse?.workerId?.toString()} with error: '${
+                  errorResponse?.workerError?.error?.message ?? 'Unknown error'
+                }'`,
               ),
             )
           }
