@@ -312,7 +312,7 @@ export abstract class AbstractPool<
       ...(this.workerChoiceStrategiesContext?.getTaskStatisticsRequirements()
             .runTime.aggregate === true &&
         this.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
-          .waitTime.aggregate &&
+            .waitTime.aggregate === true &&
         {
           utilization: round(this.utilization),
         }),

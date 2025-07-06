@@ -146,20 +146,19 @@ export class PriorityQueue<T> {
     let prev: PriorityQueueNode<T> | undefined
     if (bucket != null && bucket > 0) {
       let currentBucket = 1
-      let searchNode: PriorityQueueNode<T> | undefined = this.tail
-      while (searchNode != null) {
-        if (currentBucket === bucket) {
-          targetNode = searchNode
-          break
-        }
+      while (targetNode?.next != null && currentBucket < bucket) {
+        prev = targetNode
+        targetNode = targetNode.next
         ++currentBucket
-        prev = searchNode
-        searchNode = searchNode.next
       }
-    }
-    while (targetNode?.empty() === true && targetNode !== this.head) {
-      prev = targetNode
-      targetNode = targetNode.next
+      if (currentBucket < bucket || targetNode?.empty() === true) {
+        return undefined
+      }
+    } else {
+      while (targetNode?.empty() === true && targetNode !== this.head) {
+        prev = targetNode
+        targetNode = targetNode.next
+      }
     }
     if (targetNode?.empty() === true) {
       return undefined
@@ -212,11 +211,11 @@ export class PriorityQueue<T> {
 
       const value = node.get(index)
       if (value == null) {
-        index++
+        ++index
         return getNextValue()
       }
 
-      index++
+      ++index
       return { done: false, value }
     }
     return {

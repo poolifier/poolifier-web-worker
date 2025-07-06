@@ -4,7 +4,7 @@
 export const defaultBufferSize = 2048
 
 /**
- * Circular buffer designed for positive numbers.
+ * Circular buffer designed for numbers.
  *
  * @internal
  */
@@ -25,7 +25,7 @@ export class CircularBuffer {
     this.writeIdx = 0
     this.maxArrayIdx = size - 1
     this.size = 0
-    this.items = new Float32Array(size).fill(-1)
+    this.items = new Float32Array(size)
   }
 
   /**
@@ -71,7 +71,6 @@ export class CircularBuffer {
       return
     }
     const number = this.items[this.readIdx]
-    this.items[this.readIdx] = -1
     this.readIdx = this.readIdx === this.maxArrayIdx ? 0 : this.readIdx + 1
     --this.size
     return number
