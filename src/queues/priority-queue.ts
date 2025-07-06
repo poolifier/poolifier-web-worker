@@ -4,7 +4,6 @@ import { FixedPriorityQueue } from '../queues/fixed-priority-queue.ts'
 import { FixedQueue } from '../queues/fixed-queue.ts'
 import {
   defaultBucketSize,
-  type FixedQueueNode,
   type IFixedQueue,
   type PriorityQueueNode,
 } from './queue-types.ts'
@@ -223,17 +222,12 @@ export class PriorityQueue<T> {
     }
   }
 
-  private getPriorityQueueNode(
-    nodeArray?: (FixedQueueNode<T> | undefined)[],
-  ): PriorityQueueNode<T> {
+  private getPriorityQueueNode(): PriorityQueueNode<T> {
     let fixedQueue: IFixedQueue<T>
     if (this.priorityEnabled) {
       fixedQueue = new FixedPriorityQueue(this.bucketSize)
     } else {
       fixedQueue = new FixedQueue(this.bucketSize)
-    }
-    if (nodeArray != null) {
-      fixedQueue.nodeArray = nodeArray
     }
     return fixedQueue
   }
