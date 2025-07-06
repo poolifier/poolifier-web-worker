@@ -838,7 +838,7 @@ export abstract class AbstractPool<
       this.checkMessageWorkerId(message)
       if (message.taskFunctionOperationStatus != null) {
         responsesReceived.push(message)
-        if (responsesReceived.length === this.workerNodes.length) {
+        if (responsesReceived.length >= this.workerNodes.length) {
           if (
             responsesReceived.every(
               (msg) => msg.taskFunctionOperationStatus === true,
