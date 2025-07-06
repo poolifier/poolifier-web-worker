@@ -1,4 +1,3 @@
-import worker from '../../examples/deno/typescript/worker.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import {
   average,
