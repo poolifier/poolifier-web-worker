@@ -81,8 +81,8 @@ export class FairShareWorkerChoiceStrategy<
       this.pool.workerNodes[workerNodeKey]?.strategyData
         ?.virtualTaskEndTimestamp != null
     ) {
-      delete this.pool.workerNodes[workerNodeKey].strategyData
-        .virtualTaskEndTimestamp
+      this.pool.workerNodes[workerNodeKey].strategyData
+        .virtualTaskEndTimestamp = undefined
     }
     return true
   }
