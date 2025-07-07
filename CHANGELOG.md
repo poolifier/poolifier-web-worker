@@ -8,17 +8,19 @@ and this project adheres to
 
 ## [0.5.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.2...v0.5.3) (2025-07-07)
 
-
 ### 🐞 Bug Fixes
 
-* close potential event listeners leak ([28b194f](https://github.com/poolifier/poolifier-web-worker/commit/28b194f9b1032aa800d8fbecc49c3a12b8fb5b97))
-* fix potential ressource leaks ([2551b77](https://github.com/poolifier/poolifier-web-worker/commit/2551b7752a3aa3f0180c8ae309031855df46a9b5))
-* plug more ressource leaks ([57a26a3](https://github.com/poolifier/poolifier-web-worker/commit/57a26a3f9f636cdd6896cc0216931b9a09bf22a1))
-
+- close potential event listeners leak
+  ([28b194f](https://github.com/poolifier/poolifier-web-worker/commit/28b194f9b1032aa800d8fbecc49c3a12b8fb5b97))
+- fix potential ressource leaks
+  ([2551b77](https://github.com/poolifier/poolifier-web-worker/commit/2551b7752a3aa3f0180c8ae309031855df46a9b5))
+- plug more ressource leaks
+  ([57a26a3](https://github.com/poolifier/poolifier-web-worker/commit/57a26a3f9f636cdd6896cc0216931b9a09bf22a1))
 
 ### ✨ Polish
 
-* cleanup priority queue code ([77b9118](https://github.com/poolifier/poolifier-web-worker/commit/77b9118b183da0e6223384ea6c5bab053cafa1e2))
+- cleanup priority queue code
+  ([77b9118](https://github.com/poolifier/poolifier-web-worker/commit/77b9118b183da0e6223384ea6c5bab053cafa1e2))
 
 ## [0.5.2](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.1...v0.5.2) (2025-07-06)
 
