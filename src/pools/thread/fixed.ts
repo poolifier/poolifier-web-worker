@@ -101,7 +101,7 @@ export class FixedThreadPool<
     workerNodeKey: number,
     listener: (message: MessageValue<Message>) => void,
   ): void {
-    this.workerNodes[workerNodeKey].removeEventListener(
+    this.workerNodes[workerNodeKey]?.removeEventListener(
       'message',
       messageListenerToEventListener<Message>(listener),
     )
