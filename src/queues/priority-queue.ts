@@ -112,15 +112,8 @@ export class PriorityQueue<T> {
     let prev: PriorityQueueNode<T> | undefined
     while (node != null) {
       if (node.delete(data)) {
-        if (node.empty() && this.head !== this.tail) {
-          if (node === this.tail) {
-            this.tail = node.next!
-          } else {
-            prev!.next = node.next
-            if (node === this.head) {
-              this.head = prev!
-            }
-          }
+        if (node.empty()) {
+          this.removePriorityQueueNode(node, prev)
         }
         --this.size
         return true
@@ -164,15 +157,8 @@ export class PriorityQueue<T> {
     }
     const data = targetNode!.dequeue()
     --this.size
-    if (targetNode!.empty() && this.head !== this.tail) {
-      if (targetNode === this.tail) {
-        this.tail = this.tail.next!
-      } else {
-        prev!.next = targetNode!.next
-        if (targetNode === this.head) {
-          this.head = prev!
-        }
-      }
+    if (targetNode!.empty()) {
+      this.removePriorityQueueNode(targetNode!, prev)
     }
     return data
   }
@@ -230,5 +216,25 @@ export class PriorityQueue<T> {
       fixedQueue = new FixedQueue(this.bucketSize)
     }
     return fixedQueue
+  }
+
+  private removePriorityQueueNode(
+    nodeToRemove: PriorityQueueNode<T>,
+    previousNode?: PriorityQueueNode<T>,
+  ): void {
+    if (this.head === this.tail) {
+      return
+    }
+
+    if (nodeToRemove === this.tail) {
+      this.tail = nodeToRemove.next!
+    } else if (nodeToRemove === this.head) {
+      this.head = previousNode!
+      this.head.next = undefined
+    } else {
+      previousNode!.next = nodeToRemove.next
+    }
+
+    nodeToRemove.next = undefined
   }
 }

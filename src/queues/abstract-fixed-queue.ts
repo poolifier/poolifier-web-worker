@@ -99,16 +99,28 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
       return undefined
     }
     const index = this.start
+    const data = this.nodeArray[index]!.data
+    this.nodeArray[index] = undefined
     ++this.start
     if (this.start === this.capacity) {
       this.start = 0
     }
     --this.size
-    return this.nodeArray[index]!.data
+    return data
   }
 
   /** @inheritdoc */
   public clear(): void {
+    if (this.size > 0) {
+      let index = this.start
+      for (let i = 0; i < this.size; i++) {
+        this.nodeArray[index] = undefined
+        ++index
+        if (index === this.capacity) {
+          index = 0
+        }
+      }
+    }
     this.start = 0
     this.size = 0
   }
