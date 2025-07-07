@@ -4,50 +4,69 @@ export const waitWorkerNodeEvents = async (
   pool,
   workerNodeEvent,
   numberOfEventsToWait,
+  timeoutMs = 5000,
 ) => {
-  return await new Promise((resolve) => {
+  return await new Promise((resolve, reject) => {
     let events = 0
     if (numberOfEventsToWait === 0) {
       resolve(events)
       return
     }
-    const eventHandler = () => {
-      ++events
+    const listeners = []
+    const timeout = setTimeout(() => {
+      listeners.forEach(({ workerNode, listener }) => {
+        workerNode.removeEventListener(workerNodeEvent, listener)
+      })
+      reject(
+        new Error(
+          `Timed out after ${timeoutMs}ms waiting for ${numberOfEventsToWait} '${workerNodeEvent}' events. Received ${events}.`,
+        ),
+      )
+    }, timeoutMs)
+    const listener = () => {
+      events++
       if (events === numberOfEventsToWait) {
+        clearTimeout(timeout)
+        listeners.forEach(({ workerNode, listener }) => {
+          workerNode.removeEventListener(workerNodeEvent, listener)
+        })
         resolve(events)
       }
     }
     for (const workerNode of pool.workerNodes) {
-      switch (workerNodeEvent) {
-        case 'message':
-        case 'messageerror':
-        case 'taskFinished':
-        case 'backPressure':
-        case 'idle':
-        case 'exit':
-          workerNode.addEventListener(workerNodeEvent, eventHandler)
-          break
-        default:
-          throw new Error('Invalid worker node event')
-      }
+      listeners.push({ workerNode, listener })
+      workerNode.addEventListener(workerNodeEvent, listener)
     }
   })
 }
 
-export const waitPoolEvents = async (pool, poolEvent, numberOfEventsToWait) => {
-  return await new Promise((resolve) => {
-    let events = 0
-    if (numberOfEventsToWait === 0) {
-      resolve(events)
-      return
-    }
-    pool.eventTarget?.addEventListener(poolEvent, () => {
-      ++events
-      if (events === numberOfEventsToWait) {
-        resolve(events)
+export const waitPoolEvents = async (
+  pool,
+  poolEvent,
+  numberOfEventsToWait,
+  timeoutMs = 5000,
+) => {
+  const eventPromises = []
+  const eventPromise = (eventTarget, event, timeoutMs = 5000) => {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        eventTarget.removeEventListener(event, listener)
+        reject(new Error(`Event '${event}' timed out after ${timeoutMs}ms`))
+      }, timeoutMs)
+
+      const listener = (evt) => {
+        clearTimeout(timeout)
+        eventTarget.removeEventListener(event, listener)
+        resolve(evt)
       }
+
+      eventTarget.addEventListener(event, listener)
     })
-  })
+  }
+  for (let i = 0; i < numberOfEventsToWait; i++) {
+    eventPromises.push(eventPromise(pool.eventTarget, poolEvent, timeoutMs))
+  }
+  return await Promise.all(eventPromises)
 }
 
 export const sleep = async (ms) => {
@@ -86,10 +105,16 @@ export const jsonIntegerSerialization = (n) => {
  * @returns {number} - The nth fibonacci number.
  */
 export const fibonacci = (n) => {
+  if (n === 0) {
+    return 0n
+  }
+  if (n === 1) {
+    return 1n
+  }
   n = BigInt(n)
   let current = 1n
   let previous = 0n
-  while (--n) {
+  while (n-- > 1n) {
     const tmp = current
     current += previous
     previous = tmp

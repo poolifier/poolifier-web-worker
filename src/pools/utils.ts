@@ -463,12 +463,26 @@ export const waitWorkerNodeEvents = async <
   numberOfEventsToWait: number,
   timeout: number,
 ): Promise<number> => {
-  return await new Promise<number>((resolve) => {
+  return await new Promise<number>((resolve, reject) => {
     let events = 0
     if (numberOfEventsToWait === 0) {
       resolve(events)
       return
     }
+    const listener = () => {
+      ++events
+      if (events === numberOfEventsToWait) {
+        if (timeoutHandle != null) clearTimeout(timeoutHandle)
+        workerNode.removeEventListener(workerNodeEvent, listener)
+        resolve(events)
+      }
+    }
+    const timeoutHandle = timeout >= 0
+      ? setTimeout(() => {
+        workerNode.removeEventListener(workerNodeEvent, listener)
+        resolve(events)
+      }, timeout)
+      : undefined
     switch (workerNodeEvent) {
       case 'message':
       case 'messageerror':
@@ -476,20 +490,11 @@ export const waitWorkerNodeEvents = async <
       case 'backPressure':
       case 'idle':
       case 'exit':
-        workerNode.addEventListener(workerNodeEvent, () => {
-          ++events
-          if (events === numberOfEventsToWait) {
-            resolve(events)
-          }
-        })
+        workerNode.addEventListener(workerNodeEvent, listener)
         break
       default:
-        throw new Error('Invalid worker node event')
-    }
-    if (timeout >= 0) {
-      setTimeout(() => {
-        resolve(events)
-      }, timeout)
+        if (timeoutHandle != null) clearTimeout(timeoutHandle)
+        reject(new Error('Invalid worker node event'))
     }
   })
 }
