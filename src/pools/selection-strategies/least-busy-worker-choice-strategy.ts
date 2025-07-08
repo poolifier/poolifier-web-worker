@@ -2,10 +2,12 @@ import type { IPool } from '../pool.ts'
 import { DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS } from '../utils.ts'
 import type { IWorker } from '../worker.ts'
 import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.ts'
-import type {
-  IWorkerChoiceStrategy,
-  TaskStatisticsRequirements,
-  WorkerChoiceStrategyOptions,
+import {
+  type IWorkerChoiceStrategy,
+  type TaskStatisticsRequirements,
+  WorkerChoiceStrategies,
+  type WorkerChoiceStrategy,
+  type WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
 
 /**
@@ -21,6 +23,9 @@ export class LeastBusyWorkerChoiceStrategy<
   Response = unknown,
 > extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
   implements IWorkerChoiceStrategy {
+  /** @inheritDoc */
+  public readonly name: WorkerChoiceStrategy = WorkerChoiceStrategies.LEAST_BUSY
+
   /** @inheritDoc */
   public override readonly taskStatisticsRequirements:
     TaskStatisticsRequirements = Object.freeze({

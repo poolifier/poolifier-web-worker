@@ -95,6 +95,11 @@ describe('Selection strategies test suite', () => {
       expect(
         pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
           workerChoiceStrategy,
+        ).name,
+      ).toBe(workerChoiceStrategy)
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          workerChoiceStrategy,
         ).nextWorkerNodeKey,
       ).toBe(0)
       expect(

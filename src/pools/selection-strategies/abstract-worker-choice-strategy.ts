@@ -5,6 +5,7 @@ import type {
   IWorkerChoiceStrategy,
   StrategyPolicy,
   TaskStatisticsRequirements,
+  WorkerChoiceStrategy,
   WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
 import {
@@ -24,6 +25,9 @@ export abstract class AbstractWorkerChoiceStrategy<
   Data = unknown,
   Response = unknown,
 > implements IWorkerChoiceStrategy {
+  /** @inheritDoc */
+  public abstract readonly name: WorkerChoiceStrategy
+
   /**
    * The next worker node key.
    */

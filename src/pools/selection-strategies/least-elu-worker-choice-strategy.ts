@@ -5,6 +5,7 @@ import { AbstractWorkerChoiceStrategy } from './abstract-worker-choice-strategy.
 import type {
   IWorkerChoiceStrategy,
   TaskStatisticsRequirements,
+  WorkerChoiceStrategy,
   WorkerChoiceStrategyOptions,
 } from './selection-strategies-types.ts'
 
@@ -21,6 +22,10 @@ export class LeastEluWorkerChoiceStrategy<
   Response = unknown,
 > extends AbstractWorkerChoiceStrategy<Worker, Data, Response>
   implements IWorkerChoiceStrategy {
+  /** @inheritDoc */
+  // public readonly name: WorkerChoiceStrategy = WorkerChoiceStrategies.LEAST_ELU
+  public readonly name: WorkerChoiceStrategy = 'LEAST_ELU'
+
   /** @inheritDoc */
   public override readonly taskStatisticsRequirements:
     TaskStatisticsRequirements = Object.freeze({

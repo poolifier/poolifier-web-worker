@@ -177,6 +177,10 @@ export interface StrategyPolicy {
  */
 export interface IWorkerChoiceStrategy {
   /**
+   * The worker choice strategy name.
+   */
+  readonly name: WorkerChoiceStrategy
+  /**
    * Strategy policy.
    */
   readonly strategyPolicy: StrategyPolicy
