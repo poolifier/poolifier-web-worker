@@ -76,7 +76,7 @@ export class FixedThreadPool<
     workerNodeKey: number,
     listener: (message: MessageValue<Message>) => void,
   ): void {
-    this.workerNodes[workerNodeKey].addEventListener(
+    this.workerNodes[workerNodeKey]?.addEventListener(
       'message',
       messageListenerToEventListener<Message>(listener),
     )
@@ -87,7 +87,7 @@ export class FixedThreadPool<
     workerNodeKey: number,
     listener: (message: MessageValue<Message>) => void,
   ): void {
-    this.workerNodes[workerNodeKey].addEventListener(
+    this.workerNodes[workerNodeKey]?.addEventListener(
       'message',
       messageListenerToEventListener<Message>(listener),
       {

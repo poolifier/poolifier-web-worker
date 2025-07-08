@@ -1440,7 +1440,10 @@ describe({
       const elapsedTime = performance.now() - startTime
       expect(tasksFinished).toBeLessThanOrEqual(numberOfWorkers * maxMultiplier)
       expect(elapsedTime).toBeGreaterThanOrEqual(2000)
-      expect(elapsedTime).toBeLessThanOrEqual(tasksFinishedTimeout + 100)
+      // Worker kill message response timeout is 1000ms
+      expect(elapsedTime).toBeLessThanOrEqual(
+        tasksFinishedTimeout + 1000 * tasksFinished + 100,
+      )
     })
 
     it('Verify that destroy() waits until the tasks finished timeout is reached', async () => {
@@ -1468,7 +1471,9 @@ describe({
       await pool.destroy()
       const elapsedTime = performance.now() - startTime
       expect(tasksFinished).toBe(0)
-      expect(elapsedTime).toBeLessThanOrEqual(tasksFinishedTimeout + 100)
+      expect(elapsedTime).toBeLessThanOrEqual(
+        tasksFinishedTimeout + 1000 * tasksFinished + 100,
+      )
     })
 
     it('Verify that hasTaskFunction() is working', async () => {

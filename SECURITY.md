@@ -6,7 +6,7 @@ Security matrix, currently there are no security vulnerabilities.
 
 | Version | Supported |
 | ------- | --------- |
-| 1.x.x   | ✔         |
+| 0.5.x   | ✔         |
 
 ## Reporting a Vulnerability
 

@@ -105,6 +105,19 @@ export abstract class AbstractPool<
   >
 
   /**
+   * Whether the pool is started or not.
+   */
+  protected started: boolean
+  /**
+   * Whether the pool is starting or not.
+   */
+  protected starting: boolean
+  /**
+   * Whether the pool is destroying or not.
+   */
+  protected destroying: boolean
+
+  /**
    * The task functions added at runtime map:
    * - `key`: The task function name.
    * - `value`: The task function object.
@@ -114,18 +127,6 @@ export abstract class AbstractPool<
     TaskFunctionObject<Data, Response>
   >
 
-  /**
-   * Whether the pool is started or not.
-   */
-  private started: boolean
-  /**
-   * Whether the pool is starting or not.
-   */
-  private starting: boolean
-  /**
-   * Whether the pool is destroying or not.
-   */
-  private destroying: boolean
   /**
    * Whether the minimum number of workers is starting or not.
    */
@@ -757,11 +758,17 @@ export abstract class AbstractPool<
 
   private isWorkerNodeBackPressured(workerNodeKey: number): boolean {
     const workerNode = this.workerNodes[workerNodeKey]
+    if (workerNode == null) {
+      return false
+    }
     return workerNode.info.ready && workerNode.info.backPressure
   }
 
   private isWorkerNodeBusy(workerNodeKey: number): boolean {
     const workerNode = this.workerNodes[workerNodeKey]
+    if (workerNode == null) {
+      return false
+    }
     if (this.opts.enableTasksQueue === true) {
       return (
         workerNode.info.ready &&
@@ -774,6 +781,9 @@ export abstract class AbstractPool<
 
   private isWorkerNodeIdle(workerNodeKey: number): boolean {
     const workerNode = this.workerNodes[workerNodeKey]
+    if (workerNode == null) {
+      return false
+    }
     if (this.opts.enableTasksQueue === true) {
       return (
         workerNode.info.ready &&
@@ -786,6 +796,9 @@ export abstract class AbstractPool<
 
   private isWorkerNodeStealing(workerNodeKey: number): boolean {
     const workerNode = this.workerNodes[workerNodeKey]
+    if (workerNode == null) {
+      return false
+    }
     return (
       workerNode.info.ready &&
       (workerNode.info.continuousStealing ||
@@ -802,10 +815,6 @@ export abstract class AbstractPool<
       | undefined
     try {
       return await new Promise<boolean>((resolve, reject) => {
-        if (this.workerNodes[workerNodeKey] == null) {
-          resolve(true)
-          return
-        }
         taskFunctionOperationListener = (
           message: MessageValue<Response>,
         ): void => {
@@ -885,10 +894,6 @@ export abstract class AbstractPool<
     let listener: ((message: MessageValue<Response>) => void) | undefined
     try {
       return await new Promise<boolean>((resolve, reject) => {
-        if (targetWorkerNodeKeys.length === 0) {
-          resolve(true)
-          return
-        }
         const responsesReceived: MessageValue<Response>[] = []
         listener = (message: MessageValue<Response>) => {
           taskFunctionOperationsListener(
@@ -1333,18 +1338,29 @@ export abstract class AbstractPool<
     this.started = false
   }
 
-  private async sendKillMessageToWorker(workerNodeKey: number): Promise<void> {
+  private async sendKillMessageToWorker(
+    workerNodeKey: number,
+    timeout = 1000,
+  ): Promise<void> {
+    let timeoutHandle: number | undefined
     let killMessageListener:
       | ((message: MessageValue<Response>) => void)
       | undefined
     try {
       await new Promise<void>((resolve, reject) => {
-        if (this.workerNodes[workerNodeKey] == null) {
-          resolve()
-          return
-        }
+        timeoutHandle = timeout >= 0
+          ? setTimeout(() => {
+            resolve()
+          }, timeout)
+          : undefined
         killMessageListener = (message: MessageValue<Response>): void => {
-          this.checkMessageWorkerId(message)
+          if (
+            this.workerNodes.length === 0 ||
+            this.workerNodes[workerNodeKey] == null
+          ) {
+            resolve()
+            return
+          }
           if (message.kill === 'success') {
             resolve()
           } else if (message.kill === 'failure') {
@@ -1359,6 +1375,9 @@ export abstract class AbstractPool<
         this.sendToWorker(workerNodeKey, { kill: true })
       })
     } finally {
+      if (timeoutHandle != null) {
+        clearTimeout(timeoutHandle)
+      }
       if (killMessageListener != null) {
         this.deregisterWorkerMessageListener(workerNodeKey, killMessageListener)
       }
@@ -1819,7 +1838,12 @@ export abstract class AbstractPool<
   }
 
   private cannotStealTask(): boolean {
-    return this.workerNodes.length <= 1 || this.info.queuedTasks === 0
+    return (
+      !this.started ||
+      this.destroying ||
+      this.workerNodes.length <= 1 ||
+      this.info.queuedTasks === 0
+    )
   }
 
   private handleTask(workerNodeKey: number, task: Task<Data>): void {
@@ -2051,6 +2075,9 @@ export abstract class AbstractPool<
     const { workerId } = event.detail
     const sourceWorkerNode =
       this.workerNodes[this.getWorkerNodeKeyByWorkerId(workerId)]
+    if (sourceWorkerNode == null) {
+      return
+    }
     const workerNodes = this.workerNodes
       .slice()
       .sort(
@@ -2088,12 +2115,18 @@ export abstract class AbstractPool<
   protected readonly workerMessageListener = (
     message: MessageValue<Response>,
   ): void => {
-    if (message.kill != null) {
+    const { kill, ready, taskFunctionsProperties, taskId, workerId } = message
+    const workerReadyMessage = ready != null && taskFunctionsProperties != null
+    // Late worker ready message received
+    if (this.destroying && workerReadyMessage) {
+      return
+    }
+    // Kill messages response are handled in dedicated listeners
+    if (kill != null) {
       return
     }
     this.checkMessageWorkerId(message)
-    const { workerId, ready, taskId, taskFunctionsProperties } = message
-    if (ready != null && taskFunctionsProperties != null) {
+    if (workerReadyMessage) {
       // Worker ready response received from worker
       this.handleWorkerReadyResponse(message)
     } else if (taskFunctionsProperties != null) {
@@ -2282,7 +2315,7 @@ export abstract class AbstractPool<
   private readonly abortTask = (
     event: CustomEvent<WorkerNodeEventDetail>,
   ): void => {
-    if (!this.started || this.destroying) {
+    if (!this.started) {
       return
     }
     const { taskId, workerId } = event.detail
