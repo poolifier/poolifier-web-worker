@@ -19,7 +19,7 @@ export const waitWorkerNodeEvents = async (
       })
       reject(
         new Error(
-          `Timed out after ${timeoutMs}ms waiting for ${numberOfEventsToWait} '${workerNodeEvent}' events. Received ${events}.`,
+          `Timed out after ${timeoutMs.toString()}ms waiting for ${numberOfEventsToWait.toString()} '${workerNodeEvent}' events. Received ${events.toString()} events`,
         ),
       )
     }, timeoutMs)

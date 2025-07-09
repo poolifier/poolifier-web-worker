@@ -1395,6 +1395,7 @@ export abstract class AbstractPool<
         getDefaultTasksQueueOptions(
           this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
         ).tasksFinishedTimeout,
+      false,
     )
     await this.sendKillMessageToWorker(workerNodeKey)
     workerNode.terminate()
