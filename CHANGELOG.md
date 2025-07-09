@@ -8,26 +8,32 @@ and this project adheres to
 
 ## [0.5.4](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.3...v0.5.4) (2025-07-09)
 
-
 ### 🐞 Bug Fixes
 
-* ensure dynamic worker can't be created at pool destroy ([bec7b83](https://github.com/poolifier/poolifier-web-worker/commit/bec7b83a4f09a24f77d2fded262d25adfa3df1a0))
-* ensure worker kill message response is not handled by the generic listener ([5214130](https://github.com/poolifier/poolifier-web-worker/commit/5214130b550628c131da778d8afe62cf83d9426c))
-
+- ensure dynamic worker can't be created at pool destroy
+  ([bec7b83](https://github.com/poolifier/poolifier-web-worker/commit/bec7b83a4f09a24f77d2fded262d25adfa3df1a0))
+- ensure worker kill message response is not handled by the generic listener
+  ([5214130](https://github.com/poolifier/poolifier-web-worker/commit/5214130b550628c131da778d8afe62cf83d9426c))
 
 ### ✨ Polish
 
-* add worker strategy name to help UTs debug ([e445aa7](https://github.com/poolifier/poolifier-web-worker/commit/e445aa7352f00a1ff195d531a07103a2c3887db5))
-* cleanup task function ops method ([dcdb30a](https://github.com/poolifier/poolifier-web-worker/commit/dcdb30aad38938d792300b7300fd23ba39a935bf))
-* improve messaging worker id check error message ([e1fbde5](https://github.com/poolifier/poolifier-web-worker/commit/e1fbde51b64d3b7de5c266ceb72b770331864404))
-* refine waitWorkerNodeEvents() API ([41acf6b](https://github.com/poolifier/poolifier-web-worker/commit/41acf6bf39f1308f8609b3651b10a5f9b73091ed))
-
+- add worker strategy name to help UTs debug
+  ([e445aa7](https://github.com/poolifier/poolifier-web-worker/commit/e445aa7352f00a1ff195d531a07103a2c3887db5))
+- cleanup task function ops method
+  ([dcdb30a](https://github.com/poolifier/poolifier-web-worker/commit/dcdb30aad38938d792300b7300fd23ba39a935bf))
+- improve messaging worker id check error message
+  ([e1fbde5](https://github.com/poolifier/poolifier-web-worker/commit/e1fbde51b64d3b7de5c266ceb72b770331864404))
+- refine waitWorkerNodeEvents() API
+  ([41acf6b](https://github.com/poolifier/poolifier-web-worker/commit/41acf6bf39f1308f8609b3651b10a5f9b73091ed))
 
 ### 🧪 Tests
 
-* add explainatory comment ([0776b29](https://github.com/poolifier/poolifier-web-worker/commit/0776b29e288d9286d0eee1f36d11ffad0eda9799))
-* skip flaky test only the targeted OS ([5bd7a88](https://github.com/poolifier/poolifier-web-worker/commit/5bd7a88111681516f08e0071d512668957217aee))
-* skip flaky tests on GH CI ([cbb7ee2](https://github.com/poolifier/poolifier-web-worker/commit/cbb7ee2745ae25c020d8af2dd46ac72be52d76b5))
+- add explainatory comment
+  ([0776b29](https://github.com/poolifier/poolifier-web-worker/commit/0776b29e288d9286d0eee1f36d11ffad0eda9799))
+- skip flaky test only the targeted OS
+  ([5bd7a88](https://github.com/poolifier/poolifier-web-worker/commit/5bd7a88111681516f08e0071d512668957217aee))
+- skip flaky tests on GH CI
+  ([cbb7ee2](https://github.com/poolifier/poolifier-web-worker/commit/cbb7ee2745ae25c020d8af2dd46ac72be52d76b5))
 
 ## [0.5.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.2...v0.5.3) (2025-07-07)
 
