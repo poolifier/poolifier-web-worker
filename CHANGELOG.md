@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.5](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.4...v0.5.5) (2025-07-10)
+
+### 🐞 Bug Fixes
+
+- worker node destroy race condition at pool destroy
+  ([d7947f2](https://github.com/poolifier/poolifier-web-worker/commit/d7947f2a16c010a9d148aa3b571b3e2e945a58f0))
+
+### 🧪 Tests
+
+- refine expectations
+  ([85900ef](https://github.com/poolifier/poolifier-web-worker/commit/85900ef63b8b457e34a6e6986686e67611162c2a))
+- refine pool destroy time expectation
+  ([e576519](https://github.com/poolifier/poolifier-web-worker/commit/e5765196360b4961901c86db34b732c1be788486))
+
+### 📚 Documentation
+
+- comment spell fix
+  ([e606020](https://github.com/poolifier/poolifier-web-worker/commit/e60602016af8b8022e6333209625ab43ceb30a8a))
+
 ## [0.5.4](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.3...v0.5.4) (2025-07-09)
 
 ### 🐞 Bug Fixes
