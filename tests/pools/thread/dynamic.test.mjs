@@ -62,7 +62,12 @@ describe({
       expect(pool.workerNodes.length).toBeLessThanOrEqual(max)
       expect(pool.workerNodes.length).toBeGreaterThan(min)
       expect(poolBusy).toBe(1)
-      const exitEvents = await waitWorkerNodeEvents(pool, 'exit', max - min)
+      const exitEvents = await waitWorkerNodeEvents(
+        pool,
+        'exit',
+        max - min,
+        10000,
+      )
       expect(exitEvents).toBe(max - min)
       expect(pool.workerNodes.length).toBe(min)
     })
