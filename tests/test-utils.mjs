@@ -25,7 +25,7 @@ export const waitWorkerNodeEvents = async (
     }, timeoutMs)
     const listener = () => {
       events++
-      if (events === numberOfEventsToWait) {
+      if (events >= numberOfEventsToWait) {
         clearTimeout(timeout)
         listeners.forEach(({ workerNode, listener }) => {
           workerNode.removeEventListener(workerNodeEvent, listener)

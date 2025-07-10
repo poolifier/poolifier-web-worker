@@ -1681,6 +1681,9 @@ export abstract class AbstractPool<
   protected createAndSetupDynamicWorkerNode(): number {
     const workerNodeKey = this.createAndSetupWorkerNode()
     this.registerWorkerMessageListener(workerNodeKey, (message) => {
+      if (this.destroying) {
+        return
+      }
       this.checkMessageWorkerId(message)
       const localWorkerNodeKey = this.getWorkerNodeKeyByWorkerId(
         message.workerId,
