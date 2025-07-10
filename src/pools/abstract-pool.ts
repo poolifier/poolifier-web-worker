@@ -1695,8 +1695,6 @@ export abstract class AbstractPool<
           this.isWorkerNodeIdle(localWorkerNodeKey) &&
           !this.isWorkerNodeStealing(localWorkerNodeKey))
       ) {
-        // Flag the worker node as not ready immediately
-        this.flagWorkerNodeAsNotReady(localWorkerNodeKey)
         this.destroyWorkerNode(localWorkerNodeKey).catch((error) => {
           this.eventTarget?.dispatchEvent(
             new ErrorEvent(PoolEvents.error, { error }),
