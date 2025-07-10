@@ -462,7 +462,7 @@ export const waitWorkerNodeEvents = async <
   workerNodeEvent: string,
   numberOfEventsToWait: number,
   timeout: number,
-  timeoutRejection: boolean = true,
+  timeoutRejection = true,
 ): Promise<number> => {
   return await new Promise<number>((resolve, reject) => {
     let events = 0
