@@ -20,7 +20,9 @@ jobs:
         deno: [v1.x, v2.x, canary]
         exclude:
           - os: macos-latest
-            deno: [v2.x, canary]
+            deno: v2.x
+          - os: macos-latest
+            deno: canary
 
     name: Deno ${{ matrix.deno }} on ${{ matrix.os }}
 
