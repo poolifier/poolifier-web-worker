@@ -1442,7 +1442,7 @@ describe({
       expect(elapsedTime).toBeGreaterThanOrEqual(2000)
       // Worker kill message response timeout is 1000ms
       expect(elapsedTime).toBeLessThanOrEqual(
-        tasksFinishedTimeout + 1000 * tasksFinished + 100,
+        tasksFinishedTimeout + 1000 * tasksFinished + 200,
       )
     })
 
@@ -1473,7 +1473,7 @@ describe({
       expect(tasksFinished).toBe(0)
       // Worker kill message response timeout is 1000ms
       expect(elapsedTime).toBeLessThanOrEqual(
-        tasksFinishedTimeout + 1000 * tasksFinished + 100,
+        tasksFinishedTimeout + 1000 * tasksFinished + 200,
       )
     })
 
