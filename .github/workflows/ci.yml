@@ -18,9 +18,9 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         deno: [v1.x, v2.x, canary]
-      exclude:
-        - os: macos-latest
-          deno: [v2.x, canary]
+        exclude:
+          - os: macos-latest
+            deno: [v2.x, canary]
 
     name: Deno ${{ matrix.deno }} on ${{ matrix.os }}
 
