@@ -8,15 +8,15 @@ and this project adheres to
 
 ## [0.5.6](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.5...v0.5.6) (2025-07-10)
 
-
 ### ⚡ Performance
 
-* avoid recursion in task queueing iterator ([4f2eb8f](https://github.com/poolifier/poolifier-web-worker/commit/4f2eb8f63d9779ccbda774425cdeb1654b6376d7))
-
+- avoid recursion in task queueing iterator
+  ([4f2eb8f](https://github.com/poolifier/poolifier-web-worker/commit/4f2eb8f63d9779ccbda774425cdeb1654b6376d7))
 
 ### 🧪 Tests
 
-* enlarge pool events timeout waiting ([462f362](https://github.com/poolifier/poolifier-web-worker/commit/462f362b367171d35b9eaa61dd476d1104cac65d))
+- enlarge pool events timeout waiting
+  ([462f362](https://github.com/poolifier/poolifier-web-worker/commit/462f362b367171d35b9eaa61dd476d1104cac65d))
 
 ## [0.5.5](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.4...v0.5.5) (2025-07-10)
 
