@@ -16,8 +16,7 @@ jobs:
   build:
     strategy:
       matrix:
-        # os: [windows-latest, macos-latest, ubuntu-latest]
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
         deno: [v1.x, v2.x, canary]
 
     name: Deno ${{ matrix.deno }} on ${{ matrix.os }}
