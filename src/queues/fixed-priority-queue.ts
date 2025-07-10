@@ -22,7 +22,7 @@ export class FixedPriorityQueue<T> extends AbstractFixedQueue<T>
         insertionPhysicalIndex = currentPhysicalIndex
         break
       }
-      currentPhysicalIndex++
+      ++currentPhysicalIndex
       if (currentPhysicalIndex === this.capacity) {
         currentPhysicalIndex = 0
       }
