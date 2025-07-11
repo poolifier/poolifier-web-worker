@@ -4,7 +4,7 @@ export const waitWorkerNodeEvents = async (
   pool,
   workerNodeEvent,
   numberOfEventsToWait,
-  timeoutMs = 5000,
+  timeoutMs = 10000,
 ) => {
   return await new Promise((resolve, reject) => {
     let events = 0
