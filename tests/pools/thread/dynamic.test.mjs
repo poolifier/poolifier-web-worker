@@ -184,10 +184,7 @@ describe({
           WorkerChoiceStrategies,
         )
       ) {
-        // Interleaved weighted round robin strategy makes that test flaky on ubuntu-latest in the CI
         if (
-          // Deno.env.get('CI') != null &&
-          // Deno.build.os === 'linux' &&
           workerChoiceStrategy ===
             WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN
         ) {
