@@ -875,7 +875,7 @@ describe('Selection strategies test suite', () => {
   //       median: false,
   //     },
   //     waitTime: {
-  //       aggregate: false,
+  //       aggregate: true,
   //       average: false,
   //       median: false,
   //     },
@@ -901,7 +901,7 @@ describe('Selection strategies test suite', () => {
   //       median: false,
   //     },
   //     waitTime: {
-  //       aggregate: false,
+  //       aggregate: true,
   //       average: false,
   //       median: false,
   //     },
@@ -942,9 +942,9 @@ describe('Selection strategies test suite', () => {
   //       runTime: {
   //         history: expect.any(CircularBuffer),
   //       },
-  //       waitTime: {
+  //       waitTime: expect.objectContaining({
   //         history: expect.any(CircularBuffer),
-  //       },
+  //       }),
   //       elu: expect.objectContaining({
   //         idle: expect.objectContaining({
   //           history: expect.any(CircularBuffer),
@@ -958,6 +958,11 @@ describe('Selection strategies test suite', () => {
   //     expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
   //       max * maxMultiplier,
   //     )
+  //     if (workerNode.usage.waitTime.aggregate == null) {
+  //       expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+  //     } else {
+  //       expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+  //     }
   //     if (workerNode.usage.elu.active.aggregate == null) {
   //       expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
   //     } else {
@@ -1017,9 +1022,9 @@ describe('Selection strategies test suite', () => {
   //       runTime: {
   //         history: expect.any(CircularBuffer),
   //       },
-  //       waitTime: {
+  //       waitTime: expect.objectContaining({
   //         history: expect.any(CircularBuffer),
-  //       },
+  //       }),
   //       elu: expect.objectContaining({
   //         idle: expect.objectContaining({
   //           history: expect.any(CircularBuffer),
@@ -1033,6 +1038,11 @@ describe('Selection strategies test suite', () => {
   //     expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
   //       max * maxMultiplier,
   //     )
+  //     if (workerNode.usage.waitTime.aggregate == null) {
+  //       expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+  //     } else {
+  //       expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+  //     }
   //     if (workerNode.usage.elu.active.aggregate == null) {
   //       expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
   //     } else {
