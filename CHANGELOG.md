@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.7](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.6...v0.5.7) (2025-07-15)
+
+
+### ✨ Polish
+
+* add task entry to run tests in parallel ([fefb0fe](https://github.com/poolifier/poolifier-web-worker/commit/fefb0feb81b526c26e7fe4f904881e5503e150e7))
+* **queue:** cleanup variables namespace ([654ed90](https://github.com/poolifier/poolifier-web-worker/commit/654ed906bef352a91bbc55c63aa59f1fdd65b99c))
+
+
+### 🧪 Tests
+
+* enlarge worker node events waiting timeout ([601bd13](https://github.com/poolifier/poolifier-web-worker/commit/601bd13874aa383cb843ff86cd964e0e6ade2f1d))
+* ignore tests on linux generally ([08bcec6](https://github.com/poolifier/poolifier-web-worker/commit/08bcec6bf2d9158f2245b16d7e289bc095f084c7))
+* refine task finished timeout ([17e0945](https://github.com/poolifier/poolifier-web-worker/commit/17e0945e1d501350389128ecf583501d91c7363d))
+
 ## [0.5.6](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.5...v0.5.6) (2025-07-10)
 
 ### ⚡ Performance
