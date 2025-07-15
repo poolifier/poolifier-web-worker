@@ -8,10 +8,10 @@ and this project adheres to
 
 ## [0.5.8](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.7...v0.5.8) (2025-07-15)
 
-
 ### ✨ Polish
 
-* avoid delete usage ([f186842](https://github.com/poolifier/poolifier-web-worker/commit/f186842ec30dcaea961a3e817b2513ee3b470fff))
+- avoid delete usage
+  ([f186842](https://github.com/poolifier/poolifier-web-worker/commit/f186842ec30dcaea961a3e817b2513ee3b470fff))
 
 ## [0.5.7](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.6...v0.5.7) (2025-07-15)
 
