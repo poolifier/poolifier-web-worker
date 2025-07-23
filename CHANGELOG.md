@@ -8,15 +8,16 @@ and this project adheres to
 
 ## [0.5.8](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.7...v0.5.8) (2025-07-23)
 
-
 ### ✨ Polish
 
-* avoid delete usage ([f186842](https://github.com/poolifier/poolifier-web-worker/commit/f186842ec30dcaea961a3e817b2513ee3b470fff))
-
+- avoid delete usage
+  ([f186842](https://github.com/poolifier/poolifier-web-worker/commit/f186842ec30dcaea961a3e817b2513ee3b470fff))
 
 ### 🤖 Automation
 
-* **deps:** Bump sonarsource/sonarqube-scan-action from 5.2.0 to 5.3.0 ([#93](https://github.com/poolifier/poolifier-web-worker/issues/93)) ([78e6f7d](https://github.com/poolifier/poolifier-web-worker/commit/78e6f7db56110db463bdb580bd1da9653b730935))
+- **deps:** Bump sonarsource/sonarqube-scan-action from 5.2.0 to 5.3.0
+  ([#93](https://github.com/poolifier/poolifier-web-worker/issues/93))
+  ([78e6f7d](https://github.com/poolifier/poolifier-web-worker/commit/78e6f7db56110db463bdb580bd1da9653b730935))
 
 ## [0.5.7](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.6...v0.5.7) (2025-07-15)
 
