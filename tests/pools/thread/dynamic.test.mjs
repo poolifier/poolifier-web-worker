@@ -104,7 +104,7 @@ describe({
 
     it('Validation of inputs test', () => {
       expect(() => new DynamicThreadPool(min)).toThrow(
-        'The worker URL must be specified',
+        'The worker specifier must be defined',
       )
     })
 

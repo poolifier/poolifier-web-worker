@@ -32,16 +32,16 @@ export class DynamicThreadPool<
    *
    * @param min - Minimum number of threads which are always active.
    * @param max - Maximum number of threads that can be created by this pool.
-   * @param fileURL - URL to an implementation of a `ThreadWorker` file.
+   * @param specifier - Specifier to an implementation of a `ThreadWorker` file.
    * @param opts - Options for this dynamic thread pool.
    */
   public constructor(
     min: number,
     max: number,
-    fileURL: URL,
+    specifier: URL | string,
     opts: ThreadPoolOptions = {},
   ) {
-    super(min, fileURL, opts, max)
+    super(min, specifier, opts, max)
     checkDynamicPoolSize(
       this.minimumNumberOfWorkers,
       this.maximumNumberOfWorkers!,

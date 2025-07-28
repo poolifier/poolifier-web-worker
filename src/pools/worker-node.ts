@@ -48,13 +48,17 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
    * Constructs a new worker node.
    *
    * @param type - The worker type.
-   * @param fileURL - URL to the worker file.
+   * @param specifier - Specifier to the worker file.
    * @param opts - The worker node options.
    */
-  constructor(type: WorkerType, fileURL: URL, opts: WorkerNodeOptions) {
+  constructor(
+    type: WorkerType,
+    specifier: URL | string,
+    opts: WorkerNodeOptions,
+  ) {
     super()
-    checkWorkerNodeArguments(type, fileURL, opts)
-    this.worker = createWorker<Worker>(type, fileURL, {
+    checkWorkerNodeArguments(type, specifier, opts)
+    this.worker = createWorker<Worker>(type, specifier, {
       workerOptions: opts.workerOptions,
     })
     this.info = initWorkerInfo(this.worker)
