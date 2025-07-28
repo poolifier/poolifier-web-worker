@@ -26,16 +26,16 @@ export class FixedThreadPool<
    * Constructs a new poolifier fixed thread pool.
    *
    * @param numberOfThreads - Number of threads for this pool.
-   * @param fileURL - URL to an implementation of a `ThreadWorker` file.
+   * @param specifier - Specifier to an implementation of a `ThreadWorker` file.
    * @param opts - Options for this fixed thread pool.
    */
   public constructor(
     numberOfThreads: number,
-    fileURL: URL,
+    specifier: URL | string,
     opts: ThreadPoolOptions = {},
     maximumNumberOfThreads?: number,
   ) {
-    super(numberOfThreads, fileURL, opts, maximumNumberOfThreads)
+    super(numberOfThreads, specifier, opts, maximumNumberOfThreads)
   }
   /** @inheritDoc */
   protected isMain(): boolean {

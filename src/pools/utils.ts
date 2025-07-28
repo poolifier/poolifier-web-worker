@@ -58,12 +58,14 @@ export const getDefaultTasksQueueOptions = (
   })
 }
 
-export const checkFileURL = (fileURL: URL | undefined): void => {
-  if (fileURL == null) {
-    throw new TypeError('The worker URL must be specified')
+export const checkSpecifier = (specifier: URL | string | undefined): void => {
+  if (specifier == null) {
+    throw new TypeError('The worker specifier must be defined')
   }
-  if (fileURL instanceof URL === false) {
-    throw new TypeError('The worker URL must be an instance of URL')
+  if (typeof specifier !== 'string' && !(specifier instanceof URL)) {
+    throw new TypeError(
+      'The worker specifier must be a string or an instance of URL',
+    )
   }
 }
 
@@ -178,7 +180,7 @@ export const checkValidTasksQueueOptions = (
 
 export const checkWorkerNodeArguments = (
   type: WorkerType | undefined,
-  fileURL: URL | undefined,
+  specifier: URL | string | undefined,
   opts: WorkerNodeOptions | undefined,
 ): void => {
   if (type == null) {
@@ -189,7 +191,7 @@ export const checkWorkerNodeArguments = (
       `Cannot construct a worker node with an invalid worker type '${type}'`,
     )
   }
-  checkFileURL(fileURL)
+  checkSpecifier(specifier)
   if (opts == null) {
     throw new TypeError(
       'Cannot construct a worker node without worker node options',
@@ -396,12 +398,12 @@ export const messageListenerToEventListener = <Message = unknown>(
 
 export const createWorker = <Worker extends IWorker>(
   type: WorkerType,
-  fileURL: URL,
+  specifier: URL | string,
   opts: { workerOptions?: WorkerOptions },
 ): Worker => {
   switch (type) {
     case WorkerTypes.web:
-      return new Worker(fileURL, {
+      return new Worker(specifier, {
         ...(runtime === JSRuntime.bun && { smol: true }),
         ...opts.workerOptions,
         type: 'module',

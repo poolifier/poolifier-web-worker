@@ -41,7 +41,7 @@ import {
 } from './selection-strategies/selection-strategies-types.ts'
 import { WorkerChoiceStrategiesContext } from './selection-strategies/worker-choice-strategies-context.ts'
 import {
-  checkFileURL,
+  checkSpecifier,
   checkValidPriority,
   checkValidTasksQueueOptions,
   checkValidWorkerChoiceStrategy,
@@ -152,13 +152,13 @@ export abstract class AbstractPool<
    * Constructs a new poolifier pool.
    *
    * @param minimumNumberOfWorkers - Minimum number of workers that this pool manages.
-   * @param fileURL - URL to the worker file.
+   * @param specifier - Specifier to the worker file.
    * @param opts - Options for the pool.
    * @param maximumNumberOfWorkers - Maximum number of workers that this pool manages.
    */
   public constructor(
     protected readonly minimumNumberOfWorkers: number,
-    protected readonly fileURL: URL,
+    protected readonly specifier: URL | string,
     protected readonly opts: PoolOptions,
     protected readonly maximumNumberOfWorkers?: number,
   ) {
@@ -168,7 +168,7 @@ export abstract class AbstractPool<
       )
     }
     this.checkPoolType()
-    checkFileURL(this.fileURL)
+    checkSpecifier(this.specifier)
     this.checkMinimumNumberOfWorkers(this.minimumNumberOfWorkers)
     this.checkPoolOptions(this.opts)
 
@@ -208,7 +208,7 @@ export abstract class AbstractPool<
   private checkPoolType(): void {
     if (this.type === PoolTypes.fixed && this.maximumNumberOfWorkers != null) {
       throw new Error(
-        'Cannot instantiate a fixed pool with a maximum number of workers specified at initialization',
+        'Cannot instantiate a fixed pool with a maximum number of workers defined at initialization',
       )
     }
   }
@@ -2292,15 +2292,19 @@ export abstract class AbstractPool<
    * @returns The created worker node.
    */
   private createWorkerNode(): IWorkerNode<Worker, Data> {
-    const workerNode = new WorkerNode<Worker, Data>(this.worker, this.fileURL, {
-      workerOptions: this.opts.workerOptions,
-      tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
-        getDefaultTasksQueueOptions(
-          this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
-        ).size,
-      tasksQueueBucketSize: defaultBucketSize,
-      tasksQueuePriority: this.getTasksQueuePriority(),
-    })
+    const workerNode = new WorkerNode<Worker, Data>(
+      this.worker,
+      this.specifier,
+      {
+        workerOptions: this.opts.workerOptions,
+        tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
+          getDefaultTasksQueueOptions(
+            this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
+          ).size,
+        tasksQueueBucketSize: defaultBucketSize,
+        tasksQueuePriority: this.getTasksQueuePriority(),
+      },
+    )
     // Flag the worker node as ready at pool startup.
     if (this.starting) {
       workerNode.info.ready = true

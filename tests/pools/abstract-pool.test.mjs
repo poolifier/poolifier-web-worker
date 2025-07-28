@@ -65,12 +65,14 @@ describe({
       expect(pool.destroying).toBe(false)
     })
 
-    it('Verify that fileURL is checked', () => {
+    it('Verify that specifier is checked', () => {
       expect(() => new FixedThreadPool(numberOfWorkers)).toThrow(
-        new TypeError('The worker URL must be specified'),
+        new TypeError('The worker specifier must be defined'),
       )
       expect(() => new FixedThreadPool(numberOfWorkers, 0)).toThrow(
-        new TypeError('The worker URL must be an instance of URL'),
+        new TypeError(
+          'The worker specifier must be a string or an instance of URL',
+        ),
       )
     })
 
@@ -127,7 +129,7 @@ describe({
           ),
       ).toThrow(
         new Error(
-          'Cannot instantiate a fixed pool with a maximum number of workers specified at initialization',
+          'Cannot instantiate a fixed pool with a maximum number of workers defined at initialization',
         ),
       )
     })
