@@ -38,7 +38,7 @@
   "imports": {
     "@poolifier/tatami-ng": "jsr:@poolifier/tatami-ng@^0.8.16",
     "@std/cli": "jsr:@std/cli@^1.0.21",
-    "@std/expect": "jsr:@std/expect@^1.0.16",
+    "@std/expect": "jsr:@std/expect@^1.0.17",
     "@std/testing": "jsr:@std/testing@^1.0.15"
   },
   "publish": {
