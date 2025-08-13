@@ -8,10 +8,11 @@ and this project adheres to
 
 ## [0.5.9](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.8...v0.5.9) (2025-08-13)
 
-
 ### 🤖 Automation
 
-* **deps:** Bump actions/checkout from 4 to 5 ([#96](https://github.com/poolifier/poolifier-web-worker/issues/96)) ([eb494ea](https://github.com/poolifier/poolifier-web-worker/commit/eb494eafdda107d135cd0c963540c10d2a0bb693))
+- **deps:** Bump actions/checkout from 4 to 5
+  ([#96](https://github.com/poolifier/poolifier-web-worker/issues/96))
+  ([eb494ea](https://github.com/poolifier/poolifier-web-worker/commit/eb494eafdda107d135cd0c963540c10d2a0bb693))
 
 ## [0.5.8](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.7...v0.5.8) (2025-07-28)
 
