@@ -41,7 +41,7 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
         average: true,
         median: false,
       },
-      elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+      elu: { ...DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS },
     })
 
   /**

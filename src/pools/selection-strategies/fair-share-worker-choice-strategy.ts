@@ -68,6 +68,7 @@ export class FairShareWorkerChoiceStrategy<
   /** @inheritDoc */
   public update(workerNodeKey: number): boolean {
     this.pool.workerNodes[workerNodeKey].strategyData = {
+      ...this.pool.workerNodes[workerNodeKey].strategyData,
       virtualTaskEndTimestamp: this.computeWorkerNodeVirtualTaskEndTimestamp(
         workerNodeKey,
       ),
@@ -103,6 +104,7 @@ export class FairShareWorkerChoiceStrategy<
         }
         if (minWorkerNodeKey === -1) {
           workerNode.strategyData = {
+            ...workerNode.strategyData,
             virtualTaskEndTimestamp: this
               .computeWorkerNodeVirtualTaskEndTimestamp(workerNodeKey),
           }
@@ -110,6 +112,7 @@ export class FairShareWorkerChoiceStrategy<
         }
         if (workerNode.strategyData?.virtualTaskEndTimestamp == null) {
           workerNode.strategyData = {
+            ...workerNode.strategyData,
             virtualTaskEndTimestamp: this
               .computeWorkerNodeVirtualTaskEndTimestamp(workerNodeKey),
           }

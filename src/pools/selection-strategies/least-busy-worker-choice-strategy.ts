@@ -39,7 +39,7 @@ export class LeastBusyWorkerChoiceStrategy<
         average: false,
         median: false,
       },
-      elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+      elu: { ...DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS },
     })
 
   /** @inheritDoc */

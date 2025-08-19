@@ -29,7 +29,7 @@ export class LeastEluWorkerChoiceStrategy<
   /** @inheritDoc */
   public override readonly taskStatisticsRequirements:
     TaskStatisticsRequirements = Object.freeze({
-      runTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+      runTime: { ...DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS },
       waitTime: {
         aggregate: true,
         average: false,

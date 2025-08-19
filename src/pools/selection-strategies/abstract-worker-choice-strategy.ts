@@ -47,9 +47,9 @@ export abstract class AbstractWorkerChoiceStrategy<
   /** @inheritDoc */
   public readonly taskStatisticsRequirements: TaskStatisticsRequirements =
     Object.freeze({
-      runTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-      waitTime: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-      elu: DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
+      runTime: { ...DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS },
+      waitTime: { ...DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS },
+      elu: { ...DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS },
     })
 
   /**
@@ -186,7 +186,9 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @param workerNodeKey - The worker node key.
    */
   protected setPreviousWorkerNodeKey(workerNodeKey: number | undefined): void {
-    this.previousWorkerNodeKey = workerNodeKey != null && workerNodeKey >= 0
+    this.previousWorkerNodeKey = workerNodeKey != null &&
+        workerNodeKey >= 0 &&
+        workerNodeKey < this.pool.workerNodes.length
       ? workerNodeKey
       : this.previousWorkerNodeKey
   }
