@@ -62,10 +62,10 @@ export const exponentialDelay = (
  * @internal
  */
 export const average = (dataSet: number[]): number => {
-  if (Array.isArray(dataSet) && dataSet.length === 0) {
+  if (!Array.isArray(dataSet) || dataSet.length === 0) {
     return 0
   }
-  if (Array.isArray(dataSet) && dataSet.length === 1) {
+  if (dataSet.length === 1) {
     return dataSet[0]
   }
   return (
@@ -82,10 +82,10 @@ export const average = (dataSet: number[]): number => {
  * @internal
  */
 export const median = (dataSet: number[]): number => {
-  if (Array.isArray(dataSet) && dataSet.length === 0) {
+  if (!Array.isArray(dataSet) || dataSet.length === 0) {
     return 0
   }
-  if (Array.isArray(dataSet) && dataSet.length === 1) {
+  if (dataSet.length === 1) {
     return dataSet[0]
   }
   const sortedDataSet = dataSet.slice().sort((a, b) => a - b)
@@ -98,7 +98,6 @@ export const median = (dataSet: number[]): number => {
 
 /**
  * Rounds the given number to the given scale.
- * The rounding is done using the "round half away from zero" method.
  *
  * @param num - The number to round.
  * @param scale - The scale to round to.
@@ -107,7 +106,7 @@ export const median = (dataSet: number[]): number => {
  */
 export const round = (num: number, scale = 2): number => {
   const rounder = 10 ** scale
-  return Math.round(num * rounder * (1 + Number.EPSILON)) / rounder
+  return Math.round((num + Math.sign(num) * Number.EPSILON) * rounder) / rounder
 }
 
 /**

@@ -75,7 +75,7 @@ export abstract class AbstractWorker<
    */
   protected statistics?: WorkerStatistics
   /**
-   * Task abort functions processed by the worker when task operation 'abort' is received.Add commentMore actions
+   * Task abort functions processed by the worker when task operation 'abort' is received.
    */
   protected taskAbortFunctions: Map<
     `${string}-${string}-${string}-${string}-${string}`,
@@ -287,10 +287,14 @@ export abstract class AbstractWorker<
         DEFAULT_TASK_NAME,
         this.taskFunctions.get(DEFAULT_TASK_NAME),
       ),
-      buildTaskFunctionProperties(
-        defaultTaskFunctionName,
-        this.taskFunctions.get(defaultTaskFunctionName),
-      ),
+      ...(defaultTaskFunctionName !== DEFAULT_TASK_NAME
+        ? [
+          buildTaskFunctionProperties(
+            defaultTaskFunctionName,
+            this.taskFunctions.get(defaultTaskFunctionName),
+          ),
+        ]
+        : []),
       ...taskFunctionsProperties,
     ]
   }
@@ -396,7 +400,7 @@ export abstract class AbstractWorker<
         }
         response = this.addTaskFunction(taskFunctionProperties.name, {
           taskFunction: new Function(
-            `return ${taskFunction}`,
+            `return (${taskFunction})`,
           )() as TaskFunction<Data, Response>,
           ...(taskFunctionProperties.priority != null && {
             priority: taskFunctionProperties.priority,
@@ -415,7 +419,9 @@ export abstract class AbstractWorker<
       default:
         response = {
           status: false,
-          error: new Error('Unknown task operation'),
+          error: new Error(
+            `Unknown task function operation: ${taskFunctionOperation}`,
+          ),
         }
         break
     }
@@ -529,7 +535,7 @@ export abstract class AbstractWorker<
   private stopCheckActive(): void {
     if (this.activeInterval != null) {
       clearInterval(this.activeInterval)
-      delete this.activeInterval
+      this.activeInterval = undefined
     }
   }
 
@@ -589,7 +595,7 @@ export abstract class AbstractWorker<
         workerError: {
           aborted: false,
           data,
-          error: new Error(`Task function '${name!}' not found`),
+          error: new Error(`Task function '${taskFunctionName!}' not found`),
           name,
         },
         taskId,
