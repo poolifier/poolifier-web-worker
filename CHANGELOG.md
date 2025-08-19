@@ -8,21 +8,23 @@ and this project adheres to
 
 ## [0.5.9](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.8...v0.5.9) (2025-08-19)
 
-
 ### 🐞 Bug Fixes
 
-* worker index identification at tasks stealing under back pressure ([bd5f61e](https://github.com/poolifier/poolifier-web-worker/commit/bd5f61e10dbce86afe37b9b6d62ca7a8e634ad03))
-
+- worker index identification at tasks stealing under back pressure
+  ([bd5f61e](https://github.com/poolifier/poolifier-web-worker/commit/bd5f61e10dbce86afe37b9b6d62ca7a8e634ad03))
 
 ### ✨ Polish
 
-* cleanup queuing code ([7433448](https://github.com/poolifier/poolifier-web-worker/commit/743344863f0353d636d68cfb408b6fee83f8d74e))
-* cleanup worker selection strategies code ([2c17456](https://github.com/poolifier/poolifier-web-worker/commit/2c1745687f0ce499d3c455b81fbe195fa52ce326))
-
+- cleanup queuing code
+  ([7433448](https://github.com/poolifier/poolifier-web-worker/commit/743344863f0353d636d68cfb408b6fee83f8d74e))
+- cleanup worker selection strategies code
+  ([2c17456](https://github.com/poolifier/poolifier-web-worker/commit/2c1745687f0ce499d3c455b81fbe195fa52ce326))
 
 ### 🤖 Automation
 
-* **deps:** Bump actions/checkout from 4 to 5 ([#96](https://github.com/poolifier/poolifier-web-worker/issues/96)) ([eb494ea](https://github.com/poolifier/poolifier-web-worker/commit/eb494eafdda107d135cd0c963540c10d2a0bb693))
+- **deps:** Bump actions/checkout from 4 to 5
+  ([#96](https://github.com/poolifier/poolifier-web-worker/issues/96))
+  ([eb494ea](https://github.com/poolifier/poolifier-web-worker/commit/eb494eafdda107d135cd0c963540c10d2a0bb693))
 
 ## [0.5.8](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.7...v0.5.8) (2025-07-28)
 
