@@ -595,7 +595,7 @@ export abstract class AbstractWorker<
         workerError: {
           aborted: false,
           data,
-          error: new Error(`Task function '${taskFunctionName!}' not found`),
+          error: new Error(`Task function '${taskFunctionName}' not found`),
           name,
         },
         taskId,
