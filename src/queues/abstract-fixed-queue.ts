@@ -162,8 +162,8 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
         `Invalid fixed queue size: '${size.toString()}' is not an integer`,
       )
     }
-    if (size < 0) {
-      throw new RangeError(`Invalid fixed queue size: ${size.toString()} < 0`)
+    if (size <= 0) {
+      throw new RangeError(`Invalid fixed queue size: ${size.toString()} <= 0`)
     }
   }
 }

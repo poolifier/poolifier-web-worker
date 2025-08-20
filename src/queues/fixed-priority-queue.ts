@@ -9,16 +9,33 @@ import type { IFixedQueue } from './queue-types.ts'
  */
 export class FixedPriorityQueue<T> extends AbstractFixedQueue<T>
   implements IFixedQueue<T> {
+  private readonly agingFactor: number
+
+  /**
+   * Constructs a FixedPriorityQueue.
+   * @param size - Fixed queue size. @defaultValue defaultQueueSize
+   * @param agingFactor - Aging factor to apply to items in priority points per millisecond. A higher value makes tasks age faster.
+   * @returns IFixedQueue.
+   */
+  public constructor(size?: number, agingFactor = 0.001) {
+    super(size)
+    this.agingFactor = agingFactor
+  }
+
   /** @inheritdoc */
   public enqueue(data: T, priority?: number): number {
     if (this.full()) {
       throw new Error('Fixed priority queue is full')
     }
     priority = priority ?? 0
+    const now = performance.now()
     let insertionPhysicalIndex = -1
     let currentPhysicalIndex = this.start
     for (let i = 0; i < this.size; i++) {
-      if (this.nodeArray[currentPhysicalIndex]!.priority > priority) {
+      const node = this.nodeArray[currentPhysicalIndex]!
+      const nodeEffectivePriority = node.priority -
+        (now - node.timestamp) * this.agingFactor
+      if (nodeEffectivePriority > priority) {
         insertionPhysicalIndex = currentPhysicalIndex
         break
       }
@@ -44,7 +61,7 @@ export class FixedPriorityQueue<T> extends AbstractFixedQueue<T>
         shiftPhysicalIndex = previousPhysicalIndex
       }
     }
-    this.nodeArray[insertionPhysicalIndex] = { data, priority }
+    this.nodeArray[insertionPhysicalIndex] = { data, priority, timestamp: now }
     return ++this.size
   }
 }
