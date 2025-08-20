@@ -1,4 +1,4 @@
-import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.5.9' // x-release-please-version
+import { ThreadWorker } from 'jsr:@poolifier/poolifier-web-worker@^0.5.10' // x-release-please-version
 
 export interface MyData {
   ok: 0 | 1

@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.10](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.9...v0.5.10) (2025-08-20)
+
+
+### 🐞 Bug Fixes
+
+* avoid starvation with task priority ([aaad1df](https://github.com/poolifier/poolifier-web-worker/commit/aaad1df37b45b03abb7b7761caeb0f5e101c8b6e))
+
+
+### ✨ Polish
+
+* add guard to priority queue delete() ([d681bdd](https://github.com/poolifier/poolifier-web-worker/commit/d681bddbe39995a7b85a6e6614c886a2634e0af1))
+* flag fixed queue internal storage data structure readonly ([204465c](https://github.com/poolifier/poolifier-web-worker/commit/204465cb6a6e4b73d872c9cdb87f2e3bfee586b6))
+
+
+### 📚 Documentation
+
+* refine queueing code comment ([14a1b3a](https://github.com/poolifier/poolifier-web-worker/commit/14a1b3a88342f7aeb4509d8d81df718aef2f2e28))
+
 ## [0.5.9](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.8...v0.5.9) (2025-08-19)
 
 ### 🐞 Bug Fixes
