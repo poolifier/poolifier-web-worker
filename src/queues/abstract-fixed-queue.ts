@@ -17,7 +17,7 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
   /** @inheritdoc */
   public size!: number
   /** @inheritdoc */
-  public nodeArray: (FixedQueueNode<T> | undefined)[]
+  public readonly nodeArray: (FixedQueueNode<T> | undefined)[]
 
   /**
    * Constructs a fixed queue.

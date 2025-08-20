@@ -26,7 +26,7 @@ export interface IFixedQueue<T> {
   /** The fixed queue size. */
   readonly size: number
   /** The fixed queue node array. */
-  nodeArray: (FixedQueueNode<T> | undefined)[]
+  readonly nodeArray: (FixedQueueNode<T> | undefined)[]
   /**
    * Checks if the fixed queue is empty.
    * @returns `true` if the fixed queue is empty, `false` otherwise.
