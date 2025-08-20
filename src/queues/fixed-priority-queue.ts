@@ -14,7 +14,7 @@ export class FixedPriorityQueue<T> extends AbstractFixedQueue<T>
   /**
    * Constructs a FixedPriorityQueue.
    * @param size - Fixed queue size. @defaultValue defaultQueueSize
-   * @param agingFactor - Aging factor to apply to items in priority points per millisecond. A higher value makes tasks age faster.
+   * @param agingFactor - Aging factor to apply to items in priority points per millisecond. A higher value makes items age faster.
    * @returns IFixedQueue.
    */
   public constructor(size?: number, agingFactor = 0.001) {

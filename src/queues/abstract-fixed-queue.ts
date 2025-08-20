@@ -59,6 +59,7 @@ export abstract class AbstractFixedQueue<T> implements IFixedQueue<T> {
 
   /** @inheritdoc */
   public delete(data: T): boolean {
+    if (this.empty()) return false
     let currentPhysicalIndex = this.start
     let logicalIndex = -1
     for (let i = 0; i < this.size; i++) {
