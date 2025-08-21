@@ -29,11 +29,6 @@ export class WorkerChoiceStrategiesContext<
   Response = unknown,
 > {
   /**
-   * The number of worker choice strategies execution retries.
-   */
-  public retriesCount: number
-
-  /**
    * The default worker choice strategy in the context.
    */
   private defaultWorkerChoiceStrategy: WorkerChoiceStrategy
@@ -92,7 +87,6 @@ export class WorkerChoiceStrategiesContext<
       buildWorkerChoiceStrategiesTaskStatisticsRequirements(
         this.workerChoiceStrategies,
       )
-    this.retriesCount = 0
     this.retries = getWorkerChoiceStrategiesRetries<Worker, Data, Response>(
       this.pool,
       opts,
@@ -106,6 +100,17 @@ export class WorkerChoiceStrategiesContext<
    */
   public getPolicy(): StrategyPolicy {
     return this.workerChoiceStrategiesPolicy
+  }
+
+  /**
+   * Gets the number of worker choice strategies execution retries.
+   * @returns The number of retries.
+   */
+  public getStrategyRetries(): number {
+    return Array.from(
+      this.workerChoiceStrategies,
+      ([_, workerChoiceStrategy]) => workerChoiceStrategy.retriesCount,
+    ).reduce((accumulator, retries) => accumulator + retries, 0)
   }
 
   /**
@@ -173,13 +178,13 @@ export class WorkerChoiceStrategiesContext<
     let workerNodeKey: number | undefined = workerChoiceStrategy.choose()
     let retriesCount = 0
     while (workerNodeKey == null && retriesCount < this.retries) {
-      workerNodeKey = workerChoiceStrategy.choose()
       retriesCount++
-      this.retriesCount++
+      workerNodeKey = workerChoiceStrategy.choose()
     }
+    workerChoiceStrategy.retriesCount = retriesCount
     if (workerNodeKey == null) {
       throw new Error(
-        `Worker node key chosen by ${workerChoiceStrategy.name} is null or undefined after ${retriesCount.toString()} retries (max: ${this.retries.toString()})`,
+        `Worker node key chosen by ${workerChoiceStrategy.name} is null or undefined after ${workerChoiceStrategy.retriesCount.toString()} retries (max: ${this.retries.toString()})`,
       )
     }
     return workerNodeKey

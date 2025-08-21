@@ -195,6 +195,10 @@ export interface IWorkerChoiceStrategy {
    */
   readonly reset: () => boolean
   /**
+   * The worker choice strategy execution retries count.
+   */
+  retriesCount: number
+  /**
    * Updates the worker node key strategy internals.
    * This is called after a task has been executed on a worker node.
    *
