@@ -8,15 +8,15 @@ and this project adheres to
 
 ## [0.5.11](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.10...v0.5.11) (2025-08-21)
 
-
 ### 🐞 Bug Fixes
 
-* properly account strategy retries on a per strategy basis ([98b3742](https://github.com/poolifier/poolifier-web-worker/commit/98b37420072677775c275538daa06e702a10ae89))
-
+- properly account strategy retries on a per strategy basis
+  ([98b3742](https://github.com/poolifier/poolifier-web-worker/commit/98b37420072677775c275538daa06e702a10ae89))
 
 ### ⚡ Performance
 
-* reduce pool info property internal usage ([3c7ad6e](https://github.com/poolifier/poolifier-web-worker/commit/3c7ad6eea40e41eaacb9981b73b62453730d3f38))
+- reduce pool info property internal usage
+  ([3c7ad6e](https://github.com/poolifier/poolifier-web-worker/commit/3c7ad6eea40e41eaacb9981b73b62453730d3f38))
 
 ## [0.5.10](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.9...v0.5.10) (2025-08-20)
 
