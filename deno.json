@@ -1,9 +1,11 @@
 {
   "name": "@poolifier/poolifier-web-worker",
-  "version": "0.5.10",
+  "version": "0.5.11",
   "exports": "./src/mod.ts",
   "compilerOptions": {
-    "lib": ["deno.worker"],
+    "lib": [
+      "deno.worker"
+    ],
     "strict": true
   },
   "tasks": {
@@ -25,7 +27,9 @@
     "documentation": "deno doc ./src/mod.ts"
   },
   "test": {
-    "include": ["./tests/**/*.test.mjs"]
+    "include": [
+      "./tests/**/*.test.mjs"
+    ]
   },
   "fmt": {
     "semiColons": false,
@@ -38,8 +42,18 @@
     "@std/testing": "jsr:@std/testing@^1.0.15"
   },
   "publish": {
-    "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
+    "include": [
+      "LICENSE",
+      "README.md",
+      "deno.json",
+      "src/**/*.ts"
+    ]
   },
   "lock": false,
-  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"]
+  "exclude": [
+    "./coverage",
+    "./dist/browser",
+    "./dist/esm",
+    "./npm"
+  ]
 }
