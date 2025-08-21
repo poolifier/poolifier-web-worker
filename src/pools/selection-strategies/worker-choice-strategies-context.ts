@@ -58,7 +58,7 @@ export class WorkerChoiceStrategiesContext<
     TaskStatisticsRequirements
 
   /**
-   * The maximum number of worker choice strategies execution retries.
+   * The maximum number of worker choice strategy execution retries.
    */
   private readonly retries: number
 
