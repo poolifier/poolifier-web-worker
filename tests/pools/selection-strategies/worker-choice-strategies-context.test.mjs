@@ -80,39 +80,58 @@ describe('Worker choice strategies context test suite', () => {
     expect(workerChoiceStrategiesContext.defaultWorkerChoiceStrategy).toBe(
       WorkerChoiceStrategies.ROUND_ROBIN,
     )
-    const workerChoiceStrategyUndefinedStub =
-      new RoundRobinWorkerChoiceStrategy(fixedPool)
+    const workerChoiceStrategyUndefinedStub = workerChoiceStrategiesContext
+      .workerChoiceStrategies.get(
+        workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+      )
     stub(
       workerChoiceStrategyUndefinedStub,
       'choose',
       returnsNext(Array(7).fill(undefined)),
     )
-    workerChoiceStrategiesContext.workerChoiceStrategies.set(
-      workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      workerChoiceStrategyUndefinedStub,
+    let err
+    try {
+      workerChoiceStrategiesContext.execute()
+    } catch (e) {
+      err = e
+    }
+    expect(err).toBeInstanceOf(Error)
+    expect(err.message).toBe(
+      `Worker node key chosen by ${workerChoiceStrategyUndefinedStub.name} is null or undefined after ${workerChoiceStrategyUndefinedStub.retriesCount.toString()} retries (max: ${workerChoiceStrategiesContext.retries.toString()})`,
     )
-    expect(() => workerChoiceStrategiesContext.execute()).toThrow(
-      new Error(
-        `Worker node key chosen by ${workerChoiceStrategyUndefinedStub.name} is null or undefined after ${workerChoiceStrategiesContext.retries.toString()} retries (max: ${workerChoiceStrategiesContext.retries.toString()})`,
-      ),
+    assertSpyCalls(
+      workerChoiceStrategyUndefinedStub.choose,
+      workerChoiceStrategyUndefinedStub.retriesCount + 1,
+    )
+    expect(workerChoiceStrategiesContext.getStrategyRetries()).toBe(
+      workerChoiceStrategyUndefinedStub.retriesCount,
     )
     workerChoiceStrategyUndefinedStub.choose.restore()
-    const workerChoiceStrategyNullStub = new RoundRobinWorkerChoiceStrategy(
-      fixedPool,
-    )
+    const workerChoiceStrategyNullStub = workerChoiceStrategiesContext
+      .workerChoiceStrategies.get(
+        workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+      )
     stub(
       workerChoiceStrategyNullStub,
       'choose',
       returnsNext(Array(7).fill(null)),
     )
-    workerChoiceStrategiesContext.workerChoiceStrategies.set(
-      workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      workerChoiceStrategyNullStub,
+    err = undefined
+    try {
+      workerChoiceStrategiesContext.execute()
+    } catch (e) {
+      err = e
+    }
+    expect(err).toBeInstanceOf(Error)
+    expect(err.message).toBe(
+      `Worker node key chosen by ${workerChoiceStrategyNullStub.name} is null or undefined after ${workerChoiceStrategyNullStub.retriesCount.toString()} retries (max: ${workerChoiceStrategiesContext.retries.toString()})`,
     )
-    expect(() => workerChoiceStrategiesContext.execute()).toThrow(
-      new Error(
-        `Worker node key chosen by ${workerChoiceStrategyNullStub.name} is null or undefined after ${workerChoiceStrategiesContext.retries.toString()} retries (max: ${workerChoiceStrategiesContext.retries.toString()})`,
-      ),
+    assertSpyCalls(
+      workerChoiceStrategyNullStub.choose,
+      workerChoiceStrategyUndefinedStub.retriesCount + 1,
+    )
+    expect(workerChoiceStrategiesContext.getStrategyRetries()).toBe(
+      workerChoiceStrategyNullStub.retriesCount,
     )
     workerChoiceStrategyNullStub.choose.restore()
   })
@@ -121,28 +140,21 @@ describe('Worker choice strategies context test suite', () => {
     const workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
       fixedPool,
     )
-    const workerChoiceStrategyStub = new RoundRobinWorkerChoiceStrategy(
-      fixedPool,
+    expect(workerChoiceStrategiesContext.defaultWorkerChoiceStrategy).toBe(
+      WorkerChoiceStrategies.ROUND_ROBIN,
     )
+    const workerChoiceStrategyStub = workerChoiceStrategiesContext
+      .workerChoiceStrategies.get(
+        workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+      )
     stub(
       workerChoiceStrategyStub,
       'choose',
       returnsNext(Array(5).fill(undefined).concat(Array(1).fill(1))),
     )
-    expect(workerChoiceStrategiesContext.defaultWorkerChoiceStrategy).toBe(
-      WorkerChoiceStrategies.ROUND_ROBIN,
-    )
-    workerChoiceStrategiesContext.workerChoiceStrategies.set(
-      workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      workerChoiceStrategyStub,
-    )
     const chosenWorkerKey = workerChoiceStrategiesContext.execute()
-    assertSpyCalls(
-      workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).choose,
-      6,
-    )
+    assertSpyCalls(workerChoiceStrategyStub.choose, 6)
+    expect(workerChoiceStrategiesContext.getStrategyRetries()).toBe(5)
     expect(chosenWorkerKey).toBe(1)
     workerChoiceStrategyStub.choose.restore()
   })
@@ -151,24 +163,17 @@ describe('Worker choice strategies context test suite', () => {
     const workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
       fixedPool,
     )
-    const workerChoiceStrategyStub = new RoundRobinWorkerChoiceStrategy(
-      fixedPool,
-    )
-    stub(workerChoiceStrategyStub, 'choose', returnsNext([0]))
     expect(workerChoiceStrategiesContext.defaultWorkerChoiceStrategy).toBe(
       WorkerChoiceStrategies.ROUND_ROBIN,
     )
-    workerChoiceStrategiesContext.workerChoiceStrategies.set(
-      workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      workerChoiceStrategyStub,
-    )
-    const chosenWorkerKey = workerChoiceStrategiesContext.execute()
-    assertSpyCalls(
-      workerChoiceStrategiesContext.workerChoiceStrategies.get(
+    const workerChoiceStrategyStub = workerChoiceStrategiesContext
+      .workerChoiceStrategies.get(
         workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).choose,
-      1,
-    )
+      )
+    stub(workerChoiceStrategyStub, 'choose', returnsNext([0]))
+    const chosenWorkerKey = workerChoiceStrategiesContext.execute()
+    assertSpyCalls(workerChoiceStrategyStub.choose, 1)
+    expect(workerChoiceStrategiesContext.getStrategyRetries()).toBe(0)
     expect(chosenWorkerKey).toBe(0)
     workerChoiceStrategyStub.choose.restore()
   })
@@ -177,24 +182,17 @@ describe('Worker choice strategies context test suite', () => {
     const workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
       dynamicPool,
     )
-    const workerChoiceStrategyStub = new RoundRobinWorkerChoiceStrategy(
-      dynamicPool,
-    )
-    stub(workerChoiceStrategyStub, 'choose', returnsNext([0]))
     expect(workerChoiceStrategiesContext.defaultWorkerChoiceStrategy).toBe(
       WorkerChoiceStrategies.ROUND_ROBIN,
     )
-    workerChoiceStrategiesContext.workerChoiceStrategies.set(
-      workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      workerChoiceStrategyStub,
-    )
-    const chosenWorkerKey = workerChoiceStrategiesContext.execute()
-    assertSpyCalls(
-      workerChoiceStrategiesContext.workerChoiceStrategies.get(
+    const workerChoiceStrategyStub = workerChoiceStrategiesContext
+      .workerChoiceStrategies.get(
         workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).choose,
-      1,
-    )
+      )
+    stub(workerChoiceStrategyStub, 'choose', returnsNext([0]))
+    const chosenWorkerKey = workerChoiceStrategiesContext.execute()
+    assertSpyCalls(workerChoiceStrategyStub.choose, 1)
+    expect(workerChoiceStrategiesContext.getStrategyRetries()).toBe(0)
     expect(chosenWorkerKey).toBe(0)
     workerChoiceStrategyStub.choose.restore()
   })

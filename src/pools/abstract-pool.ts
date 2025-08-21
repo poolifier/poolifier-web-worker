@@ -309,7 +309,8 @@ export abstract class AbstractPool<
       started: this.started,
       ready: this.ready,
       defaultStrategy: this.opts.workerChoiceStrategy!,
-      strategyRetries: this.workerChoiceStrategiesContext?.retriesCount ?? 0,
+      strategyRetries:
+        this.workerChoiceStrategiesContext?.getStrategyRetries() ?? 0,
       minSize: this.minimumNumberOfWorkers,
       maxSize: this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
       ...(taskStatisticsRequirements?.runTime.aggregate === true &&
