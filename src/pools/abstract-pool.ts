@@ -1323,20 +1323,31 @@ export abstract class AbstractPool<
       throw new Error('Cannot destroy an already destroying pool')
     }
     this.destroying = true
-    await Promise.all(
-      this.workerNodes.map(async (_, workerNodeKey) => {
-        await this.destroyWorkerNode(workerNodeKey)
-      }),
-    )
-    if (this.eventTarget != null) {
-      this.eventTarget.dispatchEvent(
-        new CustomEvent<PoolInfo>(PoolEvents.destroy, { detail: this.info }),
+    try {
+      await Promise.allSettled(
+        this.workerNodes.map(async (_, workerNodeKey) => {
+          try {
+            await this.destroyWorkerNode(workerNodeKey)
+          } catch (error) {
+            if (this.eventTarget != null) {
+              this.eventTarget.dispatchEvent(
+                new ErrorEvent(PoolEvents.error, { error }),
+              )
+            }
+          }
+        }),
       )
-      this.readyEventEmitted = false
+    } finally {
+      if (this.eventTarget != null) {
+        this.eventTarget.dispatchEvent(
+          new CustomEvent<PoolInfo>(PoolEvents.destroy, { detail: this.info }),
+        )
+        this.readyEventEmitted = false
+      }
+      delete this.startTimestamp
+      this.destroying = false
+      this.started = false
     }
-    delete this.startTimestamp
-    this.destroying = false
-    this.started = false
   }
 
   private async sendKillMessageToWorker(
