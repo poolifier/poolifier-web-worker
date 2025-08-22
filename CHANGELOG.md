@@ -8,20 +8,20 @@ and this project adheres to
 
 ## [0.5.12](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.11...v0.5.12) (2025-08-22)
 
-
 ### 🐞 Bug Fixes
 
-* ensure destroy event has up2date pool info ([6ae415c](https://github.com/poolifier/poolifier-web-worker/commit/6ae415c8c8c01be3086ee881aa5daad3f132cd34))
-
+- ensure destroy event has up2date pool info
+  ([6ae415c](https://github.com/poolifier/poolifier-web-worker/commit/6ae415c8c8c01be3086ee881aa5daad3f132cd34))
 
 ### ✨ Polish
 
-* make pool destroy() more robust ([74899b5](https://github.com/poolifier/poolifier-web-worker/commit/74899b5ffbbac0b382d071a64b53b0328a15e19e))
-
+- make pool destroy() more robust
+  ([74899b5](https://github.com/poolifier/poolifier-web-worker/commit/74899b5ffbbac0b382d071a64b53b0328a15e19e))
 
 ### 📚 Documentation
 
-* refine some code comments ([c306ee8](https://github.com/poolifier/poolifier-web-worker/commit/c306ee83a69552e0b4ebbde8664c0965cde0f09d))
+- refine some code comments
+  ([c306ee8](https://github.com/poolifier/poolifier-web-worker/commit/c306ee83a69552e0b4ebbde8664c0965cde0f09d))
 
 ## [0.5.11](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.10...v0.5.11) (2025-08-21)
 
