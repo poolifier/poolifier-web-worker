@@ -1338,15 +1338,15 @@ export abstract class AbstractPool<
         }),
       )
     } finally {
+      delete this.startTimestamp
+      this.destroying = false
+      this.started = false
       if (this.eventTarget != null) {
         this.eventTarget.dispatchEvent(
           new CustomEvent<PoolInfo>(PoolEvents.destroy, { detail: this.info }),
         )
         this.readyEventEmitted = false
       }
-      delete this.startTimestamp
-      this.destroying = false
-      this.started = false
     }
   }
 
@@ -2209,9 +2209,9 @@ export abstract class AbstractPool<
       }
       this.afterTaskExecutionHook(workerNodeKey, message)
       queueMicrotask(() => {
-        this.checkAndEmitTaskExecutionFinishedEvents()
         workerNode?.dispatchEvent(new Event('taskFinished'))
         this.promiseResponseMap.delete(taskId!)
+        this.checkAndEmitTaskExecutionFinishedEvents()
         if (this.opts.enableTasksQueue === true && !this.destroying) {
           if (
             !this.isWorkerNodeBusy(workerNodeKey) &&
