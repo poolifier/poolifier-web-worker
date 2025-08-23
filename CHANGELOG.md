@@ -8,10 +8,10 @@ and this project adheres to
 
 ## [0.5.14](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.13...v0.5.14) (2025-08-23)
 
-
 ### ✨ Polish
 
-* cleanup nested conditions ([a7fef39](https://github.com/poolifier/poolifier-web-worker/commit/a7fef39f4fff11bb5ee47af47d7f45527342bfb1))
+- cleanup nested conditions
+  ([a7fef39](https://github.com/poolifier/poolifier-web-worker/commit/a7fef39f4fff11bb5ee47af47d7f45527342bfb1))
 
 ## [0.5.13](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.12...v0.5.13) (2025-08-23)
 
