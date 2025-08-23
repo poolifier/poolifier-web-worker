@@ -8,20 +8,20 @@ and this project adheres to
 
 ## [0.5.13](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.12...v0.5.13) (2025-08-23)
 
-
 ### ⚡ Performance
 
-* add adaptive aging factor to priority queue ([c4ec62b](https://github.com/poolifier/poolifier-web-worker/commit/c4ec62b45dc86186ab652d00e75de180b918d579))
-
+- add adaptive aging factor to priority queue
+  ([c4ec62b](https://github.com/poolifier/poolifier-web-worker/commit/c4ec62b45dc86186ab652d00e75de180b918d579))
 
 ### ✨ Polish
 
-* refine circular buffer API ([e31104e](https://github.com/poolifier/poolifier-web-worker/commit/e31104e6fdb87b6731a750ecddc667aeb4100c22))
-
+- refine circular buffer API
+  ([e31104e](https://github.com/poolifier/poolifier-web-worker/commit/e31104e6fdb87b6731a750ecddc667aeb4100c22))
 
 ### 📚 Documentation
 
-* amend priority queue constructor comment ([54af2cd](https://github.com/poolifier/poolifier-web-worker/commit/54af2cd7a03b466955ec5d8f4c67902376ff341d))
+- amend priority queue constructor comment
+  ([54af2cd](https://github.com/poolifier/poolifier-web-worker/commit/54af2cd7a03b466955ec5d8f4c67902376ff341d))
 
 ## [0.5.12](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.11...v0.5.12) (2025-08-22)
 
