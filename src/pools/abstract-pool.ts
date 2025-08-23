@@ -1329,11 +1329,9 @@ export abstract class AbstractPool<
           try {
             await this.destroyWorkerNode(workerNodeKey)
           } catch (error) {
-            if (this.eventTarget != null) {
-              this.eventTarget.dispatchEvent(
-                new ErrorEvent(PoolEvents.error, { error }),
-              )
-            }
+            this.eventTarget?.dispatchEvent(
+              new ErrorEvent(PoolEvents.error, { error }),
+            )
           }
         }),
       )
@@ -1637,23 +1635,17 @@ export abstract class AbstractPool<
       this.eventTarget?.dispatchEvent(
         new ErrorEvent(PoolEvents.error, errorEvent),
       )
-      if (
-        this.started &&
-        !this.destroying &&
-        this.opts.restartWorkerOnError === true
-      ) {
-        if (workerNode.info.dynamic) {
-          this.createAndSetupDynamicWorkerNode()
-        } else if (!this.startingMinimumNumberOfWorkers) {
-          this.startMinimumNumberOfWorkers(true)
+      if (this.started && !this.destroying) {
+        if (this.opts.restartWorkerOnError === true) {
+          if (workerNode.info.dynamic) {
+            this.createAndSetupDynamicWorkerNode()
+          } else if (!this.startingMinimumNumberOfWorkers) {
+            this.startMinimumNumberOfWorkers(true)
+          }
         }
-      }
-      if (
-        this.started &&
-        !this.destroying &&
-        this.opts.enableTasksQueue === true
-      ) {
-        this.redistributeQueuedTasks(this.workerNodes.indexOf(workerNode))
+        if (this.opts.enableTasksQueue === true) {
+          this.redistributeQueuedTasks(this.workerNodes.indexOf(workerNode))
+        }
       }
       workerNode?.terminate()
     }
