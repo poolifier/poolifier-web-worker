@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.14](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.13...v0.5.14) (2025-08-26)
+
+
+### 🐞 Bug Fixes
+
+* use strict object equality in tasks stealing code ([f2fd2ff](https://github.com/poolifier/poolifier-web-worker/commit/f2fd2ff6d2a663272f854ae6f0dee2e2801c60d0))
+
+
+### ✨ Polish
+
+* cleanup nested conditions ([a7fef39](https://github.com/poolifier/poolifier-web-worker/commit/a7fef39f4fff11bb5ee47af47d7f45527342bfb1))
+
 ## [0.5.13](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.12...v0.5.13) (2025-08-23)
 
 ### ⚡ Performance
