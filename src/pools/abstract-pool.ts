@@ -1877,7 +1877,7 @@ export abstract class AbstractPool<
       }
       this.handleTask(
         destinationWorkerNodeKey,
-        this.dequeueTask(sourceWorkerNodeKey) as Task<Data>,
+        this.dequeueTask(sourceWorkerNodeKey)!,
       )
     }
   }
