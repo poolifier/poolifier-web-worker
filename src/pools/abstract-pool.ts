@@ -2085,8 +2085,8 @@ export abstract class AbstractPool<
       return
     }
     const { workerId } = event.detail
-    const sourceWorkerNode =
-      this.workerNodes[this.getWorkerNodeKeyByWorkerId(workerId)]
+    const sourceWorkerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
+    const sourceWorkerNode = this.workerNodes[sourceWorkerNodeKey]
     if (sourceWorkerNode == null) {
       return
     }
@@ -2101,7 +2101,7 @@ export abstract class AbstractPool<
         break
       }
       if (
-        workerNode.info.id !== workerId &&
+        workerNode !== sourceWorkerNode &&
         !workerNode.info.backPressureStealing &&
         workerNode.usage.tasks.queued <
           this.opts.tasksQueueOptions!.size! - sizeOffset
