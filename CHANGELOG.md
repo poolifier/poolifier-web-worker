@@ -8,15 +8,15 @@ and this project adheres to
 
 ## [0.5.15](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.14...v0.5.15) (2025-08-28)
 
-
 ### 🐞 Bug Fixes
 
-* potention race on circular buffer size ([6a9fcd0](https://github.com/poolifier/poolifier-web-worker/commit/6a9fcd0e7fb6348f2cec8341070347f124a42d9f))
-
+- potention race on circular buffer size
+  ([6a9fcd0](https://github.com/poolifier/poolifier-web-worker/commit/6a9fcd0e7fb6348f2cec8341070347f124a42d9f))
 
 ### ✨ Polish
 
-* cleanup type casting ([6abbc70](https://github.com/poolifier/poolifier-web-worker/commit/6abbc70058e293f98fabde6ad11bf1a21dff35fb))
+- cleanup type casting
+  ([6abbc70](https://github.com/poolifier/poolifier-web-worker/commit/6abbc70058e293f98fabde6ad11bf1a21dff35fb))
 
 ## [0.5.14](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.13...v0.5.14) (2025-08-26)
 
