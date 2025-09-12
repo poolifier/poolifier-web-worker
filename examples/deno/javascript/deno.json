@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "@poolifier/poolifier-web-worker": "jsr:@poolifier/poolifier-web-worker@^0.5.14"
+  },
+  "tasks": {
+    "start:dynamic": "deno run -A ./dynamicExample.js",
+    "start:fixed": "deno run -A ./fixedExample.js",
+    "start:multifunction": "deno run -A ./multiFunctionExample.js"
+  },
+  "fmt": {
+    "semiColons": false,
+    "singleQuote": true
+  },
+  "lock": false
+}

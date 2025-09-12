@@ -18,13 +18,16 @@
           "path": "dist/package.json",
           "jsonpath": "$.version"
         },
-        "examples/deno/javascript/dynamicExample.js",
-        "examples/deno/javascript/fixedExample.js",
-        "examples/deno/javascript/multiFunctionExample.js",
-        "examples/deno/javascript/multiFunctionWorker.js",
-        "examples/deno/javascript/yourWorker.js",
-        "examples/deno/typescript/pool.ts",
-        "examples/deno/typescript/worker.ts",
+        {
+          "type": "json",
+          "path": "examples/deno/javascript/deno.json",
+          "jsonpath": "$.imports['@poolifier/poolifier-web-worker']"
+        },
+        {
+          "type": "json",
+          "path": "examples/deno/typescript/deno.json",
+          "jsonpath": "$.imports['@poolifier/poolifier-web-worker']"
+        },
         "README.md",
         "sonar-project.properties",
         "src/pools/version.ts"

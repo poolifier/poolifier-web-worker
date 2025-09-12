@@ -1,0 +1,13 @@
+{
+  "imports": {
+    "@poolifier/poolifier-web-worker": "jsr:@poolifier/poolifier-web-worker@^0.5.14"
+  },
+  "tasks": {
+    "start": "deno run -A ./pool.ts"
+  },
+  "fmt": {
+    "semiColons": false,
+    "singleQuote": true
+  },
+  "lock": false
+}
