@@ -8,22 +8,26 @@ and this project adheres to
 
 ## [0.5.15](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.14...v0.5.15) (2025-09-12)
 
-
 ### 🐞 Bug Fixes
 
-* potention race on circular buffer size ([6a9fcd0](https://github.com/poolifier/poolifier-web-worker/commit/6a9fcd0e7fb6348f2cec8341070347f124a42d9f))
-
+- potention race on circular buffer size
+  ([6a9fcd0](https://github.com/poolifier/poolifier-web-worker/commit/6a9fcd0e7fb6348f2cec8341070347f124a42d9f))
 
 ### ✨ Polish
 
-* cleanup main deno.json ([7bf4372](https://github.com/poolifier/poolifier-web-worker/commit/7bf4372742f5ab43198b9d988e4f6894bec4cc83))
-* cleanup type casting ([6abbc70](https://github.com/poolifier/poolifier-web-worker/commit/6abbc70058e293f98fabde6ad11bf1a21dff35fb))
-
+- cleanup main deno.json
+  ([7bf4372](https://github.com/poolifier/poolifier-web-worker/commit/7bf4372742f5ab43198b9d988e4f6894bec4cc83))
+- cleanup type casting
+  ([6abbc70](https://github.com/poolifier/poolifier-web-worker/commit/6abbc70058e293f98fabde6ad11bf1a21dff35fb))
 
 ### 🤖 Automation
 
-* **deps:** Bump actions/setup-node from 4 to 5 ([#105](https://github.com/poolifier/poolifier-web-worker/issues/105)) ([cb4aab3](https://github.com/poolifier/poolifier-web-worker/commit/cb4aab38abce29ea5bab1b2433b82c88b116277f))
-* **deps:** Bump sonarsource/sonarqube-scan-action from 5.3.0 to 5.3.1 ([#104](https://github.com/poolifier/poolifier-web-worker/issues/104)) ([f6a52c4](https://github.com/poolifier/poolifier-web-worker/commit/f6a52c4ee0049be84e00ef78985f9bff06e7219d))
+- **deps:** Bump actions/setup-node from 4 to 5
+  ([#105](https://github.com/poolifier/poolifier-web-worker/issues/105))
+  ([cb4aab3](https://github.com/poolifier/poolifier-web-worker/commit/cb4aab38abce29ea5bab1b2433b82c88b116277f))
+- **deps:** Bump sonarsource/sonarqube-scan-action from 5.3.0 to 5.3.1
+  ([#104](https://github.com/poolifier/poolifier-web-worker/issues/104))
+  ([f6a52c4](https://github.com/poolifier/poolifier-web-worker/commit/f6a52c4ee0049be84e00ef78985f9bff06e7219d))
 
 ## [0.5.14](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.13...v0.5.14) (2025-08-26)
 
