@@ -40,6 +40,6 @@
   "publish": {
     "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
   },
-  "lock": false,
-  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"]
+  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"],
+  "lock": false
 }
