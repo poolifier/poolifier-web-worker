@@ -9,7 +9,7 @@
     "@poolifier/poolifier-web-worker": "npm:@jsr/poolifier__poolifier-web-worker@^0.5.14"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.21"
+    "@types/bun": "^1.2.22"
   },
   "peerDependencies": {
     "typescript": "^5.4.3"
