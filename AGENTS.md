@@ -3,7 +3,7 @@
 ## Build/Test Commands
 
 - **Test**: `deno task test` (all tests), `deno task test:parallel` (all tests
-  in parallel), `deno task test:coverage` (with coverage)
+  in parallel), `deno task test:coverage` (all tests with coverage)
 - **Single test**: `deno test -A tests/path/to/specific.test.mjs`
 - **Lint**: `deno task lint` (check), `deno task lint:fix` (autofix)
 - **Format**: `deno task format` (autoformat), `deno task format:check` (check
@@ -23,8 +23,8 @@
   assertions (`!`)
 - **Async**: Prefer async/await, handle rejections with try/catch
 - **Error handling**: Typed errors with structured properties
-- **Worker patterns**: Broadcast channels for worker communication, store
-  Promise resolvers in Maps
+- **Worker patterns**: MessageChannel/MessagePort for worker communication,
+  postMessage/onmessage for worker messaging, store Promise resolvers in Maps
 - **Testing**: Use `@std/expect` and `@std/testing/bdd`, `.mjs` extension for
   test files
 
