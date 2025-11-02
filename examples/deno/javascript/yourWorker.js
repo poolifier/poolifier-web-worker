@@ -1,5 +1,9 @@
 import { ThreadWorker } from '@poolifier/poolifier-web-worker'
 
+/**
+ * Example worker function that performs JSON serialization operations.
+ * @returns The result indicating successful completion.
+ */
 function yourFunction() {
   for (let i = 0; i <= 1000; i++) {
     const o = {

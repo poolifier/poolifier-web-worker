@@ -14,7 +14,8 @@ export class FixedPriorityQueue<T> extends AbstractFixedQueue<T>
 
   /**
    * Constructs a FixedPriorityQueue.
-   * @param size - Fixed queue size. @defaultValue defaultQueueSize
+   * @param size - Fixed queue size.
+   * @defaultValue defaultQueueSize
    * @param agingFactor - Aging factor to apply to items (priority points per millisecond).
    * @param loadExponent - Load exponent applied to normalized load when computing effective aging.
    * @returns IFixedQueue.
