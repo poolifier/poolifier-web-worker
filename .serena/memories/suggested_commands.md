@@ -2,7 +2,7 @@
 
 ## Development Commands
 
-- `deno task test` - Run all tests
+- `deno task test` - Run tests
 - `deno task test:parallel` - Run tests in parallel
 - `deno task test:coverage` - Run tests with coverage
 - `deno test -A tests/path/to/specific.test.mjs` - Run single test file
@@ -16,8 +16,9 @@
 ## Benchmarking Commands
 
 - `deno task benchmark:deno` - Run Deno benchmarks
-- `deno task benchmark:tatami-ng` - Run Tatami-ng benchmarks
-- `deno task benchmark:tatami-ng:debug` - Run benchmarks with debugging
+- `deno task benchmark:tinybench` - Run Tinybench benchmarks
+- `deno task benchmark:tinybench:debug` - Run Tinybench benchmarks with
+  debugging
 
 ## Documentation
 
