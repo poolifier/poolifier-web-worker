@@ -22,7 +22,7 @@ the main event loop.
 - **Runtime**: Deno, Bun, Browser
 - **Language**: TypeScript with ESM modules
 - **Testing**: Deno test framework with @std/expect
-- **Benchmarking**: Tatami-ng and built-in Deno bench
+- **Benchmarking**: Tinybench and built-in Deno bench
 - **Formatting**: Deno fmt (2-space, single quotes, no semicolons)
 - **Linting**: Deno lint
 
