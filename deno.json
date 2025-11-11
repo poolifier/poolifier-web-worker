@@ -35,7 +35,7 @@
     "tinybench": "npm:tinybench@^5.1.0",
     "@std/cli": "jsr:@std/cli@^1.0.23",
     "@std/expect": "jsr:@std/expect@^1.0.17",
-    "@std/testing": "jsr:@std/testing@^1.0.15"
+    "@std/testing": "jsr:@std/testing@^1.0.16"
   },
   "publish": {
     "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
