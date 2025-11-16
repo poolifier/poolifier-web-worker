@@ -197,7 +197,7 @@ export interface PoolOptions {
   /**
    * The default worker choice strategy to use in this pool.
    *
-   * @defaultValue WorkerChoiceStrategies.ROUND_ROBIN
+   * @defaultValue WorkerChoiceStrategies.LEAST_USED
    */
   workerChoiceStrategy?: WorkerChoiceStrategy
   /**

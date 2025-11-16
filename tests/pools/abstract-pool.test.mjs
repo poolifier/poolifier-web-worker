@@ -220,7 +220,7 @@ describe({
         enableEvents: true,
         restartWorkerOnError: true,
         enableTasksQueue: false,
-        workerChoiceStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED,
       })
       for (
         const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
@@ -769,7 +769,7 @@ describe({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: 0,
         minSize: numberOfWorkers,
         maxSize: numberOfWorkers,
@@ -792,7 +792,7 @@ describe({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: 0,
         minSize: Math.floor(numberOfWorkers / 2),
         maxSize: numberOfWorkers,
@@ -1155,7 +1155,7 @@ describe({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: expect.any(Number),
         minSize: Math.floor(numberOfWorkers / 2),
         maxSize: numberOfWorkers,
@@ -1199,7 +1199,7 @@ describe({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: expect.any(Number),
         minSize: numberOfWorkers,
         maxSize: numberOfWorkers,
@@ -1217,7 +1217,7 @@ describe({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: expect.any(Number),
         minSize: numberOfWorkers,
         maxSize: numberOfWorkers,
@@ -1262,7 +1262,7 @@ describe({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: expect.any(Number),
         minSize: Math.floor(numberOfWorkers / 2),
         maxSize: numberOfWorkers,
@@ -1282,7 +1282,7 @@ describe({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: expect.any(Number),
         minSize: Math.floor(numberOfWorkers / 2),
         maxSize: numberOfWorkers,
@@ -1330,7 +1330,7 @@ describe({
         started: true,
         ready: true,
         backPressure: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: expect.any(Number),
         minSize: numberOfWorkers,
         maxSize: numberOfWorkers,
@@ -1354,7 +1354,7 @@ describe({
         started: true,
         ready: true,
         backPressure: false,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: expect.any(Number),
         minSize: numberOfWorkers,
         maxSize: numberOfWorkers,
@@ -1401,7 +1401,7 @@ describe({
         worker: WorkerTypes.web,
         started: true,
         ready: true,
-        defaultStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        defaultStrategy: WorkerChoiceStrategies.LEAST_USED,
         strategyRetries: expect.any(Number),
         minSize: 0,
         maxSize: numberOfWorkers,
@@ -1581,7 +1581,7 @@ describe({
       expect([
         ...dynamicThreadPool.workerChoiceStrategiesContext
           .workerChoiceStrategies.keys(),
-      ]).toStrictEqual([WorkerChoiceStrategies.ROUND_ROBIN])
+      ]).toStrictEqual([WorkerChoiceStrategies.LEAST_USED])
       const echoTaskFunction = (data) => {
         return data
       }
@@ -1600,7 +1600,7 @@ describe({
         ...dynamicThreadPool.workerChoiceStrategiesContext
           .workerChoiceStrategies.keys(),
       ]).toStrictEqual([
-        WorkerChoiceStrategies.ROUND_ROBIN,
+        WorkerChoiceStrategies.LEAST_USED,
         WorkerChoiceStrategies.LEAST_BUSY,
       ])
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
@@ -1702,7 +1702,7 @@ describe({
         ...dynamicThreadPool.workerChoiceStrategiesContext
           .workerChoiceStrategies.keys(),
       ]).toStrictEqual([
-        WorkerChoiceStrategies.ROUND_ROBIN,
+        WorkerChoiceStrategies.LEAST_USED,
         WorkerChoiceStrategies.LEAST_BUSY,
       ])
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
@@ -1718,7 +1718,7 @@ describe({
       expect([
         ...dynamicThreadPool.workerChoiceStrategiesContext
           .workerChoiceStrategies.keys(),
-      ]).toStrictEqual([WorkerChoiceStrategies.ROUND_ROBIN])
+      ]).toStrictEqual([WorkerChoiceStrategies.LEAST_USED])
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
         { name: DEFAULT_TASK_NAME },
         { name: 'test' },

@@ -156,7 +156,7 @@ An object with these properties:
   `WorkerChoiceStrategies.INTERLEAVED_WEIGHTED_ROUND_ROBIN` and
   `WorkerChoiceStrategies.FAIR_SHARE` strategies are targeted to heavy and long
   tasks.\
-  Default: `WorkerChoiceStrategies.ROUND_ROBIN`
+  Default: `WorkerChoiceStrategies.LEAST_USED`
 
 - `workerChoiceStrategyOptions` (optional) - The worker choice strategy options
   object to use in this pool.\
