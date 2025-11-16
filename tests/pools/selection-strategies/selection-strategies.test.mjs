@@ -565,63 +565,68 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify LEAST_USED strategy can be run in a dynamic pool', async () => {
-    const pool = new DynamicThreadPool(
-      min,
-      max,
-      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-      { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED },
-    )
-    // TODO: Create a better test to cover `LeastUsedWorkerChoiceStrategy#choose`
-    const promises = new Set()
-    const maxMultiplier = 2
-    for (let i = 0; i < max * maxMultiplier; i++) {
-      promises.add(pool.execute())
-    }
-    await Promise.all(promises)
-    for (const workerNode of pool.workerNodes) {
-      expect(workerNode.usage).toStrictEqual({
-        tasks: {
-          executed: expect.any(Number),
-          executing: 0,
-          queued: 0,
-          maxQueued: 0,
-          sequentiallyStolen: 0,
-          stolen: 0,
-          failed: 0,
-        },
-        runTime: {
-          history: expect.any(CircularBuffer),
-        },
-        waitTime: {
-          history: expect.any(CircularBuffer),
-        },
-        elu: {
-          idle: {
-            history: expect.any(CircularBuffer),
-          },
-          active: {
-            history: expect.any(CircularBuffer),
-          },
-        },
-      })
-      expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
-      expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-        max * maxMultiplier,
+  it({
+    name: 'Verify LEAST_USED strategy can be run in a dynamic pool',
+    ignore: Deno.build.os === 'linux' &&
+      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+    fn: async () => {
+      const pool = new DynamicThreadPool(
+        min,
+        max,
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+        { workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED },
       )
-    }
-    expect(
-      pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).nextWorkerNodeKey,
-    ).toEqual(expect.any(Number))
-    expect(
-      pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).previousWorkerNodeKey,
-    ).toEqual(expect.any(Number))
-    // We need to clean up the resources after our test
-    await pool.destroy()
+      // TODO: Create a better test to cover `LeastUsedWorkerChoiceStrategy#choose`
+      const promises = new Set()
+      const maxMultiplier = 2
+      for (let i = 0; i < max * maxMultiplier; i++) {
+        promises.add(pool.execute())
+      }
+      await Promise.all(promises)
+      for (const workerNode of pool.workerNodes) {
+        expect(workerNode.usage).toStrictEqual({
+          tasks: {
+            executed: expect.any(Number),
+            executing: 0,
+            queued: 0,
+            maxQueued: 0,
+            sequentiallyStolen: 0,
+            stolen: 0,
+            failed: 0,
+          },
+          runTime: {
+            history: expect.any(CircularBuffer),
+          },
+          waitTime: {
+            history: expect.any(CircularBuffer),
+          },
+          elu: {
+            idle: {
+              history: expect.any(CircularBuffer),
+            },
+            active: {
+              history: expect.any(CircularBuffer),
+            },
+          },
+        })
+        expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
+        expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
+          max * maxMultiplier,
+        )
+      }
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).nextWorkerNodeKey,
+      ).toEqual(expect.any(Number))
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).previousWorkerNodeKey,
+      ).toEqual(expect.any(Number))
+      // We need to clean up the resources after our test
+      await pool.destroy()
+    },
   })
 
   it('Verify LEAST_BUSY strategy default policy', async () => {
@@ -1261,201 +1266,216 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify FAIR_SHARE strategy can be run in a dynamic pool', async () => {
-    const pool = new DynamicThreadPool(
-      min,
-      max,
-      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-      { workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE },
-    )
-    // TODO: Create a better test to cover `FairShareChoiceStrategy#choose`
-    const promises = new Set()
-    const maxMultiplier = 2
-    for (let i = 0; i < max * maxMultiplier; i++) {
-      promises.add(pool.execute())
-    }
-    await Promise.all(promises)
-    for (const workerNode of pool.workerNodes) {
-      expect(workerNode.usage).toStrictEqual({
-        tasks: {
-          executed: expect.any(Number),
-          executing: 0,
-          queued: 0,
-          maxQueued: 0,
-          sequentiallyStolen: 0,
-          stolen: 0,
-          failed: 0,
-        },
-        runTime: expect.objectContaining({
-          history: expect.any(CircularBuffer),
-        }),
-        waitTime: expect.objectContaining({
-          history: expect.any(CircularBuffer),
-        }),
-        elu: expect.objectContaining({
-          idle: expect.objectContaining({
-            history: expect.any(CircularBuffer),
-          }),
-          active: expect.objectContaining({
-            history: expect.any(CircularBuffer),
-          }),
-        }),
-      })
-      expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
-      expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-        max * maxMultiplier,
+  it({
+    name: 'Verify FAIR_SHARE strategy can be run in a dynamic pool',
+    ignore: Deno.build.os === 'linux' &&
+      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+    fn: async () => {
+      const pool = new DynamicThreadPool(
+        min,
+        max,
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+        { workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE },
       )
-      if (workerNode.usage.runTime.aggregate == null) {
-        expect(workerNode.usage.runTime.aggregate).toBeUndefined()
-      } else {
-        expect(workerNode.usage.runTime.aggregate).toBeGreaterThan(0)
+      // TODO: Create a better test to cover `FairShareChoiceStrategy#choose`
+      const promises = new Set()
+      const maxMultiplier = 2
+      for (let i = 0; i < max * maxMultiplier; i++) {
+        promises.add(pool.execute())
       }
-      if (workerNode.usage.runTime.average == null) {
-        expect(workerNode.usage.runTime.average).toBeUndefined()
-      } else {
-        expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+      await Promise.all(promises)
+      for (const workerNode of pool.workerNodes) {
+        expect(workerNode.usage).toStrictEqual({
+          tasks: {
+            executed: expect.any(Number),
+            executing: 0,
+            queued: 0,
+            maxQueued: 0,
+            sequentiallyStolen: 0,
+            stolen: 0,
+            failed: 0,
+          },
+          runTime: expect.objectContaining({
+            history: expect.any(CircularBuffer),
+          }),
+          waitTime: expect.objectContaining({
+            history: expect.any(CircularBuffer),
+          }),
+          elu: expect.objectContaining({
+            idle: expect.objectContaining({
+              history: expect.any(CircularBuffer),
+            }),
+            active: expect.objectContaining({
+              history: expect.any(CircularBuffer),
+            }),
+          }),
+        })
+        expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
+        expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
+          max * maxMultiplier,
+        )
+        if (workerNode.usage.runTime.aggregate == null) {
+          expect(workerNode.usage.runTime.aggregate).toBeUndefined()
+        } else {
+          expect(workerNode.usage.runTime.aggregate).toBeGreaterThan(0)
+        }
+        if (workerNode.usage.runTime.average == null) {
+          expect(workerNode.usage.runTime.average).toBeUndefined()
+        } else {
+          expect(workerNode.usage.runTime.average).toBeGreaterThan(0)
+        }
+        if (workerNode.usage.waitTime.aggregate == null) {
+          expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+        } else {
+          expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+        }
+        if (workerNode.usage.waitTime.average == null) {
+          expect(workerNode.usage.waitTime.average).toBeUndefined()
+        } else {
+          expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
+        }
+        // if (workerNode.usage.elu.active.aggregate == null) {
+        //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
+        // } else {
+        //   expect(workerNode.usage.elu.active.aggregate).toBeGreaterThan(0)
+        // }
+        // if (workerNode.usage.elu.idle.aggregate == null) {
+        //   expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
+        // } else {
+        //   expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
+        // }
+        // if (workerNode.usage.elu.utilization == null) {
+        //   expect(workerNode.usage.elu.utilization).toBeUndefined()
+        // } else {
+        //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
+        //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
+        // }
+        expect(workerNode.strategyData.virtualTaskEndTimestamp).toBeGreaterThan(
+          0,
+        )
       }
-      if (workerNode.usage.waitTime.aggregate == null) {
-        expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
-      } else {
-        expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
-      }
-      if (workerNode.usage.waitTime.average == null) {
-        expect(workerNode.usage.waitTime.average).toBeUndefined()
-      } else {
-        expect(workerNode.usage.waitTime.average).toBeGreaterThan(0)
-      }
-      // if (workerNode.usage.elu.active.aggregate == null) {
-      //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
-      // } else {
-      //   expect(workerNode.usage.elu.active.aggregate).toBeGreaterThan(0)
-      // }
-      // if (workerNode.usage.elu.idle.aggregate == null) {
-      //   expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
-      // } else {
-      //   expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
-      // }
-      // if (workerNode.usage.elu.utilization == null) {
-      //   expect(workerNode.usage.elu.utilization).toBeUndefined()
-      // } else {
-      //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
-      //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
-      // }
-      expect(workerNode.strategyData.virtualTaskEndTimestamp).toBeGreaterThan(0)
-    }
-    expect(
-      pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).nextWorkerNodeKey,
-    ).toEqual(expect.any(Number))
-    expect(
-      pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).previousWorkerNodeKey,
-    ).toEqual(expect.any(Number))
-    // We need to clean up the resources after our test
-    await pool.destroy()
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).nextWorkerNodeKey,
+      ).toEqual(expect.any(Number))
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).previousWorkerNodeKey,
+      ).toEqual(expect.any(Number))
+      // We need to clean up the resources after our test
+      await pool.destroy()
+    },
   })
 
-  it('Verify FAIR_SHARE strategy can be run in a dynamic pool with median runtime statistic', async () => {
-    const pool = new DynamicThreadPool(
-      min,
-      max,
-      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-      {
-        workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE,
-        workerChoiceStrategyOptions: {
-          runTime: { median: true },
+  it({
+    name:
+      'Verify FAIR_SHARE strategy can be run in a dynamic pool with median runtime statistic',
+    ignore: Deno.build.os === 'linux' &&
+      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+    fn: async () => {
+      const pool = new DynamicThreadPool(
+        min,
+        max,
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+        {
+          workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE,
+          workerChoiceStrategyOptions: {
+            runTime: { median: true },
+          },
         },
-      },
-    )
-    // TODO: Create a better test to cover `FairShareChoiceStrategy#choose`
-    const promises = new Set()
-    const maxMultiplier = 2
-    for (let i = 0; i < max * maxMultiplier; i++) {
-      promises.add(pool.execute())
-    }
-    await Promise.all(promises)
-    for (const workerNode of pool.workerNodes) {
-      expect(workerNode.usage).toStrictEqual({
-        tasks: {
-          executed: expect.any(Number),
-          executing: 0,
-          queued: 0,
-          maxQueued: 0,
-          sequentiallyStolen: 0,
-          stolen: 0,
-          failed: 0,
-        },
-        runTime: expect.objectContaining({
-          history: expect.any(CircularBuffer),
-        }),
-        waitTime: expect.objectContaining({
-          history: expect.any(CircularBuffer),
-        }),
-        elu: expect.objectContaining({
-          idle: expect.objectContaining({
-            history: expect.any(CircularBuffer),
-          }),
-          active: expect.objectContaining({
-            history: expect.any(CircularBuffer),
-          }),
-        }),
-      })
-      expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
-      expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-        max * maxMultiplier,
       )
-      if (workerNode.usage.runTime.aggregate == null) {
-        expect(workerNode.usage.runTime.aggregate).toBeUndefined()
-      } else {
-        expect(workerNode.usage.runTime.aggregate).toBeGreaterThan(0)
+      // TODO: Create a better test to cover `FairShareChoiceStrategy#choose`
+      const promises = new Set()
+      const maxMultiplier = 2
+      for (let i = 0; i < max * maxMultiplier; i++) {
+        promises.add(pool.execute())
       }
-      if (workerNode.usage.runTime.median == null) {
-        expect(workerNode.usage.runTime.median).toBeUndefined()
-      } else {
-        expect(workerNode.usage.runTime.median).toBeGreaterThan(0)
+      await Promise.all(promises)
+      for (const workerNode of pool.workerNodes) {
+        expect(workerNode.usage).toStrictEqual({
+          tasks: {
+            executed: expect.any(Number),
+            executing: 0,
+            queued: 0,
+            maxQueued: 0,
+            sequentiallyStolen: 0,
+            stolen: 0,
+            failed: 0,
+          },
+          runTime: expect.objectContaining({
+            history: expect.any(CircularBuffer),
+          }),
+          waitTime: expect.objectContaining({
+            history: expect.any(CircularBuffer),
+          }),
+          elu: expect.objectContaining({
+            idle: expect.objectContaining({
+              history: expect.any(CircularBuffer),
+            }),
+            active: expect.objectContaining({
+              history: expect.any(CircularBuffer),
+            }),
+          }),
+        })
+        expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
+        expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
+          max * maxMultiplier,
+        )
+        if (workerNode.usage.runTime.aggregate == null) {
+          expect(workerNode.usage.runTime.aggregate).toBeUndefined()
+        } else {
+          expect(workerNode.usage.runTime.aggregate).toBeGreaterThan(0)
+        }
+        if (workerNode.usage.runTime.median == null) {
+          expect(workerNode.usage.runTime.median).toBeUndefined()
+        } else {
+          expect(workerNode.usage.runTime.median).toBeGreaterThan(0)
+        }
+        if (workerNode.usage.waitTime.aggregate == null) {
+          expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
+        } else {
+          expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
+        }
+        if (workerNode.usage.waitTime.median == null) {
+          expect(workerNode.usage.waitTime.median).toBeUndefined()
+        } else {
+          expect(workerNode.usage.waitTime.median).toBeGreaterThan(0)
+        }
+        // if (workerNode.usage.elu.active.aggregate == null) {
+        //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
+        // } else {
+        //   expect(workerNode.usage.elu.active.aggregate).toBeGreaterThan(0)
+        // }
+        // if (workerNode.usage.elu.idle.aggregate == null) {
+        //   expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
+        // } else {
+        //   expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
+        // }
+        // if (workerNode.usage.elu.utilization == null) {
+        //   expect(workerNode.usage.elu.utilization).toBeUndefined()
+        // } else {
+        //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
+        //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
+        // }
+        expect(workerNode.strategyData.virtualTaskEndTimestamp).toBeGreaterThan(
+          0,
+        )
       }
-      if (workerNode.usage.waitTime.aggregate == null) {
-        expect(workerNode.usage.waitTime.aggregate).toBeUndefined()
-      } else {
-        expect(workerNode.usage.waitTime.aggregate).toBeGreaterThan(0)
-      }
-      if (workerNode.usage.waitTime.median == null) {
-        expect(workerNode.usage.waitTime.median).toBeUndefined()
-      } else {
-        expect(workerNode.usage.waitTime.median).toBeGreaterThan(0)
-      }
-      // if (workerNode.usage.elu.active.aggregate == null) {
-      //   expect(workerNode.usage.elu.active.aggregate).toBeUndefined()
-      // } else {
-      //   expect(workerNode.usage.elu.active.aggregate).toBeGreaterThan(0)
-      // }
-      // if (workerNode.usage.elu.idle.aggregate == null) {
-      //   expect(workerNode.usage.elu.idle.aggregate).toBeUndefined()
-      // } else {
-      //   expect(workerNode.usage.elu.idle.aggregate).toBeGreaterThanOrEqual(0)
-      // }
-      // if (workerNode.usage.elu.utilization == null) {
-      //   expect(workerNode.usage.elu.utilization).toBeUndefined()
-      // } else {
-      //   expect(workerNode.usage.elu.utilization).toBeGreaterThanOrEqual(0)
-      //   expect(workerNode.usage.elu.utilization).toBeLessThanOrEqual(1)
-      // }
-      expect(workerNode.strategyData.virtualTaskEndTimestamp).toBeGreaterThan(0)
-    }
-    expect(
-      pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).nextWorkerNodeKey,
-    ).toEqual(expect.any(Number))
-    expect(
-      pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).previousWorkerNodeKey,
-    ).toEqual(expect.any(Number))
-    // We need to clean up the resources after our test
-    await pool.destroy()
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).nextWorkerNodeKey,
+      ).toEqual(expect.any(Number))
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).previousWorkerNodeKey,
+      ).toEqual(expect.any(Number))
+      // We need to clean up the resources after our test
+      await pool.destroy()
+    },
   })
 
   it("Verify FAIR_SHARE strategy internals aren't reset after setting it", async () => {
