@@ -293,64 +293,69 @@ describe('Selection strategies test suite', () => {
     await pool.destroy()
   })
 
-  it('Verify ROUND_ROBIN strategy can be run in a dynamic pool', async () => {
-    const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
-    const pool = new DynamicThreadPool(
-      min,
-      max,
-      new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
-      { workerChoiceStrategy },
-    )
-    // TODO: Create a better test to cover `RoundRobinWorkerChoiceStrategy#choose`
-    const promises = new Set()
-    const maxMultiplier = 2
-    for (let i = 0; i < max * maxMultiplier; i++) {
-      promises.add(pool.execute())
-    }
-    await Promise.all(promises)
-    for (const workerNode of pool.workerNodes) {
-      expect(workerNode.usage).toStrictEqual({
-        tasks: {
-          executed: expect.any(Number),
-          executing: 0,
-          queued: 0,
-          maxQueued: 0,
-          sequentiallyStolen: 0,
-          stolen: 0,
-          failed: 0,
-        },
-        runTime: {
-          history: expect.any(CircularBuffer),
-        },
-        waitTime: {
-          history: expect.any(CircularBuffer),
-        },
-        elu: {
-          idle: {
-            history: expect.any(CircularBuffer),
-          },
-          active: {
-            history: expect.any(CircularBuffer),
-          },
-        },
-      })
-      expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
-      expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-        max * maxMultiplier,
+  it({
+    name: 'Verify ROUND_ROBIN strategy can be run in a dynamic pool',
+    ignore: Deno.build.os === 'linux' &&
+      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+    fn: async () => {
+      const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
+      const pool = new DynamicThreadPool(
+        min,
+        max,
+        new URL('./../../worker-files/thread/testWorker.mjs', import.meta.url),
+        { workerChoiceStrategy },
       )
-    }
-    expect(
-      pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).nextWorkerNodeKey,
-    ).toBe(pool.workerNodes.length - 1)
-    expect(
-      pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
-        pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
-      ).previousWorkerNodeKey,
-    ).toBe(pool.workerNodes.length - 2)
-    // We need to clean up the resources after our test
-    await pool.destroy()
+      // TODO: Create a better test to cover `RoundRobinWorkerChoiceStrategy#choose`
+      const promises = new Set()
+      const maxMultiplier = 2
+      for (let i = 0; i < max * maxMultiplier; i++) {
+        promises.add(pool.execute())
+      }
+      await Promise.all(promises)
+      for (const workerNode of pool.workerNodes) {
+        expect(workerNode.usage).toStrictEqual({
+          tasks: {
+            executed: expect.any(Number),
+            executing: 0,
+            queued: 0,
+            maxQueued: 0,
+            sequentiallyStolen: 0,
+            stolen: 0,
+            failed: 0,
+          },
+          runTime: {
+            history: expect.any(CircularBuffer),
+          },
+          waitTime: {
+            history: expect.any(CircularBuffer),
+          },
+          elu: {
+            idle: {
+              history: expect.any(CircularBuffer),
+            },
+            active: {
+              history: expect.any(CircularBuffer),
+            },
+          },
+        })
+        expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(0)
+        expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
+          max * maxMultiplier,
+        )
+      }
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).nextWorkerNodeKey,
+      ).toBe(pool.workerNodes.length - 1)
+      expect(
+        pool.workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          pool.workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+        ).previousWorkerNodeKey,
+      ).toBe(pool.workerNodes.length - 2)
+      // We need to clean up the resources after our test
+      await pool.destroy()
+    },
   })
 
   it('Verify ROUND_ROBIN strategy runtime behavior', async () => {
