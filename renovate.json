@@ -3,5 +3,8 @@
   "extends": ["config:recommended", "group:allNonMajor", "schedule:daily"],
   "lockFileMaintenance": {
     "enabled": true
+  },
+  "deno": {
+    "enabled": true
   }
 }
