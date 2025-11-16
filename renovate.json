@@ -4,13 +4,5 @@
   "lockFileMaintenance": {
     "enabled": true
   },
-  "packageRules": [
-    // {
-    //   "matchFileNames": ["deno.json"]
-    // },
-    {
-      "matchFileNames": ["examples/**"],
-      "groupName": "examples dependencies"
-    }
-  ]
+  "includePaths": ["examples/**"]
 }
