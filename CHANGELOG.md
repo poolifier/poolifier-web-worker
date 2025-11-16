@@ -6,6 +6,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.15](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.14...v0.5.15) (2025-11-16)
+
+
+### 🐞 Bug Fixes
+
+* potention race on circular buffer size ([6a9fcd0](https://github.com/poolifier/poolifier-web-worker/commit/6a9fcd0e7fb6348f2cec8341070347f124a42d9f))
+* safe access to tasks queue size ([0771f47](https://github.com/poolifier/poolifier-web-worker/commit/0771f474c70eed6ec122cf6769bb353cff48b555))
+
+
+### ⚡ Performance
+
+* switch default worker choice strategy to LEAST_USED ([7e160a5](https://github.com/poolifier/poolifier-web-worker/commit/7e160a52849c4097f7615cc31c5e4fcdf3805d94))
+
+
+### ✨ Polish
+
+* cleanup main deno.json ([7bf4372](https://github.com/poolifier/poolifier-web-worker/commit/7bf4372742f5ab43198b9d988e4f6894bec4cc83))
+* cleanup type casting ([6abbc70](https://github.com/poolifier/poolifier-web-worker/commit/6abbc70058e293f98fabde6ad11bf1a21dff35fb))
+* switch benchmarks to tinybench ([6ffb0c7](https://github.com/poolifier/poolifier-web-worker/commit/6ffb0c7f1626a2adeccc2fb67a275d21939b4672))
+
+
+### 🧪 Tests
+
+* also tests properly for round robin strategy ([c620e5f](https://github.com/poolifier/poolifier-web-worker/commit/c620e5fea22b631c3879a1d833d951112548bf8f))
+* ignore flaky on linux and deno version &gt;= 2 ([e4eec99](https://github.com/poolifier/poolifier-web-worker/commit/e4eec994350df4486f552dd4902cdcd22c41746f))
+* ignore flaky tests on linux and deno version &gt;= 2 ([abf3127](https://github.com/poolifier/poolifier-web-worker/commit/abf312759180f5d0481db5055346d1eeb88b81d3))
+
+
+### 🤖 Automation
+
+* **deps:** Bump actions/setup-node from 4 to 5 ([#105](https://github.com/poolifier/poolifier-web-worker/issues/105)) ([cb4aab3](https://github.com/poolifier/poolifier-web-worker/commit/cb4aab38abce29ea5bab1b2433b82c88b116277f))
+* **deps:** Bump actions/setup-node from 5 to 6 ([#109](https://github.com/poolifier/poolifier-web-worker/issues/109)) ([27b1db2](https://github.com/poolifier/poolifier-web-worker/commit/27b1db2bd28410ff5b975bf99f1e26a5a4f23ef3))
+* **deps:** Bump github/codeql-action from 3 to 4 ([#108](https://github.com/poolifier/poolifier-web-worker/issues/108)) ([54b815e](https://github.com/poolifier/poolifier-web-worker/commit/54b815ec96f090651264c55d3778d26b24ff580e))
+* **deps:** Bump sonarsource/sonarqube-scan-action from 5.3.0 to 5.3.1 ([#104](https://github.com/poolifier/poolifier-web-worker/issues/104)) ([f6a52c4](https://github.com/poolifier/poolifier-web-worker/commit/f6a52c4ee0049be84e00ef78985f9bff06e7219d))
+* **deps:** Bump sonarsource/sonarqube-scan-action from 5.3.1 to 6.0.0 ([#106](https://github.com/poolifier/poolifier-web-worker/issues/106)) ([257c4e8](https://github.com/poolifier/poolifier-web-worker/commit/257c4e80529095ac7aaa1cdb1f50735a1223ca0f))
+
 ## [0.5.14](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.13...v0.5.14) (2025-08-26)
 
 ### 🐞 Bug Fixes
