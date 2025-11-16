@@ -11,6 +11,7 @@ import { InterleavedWeightedRoundRobinWorkerChoiceStrategy } from '../../../src/
 import { LeastBusyWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/least-busy-worker-choice-strategy.ts'
 // import { LeastEluWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/least-elu-worker-choice-strategy.ts'
 import { LeastUsedWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/least-used-worker-choice-strategy.ts'
+import { RoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/round-robin-worker-choice-strategy.ts'
 import { WeightedRoundRobinWorkerChoiceStrategy } from '../../../src/pools/selection-strategies/weighted-round-robin-worker-choice-strategy.ts'
 import { WorkerChoiceStrategiesContext } from '../../../src/pools/selection-strategies/worker-choice-strategies-context.ts'
 
@@ -206,13 +207,13 @@ describe('Worker choice strategies context test suite', () => {
       ),
     ).toBeInstanceOf(LeastUsedWorkerChoiceStrategy)
     workerChoiceStrategiesContext.setDefaultWorkerChoiceStrategy(
-      WorkerChoiceStrategies.LEAST_USED,
+      WorkerChoiceStrategies.ROUND_ROBIN,
     )
     expect(
       workerChoiceStrategiesContext.workerChoiceStrategies.get(
         workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
       ),
-    ).toBeInstanceOf(LeastUsedWorkerChoiceStrategy)
+    ).toBeInstanceOf(RoundRobinWorkerChoiceStrategy)
   })
 
   it('Verify that setDefaultWorkerChoiceStrategy() works with ROUND_ROBIN and dynamic pool', () => {
@@ -225,13 +226,13 @@ describe('Worker choice strategies context test suite', () => {
       ),
     ).toBeInstanceOf(LeastUsedWorkerChoiceStrategy)
     workerChoiceStrategiesContext.setDefaultWorkerChoiceStrategy(
-      WorkerChoiceStrategies.LEAST_USED,
+      WorkerChoiceStrategies.ROUND_ROBIN,
     )
     expect(
       workerChoiceStrategiesContext.workerChoiceStrategies.get(
         workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
       ),
-    ).toBeInstanceOf(LeastUsedWorkerChoiceStrategy)
+    ).toBeInstanceOf(RoundRobinWorkerChoiceStrategy)
   })
 
   it('Verify that setDefaultWorkerChoiceStrategy() works with LEAST_USED and fixed pool', () => {
