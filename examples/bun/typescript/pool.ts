@@ -2,7 +2,7 @@ import {
   availableParallelism,
   DynamicThreadPool,
   FixedThreadPool,
-} from '@poolifier/poolifier-web-worker'
+} from 'poolifier-web-worker'
 import type { MyData, MyResponse } from './worker.ts'
 
 const workerFileURL = new URL('./worker.ts', import.meta.url)
