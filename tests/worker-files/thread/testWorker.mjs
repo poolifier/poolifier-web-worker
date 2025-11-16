@@ -3,8 +3,9 @@ import { TaskFunctions } from '../../test-types.mjs'
 import { executeTaskFunction } from '../../test-utils.mjs'
 
 /**
- * @param data
- * @returns
+ * Test function that executes various task functions for testing purposes.
+ * @param data - The input data containing function type and parameters.
+ * @returns The result of executing the specified task function.
  */
 function test(data) {
   data = data || {}

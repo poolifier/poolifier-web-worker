@@ -325,8 +325,8 @@ export interface IPool<
    * @param name - The name of the task function.
    * @param fn - The task function.
    * @returns `true` if the task function was added, `false` otherwise.
-   * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError} If the `name` parameter is not a string or an empty string.
-   * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError} If the `fn` parameter is not a function or task function object.
+   * @throws {TypeError} If the `name` parameter is not a string or an empty string.
+   * @throws {TypeError} If the `fn` parameter is not a function or task function object.
    */
   readonly addTaskFunction: (
     name: string,

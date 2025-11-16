@@ -2,8 +2,9 @@ import { KillBehaviors, ThreadWorker } from '../../../src/mod.ts'
 import { sleepTaskFunction } from '../../test-utils.mjs'
 
 /**
- * @param data
- * @returns
+ * Asynchronous error function for testing error handling.
+ * @param data - The input data for the error task.
+ * @returns A promise that rejects with an error after 2000ms sleep.
  */
 async function error(data) {
   return await sleepTaskFunction(

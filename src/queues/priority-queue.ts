@@ -27,8 +27,10 @@ export class PriorityQueue<T> {
   /**
    * Constructs a priority queue.
    *
-   * @param bucketSize - Prioritized bucket size. @defaultValue defaultBucketSize
-   * @param enablePriority - Whether to enable priority. @defaultValue false
+   * @param bucketSize - Prioritized bucket size.
+   * @defaultValue defaultBucketSize
+   * @param enablePriority - Whether to enable priority.
+   * @defaultValue false
    * @returns PriorityQueue.
    */
   public constructor(

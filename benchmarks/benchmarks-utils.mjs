@@ -7,7 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
-import { bench, group, run } from '@poolifier/tatami-ng'
+import { Bench } from 'tinybench'
 import {
   DynamicThreadPool,
   FixedThreadPool,
@@ -144,87 +144,6 @@ export const runPoolifierBenchmarkDenoBench = (
   }
 }
 
-export const runPoolifierBenchmarkTatamiNg = async (
-  name,
-  workerType,
-  poolType,
-  poolSize,
-  benchmarkReporter,
-  { taskExecutions, workerData },
-) => {
-  try {
-    const pool = buildPoolifierPool(workerType, poolType, poolSize)
-    for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
-      for (const enableTasksQueue of [false, true]) {
-        if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
-          for (const measurement of [Measurements.runTime]) {
-            group(name, () => {
-              bench(
-                `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
-                  enableTasksQueue ? 'with' : 'without'
-                } tasks queue`,
-                async () => {
-                  await runPoolifierPool(pool, {
-                    taskExecutions,
-                    workerData,
-                  })
-                },
-                {
-                  before: () => {
-                    pool.setWorkerChoiceStrategy(workerChoiceStrategy, {
-                      measurement,
-                    })
-                    pool.enableTasksQueue(enableTasksQueue)
-                    strictEqual(
-                      pool.opts.workerChoiceStrategy,
-                      workerChoiceStrategy,
-                    )
-                    strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
-                    strictEqual(
-                      pool.opts.workerChoiceStrategyOptions.measurement,
-                      measurement,
-                    )
-                  },
-                },
-              )
-            })
-          }
-        } else {
-          group(name, () => {
-            bench(
-              `${name} with ${workerChoiceStrategy} and ${
-                enableTasksQueue ? 'with' : 'without'
-              } tasks queue`,
-              async () => {
-                await runPoolifierPool(pool, {
-                  taskExecutions,
-                  workerData,
-                })
-              },
-              {
-                before: () => {
-                  pool.setWorkerChoiceStrategy(workerChoiceStrategy)
-                  pool.enableTasksQueue(enableTasksQueue)
-                  strictEqual(
-                    pool.opts.workerChoiceStrategy,
-                    workerChoiceStrategy,
-                  )
-                  strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
-                },
-              },
-            )
-          })
-        }
-      }
-    }
-    const report = await run({ reporter: benchmarkReporter })
-    await pool.destroy()
-    return report
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 const jsonIntegerSerialization = (n) => {
   for (let i = 0; i < n; i++) {
     const o = {
@@ -330,3 +249,104 @@ export const runtime = (() => {
   if (isBrowser) return JSRuntime.browser
   throw new Error('Unsupported JavaScript runtime environment')
 })()
+
+export const runPoolifierBenchmarkTinyBench = async (
+  name,
+  workerType,
+  poolType,
+  poolSize,
+  { taskExecutions, workerData },
+) => {
+  try {
+    const bench = new Bench()
+    const pool = buildPoolifierPool(workerType, poolType, poolSize)
+
+    for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
+      for (const enableTasksQueue of [false, true]) {
+        if (workerChoiceStrategy === WorkerChoiceStrategies.FAIR_SHARE) {
+          for (const measurement of [Measurements.runTime]) {
+            const taskName =
+              `${name} with ${workerChoiceStrategy}, with ${measurement} and ${
+                enableTasksQueue ? 'with' : 'without'
+              } tasks queue`
+
+            bench.add(
+              taskName,
+              async () => {
+                await runPoolifierPool(pool, {
+                  taskExecutions,
+                  workerData,
+                })
+              },
+              {
+                beforeAll: () => {
+                  pool.setWorkerChoiceStrategy(workerChoiceStrategy, {
+                    measurement,
+                  })
+                  pool.enableTasksQueue(enableTasksQueue)
+                  strictEqual(
+                    pool.opts.workerChoiceStrategy,
+                    workerChoiceStrategy,
+                  )
+                  strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+                  strictEqual(
+                    pool.opts.workerChoiceStrategyOptions.measurement,
+                    measurement,
+                  )
+                },
+              },
+            )
+          }
+        } else {
+          const taskName = `${name} with ${workerChoiceStrategy} and ${
+            enableTasksQueue ? 'with' : 'without'
+          } tasks queue`
+
+          bench.add(
+            taskName,
+            async () => {
+              await runPoolifierPool(pool, {
+                taskExecutions,
+                workerData,
+              })
+            },
+            {
+              beforeAll: () => {
+                pool.setWorkerChoiceStrategy(workerChoiceStrategy)
+                pool.enableTasksQueue(enableTasksQueue)
+                strictEqual(
+                  pool.opts.workerChoiceStrategy,
+                  workerChoiceStrategy,
+                )
+                strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+              },
+            },
+          )
+        }
+      }
+    }
+
+    const tasks = await bench.run()
+    console.table(bench.table())
+    await pool.destroy()
+
+    const bmfResults = {}
+    for (const task of tasks) {
+      bmfResults[task.name] = {
+        latency: {
+          value: task.result.latency.mean,
+          lower_value: task.result.latency.mean - task.result.latency.sd,
+          upper_value: task.result.latency.mean + task.result.latency.sd,
+        },
+        throughput: {
+          value: task.result.throughput.mean,
+          lower_value: task.result.throughput.mean - task.result.throughput.sd,
+          upper_value: task.result.throughput.mean + task.result.throughput.sd,
+        },
+      }
+    }
+    return bmfResults
+  } catch (error) {
+    console.error(error)
+  }
+}

@@ -9,8 +9,8 @@
   "tasks": {
     "benchmark:deno": "deno bench -A ./benchmarks/internal/bench.mjs",
     "benchmark:deno:json": "deno bench -A --json ./benchmarks/internal/bench.mjs",
-    "benchmark:tatami-ng": "deno run -A ./benchmarks/internal/bench.mjs -t tatami-ng",
-    "benchmark:tatami-ng:debug": "deno run -A --inspect ./benchmarks/internal/bench.mjs -t tatami-ng",
+    "benchmark:tinybench": "deno run -A ./benchmarks/internal/bench.mjs -t tinybench",
+    "benchmark:tinybench:debug": "deno run -A --inspect ./benchmarks/internal/bench.mjs -t tinybench",
     "bundle": "deno run -A bundle.ts",
     "test": "ENVIRONMENT=test deno test -A",
     "test:parallel": "ENVIRONMENT=test deno test -A --parallel",
@@ -32,10 +32,10 @@
     "singleQuote": true
   },
   "imports": {
-    "@poolifier/tatami-ng": "jsr:@poolifier/tatami-ng@^0.8.18",
-    "@std/cli": "jsr:@std/cli@^1.0.22",
+    "tinybench": "npm:tinybench@^5.1.0",
+    "@std/cli": "jsr:@std/cli@^1.0.23",
     "@std/expect": "jsr:@std/expect@^1.0.17",
-    "@std/testing": "jsr:@std/testing@^1.0.15"
+    "@std/testing": "jsr:@std/testing@^1.0.16"
   },
   "publish": {
     "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]

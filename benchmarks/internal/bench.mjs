@@ -1,9 +1,8 @@
-import { bmf } from '@poolifier/tatami-ng'
 import { availableParallelism, PoolTypes, WorkerTypes } from '../../src/mod.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
 import {
   runPoolifierBenchmarkDenoBench,
-  runPoolifierBenchmarkTatamiNg,
+  runPoolifierBenchmarkTinyBench,
   runtime,
 } from '../benchmarks-utils.mjs'
 
@@ -26,13 +25,12 @@ const runBenchmark = async () => {
     deno: async () => {
       const { parseArgs } = await import('@std/cli/parse-args')
       switch (parseArgs(Deno.args).t) {
-        case 'tatami-ng':
-          benchmarkReport = await runPoolifierBenchmarkTatamiNg(
+        case 'tinybench':
+          benchmarkReport = await runPoolifierBenchmarkTinyBench(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
             poolSize,
-            bmf,
             {
               taskExecutions,
               workerData,
@@ -40,12 +38,11 @@ const runBenchmark = async () => {
           )
           benchmarkReport = {
             ...benchmarkReport,
-            ...(await runPoolifierBenchmarkTatamiNg(
+            ...(await runPoolifierBenchmarkTinyBench(
               dynamicThreadPoolGroupname,
               WorkerTypes.web,
               PoolTypes.dynamic,
               poolSize,
-              bmf,
               {
                 taskExecutions,
                 workerData,
@@ -97,14 +94,13 @@ const runBenchmark = async () => {
           allowPositionals: true,
         }).values.type
       ) {
-        case 'tatami-ng':
+        case 'tinybench':
         default:
-          benchmarkReport = await runPoolifierBenchmarkTatamiNg(
+          benchmarkReport = await runPoolifierBenchmarkTinyBench(
             fixedThreadPoolGroupname,
             WorkerTypes.web,
             PoolTypes.fixed,
             poolSize,
-            bmf,
             {
               taskExecutions,
               workerData,
@@ -112,12 +108,11 @@ const runBenchmark = async () => {
           )
           benchmarkReport = {
             ...benchmarkReport,
-            ...(await runPoolifierBenchmarkTatamiNg(
+            ...(await runPoolifierBenchmarkTinyBench(
               dynamicThreadPoolGroupname,
               WorkerTypes.web,
               PoolTypes.dynamic,
               poolSize,
-              bmf,
               {
                 taskExecutions,
                 workerData,
