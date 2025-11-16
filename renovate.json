@@ -3,5 +3,14 @@
   "extends": ["config:recommended", "group:allNonMajor", "schedule:daily"],
   "lockFileMaintenance": {
     "enabled": true
-  }
+  },
+  "packageRules": [
+    // {
+    //   "matchFileNames": ["deno.json"]
+    // },
+    {
+      "matchFileNames": ["examples/**"],
+      "groupName": "examples dependencies"
+    }
+  ]
 }
