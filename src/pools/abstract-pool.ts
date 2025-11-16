@@ -2448,7 +2448,11 @@ export abstract class AbstractPool<
   }
 
   private tasksQueueSize(workerNodeKey: number): number {
-    return this.workerNodes[workerNodeKey].tasksQueueSize()
+    const workerNode = this.workerNodes[workerNodeKey]
+    if (workerNode == null) {
+      return 0
+    }
+    return workerNode.tasksQueueSize()
   }
 
   protected flushTasksQueue(workerNodeKey: number): number {
