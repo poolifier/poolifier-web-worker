@@ -4,6 +4,7 @@
   "lockFileMaintenance": {
     "enabled": true
   },
+  "rangeStrategy": "bump",
   "ignorePaths": [
     "**/node_modules/**",
     "**/bower_components/**",
