@@ -4,7 +4,12 @@
   "lockFileMaintenance": {
     "enabled": true
   },
-  "rangeStrategy": "bump",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch", "minor"],
+      "rangeStrategy": "bump"
+    }
+  ],
   "ignorePaths": [
     "**/node_modules/**",
     "**/bower_components/**",
