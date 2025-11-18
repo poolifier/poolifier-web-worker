@@ -8,12 +8,16 @@
   ],
   "packageRules": [
     {
-      "matchFileNames": ["**/package.json", "**/deno.json"],
+      "matchFileNames": ["**/package.json"],
       "matchDepTypes": [
         "dependencies",
         "devDependencies",
         "optionalDependencies"
       ],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchFileNames": ["**/deno.json"],
       "rangeStrategy": "bump"
     }
   ],
