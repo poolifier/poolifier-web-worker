@@ -1,9 +1,12 @@
 import { availableParallelism, PoolTypes, WorkerTypes } from '../../src/mod.ts'
 import { TaskFunctions } from '../benchmarks-types.mjs'
 import {
+  envGet,
+  exit,
   runPoolifierBenchmarkDenoBench,
   runPoolifierBenchmarkTinyBench,
   runtime,
+  writeFile,
 } from '../benchmarks-utils.mjs'
 
 const poolSize = availableParallelism()
@@ -13,9 +16,10 @@ const workerData = {
   taskSize: 1000,
 }
 const benchmarkReportFile = 'benchmark-report.json'
-let benchmarkReport
 
 const runBenchmark = async () => {
+  let benchmarkReport = {}
+
   const fixedThreadPoolGroupname = `FixedThreadPool on ${runtime}`
   const dynamicThreadPoolGroupname = `DynamicThreadPool on ${runtime}`
   return await {
@@ -49,11 +53,6 @@ const runBenchmark = async () => {
               },
             )),
           }
-          Deno.env.get('CI') != null &&
-            Deno.writeTextFileSync(
-              benchmarkReportFile,
-              JSON.stringify(benchmarkReport),
-            )
           break
         default:
           runPoolifierBenchmarkDenoBench(
@@ -78,6 +77,7 @@ const runBenchmark = async () => {
           )
           break
       }
+      return benchmarkReport
     },
     bun: async () => {
       const { parseArgs } = await import('util')
@@ -119,15 +119,19 @@ const runBenchmark = async () => {
               },
             )),
           }
-          Bun.env.CI != null &&
-            (await Bun.write(
-              benchmarkReportFile,
-              JSON.stringify(benchmarkReport),
-            ))
           break
       }
+      return benchmarkReport
     },
   }[runtime]()
 }
 
-await runBenchmark()
+try {
+  const benchmarkReport = await runBenchmark()
+  if (envGet('CI') != null) {
+    await writeFile(benchmarkReportFile, JSON.stringify(benchmarkReport))
+  }
+} catch (error) {
+  console.error(error)
+  exit(1)
+}

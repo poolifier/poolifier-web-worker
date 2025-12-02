@@ -296,7 +296,7 @@ describe('Selection strategies test suite', () => {
   it({
     name: 'Verify ROUND_ROBIN strategy can be run in a dynamic pool',
     ignore: Deno.build.os === 'linux' &&
-      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
     fn: async () => {
       const workerChoiceStrategy = WorkerChoiceStrategies.ROUND_ROBIN
       const pool = new DynamicThreadPool(
@@ -568,7 +568,7 @@ describe('Selection strategies test suite', () => {
   it({
     name: 'Verify LEAST_USED strategy can be run in a dynamic pool',
     ignore: Deno.build.os === 'linux' &&
-      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
     fn: async () => {
       const pool = new DynamicThreadPool(
         min,
@@ -1269,7 +1269,7 @@ describe('Selection strategies test suite', () => {
   it({
     name: 'Verify FAIR_SHARE strategy can be run in a dynamic pool',
     ignore: Deno.build.os === 'linux' &&
-      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
     fn: async () => {
       const pool = new DynamicThreadPool(
         min,
@@ -1373,7 +1373,7 @@ describe('Selection strategies test suite', () => {
     name:
       'Verify FAIR_SHARE strategy can be run in a dynamic pool with median runtime statistic',
     ignore: Deno.build.os === 'linux' &&
-      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
     fn: async () => {
       const pool = new DynamicThreadPool(
         min,
@@ -1680,7 +1680,7 @@ describe('Selection strategies test suite', () => {
   it({
     name: 'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
     ignore: Deno.build.os === 'linux' &&
-      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
     fn: async () => {
       const pool = new DynamicThreadPool(
         min,
@@ -1770,7 +1770,7 @@ describe('Selection strategies test suite', () => {
     name:
       'Verify WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool with median runtime statistic',
     ignore: Deno.build.os === 'linux' &&
-      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
     fn: async () => {
       const pool = new DynamicThreadPool(
         min,
@@ -2120,7 +2120,7 @@ describe('Selection strategies test suite', () => {
     name:
       'Verify INTERLEAVED_WEIGHTED_ROUND_ROBIN strategy can be run in a dynamic pool',
     ignore: Deno.build.os === 'linux' &&
-      parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
     fn: async () => {
       const pool = new DynamicThreadPool(
         min,

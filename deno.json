@@ -3,9 +3,7 @@
   "version": "0.5.15",
   "exports": "./src/mod.ts",
   "compilerOptions": {
-    "lib": [
-      "deno.worker"
-    ],
+    "lib": ["deno.worker"],
     "strict": true
   },
   "tasks": {
@@ -27,33 +25,21 @@
     "documentation": "deno doc ./src/mod.ts"
   },
   "test": {
-    "include": [
-      "./tests/**/*.test.mjs"
-    ]
+    "include": ["./tests/**/*.test.mjs"]
   },
   "fmt": {
     "semiColons": false,
     "singleQuote": true
   },
   "imports": {
-    "tinybench": "npm:tinybench@^5.1.0",
+    "tinybench": "npm:tinybench@^6.0.0",
     "@std/cli": "jsr:@std/cli@^1.0.23",
     "@std/expect": "jsr:@std/expect@^1.0.17",
     "@std/testing": "jsr:@std/testing@^1.0.16"
   },
   "publish": {
-    "include": [
-      "LICENSE",
-      "README.md",
-      "deno.json",
-      "src/**/*.ts"
-    ]
+    "include": ["LICENSE", "README.md", "deno.json", "src/**/*.ts"]
   },
-  "exclude": [
-    "./coverage",
-    "./dist/browser",
-    "./dist/esm",
-    "./npm"
-  ],
+  "exclude": ["./coverage", "./dist/browser", "./dist/esm", "./npm"],
   "lock": false
 }

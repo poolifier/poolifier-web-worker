@@ -70,31 +70,34 @@ const buildPoolifierBenchmarkDenoBench = (
     } and ${enableTasksQueue ? 'with' : 'without'} tasks queue`,
     { group: `${name}` },
     async (b) => {
-      const pool = buildPoolifierPool(
-        workerType,
-        poolType,
-        poolSize,
-        poolOptions,
-      )
-      if (workerChoiceStrategy != null) {
-        strictEqual(pool.opts.workerChoiceStrategy, workerChoiceStrategy)
+      let pool
+      try {
+        pool = buildPoolifierPool(workerType, poolType, poolSize, poolOptions)
+        if (workerChoiceStrategy != null) {
+          strictEqual(pool.opts.workerChoiceStrategy, workerChoiceStrategy)
+        }
+        if (enableTasksQueue != null) {
+          strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
+        }
+        if (measurement != null) {
+          strictEqual(
+            pool.opts.workerChoiceStrategyOptions.measurement,
+            measurement,
+          )
+        }
+        b.start()
+        await runPoolifierPool(pool, {
+          taskExecutions,
+          workerData,
+        })
+        b.end()
+      } catch (error) {
+        console.error(error)
+      } finally {
+        if (pool != null) {
+          await pool.destroy()
+        }
       }
-      if (enableTasksQueue != null) {
-        strictEqual(pool.opts.enableTasksQueue, enableTasksQueue)
-      }
-      if (measurement != null) {
-        strictEqual(
-          pool.opts.workerChoiceStrategyOptions.measurement,
-          measurement,
-        )
-      }
-      b.start()
-      await runPoolifierPool(pool, {
-        taskExecutions,
-        workerData,
-      })
-      b.end()
-      await pool.destroy()
     },
   )
 }
@@ -250,6 +253,35 @@ export const runtime = (() => {
   throw new Error('Unsupported JavaScript runtime environment')
 })()
 
+export const envGet = (key) => {
+  return {
+    browser: () => undefined,
+    deno: () => Deno?.env?.get?.(key),
+    bun: () => Bun?.env?.[key],
+  }[runtime]()
+}
+
+export const writeFile = (filePath, content) => {
+  return {
+    browser: () => {
+      throw new Error('File writing is not supported in browser runtime')
+    },
+    deno: () => Deno.writeTextFileSync(filePath, content),
+    bun: async () => await Bun.write(filePath, content),
+  }[runtime]()
+}
+
+export const exit = (code = 0) => {
+  return {
+    browser: () => {
+      throw new Error('Process exit is not supported in browser runtime')
+    },
+    deno: () => Deno.exit(code),
+    // deno-lint-ignore no-process-global
+    bun: () => process.exit(code),
+  }[runtime]()
+}
+
 export const runPoolifierBenchmarkTinyBench = async (
   name,
   workerType,
@@ -257,9 +289,11 @@ export const runPoolifierBenchmarkTinyBench = async (
   poolSize,
   { taskExecutions, workerData },
 ) => {
+  const bmfResults = {}
+  let pool
   try {
     const bench = new Bench()
-    const pool = buildPoolifierPool(workerType, poolType, poolSize)
+    pool = buildPoolifierPool(workerType, poolType, poolSize)
 
     for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
       for (const enableTasksQueue of [false, true]) {
@@ -328,25 +362,35 @@ export const runPoolifierBenchmarkTinyBench = async (
 
     const tasks = await bench.run()
     console.table(bench.table())
-    await pool.destroy()
 
-    const bmfResults = {}
     for (const task of tasks) {
-      bmfResults[task.name] = {
-        latency: {
-          value: task.result.latency.mean,
-          lower_value: task.result.latency.mean - task.result.latency.sd,
-          upper_value: task.result.latency.mean + task.result.latency.sd,
-        },
-        throughput: {
-          value: task.result.throughput.mean,
-          lower_value: task.result.throughput.mean - task.result.throughput.sd,
-          upper_value: task.result.throughput.mean + task.result.throughput.sd,
-        },
+      if (
+        task.result?.state === 'completed' ||
+        task.result?.state === 'aborted-with-statistics'
+      ) {
+        bmfResults[task.name] = {
+          latency: {
+            value: task.result.latency.mean,
+            lower_value: task.result.latency.mean - task.result.latency.sd,
+            upper_value: task.result.latency.mean + task.result.latency.sd,
+          },
+          throughput: {
+            value: task.result.throughput.mean,
+            lower_value: task.result.throughput.mean -
+              task.result.throughput.sd,
+            upper_value: task.result.throughput.mean +
+              task.result.throughput.sd,
+          },
+        }
       }
     }
     return bmfResults
   } catch (error) {
     console.error(error)
+    return bmfResults
+  } finally {
+    if (pool != null) {
+      await pool.destroy()
+    }
   }
 }
