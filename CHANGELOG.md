@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.15...v0.6.0) (2026-02-16)
+
+### 🚀 Features
+
+- add task function worker node affinity
+  ([#126](https://github.com/poolifier/poolifier-web-worker/issues/126))
+  ([af54b3b](https://github.com/poolifier/poolifier-web-worker/commit/af54b3b7cbdc597098e3e87221a82a01f04e569e))
+
+### 🐞 Bug Fixes
+
+- **deps:** update dependency poolifier-web-worker to ^0.5.15
+  ([#114](https://github.com/poolifier/poolifier-web-worker/issues/114))
+  ([ad27378](https://github.com/poolifier/poolifier-web-worker/commit/ad27378b8136a64af56e104fc1ca8c1c651035ee))
+
+### 🧪 Tests
+
+- refine ignore conditions
+  ([a1fe073](https://github.com/poolifier/poolifier-web-worker/commit/a1fe0735050419f2cff2ffe323b1b10ae05d9dc5))
+
+### 🧹 Chores
+
+- release trigger
+  ([246f942](https://github.com/poolifier/poolifier-web-worker/commit/246f9422737e554a308303995221a20169ff018f))
+
 ## [0.5.15](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.14...v0.5.15) (2025-11-16)
 
 ### 🐞 Bug Fixes
