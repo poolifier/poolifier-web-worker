@@ -71,13 +71,18 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
   }
 
   /** @inheritDoc */
-  public choose(): number | undefined {
+  public choose(workerNodeKeysSet?: ReadonlySet<number>): number | undefined {
     this.setPreviousWorkerNodeKey(this.nextWorkerNodeKey)
-    this.weightedRoundRobinNextWorkerNodeKey()
-    if (!this.isWorkerNodeReady(this.nextWorkerNodeKey!)) {
+    const chosenWorkerNodeKey = this.weightedRoundRobinNextWorkerNodeKey(
+      workerNodeKeysSet,
+    )
+    if (chosenWorkerNodeKey == null) {
       return undefined
     }
-    return this.checkWorkerNodeKey(this.nextWorkerNodeKey)
+    if (!this.isWorkerNodeEligible(chosenWorkerNodeKey, workerNodeKeysSet)) {
+      return undefined
+    }
+    return this.checkWorkerNodeKey(chosenWorkerNodeKey)
   }
 
   /** @inheritDoc */
@@ -102,20 +107,65 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
     return true
   }
 
-  private weightedRoundRobinNextWorkerNodeKey(): number | undefined {
+  private weightedRoundRobinNextWorkerNodeKey(
+    workerNodeKeysSet?: ReadonlySet<number>,
+  ): number | undefined {
+    if (workerNodeKeysSet == null) {
+      const workerNodeKey = this.nextWorkerNodeKey ?? this.previousWorkerNodeKey
+      const workerWeight = this.opts!.weights![workerNodeKey]
+      if (this.workerNodeVirtualTaskExecutionTime < workerWeight) {
+        this.nextWorkerNodeKey = workerNodeKey
+        this.workerNodeVirtualTaskExecutionTime +=
+          this.getWorkerNodeTaskWaitTime(workerNodeKey) +
+          this.getWorkerNodeTaskRunTime(workerNodeKey)
+      } else {
+        this.nextWorkerNodeKey = this.getRoundRobinNextWorkerNodeKey()
+        this.workerNodeVirtualTaskExecutionTime = 0
+      }
+      return this.nextWorkerNodeKey
+    }
+    if (workerNodeKeysSet.size === 0) {
+      return undefined
+    }
+    if (workerNodeKeysSet.size === 1) {
+      const selectedWorkerNodeKey = this.getSingleWorkerNodeKey(
+        workerNodeKeysSet,
+      )
+      if (selectedWorkerNodeKey != null) {
+        this.nextWorkerNodeKey = selectedWorkerNodeKey
+        this.workerNodeVirtualTaskExecutionTime = 0
+      }
+      return selectedWorkerNodeKey
+    }
     const workerNodeKey = this.nextWorkerNodeKey ?? this.previousWorkerNodeKey
+    if (!workerNodeKeysSet.has(workerNodeKey)) {
+      this.nextWorkerNodeKey = this.findEligibleWorkerNodeKey(workerNodeKeysSet)
+      this.workerNodeVirtualTaskExecutionTime = 0
+      return this.nextWorkerNodeKey
+    }
     const workerWeight = this.opts!.weights![workerNodeKey]
     if (this.workerNodeVirtualTaskExecutionTime < workerWeight) {
+      this.nextWorkerNodeKey = workerNodeKey
       this.workerNodeVirtualTaskExecutionTime +=
         this.getWorkerNodeTaskWaitTime(workerNodeKey) +
         this.getWorkerNodeTaskRunTime(workerNodeKey)
     } else {
-      this.nextWorkerNodeKey =
-        this.nextWorkerNodeKey === this.pool.workerNodes.length - 1
-          ? 0
-          : workerNodeKey + 1
+      this.nextWorkerNodeKey = this.findEligibleWorkerNodeKey(workerNodeKeysSet)
       this.workerNodeVirtualTaskExecutionTime = 0
     }
     return this.nextWorkerNodeKey
+  }
+
+  private findEligibleWorkerNodeKey(
+    workerNodeKeysSet: ReadonlySet<number>,
+  ): number | undefined {
+    const workerNodesCount = this.pool.workerNodes.length
+    for (let i = 0; i < workerNodesCount; i++) {
+      this.nextWorkerNodeKey = this.getRoundRobinNextWorkerNodeKey()
+      if (workerNodeKeysSet.has(this.nextWorkerNodeKey)) {
+        return this.nextWorkerNodeKey
+      }
+    }
+    return undefined
   }
 }

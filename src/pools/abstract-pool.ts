@@ -45,6 +45,7 @@ import {
   checkValidPriority,
   checkValidTasksQueueOptions,
   checkValidWorkerChoiceStrategy,
+  checkValidWorkerNodeKeys,
   getDefaultTasksQueueOptions,
   updateEluWorkerUsage,
   updateRunTimeWorkerUsage,
@@ -842,8 +843,8 @@ export abstract class AbstractPool<
   private async sendTaskFunctionOperationToWorkers(
     message: MessageValue<Data>,
   ): Promise<boolean> {
-    const targetWorkerNodeKeys = [...this.workerNodes.keys()]
-    if (targetWorkerNodeKeys.length === 0) {
+    const targetWorkerNodeCount = this.workerNodes.length
+    if (targetWorkerNodeCount === 0) {
       return true
     }
     const responsesReceived: MessageValue<Response>[] = []
@@ -853,14 +854,14 @@ export abstract class AbstractPool<
       reject: (reason?: unknown) => void,
     ): void => {
       this.checkMessageWorkerId(message)
+      const workerNodeKey = this.getWorkerNodeKeyByWorkerId(message.workerId)
       if (
         message.taskFunctionOperationStatus != null &&
-        targetWorkerNodeKeys.includes(
-          this.getWorkerNodeKeyByWorkerId(message.workerId),
-        )
+        workerNodeKey >= 0 &&
+        workerNodeKey < targetWorkerNodeCount
       ) {
         responsesReceived.push(message)
-        if (responsesReceived.length >= targetWorkerNodeKeys.length) {
+        if (responsesReceived.length >= targetWorkerNodeCount) {
           if (
             responsesReceived.every(
               (msg) => msg.taskFunctionOperationStatus === true,
@@ -883,19 +884,20 @@ export abstract class AbstractPool<
       }
     }
     let listener: ((message: MessageValue<Response>) => void) | undefined
+    const workerNodeKeys = [...this.workerNodes.keys()]
     try {
       return await new Promise<boolean>((resolve, reject) => {
         listener = (message: MessageValue<Response>) => {
           taskFunctionOperationsListener(message, resolve, reject)
         }
-        for (const workerNodeKey of targetWorkerNodeKeys) {
+        for (const workerNodeKey of workerNodeKeys) {
           this.registerWorkerMessageListener(workerNodeKey, listener)
           this.sendToWorker(workerNodeKey, message)
         }
       })
     } finally {
       if (listener != null) {
-        for (const workerNodeKey of targetWorkerNodeKeys) {
+        for (const workerNodeKey of workerNodeKeys) {
           this.deregisterWorkerMessageListener(workerNodeKey, listener)
         }
       }
@@ -928,6 +930,10 @@ export abstract class AbstractPool<
     }
     checkValidPriority(fn.priority)
     checkValidWorkerChoiceStrategy(fn.strategy)
+    checkValidWorkerNodeKeys(
+      fn.workerNodeKeys,
+      this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
+    )
     const opResult = await this.sendTaskFunctionOperationToWorkers({
       taskFunctionOperation: 'add',
       taskFunctionProperties: buildTaskFunctionProperties(name, fn),
@@ -1055,6 +1061,26 @@ export abstract class AbstractPool<
       (taskFunctionProperties: TaskFunctionProperties) =>
         taskFunctionProperties.name === name,
     )?.strategy
+  }
+
+  /**
+   * Gets task function worker node keys affinity set, if any.
+   * @param name - The task function name.
+   * @returns The task function worker node keys affinity set, or `undefined` if not defined.
+   */
+  private readonly getTaskFunctionWorkerNodeKeysSet = (
+    name?: string,
+  ): ReadonlySet<number> | undefined => {
+    name = name ?? DEFAULT_TASK_NAME
+    const taskFunctionsProperties = this.listTaskFunctionsProperties()
+    if (name === DEFAULT_TASK_NAME) {
+      name = taskFunctionsProperties[1]?.name
+    }
+    const workerNodeKeys = taskFunctionsProperties.find(
+      (taskFunctionProperties: TaskFunctionProperties) =>
+        taskFunctionProperties.name === name,
+    )?.workerNodeKeys
+    return workerNodeKeys != null ? new Set(workerNodeKeys) : undefined
   }
 
   /**
@@ -1549,7 +1575,20 @@ export abstract class AbstractPool<
    * @returns The chosen worker node key.
    */
   private chooseWorkerNode(name?: string): number {
-    if (this.shallCreateDynamicWorker()) {
+    const workerNodeKeysSet = this.getTaskFunctionWorkerNodeKeysSet(name)
+    if (workerNodeKeysSet != null) {
+      const maxPoolSize = this.maximumNumberOfWorkers ??
+        this.minimumNumberOfWorkers
+      const targetSize = max(...workerNodeKeysSet) + 1
+      while (
+        this.started &&
+        !this.destroying &&
+        this.workerNodes.length < targetSize &&
+        this.workerNodes.length < maxPoolSize
+      ) {
+        this.createAndSetupDynamicWorkerNode()
+      }
+    } else if (this.shallCreateDynamicWorker()) {
       const workerNodeKey = this.createAndSetupDynamicWorkerNode()
       if (
         this.workerChoiceStrategiesContext?.getPolicy().dynamicWorkerUsage ===
@@ -1560,6 +1599,7 @@ export abstract class AbstractPool<
     }
     return this.workerChoiceStrategiesContext!.execute(
       this.getTaskFunctionWorkerChoiceStrategy(name),
+      workerNodeKeysSet,
     )
   }
 
@@ -2171,6 +2211,14 @@ export abstract class AbstractPool<
     const { workerId, ready, taskFunctionsProperties } = message
     if (ready == null || !ready) {
       throw new Error(`Worker ${workerId?.toString()} failed to initialize`)
+    }
+    const maxPoolSize = this.maximumNumberOfWorkers ??
+      this.minimumNumberOfWorkers
+    for (const taskFunctionProperties of taskFunctionsProperties ?? []) {
+      checkValidWorkerNodeKeys(
+        taskFunctionProperties.workerNodeKeys,
+        maxPoolSize,
+      )
     }
     const workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
     const workerNode = this.workerNodes[workerNodeKey]

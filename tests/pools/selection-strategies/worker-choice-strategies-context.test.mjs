@@ -503,4 +503,85 @@ describe('Worker choice strategies context test suite', () => {
         .median,
     ).toBe(true)
   })
+
+  it('Verify that execute() passes workerNodeKeysSet to strategy choose()', () => {
+    const workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
+      fixedPool,
+    )
+    const workerChoiceStrategy = workerChoiceStrategiesContext
+      .workerChoiceStrategies.get(
+        workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+      )
+    const chooseArgs = []
+    stub(workerChoiceStrategy, 'choose', (workerNodeKeysSet) => {
+      chooseArgs.push(workerNodeKeysSet)
+      return 1
+    })
+    const workerNodeKeys = [1, 2]
+    const chosenWorkerKey = workerChoiceStrategiesContext.execute(
+      undefined,
+      new Set(workerNodeKeys),
+    )
+    assertSpyCalls(workerChoiceStrategy.choose, 1)
+    // Verify it was called with a Set containing the same elements
+    expect(chooseArgs[0]).toBeInstanceOf(Set)
+    expect([...chooseArgs[0]]).toStrictEqual(workerNodeKeys)
+    expect(chosenWorkerKey).toBe(1)
+    workerChoiceStrategy.choose.restore()
+  })
+
+  it('Verify that execute() with workerNodeKeys affinity filters worker selection', () => {
+    const workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
+      fixedPool,
+    )
+    const workerChoiceStrategy = workerChoiceStrategiesContext
+      .workerChoiceStrategies.get(
+        workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+      )
+    const chooseArgs = []
+    // Stub returns the first valid key from workerNodeKeysSet
+    stub(workerChoiceStrategy, 'choose', (workerNodeKeysSet) => {
+      chooseArgs.push(workerNodeKeysSet)
+      if (workerNodeKeysSet != null && workerNodeKeysSet.size > 0) {
+        return [...workerNodeKeysSet][0]
+      }
+      return 0
+    })
+    // Test with specific worker node affinity
+    const workerNodeKeys = [2]
+    const chosenWorkerKey = workerChoiceStrategiesContext.execute(
+      undefined,
+      new Set(workerNodeKeys),
+    )
+    expect(chosenWorkerKey).toBe(2)
+    // Verify it was called with a Set containing the same elements
+    expect(chooseArgs[0]).toBeInstanceOf(Set)
+    expect([...chooseArgs[0]]).toStrictEqual(workerNodeKeys)
+    workerChoiceStrategy.choose.restore()
+  })
+
+  it('Verify that execute() retries with workerNodes until valid worker found', () => {
+    const workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
+      fixedPool,
+    )
+    const workerChoiceStrategy = workerChoiceStrategiesContext
+      .workerChoiceStrategies.get(
+        workerChoiceStrategiesContext.defaultWorkerChoiceStrategy,
+      )
+    let callCount = 0
+    stub(workerChoiceStrategy, 'choose', () => {
+      callCount++
+      if (callCount < 3) {
+        return undefined
+      }
+      return 1
+    })
+    const chosenWorkerKey = workerChoiceStrategiesContext.execute(
+      undefined,
+      new Set([0, 1, 2]),
+    )
+    assertSpyCalls(workerChoiceStrategy.choose, 3)
+    expect(chosenWorkerKey).toBe(1)
+    workerChoiceStrategy.choose.restore()
+  })
 })
