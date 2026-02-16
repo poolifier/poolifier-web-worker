@@ -83,6 +83,10 @@ jobs:
     needs: build-release
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -108,23 +112,15 @@ jobs:
       - name: Publish Release
         if: ${{ contains(github.ref_name, '-') == false }}
         run: cd dist && npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Release Candidate
         if: ${{ contains(github.ref_name, '-rc') == true }}
         run: cd dist && npm publish --tag next
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Beta Release
         if: ${{ contains(github.ref_name, '-beta') == true }}
         run: cd dist && npm publish --tag beta
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Alpha Release
         if: ${{ contains(github.ref_name, '-alpha') == true }}
         run: cd dist && npm publish --tag alpha
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
