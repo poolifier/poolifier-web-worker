@@ -76,6 +76,12 @@ export class LeastEluWorkerChoiceStrategy<
   private leastEluNextWorkerNodeKey(
     workerNodeKeysSet?: ReadonlySet<number>,
   ): number | undefined {
+    if (workerNodeKeysSet?.size === 0) {
+      return undefined
+    }
+    if (workerNodeKeysSet?.size === 1) {
+      return this.getSingleWorkerNodeKey(workerNodeKeysSet)
+    }
     const chosenWorkerNodeKey = this.pool.workerNodes.reduce(
       (minWorkerNodeKey: number, workerNode, workerNodeKey, workerNodes) => {
         if (!this.isWorkerNodeEligible(workerNodeKey, workerNodeKeysSet)) {
