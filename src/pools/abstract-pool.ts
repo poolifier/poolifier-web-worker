@@ -2212,8 +2212,8 @@ export abstract class AbstractPool<
     if (ready == null || !ready) {
       throw new Error(`Worker ${workerId?.toString()} failed to initialize`)
     }
-    const maxPoolSize =
-      this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers
+    const maxPoolSize = this.maximumNumberOfWorkers ??
+      this.minimumNumberOfWorkers
     for (const taskFunctionProperties of taskFunctionsProperties ?? []) {
       checkValidWorkerNodeKeys(
         taskFunctionProperties.workerNodeKeys,
