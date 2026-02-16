@@ -58,6 +58,7 @@ Please consult our [general guidelines](#general-guidelines).
 - Support for abortable task function ✔
 - Support for multiple task functions with per task function queuing priority
   and tasks distribution strategy ✔
+- Support for worker node affinity per task function ✔
 - Support for task functions
   [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
   operations at runtime ✔

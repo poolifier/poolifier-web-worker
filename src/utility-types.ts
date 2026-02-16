@@ -90,6 +90,10 @@ export interface TaskFunctionProperties {
    * Task function worker choice strategy.
    */
   readonly strategy?: WorkerChoiceStrategy
+  /**
+   * Task function worker node keys on which to run.
+   */
+  readonly workerNodeKeys?: number[]
 }
 
 /**

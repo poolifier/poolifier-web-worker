@@ -157,15 +157,18 @@ export class WorkerChoiceStrategiesContext<
    *
    * @param workerChoiceStrategy - The worker choice strategy algorithm to execute.
    * @defaultValue this.defaultWorkerChoiceStrategy
+   * @param workerNodeKeysSet - The worker node keys set to choose from.
    * @returns The key of the worker node.
    * @throws {Error} If after computed retries the worker node key is null or undefined.
    */
   public execute(
     workerChoiceStrategy: WorkerChoiceStrategy = this
       .defaultWorkerChoiceStrategy,
+    workerNodeKeysSet?: ReadonlySet<number>,
   ): number {
     return this.executeStrategy(
       this.workerChoiceStrategies.get(workerChoiceStrategy)!,
+      workerNodeKeysSet,
     )
   }
 
@@ -173,15 +176,20 @@ export class WorkerChoiceStrategiesContext<
    * Executes the given worker choice strategy.
    *
    * @param workerChoiceStrategy - The worker choice strategy.
+   * @param workerNodeKeysSet - The worker node keys set to choose from.
    * @returns The key of the worker node.
    * @throws {Error} If after computed retries the worker node key is null or undefined.
    */
-  private executeStrategy(workerChoiceStrategy: IWorkerChoiceStrategy): number {
-    let workerNodeKey: number | undefined = workerChoiceStrategy.choose()
+  private executeStrategy(
+    workerChoiceStrategy: IWorkerChoiceStrategy,
+    workerNodeKeysSet?: ReadonlySet<number>,
+  ): number {
+    let workerNodeKey: number | undefined =
+      workerChoiceStrategy.choose(workerNodeKeysSet)
     let retriesCount = 0
     while (workerNodeKey == null && retriesCount < this.retries) {
       retriesCount++
-      workerNodeKey = workerChoiceStrategy.choose()
+      workerNodeKey = workerChoiceStrategy.choose(workerNodeKeysSet)
     }
     workerChoiceStrategy.retriesCount = retriesCount
     if (workerNodeKey == null) {
