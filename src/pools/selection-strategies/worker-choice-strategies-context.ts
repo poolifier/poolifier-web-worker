@@ -184,8 +184,9 @@ export class WorkerChoiceStrategiesContext<
     workerChoiceStrategy: IWorkerChoiceStrategy,
     workerNodeKeysSet?: ReadonlySet<number>,
   ): number {
-    let workerNodeKey: number | undefined =
-      workerChoiceStrategy.choose(workerNodeKeysSet)
+    let workerNodeKey: number | undefined = workerChoiceStrategy.choose(
+      workerNodeKeysSet,
+    )
     let retriesCount = 0
     while (workerNodeKey == null && retriesCount < this.retries) {
       retriesCount++

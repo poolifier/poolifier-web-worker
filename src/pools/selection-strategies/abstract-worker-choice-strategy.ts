@@ -102,7 +102,7 @@ export abstract class AbstractWorkerChoiceStrategy<
 
   /** @inheritDoc */
   public abstract choose(
-    workerNodeKeysSet?: ReadonlySet<number>
+    workerNodeKeysSet?: ReadonlySet<number>,
   ): number | undefined
 
   /** @inheritDoc */
@@ -164,7 +164,7 @@ export abstract class AbstractWorkerChoiceStrategy<
    * @returns The worker node key if ready, `undefined` otherwise.
    */
   protected getSingleWorkerNodeKey(
-    workerNodeKeysSet: ReadonlySet<number>
+    workerNodeKeysSet: ReadonlySet<number>,
   ): number | undefined {
     const [workerNodeKey] = workerNodeKeysSet
     return this.isWorkerNodeReady(workerNodeKey) ? workerNodeKey : undefined
@@ -179,7 +179,7 @@ export abstract class AbstractWorkerChoiceStrategy<
    */
   protected isWorkerNodeEligible(
     workerNodeKey: number,
-    workerNodeKeysSet?: ReadonlySet<number>
+    workerNodeKeysSet?: ReadonlySet<number>,
   ): boolean {
     return (
       this.isWorkerNodeReady(workerNodeKey) &&

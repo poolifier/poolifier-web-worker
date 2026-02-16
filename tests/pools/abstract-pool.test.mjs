@@ -1689,10 +1689,12 @@ describe({
           workerNodeKeys: [poolWorkerNodeKeys[0]],
         }),
       ).resolves.toBe(true)
-      expect(dynamicThreadPool.taskFunctions.get('affinityEcho')).toStrictEqual({
-        taskFunction: echoTaskFunction,
-        workerNodeKeys: [poolWorkerNodeKeys[0]],
-      })
+      expect(dynamicThreadPool.taskFunctions.get('affinityEcho')).toStrictEqual(
+        {
+          taskFunction: echoTaskFunction,
+          workerNodeKeys: [poolWorkerNodeKeys[0]],
+        },
+      )
 
       // Test with invalid workerNodeKeys (out of range)
       await expect(
@@ -1717,7 +1719,10 @@ describe({
       )
 
       // Test exceeding max workers
-      const tooManyKeys = Array.from({ length: numberOfWorkers + 1 }, (_, i) => i)
+      const tooManyKeys = Array.from(
+        { length: numberOfWorkers + 1 },
+        (_, i) => i,
+      )
       await expect(
         dynamicThreadPool.addTaskFunction('tooManyKeys', {
           taskFunction: () => {},

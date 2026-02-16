@@ -213,7 +213,7 @@ export interface IWorkerChoiceStrategy {
    * @returns The worker node key or `undefined`.
    */
   readonly choose: (
-    workerNodeKeysSet?: ReadonlySet<number>
+    workerNodeKeysSet?: ReadonlySet<number>,
   ) => number | undefined
   /**
    * Removes the worker node key from strategy internals.

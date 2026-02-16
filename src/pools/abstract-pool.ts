@@ -1577,8 +1577,8 @@ export abstract class AbstractPool<
   private chooseWorkerNode(name?: string): number {
     const workerNodeKeysSet = this.getTaskFunctionWorkerNodeKeysSet(name)
     if (workerNodeKeysSet != null) {
-      const maxPoolSize =
-        this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers
+      const maxPoolSize = this.maximumNumberOfWorkers ??
+        this.minimumNumberOfWorkers
       const targetSize = max(...workerNodeKeysSet) + 1
       while (
         this.started &&

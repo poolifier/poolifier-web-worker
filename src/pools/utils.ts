@@ -160,7 +160,9 @@ export const checkValidWorkerNodeKeys = (
     )
     if (invalidWorkerNodeKeys.length > 0) {
       throw new RangeError(
-        `Cannot add a task function with invalid worker node keys: ${invalidWorkerNodeKeys.toString()}. Valid keys are: 0..${(maxPoolSize - 1).toString()}`,
+        `Cannot add a task function with invalid worker node keys: ${invalidWorkerNodeKeys.toString()}. Valid keys are: 0..${
+          (maxPoolSize - 1).toString()
+        }`,
       )
     }
   }
