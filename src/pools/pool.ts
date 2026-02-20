@@ -129,23 +129,38 @@ export interface PoolInfo {
  */
 export interface TasksQueueOptions {
   /**
+   * Controls the priority queue anti-starvation aging rate.
+   * @defaultValue 0.001
+   */
+  readonly agingFactor?: number
+  /**
+   * Maximum number of tasks that can be executed concurrently on a worker node.
+   * @defaultValue 1
+   */
+  readonly concurrency?: number
+  /**
+   * Controls load-based aging adjustment exponent.
+   * @defaultValue 0.667
+   */
+  readonly loadExponent?: number
+  /**
    * Maximum tasks queue size per worker node flagging it as back pressured.
    *
    * @defaultValue (pool maximum size)^2
    */
   readonly size?: number
   /**
-   * Maximum number of tasks that can be executed concurrently on a worker node.
-   *
-   * @defaultValue 1
-   */
-  readonly concurrency?: number
-  /**
    * Whether to enable task stealing on idle.
    *
    * @defaultValue true
    */
   readonly taskStealing?: boolean
+  /**
+   * Queued tasks finished timeout in milliseconds at worker node termination.
+   *
+   * @defaultValue 2000
+   */
+  readonly tasksFinishedTimeout?: number
   /**
    * Whether to enable tasks stealing under back pressure.
    *
@@ -158,12 +173,6 @@ export interface TasksQueueOptions {
    * @defaultValue 0.6
    */
   readonly tasksStealingRatio?: number
-  /**
-   * Queued tasks finished timeout in milliseconds at worker node termination.
-   *
-   * @defaultValue 2000
-   */
-  readonly tasksFinishedTimeout?: number
 }
 
 /**

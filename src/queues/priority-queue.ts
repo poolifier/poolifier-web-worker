@@ -3,7 +3,9 @@
 import { FixedPriorityQueue } from '../queues/fixed-priority-queue.ts'
 import { FixedQueue } from '../queues/fixed-queue.ts'
 import {
+  defaultAgingFactor,
   defaultBucketSize,
+  defaultLoadExponent,
   type IFixedQueue,
   type PriorityQueueNode,
 } from './queue-types.ts'
@@ -19,6 +21,8 @@ export class PriorityQueue<T> {
   private tail!: PriorityQueueNode<T>
   private readonly bucketSize: number
   private priorityEnabled: boolean
+  private readonly agingFactor: number
+  private readonly loadExponent: number
   /** The priority queue size. */
   public size!: number
   /** The priority queue maximum size. */
@@ -31,11 +35,17 @@ export class PriorityQueue<T> {
    * @defaultValue defaultBucketSize
    * @param enablePriority - Whether to enable priority.
    * @defaultValue false
+   * @param agingFactor - Aging factor for priority boosting (priority points per millisecond).
+   * @defaultValue defaultAgingFactor
+   * @param loadExponent - Load exponent for aging adjustment based on queue fill ratio.
+   * @defaultValue defaultLoadExponent
    * @returns PriorityQueue.
    */
   public constructor(
     bucketSize: number = defaultBucketSize,
     enablePriority = false,
+    agingFactor: number = defaultAgingFactor,
+    loadExponent: number = defaultLoadExponent,
   ) {
     if (!Number.isSafeInteger(bucketSize)) {
       throw new TypeError(
@@ -47,6 +57,8 @@ export class PriorityQueue<T> {
     }
     this.bucketSize = bucketSize
     this.priorityEnabled = enablePriority
+    this.agingFactor = agingFactor
+    this.loadExponent = loadExponent
     this.clear()
   }
 
@@ -214,7 +226,11 @@ export class PriorityQueue<T> {
   private getPriorityQueueNode(): PriorityQueueNode<T> {
     let fixedQueue: IFixedQueue<T>
     if (this.priorityEnabled) {
-      fixedQueue = new FixedPriorityQueue(this.bucketSize)
+      fixedQueue = new FixedPriorityQueue(
+        this.bucketSize,
+        this.agingFactor,
+        this.loadExponent,
+      )
     } else {
       fixedQueue = new FixedQueue(this.bucketSize)
     }

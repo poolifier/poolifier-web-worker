@@ -2,9 +2,18 @@ import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
 
 import { FixedPriorityQueue } from '../../src/queues/fixed-priority-queue.ts'
-import { defaultQueueSize } from '../../src/queues/queue-types.ts'
+import {
+  defaultAgingFactor,
+  defaultLoadExponent,
+  defaultQueueSize,
+} from '../../src/queues/queue-types.ts'
 
 describe('Fixed priority queue test suite', () => {
+  it('Verify defaultAgingFactor and defaultLoadExponent values', () => {
+    expect(defaultAgingFactor).toBe(0.001)
+    expect(defaultLoadExponent).toBe(1.0 / 1.5)
+  })
+
   it('Verify constructor() behavior', () => {
     expect(() => new FixedPriorityQueue('')).toThrow(
       new TypeError("Invalid fixed queue size: '' is not an integer"),
@@ -17,6 +26,8 @@ describe('Fixed priority queue test suite', () => {
     expect(fixedPriorityQueue.size).toBe(0)
     expect(fixedPriorityQueue.nodeArray).toBeInstanceOf(Array)
     expect(fixedPriorityQueue.capacity).toBe(defaultQueueSize)
+    expect(fixedPriorityQueue.agingFactor).toBe(defaultAgingFactor)
+    expect(fixedPriorityQueue.loadExponent).toBe(defaultLoadExponent)
   })
 
   it('Verify enqueue() behavior', () => {

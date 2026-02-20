@@ -4,7 +4,11 @@ import { describe, it } from '@std/testing/bdd'
 import { FixedPriorityQueue } from '../../src/queues/fixed-priority-queue.ts'
 import { FixedQueue } from '../../src/queues/fixed-queue.ts'
 import { PriorityQueue } from '../../src/queues/priority-queue.ts'
-import { defaultBucketSize } from '../../src/queues/queue-types.ts'
+import {
+  defaultAgingFactor,
+  defaultBucketSize,
+  defaultLoadExponent,
+} from '../../src/queues/queue-types.ts'
 
 describe('Priority queue test suite', () => {
   it('Verify constructor() behavior', () => {
@@ -20,6 +24,8 @@ describe('Priority queue test suite', () => {
     expect(priorityQueue.size).toBe(0)
     expect(priorityQueue.maxSize).toBe(0)
     expect(priorityQueue.enablePriority).toBe(false)
+    expect(priorityQueue.agingFactor).toBe(defaultAgingFactor)
+    expect(priorityQueue.loadExponent).toBe(defaultLoadExponent)
     expect(priorityQueue.head).toBeInstanceOf(FixedQueue)
     expect(priorityQueue.head.next).toBe(undefined)
     expect(priorityQueue.head.capacity).toBe(defaultBucketSize)
@@ -32,11 +38,16 @@ describe('Priority queue test suite', () => {
     expect(priorityQueue.size).toBe(0)
     expect(priorityQueue.maxSize).toBe(0)
     expect(priorityQueue.enablePriority).toBe(true)
+    expect(priorityQueue.agingFactor).toBe(defaultAgingFactor)
+    expect(priorityQueue.loadExponent).toBe(defaultLoadExponent)
     expect(priorityQueue.head).toBeInstanceOf(FixedPriorityQueue)
     expect(priorityQueue.head.next).toBe(undefined)
     expect(priorityQueue.head.capacity).toBe(bucketSize)
     expect(priorityQueue.tail).toBeInstanceOf(FixedPriorityQueue)
     expect(priorityQueue.tail).toStrictEqual(priorityQueue.head)
+    priorityQueue = new PriorityQueue(bucketSize, true, 0.002, 0.5)
+    expect(priorityQueue.agingFactor).toBe(0.002)
+    expect(priorityQueue.loadExponent).toBe(0.5)
   })
 
   it('Verify default bucket size enqueue() behavior', () => {

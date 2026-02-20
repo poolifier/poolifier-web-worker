@@ -1,5 +1,9 @@
 import { AbstractFixedQueue } from './abstract-fixed-queue.ts'
-import type { IFixedQueue } from './queue-types.ts'
+import {
+  defaultAgingFactor,
+  defaultLoadExponent,
+  type IFixedQueue,
+} from './queue-types.ts'
 
 /**
  * Fixed priority queue.
@@ -13,17 +17,19 @@ export class FixedPriorityQueue<T> extends AbstractFixedQueue<T>
   private readonly loadExponent: number
 
   /**
-   * Constructs a FixedPriorityQueue.
-   * @param size - Fixed queue size.
+   * Constructs a fixed priority queue.
+   * @param size - Fixed priority queue size.
    * @defaultValue defaultQueueSize
-   * @param agingFactor - Aging factor to apply to items (priority points per millisecond).
-   * @param loadExponent - Load exponent applied to normalized load when computing effective aging.
+   * @param agingFactor - Aging factor for priority boosting (priority points per millisecond).
+   * @defaultValue defaultAgingFactor
+   * @param loadExponent - Load exponent for aging adjustment based on queue fill ratio.
+   * @defaultValue defaultLoadExponent
    * @returns IFixedQueue.
    */
   public constructor(
     size?: number,
-    agingFactor = 0.001,
-    loadExponent = 1.0 / 1.5,
+    agingFactor = defaultAgingFactor,
+    loadExponent = defaultLoadExponent,
   ) {
     super(size)
     this.agingFactor = agingFactor

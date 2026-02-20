@@ -2369,6 +2369,8 @@ export abstract class AbstractPool<
           ).size,
         tasksQueueBucketSize: defaultBucketSize,
         tasksQueuePriority: this.getTasksQueuePriority(),
+        tasksQueueAgingFactor: this.opts.tasksQueueOptions?.agingFactor,
+        tasksQueueLoadExponent: this.opts.tasksQueueOptions?.loadExponent,
       },
     )
     // Flag the worker node as ready at pool startup.

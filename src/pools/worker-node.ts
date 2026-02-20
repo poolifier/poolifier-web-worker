@@ -86,6 +86,8 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
     this.tasksQueue = new PriorityQueue<Task<Data>>(
       opts.tasksQueueBucketSize,
       opts.tasksQueuePriority,
+      opts.tasksQueueAgingFactor,
+      opts.tasksQueueLoadExponent,
     )
     this.taskFunctionsUsage = new Map<string, WorkerUsage>()
   }

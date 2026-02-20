@@ -24,12 +24,14 @@ describe('Pool utils test suite', () => {
   it('Verify getDefaultTasksQueueOptions() behavior', () => {
     const poolMaxSize = 4
     expect(getDefaultTasksQueueOptions(poolMaxSize)).toStrictEqual({
+      agingFactor: 0.001,
       concurrency: 1,
+      loadExponent: 0.6666666666666666,
       size: poolMaxSize ** 2,
-      taskStealing: true,
+      tasksFinishedTimeout: 2000,
       tasksStealingOnBackPressure: true,
       tasksStealingRatio: 0.6,
-      tasksFinishedTimeout: 2000,
+      taskStealing: true,
     })
   })
 
@@ -182,18 +184,18 @@ describe('Pool utils test suite', () => {
       ),
     )
     // Should throw TypeError for NaN
-    expect(() => checkValidWorkerNodeKeys([NaN])).toThrow(
+    expect(() => checkValidWorkerNodeKeys([Number.NaN])).toThrow(
       new TypeError(
         "Invalid worker node key 'NaN': must be a non-negative safe integer",
       ),
     )
     // Should throw TypeError for Infinity
-    expect(() => checkValidWorkerNodeKeys([Infinity])).toThrow(
+    expect(() => checkValidWorkerNodeKeys([Number.POSITIVE_INFINITY])).toThrow(
       new TypeError(
         "Invalid worker node key 'Infinity': must be a non-negative safe integer",
       ),
     )
-    expect(() => checkValidWorkerNodeKeys([-Infinity])).toThrow(
+    expect(() => checkValidWorkerNodeKeys([Number.NEGATIVE_INFINITY])).toThrow(
       new TypeError(
         "Invalid worker node key '-Infinity': must be a non-negative safe integer",
       ),

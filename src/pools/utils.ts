@@ -1,3 +1,7 @@
+import {
+  defaultAgingFactor,
+  defaultLoadExponent,
+} from '../queues/queue-types.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
 import {
   average,
@@ -49,12 +53,14 @@ export const getDefaultTasksQueueOptions = (
   poolMaxSize: number,
 ): Required<Readonly<TasksQueueOptions>> => {
   return Object.freeze({
-    size: poolMaxSize ** 2,
+    agingFactor: defaultAgingFactor,
     concurrency: 1,
+    loadExponent: defaultLoadExponent,
+    size: poolMaxSize ** 2,
     taskStealing: true,
+    tasksFinishedTimeout: 2000,
     tasksStealingOnBackPressure: true,
     tasksStealingRatio: 0.6,
-    tasksFinishedTimeout: 2000,
   })
 }
 
@@ -161,7 +167,9 @@ export const checkValidWorkerNodeKeys = (
     if (invalidWorkerNodeKeys.length > 0) {
       throw new RangeError(
         `Cannot add a task function with invalid worker node keys: ${invalidWorkerNodeKeys.toString()}. Valid keys are: 0..${
-          (maxPoolSize - 1).toString()
+          (
+            maxPoolSize - 1
+          ).toString()
         }`,
       )
     }
@@ -173,6 +181,22 @@ export const checkValidTasksQueueOptions = (
 ): void => {
   if (tasksQueueOptions != null && !isPlainObject(tasksQueueOptions)) {
     throw new TypeError('Invalid tasks queue options: must be a plain object')
+  }
+  if (
+    tasksQueueOptions?.agingFactor != null &&
+    typeof tasksQueueOptions.agingFactor !== 'number'
+  ) {
+    throw new TypeError(
+      'Invalid worker node tasks queue aging factor: must be a number',
+    )
+  }
+  if (
+    tasksQueueOptions?.agingFactor != null &&
+    tasksQueueOptions.agingFactor < 0
+  ) {
+    throw new RangeError(
+      'Invalid worker node tasks queue aging factor: must be greater than or equal to 0',
+    )
   }
   if (
     tasksQueueOptions?.concurrency != null &&
@@ -188,6 +212,22 @@ export const checkValidTasksQueueOptions = (
   ) {
     throw new RangeError(
       `Invalid worker node tasks concurrency: ${tasksQueueOptions.concurrency.toString()} is a negative integer or zero`,
+    )
+  }
+  if (
+    tasksQueueOptions?.loadExponent != null &&
+    typeof tasksQueueOptions.loadExponent !== 'number'
+  ) {
+    throw new TypeError(
+      'Invalid worker node tasks queue load exponent: must be a number',
+    )
+  }
+  if (
+    tasksQueueOptions?.loadExponent != null &&
+    tasksQueueOptions.loadExponent <= 0
+  ) {
+    throw new RangeError(
+      'Invalid worker node tasks queue load exponent: must be greater than 0',
     )
   }
   if (

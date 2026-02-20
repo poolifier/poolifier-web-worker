@@ -221,9 +221,13 @@ An object with these properties:
     tasks from another worker node. It must be a number between 0 and 1.
   - `tasksFinishedTimeout` (optional) - Queued tasks finished timeout in
     milliseconds at worker termination.
+  - `agingFactor` (optional) - Aging factor for priority queue anti-starvation
+    mechanism. It must be a positive number.
+  - `loadExponent` (optional) - Load exponent for priority queue anti-starvation
+    mechanism. It must be a positive number.
 
   Default:
-  `{ size: (pool maximum size)^2, concurrency: 1, taskStealing: true, tasksStealingOnBackPressure: true, tasksStealingRatio: 0.6, tasksFinishedTimeout: 2000 }`
+  `{ size: (pool maximum size)^2, concurrency: 1, taskStealing: true, tasksStealingOnBackPressure: true, tasksStealingRatio: 0.6, tasksFinishedTimeout: 2000, agingFactor: 0.001, loadExponent: 0.667 }`
 
 - `workerOptions` (optional) - An object with the worker options to pass to
   worker. See

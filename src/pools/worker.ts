@@ -276,6 +276,8 @@ export interface WorkerNodeOptions {
   tasksQueueBackPressureSize: number | undefined
   tasksQueueBucketSize: number | undefined
   tasksQueuePriority: boolean | undefined
+  tasksQueueAgingFactor: number | undefined
+  tasksQueueLoadExponent: number | undefined
 }
 
 /**

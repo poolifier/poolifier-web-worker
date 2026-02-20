@@ -263,12 +263,14 @@ describe({
         restartWorkerOnError: false,
         enableTasksQueue: true,
         tasksQueueOptions: {
+          agingFactor: 0.001,
           concurrency: 2,
+          loadExponent: 0.6666666666666666,
           size: numberOfWorkers ** 2,
-          taskStealing: true,
+          tasksFinishedTimeout: 2000,
           tasksStealingOnBackPressure: true,
           tasksStealingRatio: 0.6,
-          tasksFinishedTimeout: 2000,
+          taskStealing: true,
         },
         workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED,
         workerChoiceStrategyOptions: {
@@ -467,6 +469,66 @@ describe({
           'Invalid worker node tasks stealing ratio: must be between 0 and 1',
         ),
       )
+      expect(
+        () =>
+          new FixedThreadPool(
+            numberOfWorkers,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              enableTasksQueue: true,
+              tasksQueueOptions: { agingFactor: '' },
+            },
+          ),
+      ).toThrow(
+        new TypeError(
+          'Invalid worker node tasks queue aging factor: must be a number',
+        ),
+      )
+      expect(
+        () =>
+          new FixedThreadPool(
+            numberOfWorkers,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              enableTasksQueue: true,
+              tasksQueueOptions: { agingFactor: -1 },
+            },
+          ),
+      ).toThrow(
+        new RangeError(
+          'Invalid worker node tasks queue aging factor: must be greater than or equal to 0',
+        ),
+      )
+      expect(
+        () =>
+          new FixedThreadPool(
+            numberOfWorkers,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              enableTasksQueue: true,
+              tasksQueueOptions: { loadExponent: '' },
+            },
+          ),
+      ).toThrow(
+        new TypeError(
+          'Invalid worker node tasks queue load exponent: must be a number',
+        ),
+      )
+      expect(
+        () =>
+          new FixedThreadPool(
+            numberOfWorkers,
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+            {
+              enableTasksQueue: true,
+              tasksQueueOptions: { loadExponent: -1 },
+            },
+          ),
+      ).toThrow(
+        new RangeError(
+          'Invalid worker node tasks queue load exponent: must be greater than 0',
+        ),
+      )
     })
 
     it('Verify that pool worker choice strategy options can be set', async () => {
@@ -628,22 +690,26 @@ describe({
       pool.enableTasksQueue(true)
       expect(pool.opts.enableTasksQueue).toBe(true)
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
+        agingFactor: 0.001,
         concurrency: 1,
+        loadExponent: 0.6666666666666666,
         size: numberOfWorkers ** 2,
-        taskStealing: true,
+        tasksFinishedTimeout: 2000,
         tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
-        tasksFinishedTimeout: 2000,
+        taskStealing: true,
       })
       pool.enableTasksQueue(true, { concurrency: 2 })
       expect(pool.opts.enableTasksQueue).toBe(true)
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
+        agingFactor: 0.001,
         concurrency: 2,
+        loadExponent: 0.6666666666666666,
         size: numberOfWorkers ** 2,
-        taskStealing: true,
+        tasksFinishedTimeout: 2000,
         tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
-        tasksFinishedTimeout: 2000,
+        taskStealing: true,
       })
       pool.enableTasksQueue(false)
       expect(pool.opts.enableTasksQueue).toBe(false)
@@ -658,12 +724,14 @@ describe({
         { enableTasksQueue: true },
       )
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
+        agingFactor: 0.001,
         concurrency: 1,
+        loadExponent: 0.6666666666666666,
         size: numberOfWorkers ** 2,
-        taskStealing: true,
+        tasksFinishedTimeout: 2000,
         tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.6,
-        tasksFinishedTimeout: 2000,
+        taskStealing: true,
       })
       for (const workerNode of pool.workerNodes) {
         expect(workerNode.tasksQueueBackPressureSize).toBe(
@@ -677,6 +745,33 @@ describe({
         tasksStealingOnBackPressure: false,
         tasksStealingRatio: 0.5,
         tasksFinishedTimeout: 3000,
+        agingFactor: 0.002,
+        loadExponent: 0.5,
+      })
+      expect(pool.opts.tasksQueueOptions).toStrictEqual({
+        agingFactor: 0.002,
+        concurrency: 2,
+        loadExponent: 0.5,
+        size: 2,
+        tasksFinishedTimeout: 3000,
+        tasksStealingOnBackPressure: false,
+        tasksStealingRatio: 0.5,
+        taskStealing: false,
+      })
+      for (const workerNode of pool.workerNodes) {
+        expect(workerNode.tasksQueueBackPressureSize).toBe(
+          pool.opts.tasksQueueOptions.size,
+        )
+      }
+      pool.setTasksQueueOptions({
+        concurrency: 2,
+        size: 2,
+        taskStealing: false,
+        tasksStealingOnBackPressure: false,
+        tasksStealingRatio: 0.5,
+        tasksFinishedTimeout: 3000,
+        agingFactor: 0.002,
+        loadExponent: 0.5,
       })
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
         concurrency: 2,
@@ -685,6 +780,8 @@ describe({
         tasksStealingOnBackPressure: false,
         tasksStealingRatio: 0.5,
         tasksFinishedTimeout: 3000,
+        agingFactor: 0.002,
+        loadExponent: 0.5,
       })
       for (const workerNode of pool.workerNodes) {
         expect(workerNode.tasksQueueBackPressureSize).toBe(
@@ -697,12 +794,14 @@ describe({
         tasksStealingOnBackPressure: true,
       })
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
+        agingFactor: 0.002,
         concurrency: 1,
+        loadExponent: 0.5,
         size: 2,
-        taskStealing: true,
+        tasksFinishedTimeout: 3000,
         tasksStealingOnBackPressure: true,
         tasksStealingRatio: 0.5,
-        tasksFinishedTimeout: 3000,
+        taskStealing: true,
       })
       for (const workerNode of pool.workerNodes) {
         expect(workerNode.tasksQueueBackPressureSize).toBe(
@@ -755,6 +854,31 @@ describe({
             'Invalid worker node tasks stealing ratio: must be between 0 and 1',
           ),
         )
+      expect(() => pool.setTasksQueueOptions({ agingFactor: '' })).toThrow(
+        new TypeError(
+          'Invalid worker node tasks queue aging factor: must be a number',
+        ),
+      )
+      expect(() => pool.setTasksQueueOptions({ agingFactor: -1 })).toThrow(
+        new RangeError(
+          'Invalid worker node tasks queue aging factor: must be greater than or equal to 0',
+        ),
+      )
+      expect(() => pool.setTasksQueueOptions({ loadExponent: '' })).toThrow(
+        new TypeError(
+          'Invalid worker node tasks queue load exponent: must be a number',
+        ),
+      )
+      expect(() => pool.setTasksQueueOptions({ loadExponent: 0 })).toThrow(
+        new RangeError(
+          'Invalid worker node tasks queue load exponent: must be greater than 0',
+        ),
+      )
+      expect(() => pool.setTasksQueueOptions({ loadExponent: -1 })).toThrow(
+        new RangeError(
+          'Invalid worker node tasks queue load exponent: must be greater than 0',
+        ),
+      )
       await pool.destroy()
     })
 
