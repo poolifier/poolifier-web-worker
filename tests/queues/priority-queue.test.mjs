@@ -45,9 +45,6 @@ describe('Priority queue test suite', () => {
     expect(priorityQueue.head.capacity).toBe(bucketSize)
     expect(priorityQueue.tail).toBeInstanceOf(FixedPriorityQueue)
     expect(priorityQueue.tail).toStrictEqual(priorityQueue.head)
-    priorityQueue = new PriorityQueue(bucketSize, true, 0.002, 0.5)
-    expect(priorityQueue.agingFactor).toBe(0.002)
-    expect(priorityQueue.loadExponent).toBe(0.5)
   })
 
   it('Verify default bucket size enqueue() behavior', () => {

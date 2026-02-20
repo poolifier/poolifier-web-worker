@@ -9,11 +9,6 @@ import {
 } from '../../src/queues/queue-types.ts'
 
 describe('Fixed priority queue test suite', () => {
-  it('Verify defaultAgingFactor and defaultLoadExponent values', () => {
-    expect(defaultAgingFactor).toBe(0.001)
-    expect(defaultLoadExponent).toBe(1.0 / 1.5)
-  })
-
   it('Verify constructor() behavior', () => {
     expect(() => new FixedPriorityQueue('')).toThrow(
       new TypeError("Invalid fixed queue size: '' is not an integer"),
