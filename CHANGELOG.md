@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.0...v0.6.1) (2026-02-20)
+
+### 🚀 Features
+
+- add agingFactor and loadExponent tunables for priority queue anti-starvation
+  ([7d7d84b](https://github.com/poolifier/poolifier-web-worker/commit/7d7d84b5acbf34b1436cbec23b36f661aff96354))
+
+### 🐞 Bug Fixes
+
+- **deps:** update dependency poolifier-web-worker to ^0.6.0
+  ([#127](https://github.com/poolifier/poolifier-web-worker/issues/127))
+  ([2230ff5](https://github.com/poolifier/poolifier-web-worker/commit/2230ff5dcfe23ae4912a37ae2934d38dfbad1d78))
+
+### 🧪 Tests
+
+- ignore flaky workerNodeKeys affinity test on Linux
+  ([225b084](https://github.com/poolifier/poolifier-web-worker/commit/225b08489f15acff10a74585ba742324cd829e00))
+
 ## [0.6.0](https://github.com/poolifier/poolifier-web-worker/compare/v0.5.15...v0.6.0) (2026-02-16)
 
 ### 🚀 Features
