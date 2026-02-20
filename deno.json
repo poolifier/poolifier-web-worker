@@ -1,6 +1,6 @@
 {
   "name": "@poolifier/poolifier-web-worker",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "exports": "./src/mod.ts",
   "compilerOptions": {
     "lib": [
