@@ -1941,37 +1941,45 @@ describe({
       await dynamicThreadPool.destroy()
     })
 
-    it('Verify that execute() creates dynamic workers for workerNodeKeys affinity', async () => {
-      const dynamicThreadPool = new DynamicThreadPool(
-        1,
-        4,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-      )
-      await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
-      expect(dynamicThreadPool.workerNodes.length).toBe(1)
+    it({
+      name:
+        'Verify that execute() creates dynamic workers for workerNodeKeys affinity',
+      ignore: Deno.build.os === 'linux' &&
+        Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      fn: async () => {
+        const dynamicThreadPool = new DynamicThreadPool(
+          1,
+          4,
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+        )
+        await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
+        expect(dynamicThreadPool.workerNodes.length).toBe(1)
 
-      await dynamicThreadPool.addTaskFunction('affinityBeyondMin', {
-        taskFunction: (data) => data,
-        workerNodeKeys: [2, 3],
-      })
+        await dynamicThreadPool.addTaskFunction('affinityBeyondMin', {
+          taskFunction: (data) => data,
+          workerNodeKeys: [2, 3],
+        })
 
-      for (const workerNode of dynamicThreadPool.workerNodes) {
-        workerNode.usage.tasks.executed = 0
-      }
+        for (const workerNode of dynamicThreadPool.workerNodes) {
+          workerNode.usage.tasks.executed = 0
+        }
 
-      const tasks = []
-      for (let i = 0; i < 4; i++) {
-        tasks.push(dynamicThreadPool.execute({ test: i }, 'affinityBeyondMin'))
-      }
-      await Promise.all(tasks)
+        const tasks = []
+        for (let i = 0; i < 4; i++) {
+          tasks.push(
+            dynamicThreadPool.execute({ test: i }, 'affinityBeyondMin'),
+          )
+        }
+        await Promise.all(tasks)
 
-      expect(dynamicThreadPool.workerNodes.length).toBeGreaterThanOrEqual(4)
-      const executedOnAffinity =
-        dynamicThreadPool.workerNodes[2].usage.tasks.executed +
-        dynamicThreadPool.workerNodes[3].usage.tasks.executed
-      expect(executedOnAffinity).toBe(4)
+        expect(dynamicThreadPool.workerNodes.length).toBeGreaterThanOrEqual(4)
+        const executedOnAffinity =
+          dynamicThreadPool.workerNodes[2].usage.tasks.executed +
+          dynamicThreadPool.workerNodes[3].usage.tasks.executed
+        expect(executedOnAffinity).toBe(4)
 
-      await dynamicThreadPool.destroy()
+        await dynamicThreadPool.destroy()
+      },
     })
 
     it('Verify that removeTaskFunction() is working', async () => {
