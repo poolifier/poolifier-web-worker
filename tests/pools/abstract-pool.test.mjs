@@ -31,7 +31,7 @@ describe({
     it('Verify that pool can be created and destroyed', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool).toBeInstanceOf(FixedThreadPool)
       await pool.destroy()
@@ -42,19 +42,19 @@ describe({
         () =>
           new StubPoolWithIsMain(
             numberOfWorkers,
-            './tests/worker-files/thread/testWorker.mjs'
-          )
+            './tests/worker-files/thread/testWorker.mjs',
+          ),
       ).toThrow(
         new Error(
-          'Cannot start a pool from a worker with the same type as the pool'
-        )
+          'Cannot start a pool from a worker with the same type as the pool',
+        ),
       )
     })
 
     it('Verify that pool statuses properties are set', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.started).toBe(true)
       expect(pool.starting).toBe(false)
@@ -67,12 +67,12 @@ describe({
 
     it('Verify that specifier is checked', () => {
       expect(() => new FixedThreadPool(numberOfWorkers)).toThrow(
-        new TypeError('The worker specifier must be defined')
+        new TypeError('The worker specifier must be defined'),
       )
       expect(() => new FixedThreadPool(numberOfWorkers, 0)).toThrow(
         new TypeError(
-          'The worker specifier must be a string or an instance of URL'
-        )
+          'The worker specifier must be a string or an instance of URL',
+        ),
       )
     })
 
@@ -81,12 +81,12 @@ describe({
         () =>
           new FixedThreadPool(
             undefined,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new Error(
-          'Cannot instantiate a pool without specifying the number of workers'
-        )
+          'Cannot instantiate a pool without specifying the number of workers',
+        ),
       )
     })
 
@@ -95,12 +95,12 @@ describe({
         () =>
           new FixedThreadPool(
             -1,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new RangeError(
-          'Cannot instantiate a pool with a negative number of workers'
-        )
+          'Cannot instantiate a pool with a negative number of workers',
+        ),
       )
     })
 
@@ -109,12 +109,12 @@ describe({
         () =>
           new FixedThreadPool(
             0.25,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new TypeError(
-          'Cannot instantiate a pool with a non safe integer number of workers'
-        )
+          'Cannot instantiate a pool with a non safe integer number of workers',
+        ),
       )
     })
 
@@ -125,12 +125,12 @@ describe({
             numberOfWorkers,
             new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             undefined,
-            numberOfWorkers * 2
-          )
+            numberOfWorkers * 2,
+          ),
       ).toThrow(
         new Error(
-          'Cannot instantiate a fixed pool with a maximum number of workers defined at initialization'
-        )
+          'Cannot instantiate a fixed pool with a maximum number of workers defined at initialization',
+        ),
       )
     })
 
@@ -140,79 +140,79 @@ describe({
           new DynamicThreadPool(
             1,
             undefined,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new TypeError(
-          'Cannot instantiate a dynamic pool without specifying the maximum pool size'
-        )
+          'Cannot instantiate a dynamic pool without specifying the maximum pool size',
+        ),
       )
       expect(
         () =>
           new DynamicThreadPool(
             0.5,
             1,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new TypeError(
-          'Cannot instantiate a pool with a non safe integer number of workers'
-        )
+          'Cannot instantiate a pool with a non safe integer number of workers',
+        ),
       )
       expect(
         () =>
           new DynamicThreadPool(
             0,
             0.5,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new TypeError(
-          'Cannot instantiate a dynamic pool with a non safe integer maximum pool size'
-        )
+          'Cannot instantiate a dynamic pool with a non safe integer maximum pool size',
+        ),
       )
       expect(
         () =>
           new DynamicThreadPool(
             2,
             1,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new RangeError(
-          'Cannot instantiate a dynamic pool with a maximum pool size inferior to the minimum pool size'
-        )
+          'Cannot instantiate a dynamic pool with a maximum pool size inferior to the minimum pool size',
+        ),
       )
       expect(
         () =>
           new DynamicThreadPool(
             0,
             0,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new RangeError(
-          'Cannot instantiate a dynamic pool with a maximum pool size equal to zero'
-        )
+          'Cannot instantiate a dynamic pool with a maximum pool size equal to zero',
+        ),
       )
       expect(
         () =>
           new DynamicThreadPool(
             1,
             1,
-            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
-          )
+            new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          ),
       ).toThrow(
         new RangeError(
-          'Cannot instantiate a dynamic pool with a minimum pool size equal to the maximum pool size. Use a fixed pool instead'
-        )
+          'Cannot instantiate a dynamic pool with a minimum pool size equal to the maximum pool size. Use a fixed pool instead',
+        ),
       )
     })
 
     it('Verify that pool options are checked', async () => {
       let pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.eventTarget).toBeInstanceOf(EventTarget)
       expect(pool.opts).toStrictEqual({
@@ -222,8 +222,10 @@ describe({
         enableTasksQueue: false,
         workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED,
       })
-      for (const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
-        .workerChoiceStrategies) {
+      for (
+        const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
+          .workerChoiceStrategies
+      ) {
         expect(workerChoiceStrategy.opts).toStrictEqual({
           runTime: { median: false },
           waitTime: { median: false },
@@ -252,7 +254,7 @@ describe({
           messageEventHandler: testHandler,
           messageEventErrorHandler: testHandler,
           errorEventHandler: testHandler,
-        }
+        },
       )
       expect(pool.eventTarget).toBeUndefined()
       expect(pool.opts).toStrictEqual({
@@ -279,8 +281,10 @@ describe({
         messageEventErrorHandler: testHandler,
         errorEventHandler: testHandler,
       })
-      for (const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
-        .workerChoiceStrategies) {
+      for (
+        const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
+          .workerChoiceStrategies
+      ) {
         expect(workerChoiceStrategy.opts).toStrictEqual({
           runTime: { median: true },
           waitTime: { median: false },
@@ -299,8 +303,8 @@ describe({
             new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               workerChoiceStrategy: 'invalidStrategy',
-            }
-          )
+            },
+          ),
       ).toThrow(new Error("Invalid worker choice strategy 'invalidStrategy'"))
       expect(
         () =>
@@ -309,12 +313,12 @@ describe({
             new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
             {
               workerChoiceStrategyOptions: { weights: {} },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new Error(
-          'Invalid worker choice strategy options: must have a weight for each worker node'
-        )
+          'Invalid worker choice strategy options: must have a weight for each worker node',
+        ),
       )
       expect(
         () =>
@@ -325,12 +329,12 @@ describe({
               workerChoiceStrategyOptions: {
                 measurement: 'invalidMeasurement',
               },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new Error(
-          "Invalid worker choice strategy options: invalid measurement 'invalidMeasurement'"
-        )
+          "Invalid worker choice strategy options: invalid measurement 'invalidMeasurement'",
+        ),
       )
       expect(
         () =>
@@ -340,10 +344,10 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: 'invalidTasksQueueOptions',
-            }
-          )
+            },
+          ),
       ).toThrow(
-        new TypeError('Invalid tasks queue options: must be a plain object')
+        new TypeError('Invalid tasks queue options: must be a plain object'),
       )
       expect(
         () =>
@@ -353,12 +357,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { concurrency: 0 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new RangeError(
-          'Invalid worker node tasks concurrency: 0 is a negative integer or zero'
-        )
+          'Invalid worker node tasks concurrency: 0 is a negative integer or zero',
+        ),
       )
       expect(
         () =>
@@ -368,12 +372,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { concurrency: -1 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new RangeError(
-          'Invalid worker node tasks concurrency: -1 is a negative integer or zero'
-        )
+          'Invalid worker node tasks concurrency: -1 is a negative integer or zero',
+        ),
       )
       expect(
         () =>
@@ -383,12 +387,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { concurrency: 0.2 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new TypeError(
-          'Invalid worker node tasks concurrency: must be an integer'
-        )
+          'Invalid worker node tasks concurrency: must be an integer',
+        ),
       )
       expect(
         () =>
@@ -398,12 +402,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { size: 0 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue size: 0 is a negative integer or zero'
-        )
+          'Invalid worker node tasks queue size: 0 is a negative integer or zero',
+        ),
       )
       expect(
         () =>
@@ -413,12 +417,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { size: -1 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue size: -1 is a negative integer or zero'
-        )
+          'Invalid worker node tasks queue size: -1 is a negative integer or zero',
+        ),
       )
       expect(
         () =>
@@ -428,12 +432,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { size: 0.2 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new TypeError(
-          'Invalid worker node tasks queue size: must be an integer'
-        )
+          'Invalid worker node tasks queue size: must be an integer',
+        ),
       )
       expect(
         () =>
@@ -443,12 +447,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { tasksStealingRatio: '' },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new TypeError(
-          'Invalid worker node tasks stealing ratio: must be a number'
-        )
+          'Invalid worker node tasks stealing ratio: must be a number',
+        ),
       )
       expect(
         () =>
@@ -458,12 +462,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { tasksStealingRatio: 1.1 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new RangeError(
-          'Invalid worker node tasks stealing ratio: must be between 0 and 1'
-        )
+          'Invalid worker node tasks stealing ratio: must be between 0 and 1',
+        ),
       )
       expect(
         () =>
@@ -473,12 +477,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { agingFactor: '' },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new TypeError(
-          'Invalid worker node tasks queue aging factor: must be a number'
-        )
+          'Invalid worker node tasks queue aging factor: must be a number',
+        ),
       )
       expect(
         () =>
@@ -488,12 +492,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { agingFactor: -1 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue aging factor: must be greater than or equal to 0'
-        )
+          'Invalid worker node tasks queue aging factor: must be greater than or equal to 0',
+        ),
       )
       expect(
         () =>
@@ -503,12 +507,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { loadExponent: '' },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new TypeError(
-          'Invalid worker node tasks queue load exponent: must be a number'
-        )
+          'Invalid worker node tasks queue load exponent: must be a number',
+        ),
       )
       expect(
         () =>
@@ -518,12 +522,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { loadExponent: 0 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue load exponent: must be greater than 0'
-        )
+          'Invalid worker node tasks queue load exponent: must be greater than 0',
+        ),
       )
       expect(
         () =>
@@ -533,12 +537,12 @@ describe({
             {
               enableTasksQueue: true,
               tasksQueueOptions: { loadExponent: -1 },
-            }
-          )
+            },
+          ),
       ).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue load exponent: must be greater than 0'
-        )
+          'Invalid worker node tasks queue load exponent: must be greater than 0',
+        ),
       )
     })
 
@@ -546,11 +550,13 @@ describe({
       const pool = new FixedThreadPool(
         numberOfWorkers,
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-        { workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE }
+        { workerChoiceStrategy: WorkerChoiceStrategies.FAIR_SHARE },
       )
       expect(pool.opts.workerChoiceStrategyOptions).toBeUndefined()
-      for (const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
-        .workerChoiceStrategies) {
+      for (
+        const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
+          .workerChoiceStrategies
+      ) {
         expect(workerChoiceStrategy.opts).toStrictEqual({
           runTime: { median: false },
           waitTime: { median: false },
@@ -562,7 +568,7 @@ describe({
         })
       }
       expect(
-        pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
+        pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
       ).toStrictEqual({
         runTime: {
           aggregate: true,
@@ -588,8 +594,10 @@ describe({
         runTime: { median: true },
         elu: { median: true },
       })
-      for (const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
-        .workerChoiceStrategies) {
+      for (
+        const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
+          .workerChoiceStrategies
+      ) {
         expect(workerChoiceStrategy.opts).toStrictEqual({
           runTime: { median: true },
           waitTime: { median: false },
@@ -601,7 +609,7 @@ describe({
         })
       }
       expect(
-        pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
+        pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
       ).toStrictEqual({
         runTime: {
           aggregate: true,
@@ -627,8 +635,10 @@ describe({
         runTime: { median: false },
         elu: { median: false },
       })
-      for (const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
-        .workerChoiceStrategies) {
+      for (
+        const [, workerChoiceStrategy] of pool.workerChoiceStrategiesContext
+          .workerChoiceStrategies
+      ) {
         expect(workerChoiceStrategy.opts).toStrictEqual({
           runTime: { median: false },
           waitTime: { median: false },
@@ -640,7 +650,7 @@ describe({
         })
       }
       expect(
-        pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements()
+        pool.workerChoiceStrategiesContext.getTaskStatisticsRequirements(),
       ).toStrictEqual({
         runTime: {
           aggregate: true,
@@ -660,28 +670,27 @@ describe({
       })
       expect(() =>
         pool.setWorkerChoiceStrategyOptions(
-          'invalidWorkerChoiceStrategyOptions'
+          'invalidWorkerChoiceStrategyOptions',
         )
       ).toThrow(
         new TypeError(
-          'Invalid worker choice strategy options: must be a plain object'
-        )
+          'Invalid worker choice strategy options: must be a plain object',
+        ),
       )
-      expect(() =>
-        pool.setWorkerChoiceStrategyOptions({ weights: {} })
-      ).toThrow(
-        new Error(
-          'Invalid worker choice strategy options: must have a weight for each worker node'
+      expect(() => pool.setWorkerChoiceStrategyOptions({ weights: {} }))
+        .toThrow(
+          new Error(
+            'Invalid worker choice strategy options: must have a weight for each worker node',
+          ),
         )
-      )
       expect(() =>
         pool.setWorkerChoiceStrategyOptions({
           measurement: 'invalidMeasurement',
         })
       ).toThrow(
         new Error(
-          "Invalid worker choice strategy options: invalid measurement 'invalidMeasurement'"
-        )
+          "Invalid worker choice strategy options: invalid measurement 'invalidMeasurement'",
+        ),
       )
       await pool.destroy()
     })
@@ -689,7 +698,7 @@ describe({
     it('Verify that pool tasks queue can be enabled/disabled', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.opts.enableTasksQueue).toBe(false)
       expect(pool.opts.tasksQueueOptions).toBeUndefined()
@@ -727,7 +736,7 @@ describe({
       const pool = new FixedThreadPool(
         numberOfWorkers,
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-        { enableTasksQueue: true }
+        { enableTasksQueue: true },
       )
       expect(pool.opts.tasksQueueOptions).toStrictEqual({
         agingFactor: 0.001,
@@ -741,7 +750,7 @@ describe({
       })
       for (const workerNode of pool.workerNodes) {
         expect(workerNode.tasksQueueBackPressureSize).toBe(
-          pool.opts.tasksQueueOptions.size
+          pool.opts.tasksQueueOptions.size,
         )
       }
       pool.setTasksQueueOptions({
@@ -764,7 +773,7 @@ describe({
       })
       for (const workerNode of pool.workerNodes) {
         expect(workerNode.tasksQueueBackPressureSize).toBe(
-          pool.opts.tasksQueueOptions.size
+          pool.opts.tasksQueueOptions.size,
         )
       }
       pool.setTasksQueueOptions({
@@ -784,82 +793,79 @@ describe({
       })
       for (const workerNode of pool.workerNodes) {
         expect(workerNode.tasksQueueBackPressureSize).toBe(
-          pool.opts.tasksQueueOptions.size
+          pool.opts.tasksQueueOptions.size,
         )
       }
-      expect(() =>
-        pool.setTasksQueueOptions('invalidTasksQueueOptions')
-      ).toThrow(
-        new TypeError('Invalid tasks queue options: must be a plain object')
-      )
+      expect(() => pool.setTasksQueueOptions('invalidTasksQueueOptions'))
+        .toThrow(
+          new TypeError('Invalid tasks queue options: must be a plain object'),
+        )
       expect(() => pool.setTasksQueueOptions({ concurrency: 0 })).toThrow(
         new RangeError(
-          'Invalid worker node tasks concurrency: 0 is a negative integer or zero'
-        )
+          'Invalid worker node tasks concurrency: 0 is a negative integer or zero',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ concurrency: -1 })).toThrow(
         new RangeError(
-          'Invalid worker node tasks concurrency: -1 is a negative integer or zero'
-        )
+          'Invalid worker node tasks concurrency: -1 is a negative integer or zero',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ concurrency: 0.2 })).toThrow(
         new TypeError(
-          'Invalid worker node tasks concurrency: must be an integer'
-        )
+          'Invalid worker node tasks concurrency: must be an integer',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ size: 0 })).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue size: 0 is a negative integer or zero'
-        )
+          'Invalid worker node tasks queue size: 0 is a negative integer or zero',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ size: -1 })).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue size: -1 is a negative integer or zero'
-        )
+          'Invalid worker node tasks queue size: -1 is a negative integer or zero',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ size: 0.2 })).toThrow(
         new TypeError(
-          'Invalid worker node tasks queue size: must be an integer'
-        )
+          'Invalid worker node tasks queue size: must be an integer',
+        ),
       )
-      expect(() =>
-        pool.setTasksQueueOptions({ tasksStealingRatio: '' })
-      ).toThrow(
-        new TypeError(
-          'Invalid worker node tasks stealing ratio: must be a number'
+      expect(() => pool.setTasksQueueOptions({ tasksStealingRatio: '' }))
+        .toThrow(
+          new TypeError(
+            'Invalid worker node tasks stealing ratio: must be a number',
+          ),
         )
-      )
-      expect(() =>
-        pool.setTasksQueueOptions({ tasksStealingRatio: 1.1 })
-      ).toThrow(
-        new RangeError(
-          'Invalid worker node tasks stealing ratio: must be between 0 and 1'
+      expect(() => pool.setTasksQueueOptions({ tasksStealingRatio: 1.1 }))
+        .toThrow(
+          new RangeError(
+            'Invalid worker node tasks stealing ratio: must be between 0 and 1',
+          ),
         )
-      )
       expect(() => pool.setTasksQueueOptions({ agingFactor: '' })).toThrow(
         new TypeError(
-          'Invalid worker node tasks queue aging factor: must be a number'
-        )
+          'Invalid worker node tasks queue aging factor: must be a number',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ agingFactor: -1 })).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue aging factor: must be greater than or equal to 0'
-        )
+          'Invalid worker node tasks queue aging factor: must be greater than or equal to 0',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ loadExponent: '' })).toThrow(
         new TypeError(
-          'Invalid worker node tasks queue load exponent: must be a number'
-        )
+          'Invalid worker node tasks queue load exponent: must be a number',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ loadExponent: 0 })).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue load exponent: must be greater than 0'
-        )
+          'Invalid worker node tasks queue load exponent: must be greater than 0',
+        ),
       )
       expect(() => pool.setTasksQueueOptions({ loadExponent: -1 })).toThrow(
         new RangeError(
-          'Invalid worker node tasks queue load exponent: must be greater than 0'
-        )
+          'Invalid worker node tasks queue load exponent: must be greater than 0',
+        ),
       )
       await pool.destroy()
     })
@@ -867,7 +873,7 @@ describe({
     it('Verify that pool info is set', async () => {
       let pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.info).toStrictEqual({
         version,
@@ -890,7 +896,7 @@ describe({
       pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.info).toStrictEqual({
         version,
@@ -916,7 +922,7 @@ describe({
     it('Verify that pool worker tasks usage are initialized', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -952,7 +958,7 @@ describe({
     it('Verify that pool worker tasks queue are initialized', async () => {
       let pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -966,7 +972,7 @@ describe({
       pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -982,7 +988,7 @@ describe({
     it('Verify that pool worker info are initialized', async () => {
       let pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -1003,7 +1009,7 @@ describe({
       pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       for (const workerNode of pool.workerNodes) {
         expect(workerNode).toBeInstanceOf(WorkerNode)
@@ -1026,18 +1032,18 @@ describe({
     it('Verify that pool statuses are checked at start or destroy', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       expect(pool.info.started).toBe(true)
       expect(pool.info.ready).toBe(true)
       expect(() => pool.start()).toThrow(
-        new Error('Cannot start an already started pool')
+        new Error('Cannot start an already started pool'),
       )
       await pool.destroy()
       expect(pool.info.started).toBe(false)
       expect(pool.info.ready).toBe(false)
       await expect(pool.destroy()).rejects.toThrow(
-        new Error('Cannot destroy an already destroyed pool')
+        new Error('Cannot destroy an already destroyed pool'),
       )
     })
 
@@ -1047,7 +1053,7 @@ describe({
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         {
           startWorkers: false,
-        }
+        },
       )
       expect(pool.info.started).toBe(false)
       expect(pool.info.ready).toBe(false)
@@ -1072,33 +1078,33 @@ describe({
     it('Verify that pool execute() arguments are checked', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await expect(pool.execute(undefined, 0)).rejects.toThrow(
-        new TypeError('name argument must be a string')
+        new TypeError('name argument must be a string'),
       )
       await expect(pool.execute(undefined, '')).rejects.toThrow(
-        new TypeError('name argument must not be an empty string')
+        new TypeError('name argument must not be an empty string'),
       )
       await expect(pool.execute(undefined, undefined, {})).rejects.toThrow(
-        new TypeError('abortSignal argument must be an AbortSignal')
+        new TypeError('abortSignal argument must be an AbortSignal'),
       )
       await expect(
-        pool.execute(undefined, undefined, new AbortController().signal, {})
+        pool.execute(undefined, undefined, new AbortController().signal, {}),
       ).rejects.toThrow(new TypeError('transferList argument must be an array'))
       await expect(pool.execute(undefined, 'unknown')).rejects.toThrow(
-        new Error("Task function 'unknown' not found")
+        new Error("Task function 'unknown' not found"),
       )
       await pool.destroy()
       await expect(pool.execute()).rejects.toThrow(
-        new Error('Cannot execute a task on not started pool')
+        new Error('Cannot execute a task on not started pool'),
       )
     })
 
     it('Verify that pool worker tasks usage are computed', async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const promises = new Set()
       const maxMultiplier = 2
@@ -1167,7 +1173,7 @@ describe({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const promises = new Set()
       const maxMultiplier = 2
@@ -1203,7 +1209,7 @@ describe({
         })
         expect(workerNode.usage.tasks.executed).toBeGreaterThan(0)
         expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-          numberOfWorkers * maxMultiplier
+          numberOfWorkers * maxMultiplier,
         )
       }
       pool.setWorkerChoiceStrategy(WorkerChoiceStrategies.FAIR_SHARE)
@@ -1235,7 +1241,7 @@ describe({
         })
         expect(workerNode.usage.tasks.executed).toBeGreaterThan(0)
         expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-          numberOfWorkers * maxMultiplier
+          numberOfWorkers * maxMultiplier,
         )
       }
       await pool.destroy()
@@ -1245,11 +1251,11 @@ describe({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       let poolInfo
       let poolReady = 0
-      pool.eventTarget.addEventListener(PoolEvents.ready, event => {
+      pool.eventTarget.addEventListener(PoolEvents.ready, (event) => {
         ++poolReady
         poolInfo = event.detail
       })
@@ -1279,18 +1285,18 @@ describe({
     it("Verify that pool event target 'busy' and 'busyEnd' events can register a callback", async () => {
       const pool = new FixedThreadPool(
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const promises = new Set()
       let poolBusy = 0
       let poolBusyInfo
-      pool.eventTarget.addEventListener(PoolEvents.busy, event => {
+      pool.eventTarget.addEventListener(PoolEvents.busy, (event) => {
         ++poolBusy
         poolBusyInfo = event.detail
       })
       let poolBusyEnd = 0
       let poolBusyEndInfo
-      pool.eventTarget.addEventListener(PoolEvents.busyEnd, event => {
+      pool.eventTarget.addEventListener(PoolEvents.busyEnd, (event) => {
         ++poolBusyEnd
         poolBusyEndInfo = event.detail
       })
@@ -1342,18 +1348,18 @@ describe({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const promises = new Set()
       let poolFull = 0
       let poolFullInfo
-      pool.eventTarget.addEventListener(PoolEvents.full, event => {
+      pool.eventTarget.addEventListener(PoolEvents.full, (event) => {
         ++poolFull
         poolFullInfo = event.detail
       })
       let poolFullEnd = 0
       let poolFullEndInfo
-      pool.eventTarget.addEventListener(PoolEvents.fullEnd, event => {
+      pool.eventTarget.addEventListener(PoolEvents.fullEnd, (event) => {
         ++poolFullEnd
         poolFullEndInfo = event.detail
       })
@@ -1409,18 +1415,18 @@ describe({
         new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         {
           enableTasksQueue: true,
-        }
+        },
       )
       const promises = new Set()
       let poolBackPressure = 0
       let poolBackPressureInfo
-      pool.eventTarget.addEventListener(PoolEvents.backPressure, event => {
+      pool.eventTarget.addEventListener(PoolEvents.backPressure, (event) => {
         ++poolBackPressure
         poolBackPressureInfo = event.detail
       })
       let poolBackPressureEnd = 0
       let poolBackPressureEndInfo
-      pool.eventTarget.addEventListener(PoolEvents.backPressureEnd, event => {
+      pool.eventTarget.addEventListener(PoolEvents.backPressureEnd, (event) => {
         ++poolBackPressureEnd
         poolBackPressureEndInfo = event.detail
       })
@@ -1477,7 +1483,7 @@ describe({
         failedTasks: expect.any(Number),
       })
       expect(poolBackPressureEndInfo.backPressureWorkerNodes).toBeLessThan(
-        numberOfWorkers
+        numberOfWorkers,
       )
       await pool.destroy()
     })
@@ -1486,12 +1492,12 @@ describe({
       const pool = new DynamicThreadPool(
         0,
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const promises = new Set()
       let poolEmpty = 0
       let poolInfo
-      pool.eventTarget.addEventListener(PoolEvents.empty, event => {
+      pool.eventTarget.addEventListener(PoolEvents.empty, (event) => {
         ++poolEmpty
         poolInfo = event.detail
       })
@@ -1530,7 +1536,7 @@ describe({
         {
           enableTasksQueue: true,
           tasksQueueOptions: { tasksFinishedTimeout },
-        }
+        },
       )
       const maxMultiplier = 4
       let tasksFinished = 0
@@ -1550,7 +1556,7 @@ describe({
       expect(elapsedTime).toBeGreaterThanOrEqual(2000)
       // Worker kill message response timeout is 1000ms
       expect(elapsedTime).toBeLessThanOrEqual(
-        tasksFinishedTimeout + 1000 * tasksFinished + 1000
+        tasksFinishedTimeout + 1000 * tasksFinished + 1000,
       )
     })
 
@@ -1562,7 +1568,7 @@ describe({
         {
           enableTasksQueue: true,
           tasksQueueOptions: { tasksFinishedTimeout },
-        }
+        },
       )
       const maxMultiplier = 4
       let tasksFinished = 0
@@ -1581,7 +1587,7 @@ describe({
       expect(tasksFinished).toBe(0)
       // Worker kill message response timeout is 1000ms
       expect(elapsedTime).toBeLessThanOrEqual(
-        tasksFinishedTimeout + 1000 * tasksFinished + 1000
+        tasksFinishedTimeout + 1000 * tasksFinished + 1000,
       )
     })
 
@@ -1591,13 +1597,13 @@ describe({
         numberOfWorkers,
         new URL(
           './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url
-        )
+          import.meta.url,
+        ),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       expect(dynamicThreadPool.hasTaskFunction(DEFAULT_TASK_NAME)).toBe(true)
       expect(
-        dynamicThreadPool.hasTaskFunction('jsonIntegerSerialization')
+        dynamicThreadPool.hasTaskFunction('jsonIntegerSerialization'),
       ).toBe(true)
       expect(dynamicThreadPool.hasTaskFunction('factorial')).toBe(true)
       expect(dynamicThreadPool.hasTaskFunction('fibonacci')).toBe(true)
@@ -1607,13 +1613,13 @@ describe({
         numberOfWorkers,
         new URL(
           './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url
-        )
+          import.meta.url,
+        ),
       )
       await waitPoolEvents(fixedClusterPool, PoolEvents.ready, 1)
       expect(fixedClusterPool.hasTaskFunction(DEFAULT_TASK_NAME)).toBe(true)
       expect(fixedClusterPool.hasTaskFunction('jsonIntegerSerialization')).toBe(
-        true
+        true,
       )
       expect(fixedClusterPool.hasTaskFunction('factorial')).toBe(true)
       expect(fixedClusterPool.hasTaskFunction('fibonacci')).toBe(true)
@@ -1625,76 +1631,77 @@ describe({
       const dynamicThreadPool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       await expect(
-        dynamicThreadPool.addTaskFunction(0, () => {})
+        dynamicThreadPool.addTaskFunction(0, () => {}),
       ).rejects.toThrow(new TypeError('name argument must be a string'))
       await expect(
-        dynamicThreadPool.addTaskFunction('', () => {})
+        dynamicThreadPool.addTaskFunction('', () => {}),
       ).rejects.toThrow(
-        new TypeError('name argument must not be an empty string')
+        new TypeError('name argument must not be an empty string'),
       )
       await expect(
-        dynamicThreadPool.addTaskFunction('test', 0)
+        dynamicThreadPool.addTaskFunction('test', 0),
       ).rejects.toThrow(
-        new TypeError('taskFunction property must be a function')
+        new TypeError('taskFunction property must be a function'),
       )
       await expect(
-        dynamicThreadPool.addTaskFunction('test', '')
+        dynamicThreadPool.addTaskFunction('test', ''),
       ).rejects.toThrow(
-        new TypeError('taskFunction property must be a function')
+        new TypeError('taskFunction property must be a function'),
       )
       await expect(
-        dynamicThreadPool.addTaskFunction('test', { taskFunction: 0 })
+        dynamicThreadPool.addTaskFunction('test', { taskFunction: 0 }),
       ).rejects.toThrow(
-        new TypeError('taskFunction property must be a function')
+        new TypeError('taskFunction property must be a function'),
       )
       await expect(
-        dynamicThreadPool.addTaskFunction('test', { taskFunction: '' })
+        dynamicThreadPool.addTaskFunction('test', { taskFunction: '' }),
       ).rejects.toThrow(
-        new TypeError('taskFunction property must be a function')
+        new TypeError('taskFunction property must be a function'),
       )
       await expect(
         dynamicThreadPool.addTaskFunction('test', {
           taskFunction: () => {},
           priority: -21,
-        })
+        }),
       ).rejects.toThrow(
-        new RangeError("Property 'priority' must be between -20 and 19")
+        new RangeError("Property 'priority' must be between -20 and 19"),
       )
       await expect(
         dynamicThreadPool.addTaskFunction('test', {
           taskFunction: () => {},
           priority: 20,
-        })
+        }),
       ).rejects.toThrow(
-        new RangeError("Property 'priority' must be between -20 and 19")
+        new RangeError("Property 'priority' must be between -20 and 19"),
       )
       await expect(
         dynamicThreadPool.addTaskFunction('test', {
           taskFunction: () => {},
           strategy: 'invalidStrategy',
-        })
+        }),
       ).rejects.toThrow(
-        new Error("Invalid worker choice strategy 'invalidStrategy'")
+        new Error("Invalid worker choice strategy 'invalidStrategy'"),
       )
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
         { name: DEFAULT_TASK_NAME },
         { name: 'test' },
       ])
       expect([
-        ...dynamicThreadPool.workerChoiceStrategiesContext.workerChoiceStrategies.keys(),
+        ...dynamicThreadPool.workerChoiceStrategiesContext
+          .workerChoiceStrategies.keys(),
       ]).toStrictEqual([WorkerChoiceStrategies.LEAST_USED])
-      const echoTaskFunction = data => {
+      const echoTaskFunction = (data) => {
         return data
       }
       await expect(
         dynamicThreadPool.addTaskFunction('echo', {
           taskFunction: echoTaskFunction,
           strategy: WorkerChoiceStrategies.LEAST_BUSY,
-        })
+        }),
       ).resolves.toBe(true)
       expect(dynamicThreadPool.taskFunctions.size).toBe(1)
       expect(dynamicThreadPool.taskFunctions.get('echo')).toStrictEqual({
@@ -1702,7 +1709,8 @@ describe({
         strategy: WorkerChoiceStrategies.LEAST_BUSY,
       })
       expect([
-        ...dynamicThreadPool.workerChoiceStrategiesContext.workerChoiceStrategies.keys(),
+        ...dynamicThreadPool.workerChoiceStrategiesContext
+          .workerChoiceStrategies.keys(),
       ]).toStrictEqual([
         WorkerChoiceStrategies.LEAST_USED,
         WorkerChoiceStrategies.LEAST_BUSY,
@@ -1715,7 +1723,7 @@ describe({
       const taskFunctionData = { test: 'test' }
       const echoResult = await dynamicThreadPool.execute(
         taskFunctionData,
-        'echo'
+        'echo',
       )
       expect(echoResult).toStrictEqual(taskFunctionData)
       for (const workerNode of dynamicThreadPool.workerNodes) {
@@ -1744,30 +1752,30 @@ describe({
           },
         })
         expect(
-          workerNode.getTaskFunctionWorkerUsage('echo').tasks.executed
+          workerNode.getTaskFunctionWorkerUsage('echo').tasks.executed,
         ).toBeGreaterThan(0)
         if (
           workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate ==
-          null
+            null
         ) {
           expect(
-            workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate
+            workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate,
           ).toBeUndefined()
         } else {
           expect(
-            workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate
+            workerNode.getTaskFunctionWorkerUsage('echo').runTime.aggregate,
           ).toBeGreaterThan(0)
         }
         if (
           workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate ==
-          null
+            null
         ) {
           expect(
-            workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate
+            workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate,
           ).toBeUndefined()
         } else {
           expect(
-            workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate
+            workerNode.getTaskFunctionWorkerUsage('echo').waitTime.aggregate,
           ).toBeGreaterThan(0)
         }
       }
@@ -1778,26 +1786,26 @@ describe({
       const dynamicThreadPool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       const poolWorkerNodeKeys = [...dynamicThreadPool.workerNodes.keys()]
 
       // Test with valid workerNodeKeys
-      const echoTaskFunction = data => {
+      const echoTaskFunction = (data) => {
         return data
       }
       await expect(
         dynamicThreadPool.addTaskFunction('affinityEcho', {
           taskFunction: echoTaskFunction,
           workerNodeKeys: [poolWorkerNodeKeys[0]],
-        })
+        }),
       ).resolves.toBe(true)
       expect(dynamicThreadPool.taskFunctions.get('affinityEcho')).toStrictEqual(
         {
           taskFunction: echoTaskFunction,
           workerNodeKeys: [poolWorkerNodeKeys[0]],
-        }
+        },
       )
 
       // Test with invalid workerNodeKeys (out of range)
@@ -1805,11 +1813,11 @@ describe({
         dynamicThreadPool.addTaskFunction('invalidKeys', {
           taskFunction: () => {},
           workerNodeKeys: [999],
-        })
+        }),
       ).rejects.toThrow(
         new RangeError(
-          'Cannot add a task function with invalid worker node keys: 999. Valid keys are: 0..1'
-        )
+          'Cannot add a task function with invalid worker node keys: 999. Valid keys are: 0..1',
+        ),
       )
 
       // Test with empty array workerNodeKeys
@@ -1817,25 +1825,25 @@ describe({
         dynamicThreadPool.addTaskFunction('emptyKeys', {
           taskFunction: () => {},
           workerNodeKeys: [],
-        })
+        }),
       ).rejects.toThrow(
-        new RangeError('Invalid worker node keys: must not be an empty array')
+        new RangeError('Invalid worker node keys: must not be an empty array'),
       )
 
       // Test exceeding max workers
       const tooManyKeys = Array.from(
         { length: numberOfWorkers + 1 },
-        (_, i) => i
+        (_, i) => i,
       )
       await expect(
         dynamicThreadPool.addTaskFunction('tooManyKeys', {
           taskFunction: () => {},
           workerNodeKeys: tooManyKeys,
-        })
+        }),
       ).rejects.toThrow(
         new RangeError(
-          'Cannot add a task function with more worker node keys than the maximum number of workers in the pool'
-        )
+          'Cannot add a task function with more worker node keys than the maximum number of workers in the pool',
+        ),
       )
 
       // Test with duplicate workerNodeKeys
@@ -1843,9 +1851,9 @@ describe({
         dynamicThreadPool.addTaskFunction('duplicateKeys', {
           taskFunction: () => {},
           workerNodeKeys: [poolWorkerNodeKeys[0], poolWorkerNodeKeys[0]],
-        })
+        }),
       ).rejects.toThrow(
-        new TypeError('Invalid worker node keys: must not contain duplicates')
+        new TypeError('Invalid worker node keys: must not contain duplicates'),
       )
 
       // Test with non-integer values
@@ -1853,11 +1861,11 @@ describe({
         dynamicThreadPool.addTaskFunction('nonIntegerKeys', {
           taskFunction: () => {},
           workerNodeKeys: [1.5],
-        })
+        }),
       ).rejects.toThrow(
         new TypeError(
-          "Invalid worker node key '1.5': must be a non-negative safe integer"
-        )
+          "Invalid worker node key '1.5': must be a non-negative safe integer",
+        ),
       )
 
       // Test with negative values
@@ -1865,11 +1873,11 @@ describe({
         dynamicThreadPool.addTaskFunction('negativeKeys', {
           taskFunction: () => {},
           workerNodeKeys: [-1],
-        })
+        }),
       ).rejects.toThrow(
         new TypeError(
-          "Invalid worker node key '-1': must be a non-negative safe integer"
-        )
+          "Invalid worker node key '-1': must be a non-negative safe integer",
+        ),
       )
 
       await dynamicThreadPool.destroy()
@@ -1879,13 +1887,13 @@ describe({
       const dynamicThreadPool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       const poolWorkerNodeKeys = [...dynamicThreadPool.workerNodes.keys()]
 
       // Add task function with affinity to first worker only
-      const affinityTaskFunction = data => {
+      const affinityTaskFunction = (data) => {
         return data
       }
       await dynamicThreadPool.addTaskFunction('affinityTask', {
@@ -1922,21 +1930,21 @@ describe({
     })
 
     it({
-      name: 'Verify that execute() creates dynamic workers for workerNodeKeys affinity',
-      ignore:
-        Deno.build.os === 'linux' &&
+      name:
+        'Verify that execute() creates dynamic workers for workerNodeKeys affinity',
+      ignore: Deno.build.os === 'linux' &&
         Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
       fn: async () => {
         const dynamicThreadPool = new DynamicThreadPool(
           1,
           4,
-          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
         )
         await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
         expect(dynamicThreadPool.workerNodes.length).toBe(1)
 
         await dynamicThreadPool.addTaskFunction('affinityBeyondMin', {
-          taskFunction: data => data,
+          taskFunction: (data) => data,
           workerNodeKeys: [2, 3],
         })
 
@@ -1947,7 +1955,7 @@ describe({
         const tasks = []
         for (let i = 0; i < 4; i++) {
           tasks.push(
-            dynamicThreadPool.execute({ test: i }, 'affinityBeyondMin')
+            dynamicThreadPool.execute({ test: i }, 'affinityBeyondMin'),
           )
         }
         await Promise.all(tasks)
@@ -1966,7 +1974,7 @@ describe({
       const dynamicThreadPool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
@@ -1974,11 +1982,11 @@ describe({
         { name: 'test' },
       ])
       await expect(
-        dynamicThreadPool.removeTaskFunction('test')
+        dynamicThreadPool.removeTaskFunction('test'),
       ).rejects.toThrow(
-        new Error('Cannot remove a task function not handled on the pool side')
+        new Error('Cannot remove a task function not handled on the pool side'),
       )
-      const echoTaskFunction = data => {
+      const echoTaskFunction = (data) => {
         return data
       }
       await dynamicThreadPool.addTaskFunction('echo', {
@@ -1991,7 +1999,8 @@ describe({
         strategy: WorkerChoiceStrategies.LEAST_BUSY,
       })
       expect([
-        ...dynamicThreadPool.workerChoiceStrategiesContext.workerChoiceStrategies.keys(),
+        ...dynamicThreadPool.workerChoiceStrategiesContext
+          .workerChoiceStrategies.keys(),
       ]).toStrictEqual([
         WorkerChoiceStrategies.LEAST_USED,
         WorkerChoiceStrategies.LEAST_BUSY,
@@ -2002,12 +2011,13 @@ describe({
         { name: 'echo', strategy: WorkerChoiceStrategies.LEAST_BUSY },
       ])
       await expect(dynamicThreadPool.removeTaskFunction('echo')).resolves.toBe(
-        true
+        true,
       )
       expect(dynamicThreadPool.taskFunctions.size).toBe(0)
       expect(dynamicThreadPool.taskFunctions.get('echo')).toBeUndefined()
       expect([
-        ...dynamicThreadPool.workerChoiceStrategiesContext.workerChoiceStrategies.keys(),
+        ...dynamicThreadPool.workerChoiceStrategiesContext
+          .workerChoiceStrategies.keys(),
       ]).toStrictEqual([WorkerChoiceStrategies.LEAST_USED])
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
         { name: DEFAULT_TASK_NAME },
@@ -2022,8 +2032,8 @@ describe({
         numberOfWorkers,
         new URL(
           './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url
-        )
+          import.meta.url,
+        ),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
@@ -2037,8 +2047,8 @@ describe({
         numberOfWorkers,
         new URL(
           './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url
-        )
+          import.meta.url,
+        ),
       )
       await waitPoolEvents(fixedClusterPool, PoolEvents.ready, 1)
       expect(fixedClusterPool.listTaskFunctionsProperties()).toStrictEqual([
@@ -2056,38 +2066,38 @@ describe({
         numberOfWorkers,
         new URL(
           './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url
-        )
+          import.meta.url,
+        ),
       )
       await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
       const workerId = dynamicThreadPool.workerNodes[0].info.id
       await expect(dynamicThreadPool.setDefaultTaskFunction(0)).rejects.toThrow(
         new Error(
-          `Task function operation 'default' failed on worker ${workerId} with error: 'name parameter is not a string'`
-        )
+          `Task function operation 'default' failed on worker ${workerId} with error: 'name parameter is not a string'`,
+        ),
       )
       await expect(
-        dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME)
+        dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME),
       ).rejects.toThrow(
         new Error(
-          `Task function operation 'default' failed on worker ${workerId} with error: 'Cannot set the default task function reserved name as the default task function'`
-        )
+          `Task function operation 'default' failed on worker ${workerId} with error: 'Cannot set the default task function reserved name as the default task function'`,
+        ),
       )
       await expect(
-        dynamicThreadPool.setDefaultTaskFunction('unknown')
+        dynamicThreadPool.setDefaultTaskFunction('unknown'),
       ).rejects.toThrow(
         new Error(
-          `Task function operation 'default' failed on worker ${workerId} with error: 'Cannot set the default task function to a non-existing task function'`
-        )
+          `Task function operation 'default' failed on worker ${workerId} with error: 'Cannot set the default task function to a non-existing task function'`,
+        ),
       )
       await expect(
-        dynamicThreadPool.setDefaultTaskFunction(0)
+        dynamicThreadPool.setDefaultTaskFunction(0),
       ).rejects.toThrow()
       await expect(
-        dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME)
+        dynamicThreadPool.setDefaultTaskFunction(DEFAULT_TASK_NAME),
       ).rejects.toThrow()
       await expect(
-        dynamicThreadPool.setDefaultTaskFunction('unknown')
+        dynamicThreadPool.setDefaultTaskFunction('unknown'),
       ).rejects.toThrow()
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
         { name: DEFAULT_TASK_NAME },
@@ -2096,7 +2106,7 @@ describe({
         { name: 'fibonacci', priority: 2, workerNodeKeys: [0, 1] },
       ])
       await expect(
-        dynamicThreadPool.setDefaultTaskFunction('factorial')
+        dynamicThreadPool.setDefaultTaskFunction('factorial'),
       ).resolves.toBe(true)
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
         { name: DEFAULT_TASK_NAME, priority: 1, workerNodeKeys: [0] },
@@ -2105,7 +2115,7 @@ describe({
         { name: 'fibonacci', priority: 2, workerNodeKeys: [0, 1] },
       ])
       await expect(
-        dynamicThreadPool.setDefaultTaskFunction('fibonacci')
+        dynamicThreadPool.setDefaultTaskFunction('fibonacci'),
       ).resolves.toBe(true)
       expect(dynamicThreadPool.listTaskFunctionsProperties()).toStrictEqual([
         { name: DEFAULT_TASK_NAME, priority: 2, workerNodeKeys: [0, 1] },
@@ -2122,8 +2132,8 @@ describe({
         numberOfWorkers,
         new URL(
           './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url
-        )
+          import.meta.url,
+        ),
       )
       const data = { n: 10 }
       const result0 = await pool.execute(data)
@@ -2149,9 +2159,11 @@ describe({
         expect(workerNode.taskFunctionsUsage.size).toBe(3)
         expect(workerNode.usage.tasks.executed).toBeGreaterThan(0)
         expect(workerNode.tasksQueue.enablePriority).toBe(true)
-        for (const taskFunctionProperties of pool.listTaskFunctionsProperties()) {
+        for (
+          const taskFunctionProperties of pool.listTaskFunctionsProperties()
+        ) {
           expect(
-            workerNode.getTaskFunctionWorkerUsage(taskFunctionProperties.name)
+            workerNode.getTaskFunctionWorkerUsage(taskFunctionProperties.name),
           ).toStrictEqual({
             tasks: {
               executed: expect.any(Number),
@@ -2178,15 +2190,15 @@ describe({
           })
           expect(
             workerNode.getTaskFunctionWorkerUsage(taskFunctionProperties.name)
-              .tasks.executed
+              .tasks.executed,
           ).toBeGreaterThan(0)
         }
         expect(
-          workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME)
+          workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME),
         ).toStrictEqual(
           workerNode.getTaskFunctionWorkerUsage(
-            workerNode.info.taskFunctionsProperties[1].name
-          )
+            workerNode.info.taskFunctionsProperties[1].name,
+          ),
         )
       }
       await pool.destroy()
@@ -2198,54 +2210,54 @@ describe({
         numberOfWorkers,
         new URL(
           './../worker-files/thread/testMultipleTaskFunctionsWorker.mjs',
-          import.meta.url
-        )
+          import.meta.url,
+        ),
       )
       await expect(pool.mapExecute()).rejects.toThrow(
-        new TypeError('data argument must be a defined iterable')
+        new TypeError('data argument must be a defined iterable'),
       )
       await expect(pool.mapExecute(0)).rejects.toThrow(
-        new TypeError('data argument must be an iterable')
+        new TypeError('data argument must be an iterable'),
       )
       await expect(pool.mapExecute([undefined], 0)).rejects.toThrow(
-        new TypeError('name argument must be a string')
+        new TypeError('name argument must be a string'),
       )
       await expect(pool.mapExecute([undefined], '')).rejects.toThrow(
-        new TypeError('name argument must not be an empty string')
+        new TypeError('name argument must not be an empty string'),
       )
       await expect(pool.mapExecute([undefined], undefined, 0)).rejects.toThrow(
-        new TypeError('abortSignals argument must be an iterable')
+        new TypeError('abortSignals argument must be an iterable'),
       )
       await expect(
-        pool.mapExecute([undefined], undefined, [undefined])
+        pool.mapExecute([undefined], undefined, [undefined]),
       ).rejects.toThrow(
         new TypeError(
-          'abortSignals argument must be an iterable of AbortSignal'
-        )
+          'abortSignals argument must be an iterable of AbortSignal',
+        ),
       )
       await expect(
         pool.mapExecute([undefined], undefined, [
           new AbortController().signal,
           new AbortController().signal,
-        ])
+        ]),
       ).rejects.toThrow(
-        new Error('data and abortSignals arguments must have the same length')
+        new Error('data and abortSignals arguments must have the same length'),
       )
       await expect(
         pool.mapExecute(
           [undefined],
           undefined,
           [new AbortController().signal],
-          {}
-        )
+          {},
+        ),
       ).rejects.toThrow(new TypeError('transferList argument must be an array'))
       await expect(pool.mapExecute([undefined], 'unknown')).rejects.toThrow(
-        new Error("Task function 'unknown' not found")
+        new Error("Task function 'unknown' not found"),
       )
       let results = await pool.mapExecute(
         Array(4).fill({}),
         'jsonIntegerSerialization',
-        Array(4).fill(AbortSignal.timeout(1000))
+        Array(4).fill(AbortSignal.timeout(1000)),
       )
       expect(results).toStrictEqual([
         { ok: 1 },
@@ -2267,7 +2279,7 @@ describe({
           },
         ],
         'factorial',
-        Array(4).fill(AbortSignal.timeout(1000))
+        Array(4).fill(AbortSignal.timeout(1000)),
       )
       expect(results).toStrictEqual([
         3628800n,
@@ -2285,7 +2297,7 @@ describe({
           AbortSignal.timeout(1500),
           AbortSignal.timeout(2000),
           AbortSignal.timeout(2500),
-        ])
+        ]),
       )
       expect(results).toStrictEqual([
         3628800n,
@@ -2304,8 +2316,8 @@ describe({
         numberOfWorkers,
         new URL(
           './../worker-files/thread/testTaskFunctionObjectsWorker.mjs',
-          import.meta.url
-        )
+          import.meta.url,
+        ),
       )
       const data = { n: 10 }
       const result0 = await pool.execute(data)
@@ -2331,9 +2343,11 @@ describe({
         expect(workerNode.taskFunctionsUsage.size).toBe(3)
         expect(workerNode.usage.tasks.executed).toBeGreaterThan(0)
         expect(workerNode.tasksQueue.enablePriority).toBe(true)
-        for (const taskFunctionProperties of pool.listTaskFunctionsProperties()) {
+        for (
+          const taskFunctionProperties of pool.listTaskFunctionsProperties()
+        ) {
           expect(
-            workerNode.getTaskFunctionWorkerUsage(taskFunctionProperties.name)
+            workerNode.getTaskFunctionWorkerUsage(taskFunctionProperties.name),
           ).toStrictEqual({
             tasks: {
               executed: expect.any(Number),
@@ -2360,20 +2374,20 @@ describe({
           })
           expect(
             workerNode.getTaskFunctionWorkerUsage(taskFunctionProperties.name)
-              .tasks.executed
+              .tasks.executed,
           ).toBeGreaterThan(0)
         }
         expect(
-          workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME)
+          workerNode.getTaskFunctionWorkerUsage(DEFAULT_TASK_NAME),
         ).toStrictEqual(
           workerNode.getTaskFunctionWorkerUsage(
-            workerNode.info.taskFunctionsProperties[1].name
-          )
+            workerNode.info.taskFunctionsProperties[1].name,
+          ),
         )
       }
       await pool.destroy()
       await expect(pool.mapExecute()).rejects.toThrow(
-        new Error('Cannot execute task(s) on not started pool')
+        new Error('Cannot execute task(s) on not started pool'),
       )
     })
 
@@ -2381,11 +2395,11 @@ describe({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const workerNodeKey = 0
       await expect(
-        pool.sendKillMessageToWorker(workerNodeKey)
+        pool.sendKillMessageToWorker(workerNodeKey),
       ).resolves.toBeUndefined()
       // Simulates destroyWorkerNode()
       pool.workerNodes[workerNodeKey].terminate()
@@ -2396,7 +2410,7 @@ describe({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       const workerNodeKey = 0
       await expect(
@@ -2404,10 +2418,10 @@ describe({
           taskFunctionOperation: 'add',
           taskFunctionProperties: { name: 'empty' },
           taskFunction: (() => {}).toString(),
-        })
+        }),
       ).resolves.toBe(true)
       expect(
-        pool.workerNodes[workerNodeKey].info.taskFunctionsProperties
+        pool.workerNodes[workerNodeKey].info.taskFunctionsProperties,
       ).toStrictEqual([
         { name: DEFAULT_TASK_NAME },
         { name: 'test' },
@@ -2422,14 +2436,14 @@ describe({
       const pool = new DynamicThreadPool(
         Math.floor(numberOfWorkers / 2),
         numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url)
+        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
       )
       await expect(
         pool.sendTaskFunctionOperationToWorkers({
           taskFunctionOperation: 'add',
           taskFunctionProperties: { name: 'empty' },
           taskFunction: (() => {}).toString(),
-        })
+        }),
       ).resolves.toBe(true)
       for (const workerNode of pool.workerNodes) {
         expect(workerNode.info.taskFunctionsProperties).toStrictEqual([
