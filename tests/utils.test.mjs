@@ -40,17 +40,21 @@ describe('Utils test suite', () => {
   })
 
   it('Verify sleep() behavior', async () => {
-    using time = new FakeTime()
-    const delay = 1000
-    let resolved = false
-    const sleepPromise = sleep(delay).then(() => {
-      resolved = true
-      return true
-    })
-    expect(resolved).toBe(false)
-    await time.tickAsync(delay)
-    await sleepPromise
-    expect(resolved).toBe(true)
+    const time = new FakeTime()
+    try {
+      const delay = 1000
+      let resolved = false
+      const sleepPromise = sleep(delay).then(() => {
+        resolved = true
+        return true
+      })
+      expect(resolved).toBe(false)
+      await time.tickAsync(delay)
+      await sleepPromise
+      expect(resolved).toBe(true)
+    } finally {
+      time.restore()
+    }
   })
 
   it('Verify exponentialDelay() behavior', () => {
