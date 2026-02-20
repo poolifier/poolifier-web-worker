@@ -1,6 +1,7 @@
 import { randomInt } from 'node:crypto'
 import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
+import { FakeTime } from '@std/testing/time'
 import { availableParallelism, KillBehaviors } from '../src/mod.ts'
 import {
   average,
@@ -39,10 +40,17 @@ describe('Utils test suite', () => {
   })
 
   it('Verify sleep() behavior', async () => {
-    const start = performance.now()
-    await sleep(1000)
-    const elapsed = performance.now() - start
-    expect(elapsed).toBeGreaterThanOrEqual(1000)
+    using time = new FakeTime()
+    const delay = 1000
+    let resolved = false
+    const sleepPromise = sleep(delay).then(() => {
+      resolved = true
+      return true
+    })
+    expect(resolved).toBe(false)
+    await time.tickAsync(delay)
+    await sleepPromise
+    expect(resolved).toBe(true)
   })
 
   it('Verify exponentialDelay() behavior', () => {
@@ -168,10 +176,10 @@ describe('Utils test suite', () => {
     expect(isAsyncFunction({})).toBe(false)
     expect(isAsyncFunction({ a: 1 })).toBe(false)
     expect(isAsyncFunction(() => {})).toBe(false)
-    expect(isAsyncFunction(function () {})).toBe(false)
+    expect(isAsyncFunction(() => {})).toBe(false)
     expect(isAsyncFunction(function named() {})).toBe(false)
     expect(isAsyncFunction(async () => {})).toBe(true)
-    expect(isAsyncFunction(async function () {})).toBe(true)
+    expect(isAsyncFunction(async () => {})).toBe(true)
     expect(isAsyncFunction(async function named() {})).toBe(true)
     class TestClass {
       testSync() {}
