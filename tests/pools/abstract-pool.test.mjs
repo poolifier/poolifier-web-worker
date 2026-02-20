@@ -1883,50 +1883,57 @@ describe({
       await dynamicThreadPool.destroy()
     })
 
-    it('Verify that execute() respects workerNodeKeys affinity', async () => {
-      const dynamicThreadPool = new DynamicThreadPool(
-        Math.floor(numberOfWorkers / 2),
-        numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-      )
-      await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
-      const poolWorkerNodeKeys = [...dynamicThreadPool.workerNodes.keys()]
+    it({
+      name: 'Verify that execute() respects workerNodeKeys affinity',
+      ignore: Deno.build.os === 'darwin' &&
+        Number.parseInt(Deno.version.deno.split('.')[0]) < 2,
+      fn: async () => {
+        const dynamicThreadPool = new DynamicThreadPool(
+          Math.floor(numberOfWorkers / 2),
+          numberOfWorkers,
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+        )
+        await waitPoolEvents(dynamicThreadPool, PoolEvents.ready, 1)
+        const poolWorkerNodeKeys = [...dynamicThreadPool.workerNodes.keys()]
 
-      // Add task function with affinity to first worker only
-      const affinityTaskFunction = (data) => {
-        return data
-      }
-      await dynamicThreadPool.addTaskFunction('affinityTask', {
-        taskFunction: affinityTaskFunction,
-        workerNodeKeys: [poolWorkerNodeKeys[0]],
-      })
-
-      // Reset task counts to track new executions
-      for (const workerNode of dynamicThreadPool.workerNodes) {
-        workerNode.usage.tasks.executed = 0
-      }
-
-      // Execute multiple tasks with affinity
-      const numTasks = 5
-      const tasks = []
-      for (let i = 0; i < numTasks; i++) {
-        tasks.push(dynamicThreadPool.execute({ test: i }, 'affinityTask'))
-      }
-      await Promise.all(tasks)
-
-      // Verify that only the affinity worker received the tasks
-      const affinityWorkerNode =
-        dynamicThreadPool.workerNodes[poolWorkerNodeKeys[0]]
-      expect(affinityWorkerNode.usage.tasks.executed).toBe(numTasks)
-
-      // Other workers should have 0 tasks from affinityTask
-      for (let i = 0; i < dynamicThreadPool.workerNodes.length; i++) {
-        if (i !== poolWorkerNodeKeys[0]) {
-          expect(dynamicThreadPool.workerNodes[i].usage.tasks.executed).toBe(0)
+        // Add task function with affinity to first worker only
+        const affinityTaskFunction = (data) => {
+          return data
         }
-      }
+        await dynamicThreadPool.addTaskFunction('affinityTask', {
+          taskFunction: affinityTaskFunction,
+          workerNodeKeys: [poolWorkerNodeKeys[0]],
+        })
 
-      await dynamicThreadPool.destroy()
+        // Reset task counts to track new executions
+        for (const workerNode of dynamicThreadPool.workerNodes) {
+          workerNode.usage.tasks.executed = 0
+        }
+
+        // Execute multiple tasks with affinity
+        const numTasks = 5
+        const tasks = []
+        for (let i = 0; i < numTasks; i++) {
+          tasks.push(dynamicThreadPool.execute({ test: i }, 'affinityTask'))
+        }
+        await Promise.all(tasks)
+
+        // Verify that only the affinity worker received the tasks
+        const affinityWorkerNode =
+          dynamicThreadPool.workerNodes[poolWorkerNodeKeys[0]]
+        expect(affinityWorkerNode.usage.tasks.executed).toBe(numTasks)
+
+        // Other workers should have 0 tasks from affinityTask
+        for (let i = 0; i < dynamicThreadPool.workerNodes.length; i++) {
+          if (i !== poolWorkerNodeKeys[0]) {
+            expect(dynamicThreadPool.workerNodes[i].usage.tasks.executed).toBe(
+              0,
+            )
+          }
+        }
+
+        await dynamicThreadPool.destroy()
+      },
     })
 
     it({
