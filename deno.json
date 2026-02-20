@@ -37,8 +37,8 @@
   },
   "imports": {
     "tinybench": "npm:tinybench@^6.0.0",
-    "@std/cli": "jsr:@std/cli@^1.0.27",
-    "@std/expect": "jsr:@std/expect@^1.0.17",
+    "@std/cli": "jsr:@std/cli@^1.0.28",
+    "@std/expect": "jsr:@std/expect@^1.0.18",
     "@std/testing": "jsr:@std/testing@^1.0.17"
   },
   "publish": {
