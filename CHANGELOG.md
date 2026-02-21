@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.1...v0.6.2) (2026-02-21)
+
+
+### 🐞 Bug Fixes
+
+* add missing loadExponent: 0 validation test ([f8500ee](https://github.com/poolifier/poolifier-web-worker/commit/f8500eece48bd35c1b46b536c93be699a2e1d7f3))
+* **deps:** update dependency poolifier-web-worker to ^0.6.1 ([#130](https://github.com/poolifier/poolifier-web-worker/issues/130)) ([ca51b78](https://github.com/poolifier/poolifier-web-worker/commit/ca51b78dd950028e35993a9a69126c10f69b952e))
+* remove incorrectly added test code during commit port ([5b84f16](https://github.com/poolifier/poolifier-web-worker/commit/5b84f16607b3ddb5d93cbf1b2549b4bad19271bb))
+* **test:** ignore flaky workerNodeKeys affinity test on Deno v1.x macOS ([68b8451](https://github.com/poolifier/poolifier-web-worker/commit/68b8451680e32c1d7ff0297f0ad1c390790c81ac))
+* **test:** restore anonymous function tests in isAsyncFunction() ([08ae153](https://github.com/poolifier/poolifier-web-worker/commit/08ae153c34ad2f7a0b21e6fc1b49a75b07353f87))
+* **test:** use FakeTime for sleep() test to avoid flakiness ([30d9f25](https://github.com/poolifier/poolifier-web-worker/commit/30d9f25d9c8e75af577ac6f48405e94d2f736423))
+* **test:** use try/finally instead of 'using' for Deno v1.x compatibility ([c0bd174](https://github.com/poolifier/poolifier-web-worker/commit/c0bd1743ec4a09efa02a7ab26cc713d6e059f81b))
+
 ## [0.6.1](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.0...v0.6.1) (2026-02-20)
 
 ### 🚀 Features
