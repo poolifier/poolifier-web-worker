@@ -29,6 +29,12 @@ deno task lint
 deno task format && deno task lint
 ```
 
+**How to install Git hooks for automatic formatting and linting**
+
+```bash
+deno task hooks:install
+```
+
 ### Project pillars
 
 Please consider our pillars before to start change the project
