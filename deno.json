@@ -24,7 +24,9 @@
     "format:check": "deno fmt --check",
     "lint": "deno lint",
     "lint:fix": "deno lint --fix",
-    "documentation": "deno doc ./src/mod.ts"
+    "documentation": "deno doc ./src/mod.ts",
+    "hooks:install": "deno run --allow-read=deno.json,.git/hooks/ --allow-write=.git/hooks/ jsr:@hongminhee/deno-task-hooks",
+    "hooks:pre-commit": "deno task format && deno task lint:fix"
   },
   "test": {
     "include": [
