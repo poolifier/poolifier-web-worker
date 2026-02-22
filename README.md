@@ -56,12 +56,11 @@ Please consult our [general guidelines](#general-guidelines).
   - Tasks redistribution on worker error ✔
 - Support for sync and async task function ✔
 - Support for abortable task function ✔
-- Support for multiple task functions with per task function queuing priority
-  and tasks distribution strategy ✔
-- Support for worker node affinity per task function ✔
-- Support for task functions
-  [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-  operations at runtime ✔
+- Support for multiple task functions:
+  - Queuing priority ✔
+  - Tasks distribution strategy ✔
+  - Worker node affinity ✔
+  - [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations at runtime ✔
 - General guidelines on pool choice ✔
 - Error handling out of the box ✔
 - Widely tested ✔
