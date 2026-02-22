@@ -60,7 +60,8 @@ Please consult our [general guidelines](#general-guidelines).
   - Queuing priority ✔
   - Tasks distribution strategy ✔
   - Worker node affinity ✔
-  - [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations at runtime ✔
+  - [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
+    operations at runtime ✔
 - General guidelines on pool choice ✔
 - Error handling out of the box ✔
 - Widely tested ✔
