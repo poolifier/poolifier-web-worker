@@ -240,9 +240,8 @@ describe('Abstract worker test suite', () => {
   })
 
   it('Verify that getMainWorker() throw error if main worker is not set', () => {
-    expect(() =>
-      new StubWorkerWithMainWorker(() => {}).getMainWorker()
-    ).toThrow('Main worker not set')
+    expect(() => new StubWorkerWithMainWorker(() => {}).getMainWorker())
+      .toThrow('Main worker not set')
   })
 
   it('Verify that hasTaskFunction() is working', () => {
@@ -484,7 +483,6 @@ describe('Abstract worker test suite', () => {
   describe('Message handling', () => {
     it('Verify that messageEventListener() handles statistics message', () => {
       const worker = new ThreadWorker(() => {})
-      // Set worker id manually for testing (normally set by handleReadyMessageEvent)
       worker.id = '550e8400-e29b-41d4-a716-446655440000'
       worker.messageEventListener({
         data: {
@@ -497,7 +495,6 @@ describe('Abstract worker test suite', () => {
 
     it('Verify that messageEventListener() handles checkActive message', () => {
       const worker = new ThreadWorker(() => {})
-      // Set worker id manually for testing
       worker.id = '550e8400-e29b-41d4-a716-446655440000'
       worker.messageEventListener({
         data: {
@@ -517,7 +514,6 @@ describe('Abstract worker test suite', () => {
 
     it('Verify that messageEventListener() handles kill message', () => {
       const worker = new ThreadWorker(() => {})
-      // Set worker id manually for testing
       worker.id = '550e8400-e29b-41d4-a716-446655440000'
       const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
       worker.messageEventListener({
@@ -557,7 +553,6 @@ describe('Abstract worker test suite', () => {
 
     it('Verify that messageEventListener() throws on mismatched workerId', () => {
       const worker = new ThreadWorker(() => {})
-      // Set worker id manually for testing
       worker.id = '550e8400-e29b-41d4-a716-446655440000'
       expect(() =>
         worker.messageEventListener({ data: { workerId: 'wrong-id' } })
@@ -657,7 +652,9 @@ describe('Abstract worker test suite', () => {
       assertSpyCalls(sendToMainWorkerStub, 1)
       const lastCall = sendToMainWorkerStub.calls[0]
       expect(lastCall.args[0].workerError).toBeDefined()
-      expect(lastCall.args[0].workerError.error.message).toBe('Async task error')
+      expect(lastCall.args[0].workerError.error.message).toBe(
+        'Async task error',
+      )
       sendToMainWorkerStub.restore()
     })
 
@@ -702,9 +699,8 @@ describe('Abstract worker test suite', () => {
         taskFunctionProperties: { name: 'newFn' },
       })
       expect(worker.taskFunctions.has('newFn')).toBe(true)
-      // Called twice: once for sendTaskFunctionsPropertiesToMainWorker, once for operation response
-      expect(sendToMainWorkerStub.calls.length).toBeGreaterThanOrEqual(1)
-      const lastCall = sendToMainWorkerStub.calls[sendToMainWorkerStub.calls.length - 1]
+      assertSpyCalls(sendToMainWorkerStub, 2)
+      const lastCall = sendToMainWorkerStub.calls[1]
       expect(lastCall.args[0].taskFunctionOperationStatus).toBe(true)
       sendToMainWorkerStub.restore()
     })
@@ -720,9 +716,8 @@ describe('Abstract worker test suite', () => {
         taskFunctionProperties: { name: 'fn2' },
       })
       expect(worker.taskFunctions.has('fn2')).toBe(false)
-      // Called twice: once for sendTaskFunctionsPropertiesToMainWorker, once for operation response
-      expect(sendToMainWorkerStub.calls.length).toBeGreaterThanOrEqual(1)
-      const lastCall = sendToMainWorkerStub.calls[sendToMainWorkerStub.calls.length - 1]
+      assertSpyCalls(sendToMainWorkerStub, 2)
+      const lastCall = sendToMainWorkerStub.calls[1]
       expect(lastCall.args[0].taskFunctionOperationStatus).toBe(true)
       sendToMainWorkerStub.restore()
     })
@@ -739,9 +734,8 @@ describe('Abstract worker test suite', () => {
       expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
         worker.taskFunctions.get('fn2'),
       )
-      // Called twice: once for sendTaskFunctionsPropertiesToMainWorker, once for operation response
-      expect(sendToMainWorkerStub.calls.length).toBeGreaterThanOrEqual(1)
-      const lastCall = sendToMainWorkerStub.calls[sendToMainWorkerStub.calls.length - 1]
+      assertSpyCalls(sendToMainWorkerStub, 2)
+      const lastCall = sendToMainWorkerStub.calls[1]
       expect(lastCall.args[0].taskFunctionOperationStatus).toBe(true)
       sendToMainWorkerStub.restore()
     })
@@ -808,7 +802,6 @@ describe('Abstract worker test suite', () => {
       const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
       worker.startCheckActive()
       await sleep(20)
-      // May be called multiple times due to interval, check at least once
       expect(sendToMainWorkerStub.calls.length).toBeGreaterThanOrEqual(1)
       expect(sendToMainWorkerStub.calls[0].args[0]).toStrictEqual({
         kill: KillBehaviors.SOFT,
