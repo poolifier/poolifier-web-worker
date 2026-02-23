@@ -10,6 +10,13 @@ import { DEFAULT_TASK_NAME, EMPTY_FUNCTION } from '../../src/utils.ts'
 import { sleep } from '../test-utils.mjs'
 
 describe('Abstract worker test suite', () => {
+  class StubWorkerWithMainWorker extends ThreadWorker {
+    constructor(fn, opts) {
+      super(fn, opts)
+      delete this.mainWorker
+    }
+  }
+
   it('Verify worker options default values', () => {
     const worker = new ThreadWorker(() => {})
     expect(worker.opts).toStrictEqual({
@@ -232,19 +239,10 @@ describe('Abstract worker test suite', () => {
     )
   })
 
-  it('Verify that async kill handler is called when worker is killed', async () => {
-    const killHandlerStub = stub(() => {})
-    const worker = new ThreadWorker(() => {}, {
-      killHandler: async () => await Promise.resolve(killHandlerStub()),
-    })
-    const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-    worker.handleKillMessage()
-    await sleep(10)
-    assertSpyCalls(killHandlerStub, 1)
-    assertSpyCalls(sendToMainWorkerStub, 1)
-    assertSpyCall(sendToMainWorkerStub, 0, { args: [{ kill: 'success' }] })
-    sendToMainWorkerStub.restore()
-    killHandlerStub.restore()
+  it('Verify that getMainWorker() throw error if main worker is not set', () => {
+    expect(() =>
+      new StubWorkerWithMainWorker(() => {}).getMainWorker()
+    ).toThrow('Main worker not set')
   })
 
   it('Verify that hasTaskFunction() is working', () => {
@@ -445,5 +443,378 @@ describe('Abstract worker test suite', () => {
     expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
       worker.taskFunctions.get('fn2'),
     )
+  })
+
+  it('Verify that removeTaskFunction() is working', () => {
+    const fn1 = () => {
+      return 1
+    }
+    const fn2 = () => {
+      return 2
+    }
+    const worker = new ThreadWorker({ fn1, fn2 })
+    const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+    expect(worker.removeTaskFunction(0)).toStrictEqual({
+      status: false,
+      error: new TypeError('name parameter is not a string'),
+    })
+    expect(worker.removeTaskFunction('')).toStrictEqual({
+      status: false,
+      error: new TypeError('name parameter is an empty string'),
+    })
+    expect(worker.removeTaskFunction(DEFAULT_TASK_NAME)).toStrictEqual({
+      status: false,
+      error: new Error(
+        'Cannot remove the task function with the default reserved name',
+      ),
+    })
+    expect(worker.removeTaskFunction('fn1')).toStrictEqual({
+      status: false,
+      error: new Error(
+        'Cannot remove the task function used as the default task function',
+      ),
+    })
+    expect(worker.taskFunctions.size).toBe(3)
+    expect(worker.removeTaskFunction('fn2')).toStrictEqual({ status: true })
+    expect(worker.taskFunctions.size).toBe(2)
+    expect(worker.taskFunctions.has('fn2')).toBe(false)
+    sendToMainWorkerStub.restore()
+  })
+
+  describe('Message handling', () => {
+    it('Verify that messageEventListener() handles statistics message', () => {
+      const worker = new ThreadWorker(() => {})
+      // Set worker id manually for testing (normally set by handleReadyMessageEvent)
+      worker.id = '550e8400-e29b-41d4-a716-446655440000'
+      worker.messageEventListener({
+        data: {
+          statistics: { elu: true, runTime: true },
+          workerId: worker.id,
+        },
+      })
+      expect(worker.statistics).toStrictEqual({ elu: true, runTime: true })
+    })
+
+    it('Verify that messageEventListener() handles checkActive message', () => {
+      const worker = new ThreadWorker(() => {})
+      // Set worker id manually for testing
+      worker.id = '550e8400-e29b-41d4-a716-446655440000'
+      worker.messageEventListener({
+        data: {
+          checkActive: true,
+          workerId: worker.id,
+        },
+      })
+      expect(worker.activeInterval).toBeDefined()
+      worker.messageEventListener({
+        data: {
+          checkActive: false,
+          workerId: worker.id,
+        },
+      })
+      expect(worker.activeInterval).toBeUndefined()
+    })
+
+    it('Verify that messageEventListener() handles kill message', () => {
+      const worker = new ThreadWorker(() => {})
+      // Set worker id manually for testing
+      worker.id = '550e8400-e29b-41d4-a716-446655440000'
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.messageEventListener({
+        data: {
+          kill: true,
+          workerId: worker.id,
+        },
+      })
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      expect(sendToMainWorkerStub.calls[0].args[0]).toMatchObject({
+        kill: 'success',
+      })
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that async kill handler is called when worker is killed', async () => {
+      const killHandlerStub = stub(() => {})
+      const worker = new ThreadWorker(() => {}, {
+        killHandler: async () => await Promise.resolve(killHandlerStub()),
+      })
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.handleKillMessage()
+      await sleep(10)
+      assertSpyCalls(killHandlerStub, 1)
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      assertSpyCall(sendToMainWorkerStub, 0, { args: [{ kill: 'success' }] })
+      sendToMainWorkerStub.restore()
+      killHandlerStub.restore()
+    })
+
+    it('Verify that messageEventListener() throws on missing workerId', () => {
+      const worker = new ThreadWorker(() => {})
+      expect(() => worker.messageEventListener({ data: {} })).toThrow(
+        /Message worker id is not set/,
+      )
+    })
+
+    it('Verify that messageEventListener() throws on mismatched workerId', () => {
+      const worker = new ThreadWorker(() => {})
+      // Set worker id manually for testing
+      worker.id = '550e8400-e29b-41d4-a716-446655440000'
+      expect(() =>
+        worker.messageEventListener({ data: { workerId: 'wrong-id' } })
+      ).toThrow(/Message worker id .* does not match/)
+    })
+  })
+
+  describe('Task execution', () => {
+    it('Verify that run() executes sync task function', () => {
+      const worker = new ThreadWorker((data) => data * 2)
+      worker.statistics = { elu: false, runTime: false }
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.run({
+        data: 21,
+        name: DEFAULT_TASK_NAME,
+        taskId: '550e8400-e29b-41d4-a716-446655440000',
+      })
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      const lastCall = sendToMainWorkerStub.calls[0]
+      expect(lastCall.args[0].data).toBe(42)
+      expect(lastCall.args[0].taskId).toBe(
+        '550e8400-e29b-41d4-a716-446655440000',
+      )
+      expect(lastCall.args[0].taskPerformance).toBeDefined()
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that run() executes async task function', async () => {
+      const worker = new ThreadWorker(
+        async (data) => await Promise.resolve(data * 2),
+      )
+      worker.statistics = { elu: false, runTime: false }
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.run({
+        data: 21,
+        name: DEFAULT_TASK_NAME,
+        taskId: '550e8400-e29b-41d4-a716-446655440000',
+      })
+      await sleep(10)
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      const lastCall = sendToMainWorkerStub.calls[0]
+      expect(lastCall.args[0].data).toBe(42)
+      expect(lastCall.args[0].taskId).toBe(
+        '550e8400-e29b-41d4-a716-446655440000',
+      )
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that run() handles task function not found', () => {
+      const worker = new ThreadWorker(() => {})
+      worker.statistics = { elu: false, runTime: false }
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.run({
+        data: {},
+        name: 'unknown',
+        taskId: '550e8400-e29b-41d4-a716-446655440000',
+      })
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      const lastCall = sendToMainWorkerStub.calls[0]
+      expect(lastCall.args[0].workerError).toBeDefined()
+      expect(lastCall.args[0].workerError.error.message).toMatch(
+        /Task function 'unknown' not found/,
+      )
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that runSync() handles task function error', () => {
+      const worker = new ThreadWorker(() => {
+        throw new Error('Task error')
+      })
+      worker.statistics = { elu: false, runTime: false }
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.run({
+        data: {},
+        name: DEFAULT_TASK_NAME,
+        taskId: '550e8400-e29b-41d4-a716-446655440000',
+      })
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      const lastCall = sendToMainWorkerStub.calls[0]
+      expect(lastCall.args[0].workerError).toBeDefined()
+      expect(lastCall.args[0].workerError.error.message).toBe('Task error')
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that runAsync() handles task function error', async () => {
+      const worker = new ThreadWorker(async () => {
+        return await Promise.reject(new Error('Async task error'))
+      })
+      worker.statistics = { elu: false, runTime: false }
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.run({
+        data: {},
+        name: DEFAULT_TASK_NAME,
+        taskId: '550e8400-e29b-41d4-a716-446655440000',
+      })
+      await sleep(10)
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      const lastCall = sendToMainWorkerStub.calls[0]
+      expect(lastCall.args[0].workerError).toBeDefined()
+      expect(lastCall.args[0].workerError.error.message).toBe('Async task error')
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that run() with runTime statistics works', () => {
+      const worker = new ThreadWorker((data) => data)
+      worker.statistics = { elu: false, runTime: true }
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.run({
+        data: 'test',
+        name: DEFAULT_TASK_NAME,
+        taskId: '550e8400-e29b-41d4-a716-446655440000',
+      })
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      const lastCall = sendToMainWorkerStub.calls[0]
+      expect(lastCall.args[0].taskPerformance.runTime).toBeGreaterThanOrEqual(0)
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that run() with elu statistics works', () => {
+      const worker = new ThreadWorker((data) => data)
+      worker.statistics = { elu: true, runTime: false }
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.run({
+        data: 'test',
+        name: DEFAULT_TASK_NAME,
+        taskId: '550e8400-e29b-41d4-a716-446655440000',
+      })
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      const lastCall = sendToMainWorkerStub.calls[0]
+      expect(lastCall.args[0].taskPerformance).toBeDefined()
+      sendToMainWorkerStub.restore()
+    })
+  })
+
+  describe('Task function operations via messages', () => {
+    it('Verify that handleTaskFunctionOperationMessage() handles add operation', () => {
+      const worker = new ThreadWorker(() => {})
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.handleTaskFunctionOperationMessage({
+        taskFunction: '(data) => data * 3',
+        taskFunctionOperation: 'add',
+        taskFunctionProperties: { name: 'newFn' },
+      })
+      expect(worker.taskFunctions.has('newFn')).toBe(true)
+      // Called twice: once for sendTaskFunctionsPropertiesToMainWorker, once for operation response
+      expect(sendToMainWorkerStub.calls.length).toBeGreaterThanOrEqual(1)
+      const lastCall = sendToMainWorkerStub.calls[sendToMainWorkerStub.calls.length - 1]
+      expect(lastCall.args[0].taskFunctionOperationStatus).toBe(true)
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that handleTaskFunctionOperationMessage() handles remove operation', () => {
+      const fn1 = () => 1
+      const fn2 = () => 2
+      const worker = new ThreadWorker({ fn1, fn2 })
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      expect(worker.taskFunctions.has('fn2')).toBe(true)
+      worker.handleTaskFunctionOperationMessage({
+        taskFunctionOperation: 'remove',
+        taskFunctionProperties: { name: 'fn2' },
+      })
+      expect(worker.taskFunctions.has('fn2')).toBe(false)
+      // Called twice: once for sendTaskFunctionsPropertiesToMainWorker, once for operation response
+      expect(sendToMainWorkerStub.calls.length).toBeGreaterThanOrEqual(1)
+      const lastCall = sendToMainWorkerStub.calls[sendToMainWorkerStub.calls.length - 1]
+      expect(lastCall.args[0].taskFunctionOperationStatus).toBe(true)
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that handleTaskFunctionOperationMessage() handles default operation', () => {
+      const fn1 = () => 1
+      const fn2 = () => 2
+      const worker = new ThreadWorker({ fn1, fn2 })
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.handleTaskFunctionOperationMessage({
+        taskFunctionOperation: 'default',
+        taskFunctionProperties: { name: 'fn2' },
+      })
+      expect(worker.taskFunctions.get(DEFAULT_TASK_NAME)).toStrictEqual(
+        worker.taskFunctions.get('fn2'),
+      )
+      // Called twice: once for sendTaskFunctionsPropertiesToMainWorker, once for operation response
+      expect(sendToMainWorkerStub.calls.length).toBeGreaterThanOrEqual(1)
+      const lastCall = sendToMainWorkerStub.calls[sendToMainWorkerStub.calls.length - 1]
+      expect(lastCall.args[0].taskFunctionOperationStatus).toBe(true)
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that handleTaskFunctionOperationMessage() handles unknown operation', () => {
+      const worker = new ThreadWorker(() => {})
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.handleTaskFunctionOperationMessage({
+        taskFunctionOperation: 'unknown',
+        taskFunctionProperties: { name: 'fn' },
+      })
+      assertSpyCalls(sendToMainWorkerStub, 1)
+      const lastCall = sendToMainWorkerStub.calls[0]
+      expect(lastCall.args[0].taskFunctionOperationStatus).toBe(false)
+      expect(lastCall.args[0].workerError.error.message).toMatch(
+        /Unknown task function operation/,
+      )
+      sendToMainWorkerStub.restore()
+    })
+
+    it('Verify that handleTaskFunctionOperationMessage() throws without properties', () => {
+      const worker = new ThreadWorker(() => {})
+      expect(() =>
+        worker.handleTaskFunctionOperationMessage({
+          taskFunctionOperation: 'add',
+        })
+      ).toThrow(
+        /Cannot handle task function operation message without task function properties/,
+      )
+    })
+
+    it('Verify that handleTaskFunctionOperationMessage() throws add without function', () => {
+      const worker = new ThreadWorker(() => {})
+      expect(() =>
+        worker.handleTaskFunctionOperationMessage({
+          taskFunctionOperation: 'add',
+          taskFunctionProperties: { name: 'fn' },
+        })
+      ).toThrow(
+        /Cannot handle task function operation add message without task function/,
+      )
+    })
+  })
+
+  describe('Check active mechanism', () => {
+    it('Verify that startCheckActive() starts the interval', () => {
+      const worker = new ThreadWorker(() => {})
+      expect(worker.activeInterval).toBeUndefined()
+      worker.startCheckActive()
+      expect(worker.activeInterval).toBeDefined()
+      worker.stopCheckActive()
+    })
+
+    it('Verify that stopCheckActive() stops the interval', () => {
+      const worker = new ThreadWorker(() => {})
+      worker.startCheckActive()
+      expect(worker.activeInterval).toBeDefined()
+      worker.stopCheckActive()
+      expect(worker.activeInterval).toBeUndefined()
+    })
+
+    it('Verify that checkActive() sends kill on inactivity', async () => {
+      const worker = new ThreadWorker(() => {}, { maxInactiveTime: 10 })
+      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
+      worker.startCheckActive()
+      await sleep(20)
+      // May be called multiple times due to interval, check at least once
+      expect(sendToMainWorkerStub.calls.length).toBeGreaterThanOrEqual(1)
+      expect(sendToMainWorkerStub.calls[0].args[0]).toStrictEqual({
+        kill: KillBehaviors.SOFT,
+      })
+      worker.stopCheckActive()
+      sendToMainWorkerStub.restore()
+    })
   })
 })
