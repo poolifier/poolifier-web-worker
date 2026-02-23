@@ -53,7 +53,7 @@ jobs:
       - name: Lint
         run: deno task lint
 
-      - name: Tests with Coverage
+      - name: Tests & Coverage
         run: deno task test:coverage
 
       - name: Bundle

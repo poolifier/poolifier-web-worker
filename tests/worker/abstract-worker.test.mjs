@@ -1,12 +1,13 @@
 import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
-import { assertSpyCalls, stub } from '@std/testing/mock'
+import { assertSpyCall, assertSpyCalls, stub } from '@std/testing/mock'
 import {
   KillBehaviors,
   ThreadWorker,
   WorkerChoiceStrategies,
 } from '../../src/mod.ts'
 import { DEFAULT_TASK_NAME, EMPTY_FUNCTION } from '../../src/utils.ts'
+import { sleep } from '../test-utils.mjs'
 
 describe('Abstract worker test suite', () => {
   it('Verify worker options default values', () => {
@@ -231,13 +232,18 @@ describe('Abstract worker test suite', () => {
     )
   })
 
-  it('Verify that async kill handler is called when worker is killed', () => {
+  it('Verify that async kill handler is called when worker is killed', async () => {
     const killHandlerStub = stub(() => {})
     const worker = new ThreadWorker(() => {}, {
       killHandler: async () => await Promise.resolve(killHandlerStub()),
     })
+    const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
     worker.handleKillMessage()
+    await sleep(10)
     assertSpyCalls(killHandlerStub, 1)
+    assertSpyCalls(sendToMainWorkerStub, 1)
+    assertSpyCall(sendToMainWorkerStub, 0, { args: [{ kill: 'success' }] })
+    sendToMainWorkerStub.restore()
     killHandlerStub.restore()
   })
 
