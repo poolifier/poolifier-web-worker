@@ -1,14 +1,71 @@
+// Zed project settings for poolifier-web-worker
+//
+// TS/JS: Deno format → Deno lint --fix
+// JSON, JSONC, Markdown, YAML: Deno format
 {
-  "language_servers": [
-    "deno",
-    "!typescript-language-server",
-    "!vtsls",
-    "!eslint",
-    "!biome",
-    "..."
-  ],
-  "code_actions_on_format": {
-    "source.fixAll.deno": true
+  "format_on_save": "on",
+
+  "languages": {
+    // ── TypeScript (covers .ts and .tsx) ──────────────────────
+    "TypeScript": {
+      "language_servers": ["deno"],
+      "formatter": "language_server",
+      "code_actions_on_format": {
+        "source.fixAll.deno": true
+      }
+    },
+    // ── JavaScript (covers .js, .jsx, .cjs, .mjs) ────────────
+    "JavaScript": {
+      "language_servers": ["deno"],
+      "formatter": "language_server",
+      "code_actions_on_format": {
+        "source.fixAll.deno": true
+      }
+    },
+    // ── JSON / JSONC ──────────────────────────────────────────
+    "JSON": {
+      "formatter": {
+        "external": {
+          "command": "deno",
+          "arguments": ["fmt", "--ext", "json", "-"]
+        }
+      }
+    },
+    "JSONC": {
+      "formatter": {
+        "external": {
+          "command": "deno",
+          "arguments": ["fmt", "--ext", "jsonc", "-"]
+        }
+      }
+    },
+    // ── Markdown ──────────────────────────────────────────────
+    "Markdown": {
+      "formatter": {
+        "external": {
+          "command": "deno",
+          "arguments": ["fmt", "--ext", "md", "-"]
+        }
+      }
+    },
+    // ── YAML ──────────────────────────────────────────────────
+    "YAML": {
+      "formatter": {
+        "external": {
+          "command": "deno",
+          "arguments": ["fmt", "--ext", "yml", "-"]
+        }
+      }
+    }
   },
-  "formatter": "language_server"
+
+  "lsp": {
+    "deno": {
+      "settings": {
+        "deno": {
+          "enable": true
+        }
+      }
+    }
+  }
 }
