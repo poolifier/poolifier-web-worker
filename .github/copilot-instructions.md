@@ -1,6 +1,6 @@
-# Copilot Instructions (repository-wide, language-agnostic)
+# Coding Agent Instructions (repository-wide, language-agnostic)
 
-These instructions guide GitHub Copilot to generate changes consistent with this
+These instructions guide coding agents to generate changes consistent with this
 repository's conventions, regardless of programming language.
 
 ## Glossary
@@ -10,7 +10,7 @@ repository's conventions, regardless of programming language.
 - **Canonical defaults**: the single, authoritative definition of all tunables
   and their defaults.
 
-## Implementation guidance for Copilot
+## Implementation guidance
 
 - **Before coding**:
   - Perform a comprehensive inventory of the codebase. Search for and read:
@@ -200,5 +200,5 @@ protected handleProtocolRequest(
 
 ---
 
-By following these instructions, Copilot should propose changes that are
+By following these instructions, coding agents should propose changes that are
 consistent and maintainable across languages.
