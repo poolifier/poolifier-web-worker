@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.2...v0.6.3) (2026-04-25)
+
+
+### 🐞 Bug Fixes
+
+* **deps:** update dependency poolifier-web-worker to ^0.6.2 ([#131](https://github.com/poolifier/poolifier-web-worker/issues/131)) ([55906fc](https://github.com/poolifier/poolifier-web-worker/commit/55906fc9c1dc39ef151407a4598f9e4ecc6b5302))
+
+
+### 📚 Documentation
+
+* neutralize Copilot-specific references in agent instructions ([98ba94b](https://github.com/poolifier/poolifier-web-worker/commit/98ba94b7447f0162308edbafb8dfc613e27416fe))
+
 ## [0.6.2](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.1...v0.6.2) (2026-02-23)
 
 ### 🐞 Bug Fixes
