@@ -8,18 +8,22 @@ and this project adheres to
 
 ## [0.6.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.2...v0.6.3) (2026-05-12)
 
-
 ### 🐞 Bug Fixes
 
-* **deps:** update dependency poolifier-web-worker to ^0.6.2 ([#131](https://github.com/poolifier/poolifier-web-worker/issues/131)) ([55906fc](https://github.com/poolifier/poolifier-web-worker/commit/55906fc9c1dc39ef151407a4598f9e4ecc6b5302))
-* **tests:** remove fragile AbortSignal.timeout message assertion ([57ee6dd](https://github.com/poolifier/poolifier-web-worker/commit/57ee6dd669f6fd3f4e3ef724c146e6fc999c4ee5))
-* **tests:** skip flaky tests only in CI, not locally ([9ab84cb](https://github.com/poolifier/poolifier-web-worker/commit/9ab84cb16800c98a8a76f444155280f5c2d936e6))
-* use ReturnType for timer handles to support Deno canary ([79ae76c](https://github.com/poolifier/poolifier-web-worker/commit/79ae76c762e2d1d8710e41908cfbff90b6ec76c6))
-
+- **deps:** update dependency poolifier-web-worker to ^0.6.2
+  ([#131](https://github.com/poolifier/poolifier-web-worker/issues/131))
+  ([55906fc](https://github.com/poolifier/poolifier-web-worker/commit/55906fc9c1dc39ef151407a4598f9e4ecc6b5302))
+- **tests:** remove fragile AbortSignal.timeout message assertion
+  ([57ee6dd](https://github.com/poolifier/poolifier-web-worker/commit/57ee6dd669f6fd3f4e3ef724c146e6fc999c4ee5))
+- **tests:** skip flaky tests only in CI, not locally
+  ([9ab84cb](https://github.com/poolifier/poolifier-web-worker/commit/9ab84cb16800c98a8a76f444155280f5c2d936e6))
+- use ReturnType for timer handles to support Deno canary
+  ([79ae76c](https://github.com/poolifier/poolifier-web-worker/commit/79ae76c762e2d1d8710e41908cfbff90b6ec76c6))
 
 ### 📚 Documentation
 
-* neutralize Copilot-specific references in agent instructions ([98ba94b](https://github.com/poolifier/poolifier-web-worker/commit/98ba94b7447f0162308edbafb8dfc613e27416fe))
+- neutralize Copilot-specific references in agent instructions
+  ([98ba94b](https://github.com/poolifier/poolifier-web-worker/commit/98ba94b7447f0162308edbafb8dfc613e27416fe))
 
 ## [0.6.2](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.1...v0.6.2) (2026-02-23)
 
