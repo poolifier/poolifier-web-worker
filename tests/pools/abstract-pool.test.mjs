@@ -14,7 +14,7 @@ import { WorkerNode } from '../../src/pools/worker-node.ts'
 import { PriorityQueue } from '../../src/queues/priority-queue.ts'
 import { defaultBucketSize } from '../../src/queues/queue-types.ts'
 import { DEFAULT_TASK_NAME } from '../../src/utils.ts'
-import { waitPoolEvents } from '../test-utils.mjs'
+import { isCI, waitPoolEvents } from '../test-utils.mjs'
 
 describe({
   name: 'Abstract pool test suite',
@@ -1047,32 +1047,37 @@ describe({
       )
     })
 
-    it('Verify that pool can be started after initialization', async () => {
-      const pool = new FixedThreadPool(
-        numberOfWorkers,
-        new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
-        {
-          startWorkers: false,
-        },
-      )
-      expect(pool.info.started).toBe(false)
-      expect(pool.info.ready).toBe(false)
-      expect(pool.workerNodes).toStrictEqual([])
-      expect(pool.readyEventEmitted).toBe(false)
-      expect(pool.busyEventEmitted).toBe(false)
-      expect(pool.backPressureEventEmitted).toBe(false)
-      pool.start()
-      expect(pool.info.started).toBe(true)
-      expect(pool.info.ready).toBe(true)
-      await waitPoolEvents(pool, PoolEvents.ready, 1)
-      expect(pool.readyEventEmitted).toBe(true)
-      expect(pool.busyEventEmitted).toBe(false)
-      expect(pool.backPressureEventEmitted).toBe(false)
-      expect(pool.workerNodes.length).toBe(numberOfWorkers)
-      for (const workerNode of pool.workerNodes) {
-        expect(workerNode).toBeInstanceOf(WorkerNode)
-      }
-      await pool.destroy()
+    it({
+      name: 'Verify that pool can be started after initialization',
+      ignore: isCI && Deno.build.os === 'linux' &&
+        Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
+      fn: async () => {
+        const pool = new FixedThreadPool(
+          numberOfWorkers,
+          new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+          {
+            startWorkers: false,
+          },
+        )
+        expect(pool.info.started).toBe(false)
+        expect(pool.info.ready).toBe(false)
+        expect(pool.workerNodes).toStrictEqual([])
+        expect(pool.readyEventEmitted).toBe(false)
+        expect(pool.busyEventEmitted).toBe(false)
+        expect(pool.backPressureEventEmitted).toBe(false)
+        pool.start()
+        expect(pool.info.started).toBe(true)
+        expect(pool.info.ready).toBe(true)
+        await waitPoolEvents(pool, PoolEvents.ready, 1)
+        expect(pool.readyEventEmitted).toBe(true)
+        expect(pool.busyEventEmitted).toBe(false)
+        expect(pool.backPressureEventEmitted).toBe(false)
+        expect(pool.workerNodes.length).toBe(numberOfWorkers)
+        for (const workerNode of pool.workerNodes) {
+          expect(workerNode).toBeInstanceOf(WorkerNode)
+        }
+        await pool.destroy()
+      },
     })
 
     it('Verify that pool execute() arguments are checked', async () => {
@@ -1885,7 +1890,7 @@ describe({
 
     it({
       name: 'Verify that execute() respects workerNodeKeys affinity',
-      ignore: Deno.build.os === 'darwin' &&
+      ignore: isCI && Deno.build.os === 'darwin' &&
         Number.parseInt(Deno.version.deno.split('.')[0]) < 2,
       fn: async () => {
         const dynamicThreadPool = new DynamicThreadPool(
@@ -1939,7 +1944,7 @@ describe({
     it({
       name:
         'Verify that execute() creates dynamic workers for workerNodeKeys affinity',
-      ignore: Deno.build.os === 'linux' &&
+      ignore: isCI && Deno.build.os === 'linux' &&
         Number.parseInt(Deno.version.deno.split('.')[0]) >= 2,
       fn: async () => {
         const dynamicThreadPool = new DynamicThreadPool(

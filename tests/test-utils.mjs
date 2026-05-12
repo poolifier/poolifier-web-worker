@@ -1,5 +1,7 @@
 import { TaskFunctions } from './test-types.mjs'
 
+export const isCI = Deno.env.get('CI') === 'true'
+
 export const waitWorkerNodeEvents = async (
   pool,
   workerNodeEvent,
