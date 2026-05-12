@@ -84,7 +84,7 @@ export abstract class AbstractWorker<
   /**
    * Handler id of the `activeInterval` worker activity check.
    */
-  protected activeInterval?: number
+  protected activeInterval?: ReturnType<typeof setInterval>
 
   /**
    * Constructs a new poolifier worker.

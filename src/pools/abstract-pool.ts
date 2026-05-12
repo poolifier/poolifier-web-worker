@@ -1379,7 +1379,7 @@ export abstract class AbstractPool<
     workerNodeKey: number,
     timeout = 1000,
   ): Promise<void> {
-    let timeoutHandle: number | undefined
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined
     let killMessageListener:
       | ((message: MessageValue<Response>) => void)
       | undefined
