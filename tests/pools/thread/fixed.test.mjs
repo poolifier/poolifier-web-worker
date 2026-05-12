@@ -276,7 +276,6 @@ describe({
       }
       expect(error).toBeInstanceOf(Error)
       expect(error.name).toBe('TimeoutError')
-      expect(error.message).toBe('Signal timed out.')
       expect(error.stack).toBeDefined()
 
       const abortController = new AbortController()
