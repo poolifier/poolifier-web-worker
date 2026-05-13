@@ -151,7 +151,7 @@ for more details**:
 
 ```js
 <script type="module"> 
-  import {ThreadWorker} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.6.2/browser/mod.js'
+  import {ThreadWorker} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.6.3/browser/mod.js'
 </script>
 ```
 
@@ -162,7 +162,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
-} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.6.2/browser/mod.js'
+} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.6.3/browser/mod.js'
 </script>
 ```
 
