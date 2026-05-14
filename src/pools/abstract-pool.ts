@@ -1956,18 +1956,6 @@ export abstract class AbstractPool<
     const workerNode = this.workerNodes[workerNodeKey]
     const crashedWorkerId = workerNode.info.id
     if (crashedWorkerId == null) {
-      for (const [taskId, promiseResponse] of this.promiseResponseMap) {
-        if (promiseResponse.workerId == null) {
-          promiseResponse.reject(crashError)
-          this.promiseResponseMap.delete(taskId)
-          if (workerNode.usage.tasks.executing > 0) {
-            --workerNode.usage.tasks.executing
-          }
-          ++workerNode.usage.tasks.failed
-          workerNode.dispatchEvent(new Event('taskFinished'))
-        }
-      }
-      this.checkAndEmitTaskExecutionFinishedEvents()
       return
     }
     const queuedTaskIds = new Set<
@@ -1981,13 +1969,7 @@ export abstract class AbstractPool<
         promiseResponse.workerId === crashedWorkerId &&
         !queuedTaskIds.has(taskId)
       ) {
-        promiseResponse.reject(crashError)
-        this.promiseResponseMap.delete(taskId)
-        if (workerNode.usage.tasks.executing > 0) {
-          --workerNode.usage.tasks.executing
-        }
-        ++workerNode.usage.tasks.failed
-        workerNode.dispatchEvent(new Event('taskFinished'))
+        this.rejectTaskPromise(taskId, promiseResponse, workerNode, crashError)
       }
     }
     this.checkAndEmitTaskExecutionFinishedEvents()
@@ -2014,14 +1996,33 @@ export abstract class AbstractPool<
       if (task?.taskId != null) {
         const promiseResponse = this.promiseResponseMap.get(task.taskId)
         if (promiseResponse != null) {
-          promiseResponse.reject(crashError)
-          this.promiseResponseMap.delete(task.taskId)
-          ++workerNode.usage.tasks.failed
-          workerNode.dispatchEvent(new Event('taskFinished'))
+          this.rejectTaskPromise(
+            task.taskId,
+            promiseResponse,
+            workerNode,
+            crashError,
+            false,
+          )
         }
       }
     }
     this.checkAndEmitTaskExecutionFinishedEvents()
+  }
+
+  private rejectTaskPromise(
+    taskId: `${string}-${string}-${string}-${string}-${string}`,
+    promiseResponse: PromiseResponseWrapper<Response>,
+    workerNode: IWorkerNode<Worker, Data>,
+    error: Error,
+    decrementExecuting = true,
+  ): void {
+    promiseResponse.reject(error)
+    this.promiseResponseMap.delete(taskId)
+    if (decrementExecuting && workerNode.usage.tasks.executing > 0) {
+      --workerNode.usage.tasks.executing
+    }
+    ++workerNode.usage.tasks.failed
+    workerNode.dispatchEvent(new Event('taskFinished'))
   }
 
   /**
@@ -2042,13 +2043,7 @@ export abstract class AbstractPool<
         promiseResponse.workerId === workerId ||
         (workerId == null && promiseResponse.workerId == null)
       ) {
-        promiseResponse.reject(error)
-        this.promiseResponseMap.delete(taskId)
-        if (workerNode.usage.tasks.executing > 0) {
-          --workerNode.usage.tasks.executing
-        }
-        ++workerNode.usage.tasks.failed
-        workerNode.dispatchEvent(new Event('taskFinished'))
+        this.rejectTaskPromise(taskId, promiseResponse, workerNode, error)
       }
     }
     this.checkAndEmitTaskExecutionFinishedEvents()
@@ -2436,7 +2431,10 @@ export abstract class AbstractPool<
     const promiseResponse = this.promiseResponseMap.get(taskId!)
     if (promiseResponse != null) {
       const { resolve, reject } = promiseResponse
-      const workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
+      let workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
+      if (workerNodeKey === -1) {
+        workerNodeKey = this.getWorkerNodeKeyByWorkerId(promiseResponse.workerId)
+      }
       const workerNode = workerNodeKey !== -1
         ? this.workerNodes[workerNodeKey]
         : undefined
