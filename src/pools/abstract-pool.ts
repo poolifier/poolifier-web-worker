@@ -1687,12 +1687,27 @@ export abstract class AbstractPool<
     workerNode.addEventListener(
       'exit',
       () => {
+        const workerNodeKey = this.workerNodes.indexOf(workerNode)
+        if (
+          workerNode.info.ready &&
+          !workerNode.info.crashHandled &&
+          workerNodeKey !== -1 &&
+          !this.destroying
+        ) {
+          this.handleWorkerNodeCrash(
+            workerNode,
+            new ErrorEvent('error', {
+              message: 'Worker node exited unexpectedly',
+            }),
+          )
+        }
         this.removeWorkerNode(workerNode)
         if (
           this.started &&
           !this.startingMinimumNumberOfWorkers &&
           !this.destroying &&
-          this.opts.restartWorkerOnError === true
+          (this.opts.restartWorkerOnError === true ||
+            !workerNode.info.crashHandled)
         ) {
           this.startMinimumNumberOfWorkers(true)
         }
@@ -1924,6 +1939,18 @@ export abstract class AbstractPool<
     const workerNode = this.workerNodes[workerNodeKey]
     const crashedWorkerId = workerNode.info.id
     if (crashedWorkerId == null) {
+      const crashError = new Error(
+        `Worker node crashed with error: '${errorEvent.message}'`,
+        { cause: errorEvent.error ?? errorEvent },
+      )
+      for (const [taskId, promiseResponse] of this.promiseResponseMap) {
+        if (promiseResponse.workerId == null) {
+          promiseResponse.reject(crashError)
+          this.promiseResponseMap.delete(taskId)
+          workerNode.dispatchEvent(new Event('taskFinished'))
+        }
+      }
+      this.checkAndEmitTaskExecutionFinishedEvents()
       return
     }
     const queuedTaskIds = new Set<
@@ -1934,6 +1961,7 @@ export abstract class AbstractPool<
     }
     const crashError = new Error(
       `Worker node crashed with error: '${errorEvent.message}'`,
+      { cause: errorEvent.error ?? errorEvent },
     )
     for (const [taskId, promiseResponse] of this.promiseResponseMap) {
       if (
@@ -1942,6 +1970,10 @@ export abstract class AbstractPool<
       ) {
         promiseResponse.reject(crashError)
         this.promiseResponseMap.delete(taskId)
+        if (workerNode.usage.tasks.executing > 0) {
+          --workerNode.usage.tasks.executing
+        }
+        ++workerNode.usage.tasks.failed
         workerNode.dispatchEvent(new Event('taskFinished'))
       }
     }
@@ -1966,6 +1998,7 @@ export abstract class AbstractPool<
     }
     const crashError = new Error(
       `Worker node crashed with error: '${errorEvent.message}'`,
+      { cause: errorEvent.error ?? errorEvent },
     )
     while (this.tasksQueueSize(workerNodeKey) > 0) {
       const task = this.dequeueTask(workerNodeKey)
@@ -1974,6 +2007,7 @@ export abstract class AbstractPool<
         if (promiseResponse != null) {
           promiseResponse.reject(crashError)
           this.promiseResponseMap.delete(task.taskId)
+          ++workerNode.usage.tasks.failed
           workerNode.dispatchEvent(new Event('taskFinished'))
         }
       }
@@ -1991,11 +2025,20 @@ export abstract class AbstractPool<
     taskId: `${string}-${string}-${string}-${string}-${string}` | undefined,
     workerNodeKey: number,
   ): void {
-    if (taskId != null) {
+    if (taskId == null || workerNodeKey === -1) {
+      return
+    }
+    const workerNode = this.workerNodes[workerNodeKey]
+    if (workerNode.info.id == null) {
       const promiseResponse = this.promiseResponseMap.get(taskId)
       if (promiseResponse != null) {
-        promiseResponse.workerId = this.workerNodes[workerNodeKey].info.id
+        promiseResponse.workerId = undefined
       }
+      return
+    }
+    const promiseResponse = this.promiseResponseMap.get(taskId)
+    if (promiseResponse != null) {
+      promiseResponse.workerId = workerNode.info.id
     }
   }
 
@@ -2129,6 +2172,7 @@ export abstract class AbstractPool<
     errorEvent: ErrorEvent,
   ): void {
     workerNode.info.ready = false
+    workerNode.info.crashHandled = true
     this.eventTarget?.dispatchEvent(
       new ErrorEvent(PoolEvents.error, errorEvent),
     )
@@ -2142,8 +2186,10 @@ export abstract class AbstractPool<
       }
       if (this.opts.enableTasksQueue === true) {
         this.redistributeQueuedTasks(crashedWorkerNodeKey)
-        this.rejectRemainingQueuedTaskPromises(crashedWorkerNodeKey, errorEvent)
       }
+    }
+    if (this.opts.enableTasksQueue === true) {
+      this.rejectRemainingQueuedTaskPromises(crashedWorkerNodeKey, errorEvent)
     }
   }
 
@@ -2330,6 +2376,9 @@ export abstract class AbstractPool<
       )
     }
     const workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
+    if (workerNodeKey === -1) {
+      return
+    }
     const workerNode = this.workerNodes[workerNodeKey]
     workerNode.info.ready = ready
     workerNode.info.taskFunctionsProperties = taskFunctionsProperties
