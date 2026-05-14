@@ -1187,7 +1187,7 @@ export abstract class AbstractPool<
       this.promiseResponseMap.set(task.taskId!, {
         reject,
         resolve,
-        workerNodeKey,
+        workerId: this.workerNodes[workerNodeKey].info.id,
         abortSignal,
       })
       if (
@@ -1672,22 +1672,8 @@ export abstract class AbstractPool<
       )
     }
     workerNode.worker.onerror = (errorEvent) => {
-      workerNode.info.ready = false
-      this.eventTarget?.dispatchEvent(
-        new ErrorEvent(PoolEvents.error, errorEvent),
-      )
-      if (this.started && !this.destroying) {
-        if (this.opts.restartWorkerOnError === true) {
-          if (workerNode.info.dynamic) {
-            this.createAndSetupDynamicWorkerNode()
-          } else if (!this.startingMinimumNumberOfWorkers) {
-            this.startMinimumNumberOfWorkers(true)
-          }
-        }
-        if (this.opts.enableTasksQueue === true) {
-          this.redistributeQueuedTasks(this.workerNodes.indexOf(workerNode))
-        }
-      }
+      errorEvent.preventDefault()
+      this.handleWorkerNodeCrash(workerNode, errorEvent)
       workerNode?.terminate()
     }
     workerNode.worker.addEventListener(
@@ -1705,7 +1691,8 @@ export abstract class AbstractPool<
         if (
           this.started &&
           !this.startingMinimumNumberOfWorkers &&
-          !this.destroying
+          !this.destroying &&
+          this.opts.restartWorkerOnError === true
         ) {
           this.startMinimumNumberOfWorkers(true)
         }
@@ -1916,10 +1903,99 @@ export abstract class AbstractPool<
       if (destinationWorkerNodeKey === -1) {
         break
       }
-      this.handleTask(
-        destinationWorkerNodeKey,
-        this.dequeueTask(sourceWorkerNodeKey)!,
-      )
+      const task = this.dequeueTask(sourceWorkerNodeKey)!
+      this.handleTask(destinationWorkerNodeKey, task)
+      this.updatePromiseResponseWorkerId(task.taskId, destinationWorkerNodeKey)
+    }
+  }
+
+  /**
+   * Rejects in-flight task promises for the given crashed worker node key.
+   * @param workerNodeKey - The worker node key.
+   * @param errorEvent - The error event that caused the worker to crash.
+   */
+  private rejectInFlightTaskPromises(
+    workerNodeKey: number,
+    errorEvent: ErrorEvent,
+  ): void {
+    if (workerNodeKey === -1) {
+      return
+    }
+    const workerNode = this.workerNodes[workerNodeKey]
+    const crashedWorkerId = workerNode.info.id
+    if (crashedWorkerId == null) {
+      return
+    }
+    const queuedTaskIds = new Set<
+      `${string}-${string}-${string}-${string}-${string}`
+    >()
+    for (const task of workerNode.tasksQueue) {
+      queuedTaskIds.add(task.taskId!)
+    }
+    const crashError = new Error(
+      `Worker node crashed with error: '${errorEvent.message}'`,
+    )
+    for (const [taskId, promiseResponse] of this.promiseResponseMap) {
+      if (
+        promiseResponse.workerId === crashedWorkerId &&
+        !queuedTaskIds.has(taskId)
+      ) {
+        promiseResponse.reject(crashError)
+        this.promiseResponseMap.delete(taskId)
+        workerNode.dispatchEvent(new Event('taskFinished'))
+      }
+    }
+    this.checkAndEmitTaskExecutionFinishedEvents()
+  }
+
+  /**
+   * Rejects remaining queued task promises for the given crashed worker node key.
+   * @param workerNodeKey - The worker node key.
+   * @param errorEvent - The error event that caused the worker to crash.
+   */
+  private rejectRemainingQueuedTaskPromises(
+    workerNodeKey: number,
+    errorEvent: ErrorEvent,
+  ): void {
+    if (workerNodeKey === -1) {
+      return
+    }
+    const workerNode = this.workerNodes[workerNodeKey]
+    if (this.tasksQueueSize(workerNodeKey) === 0) {
+      return
+    }
+    const crashError = new Error(
+      `Worker node crashed with error: '${errorEvent.message}'`,
+    )
+    while (this.tasksQueueSize(workerNodeKey) > 0) {
+      const task = this.dequeueTask(workerNodeKey)
+      if (task?.taskId != null) {
+        const promiseResponse = this.promiseResponseMap.get(task.taskId)
+        if (promiseResponse != null) {
+          promiseResponse.reject(crashError)
+          this.promiseResponseMap.delete(task.taskId)
+          workerNode.dispatchEvent(new Event('taskFinished'))
+        }
+      }
+    }
+    this.checkAndEmitTaskExecutionFinishedEvents()
+  }
+
+  /**
+   * Updates the promise response worker id after task steal or redistribute.
+   * Ensures crash-time rejection targets the correct worker.
+   * @param taskId - The task id.
+   * @param workerNodeKey - The destination worker node key.
+   */
+  private updatePromiseResponseWorkerId(
+    taskId: `${string}-${string}-${string}-${string}-${string}` | undefined,
+    workerNodeKey: number,
+  ): void {
+    if (taskId != null) {
+      const promiseResponse = this.promiseResponseMap.get(taskId)
+      if (promiseResponse != null) {
+        promiseResponse.workerId = this.workerNodes[workerNodeKey].info.id
+      }
     }
   }
 
@@ -2020,6 +2096,10 @@ export abstract class AbstractPool<
     sourceWorkerNode.info.stolen = false
     destinationWorkerNode.info.stealing = false
     this.handleTask(destinationWorkerNodeKey, stolenTask)
+    this.updatePromiseResponseWorkerId(
+      stolenTask.taskId,
+      destinationWorkerNodeKey,
+    )
     this.updateTaskStolenStatisticsWorkerUsage(
       destinationWorkerNodeKey,
       stolenTask.name!,
@@ -2036,6 +2116,35 @@ export abstract class AbstractPool<
             this.opts.tasksQueueOptions!.tasksStealingRatio!,
         )
     )
+  }
+
+  /**
+   * Handles a crashed worker node: emits error, rejects in-flight promises,
+   * restarts the worker, and redistributes queued tasks.
+   * @param workerNode - The crashed worker node.
+   * @param errorEvent - The error event that caused the crash.
+   */
+  private handleWorkerNodeCrash(
+    workerNode: IWorkerNode<Worker, Data>,
+    errorEvent: ErrorEvent,
+  ): void {
+    workerNode.info.ready = false
+    this.eventTarget?.dispatchEvent(
+      new ErrorEvent(PoolEvents.error, errorEvent),
+    )
+    const crashedWorkerNodeKey = this.workerNodes.indexOf(workerNode)
+    this.rejectInFlightTaskPromises(crashedWorkerNodeKey, errorEvent)
+    if (this.started && !this.destroying) {
+      if (this.opts.restartWorkerOnError === true) {
+        if (workerNode.info.dynamic) {
+          this.createAndSetupDynamicWorkerNode()
+        }
+      }
+      if (this.opts.enableTasksQueue === true) {
+        this.redistributeQueuedTasks(crashedWorkerNodeKey)
+        this.rejectRemainingQueuedTaskPromises(crashedWorkerNodeKey, errorEvent)
+      }
+    }
   }
 
   private readonly handleWorkerNodeIdleEvent = (
@@ -2230,11 +2339,13 @@ export abstract class AbstractPool<
   }
 
   private handleTaskExecutionResponse(message: MessageValue<Response>): void {
-    const { name, taskId, workerError, data } = message
+    const { name, taskId, workerError, data, workerId } = message
     const promiseResponse = this.promiseResponseMap.get(taskId!)
     if (promiseResponse != null) {
-      const { resolve, reject, workerNodeKey } = promiseResponse
-      const workerNode = this.workerNodes[workerNodeKey]
+      const { resolve, reject } = promiseResponse
+      const workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
+      const workerNode =
+        workerNodeKey !== -1 ? this.workerNodes[workerNodeKey] : undefined
       if (workerError != null) {
         this.eventTarget?.dispatchEvent(
           new ErrorEvent(PoolEvents.taskError, { error: workerError }),
@@ -2248,12 +2359,18 @@ export abstract class AbstractPool<
       } else {
         resolve(data!)
       }
-      this.afterTaskExecutionHook(workerNodeKey, message)
+      if (workerNodeKey !== -1) {
+        this.afterTaskExecutionHook(workerNodeKey, message)
+      }
       queueMicrotask(() => {
         workerNode?.dispatchEvent(new Event('taskFinished'))
         this.promiseResponseMap.delete(taskId!)
         this.checkAndEmitTaskExecutionFinishedEvents()
-        if (this.opts.enableTasksQueue === true && !this.destroying) {
+        if (
+          workerNodeKey !== -1 &&
+          this.opts.enableTasksQueue === true &&
+          !this.destroying
+        ) {
           if (
             !this.isWorkerNodeBusy(workerNodeKey) &&
             this.tasksQueueSize(workerNodeKey) > 0
@@ -2264,7 +2381,7 @@ export abstract class AbstractPool<
             )
           }
           if (this.isWorkerNodeIdle(workerNodeKey)) {
-            workerNode.dispatchEvent(
+            workerNode?.dispatchEvent(
               new CustomEvent<WorkerNodeEventDetail>('idle', {
                 detail: { workerNodeKey },
               }),
