@@ -1691,6 +1691,7 @@ export abstract class AbstractPool<
       'exit',
       () => {
         const workerNodeKey = this.workerNodes.indexOf(workerNode)
+        const exitError = new Error('Worker node exited unexpectedly')
         if (
           workerNode.info.ready &&
           !workerNode.info.crashHandled &&
@@ -1700,8 +1701,21 @@ export abstract class AbstractPool<
           this.handleWorkerNodeCrash(
             workerNode,
             new ErrorEvent('error', {
-              message: 'Worker node exited unexpectedly',
+              message: exitError.message,
+              error: exitError,
             }),
+          )
+        }
+        if (
+          workerNodeKey !== -1 &&
+          !workerNode.info.crashHandled &&
+          workerNode.info.ready
+        ) {
+          this.flushWorkerNodePromises(
+            workerNode,
+            this.destroying
+              ? new Error('Worker node terminated during pool destroy')
+              : exitError,
           )
         }
         this.removeWorkerNode(workerNode)
@@ -2005,6 +2019,36 @@ export abstract class AbstractPool<
           ++workerNode.usage.tasks.failed
           workerNode.dispatchEvent(new Event('taskFinished'))
         }
+      }
+    }
+    this.checkAndEmitTaskExecutionFinishedEvents()
+  }
+
+  /**
+   * Rejects all unsettled promises targeting the given worker node.
+   * Used as a catch-all when crash handling was bypassed (e.g., during pool
+   * destroy or for non-ready worker exits). Idempotent: already-deleted
+   * entries are simply skipped.
+   * @param workerNode - The worker node whose promises to flush.
+   * @param error - The rejection error.
+   */
+  private flushWorkerNodePromises(
+    workerNode: IWorkerNode<Worker, Data>,
+    error: Error,
+  ): void {
+    const workerId = workerNode.info.id
+    for (const [taskId, promiseResponse] of this.promiseResponseMap) {
+      if (
+        promiseResponse.workerId === workerId ||
+        (workerId == null && promiseResponse.workerId == null)
+      ) {
+        promiseResponse.reject(error)
+        this.promiseResponseMap.delete(taskId)
+        if (workerNode.usage.tasks.executing > 0) {
+          --workerNode.usage.tasks.executing
+        }
+        ++workerNode.usage.tasks.failed
+        workerNode.dispatchEvent(new Event('taskFinished'))
       }
     }
     this.checkAndEmitTaskExecutionFinishedEvents()
