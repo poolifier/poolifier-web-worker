@@ -1176,11 +1176,21 @@ export abstract class AbstractPool<
       abortSignal?.addEventListener(
         'abort',
         () => {
-          this.workerNodes[workerNodeKey]?.dispatchEvent(
+          const promiseResponse = this.promiseResponseMap.get(task.taskId!)
+          if (promiseResponse == null) {
+            return
+          }
+          const currentWorkerNodeKey = this.getWorkerNodeKeyByWorkerId(
+            promiseResponse.workerId,
+          )
+          if (currentWorkerNodeKey === -1) {
+            return
+          }
+          this.workerNodes[currentWorkerNodeKey]?.dispatchEvent(
             new CustomEvent<WorkerNodeEventDetail>('abortTask', {
               detail: {
                 taskId: task.taskId,
-                workerId: this.getWorkerInfo(workerNodeKey)!.id!,
+                workerId: promiseResponse.workerId,
               },
             }),
           )
