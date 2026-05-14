@@ -2344,8 +2344,9 @@ export abstract class AbstractPool<
     if (promiseResponse != null) {
       const { resolve, reject } = promiseResponse
       const workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
-      const workerNode =
-        workerNodeKey !== -1 ? this.workerNodes[workerNodeKey] : undefined
+      const workerNode = workerNodeKey !== -1
+        ? this.workerNodes[workerNodeKey]
+        : undefined
       if (workerError != null) {
         this.eventTarget?.dispatchEvent(
           new ErrorEvent(PoolEvents.taskError, { error: workerError }),

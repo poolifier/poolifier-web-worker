@@ -167,7 +167,7 @@ describe({
         )
         expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
           numberOfThreads *
-            (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency) +
+              (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency) +
             queuePool.opts.tasksQueueOptions.concurrency,
         )
         expect(workerNode.usage.tasks.queued).toBe(0)
