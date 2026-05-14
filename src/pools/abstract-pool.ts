@@ -2433,7 +2433,9 @@ export abstract class AbstractPool<
       const { resolve, reject } = promiseResponse
       let workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
       if (workerNodeKey === -1) {
-        workerNodeKey = this.getWorkerNodeKeyByWorkerId(promiseResponse.workerId)
+        workerNodeKey = this.getWorkerNodeKeyByWorkerId(
+          promiseResponse.workerId,
+        )
       }
       const workerNode = workerNodeKey !== -1
         ? this.workerNodes[workerNodeKey]
