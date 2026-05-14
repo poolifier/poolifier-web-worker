@@ -2027,9 +2027,8 @@ export abstract class AbstractPool<
 
   /**
    * Rejects all unsettled promises targeting the given worker node.
-   * Used as a catch-all when crash handling was bypassed (e.g., during pool
-   * destroy or for non-ready worker exits). Idempotent: already-deleted
-   * entries are simply skipped.
+   * Called from the exit handler for unexpected exits of ready workers
+   * that were not already handled by the onerror crash path.
    * @param workerNode - The worker node whose promises to flush.
    * @param error - The rejection error.
    */
