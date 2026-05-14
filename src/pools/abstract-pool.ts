@@ -559,6 +559,9 @@ export abstract class AbstractPool<
    * @returns The worker node key if the worker id is found in the pool worker nodes, `-1` otherwise.
    */
   private getWorkerNodeKeyByWorkerId(workerId: string | undefined): number {
+    if (workerId == null) {
+      return -1
+    }
     return this.workerNodes.findIndex(
       (workerNode) => workerNode.info.id === workerId,
     )
@@ -1919,19 +1922,19 @@ export abstract class AbstractPool<
         break
       }
       const task = this.dequeueTask(sourceWorkerNodeKey)!
-      this.handleTask(destinationWorkerNodeKey, task)
       this.updatePromiseResponseWorkerId(task.taskId, destinationWorkerNodeKey)
+      this.handleTask(destinationWorkerNodeKey, task)
     }
   }
 
   /**
    * Rejects in-flight task promises for the given crashed worker node key.
    * @param workerNodeKey - The worker node key.
-   * @param errorEvent - The error event that caused the worker to crash.
+   * @param crashError - The crash error to reject promises with.
    */
   private rejectInFlightTaskPromises(
     workerNodeKey: number,
-    errorEvent: ErrorEvent,
+    crashError: Error,
   ): void {
     if (workerNodeKey === -1) {
       return
@@ -1939,14 +1942,14 @@ export abstract class AbstractPool<
     const workerNode = this.workerNodes[workerNodeKey]
     const crashedWorkerId = workerNode.info.id
     if (crashedWorkerId == null) {
-      const crashError = new Error(
-        `Worker node crashed with error: '${errorEvent.message}'`,
-        { cause: errorEvent.error ?? errorEvent },
-      )
       for (const [taskId, promiseResponse] of this.promiseResponseMap) {
         if (promiseResponse.workerId == null) {
           promiseResponse.reject(crashError)
           this.promiseResponseMap.delete(taskId)
+          if (workerNode.usage.tasks.executing > 0) {
+            --workerNode.usage.tasks.executing
+          }
+          ++workerNode.usage.tasks.failed
           workerNode.dispatchEvent(new Event('taskFinished'))
         }
       }
@@ -1959,10 +1962,6 @@ export abstract class AbstractPool<
     for (const task of workerNode.tasksQueue) {
       queuedTaskIds.add(task.taskId!)
     }
-    const crashError = new Error(
-      `Worker node crashed with error: '${errorEvent.message}'`,
-      { cause: errorEvent.error ?? errorEvent },
-    )
     for (const [taskId, promiseResponse] of this.promiseResponseMap) {
       if (
         promiseResponse.workerId === crashedWorkerId &&
@@ -1983,11 +1982,11 @@ export abstract class AbstractPool<
   /**
    * Rejects remaining queued task promises for the given crashed worker node key.
    * @param workerNodeKey - The worker node key.
-   * @param errorEvent - The error event that caused the worker to crash.
+   * @param crashError - The crash error to reject promises with.
    */
   private rejectRemainingQueuedTaskPromises(
     workerNodeKey: number,
-    errorEvent: ErrorEvent,
+    crashError: Error,
   ): void {
     if (workerNodeKey === -1) {
       return
@@ -1996,10 +1995,6 @@ export abstract class AbstractPool<
     if (this.tasksQueueSize(workerNodeKey) === 0) {
       return
     }
-    const crashError = new Error(
-      `Worker node crashed with error: '${errorEvent.message}'`,
-      { cause: errorEvent.error ?? errorEvent },
-    )
     while (this.tasksQueueSize(workerNodeKey) > 0) {
       const task = this.dequeueTask(workerNodeKey)
       if (task?.taskId != null) {
@@ -2138,11 +2133,11 @@ export abstract class AbstractPool<
     }
     sourceWorkerNode.info.stolen = false
     destinationWorkerNode.info.stealing = false
-    this.handleTask(destinationWorkerNodeKey, stolenTask)
     this.updatePromiseResponseWorkerId(
       stolenTask.taskId,
       destinationWorkerNodeKey,
     )
+    this.handleTask(destinationWorkerNodeKey, stolenTask)
     this.updateTaskStolenStatisticsWorkerUsage(
       destinationWorkerNodeKey,
       stolenTask.name!,
@@ -2163,7 +2158,8 @@ export abstract class AbstractPool<
 
   /**
    * Handles a crashed worker node: emits error, rejects in-flight promises,
-   * restarts the worker, and redistributes queued tasks.
+   * restarts dynamic workers if configured, and redistributes queued tasks.
+   * Static worker restart is handled by the exit event handler.
    * @param workerNode - The crashed worker node.
    * @param errorEvent - The error event that caused the crash.
    */
@@ -2177,7 +2173,11 @@ export abstract class AbstractPool<
       new ErrorEvent(PoolEvents.error, errorEvent),
     )
     const crashedWorkerNodeKey = this.workerNodes.indexOf(workerNode)
-    this.rejectInFlightTaskPromises(crashedWorkerNodeKey, errorEvent)
+    const crashError = new Error(
+      `Worker node crashed with error: '${errorEvent.message}'`,
+      { cause: errorEvent.error ?? errorEvent },
+    )
+    this.rejectInFlightTaskPromises(crashedWorkerNodeKey, crashError)
     if (this.started && !this.destroying) {
       if (this.opts.restartWorkerOnError === true) {
         if (workerNode.info.dynamic) {
@@ -2189,7 +2189,7 @@ export abstract class AbstractPool<
       }
     }
     if (this.opts.enableTasksQueue === true) {
-      this.rejectRemainingQueuedTaskPromises(crashedWorkerNodeKey, errorEvent)
+      this.rejectRemainingQueuedTaskPromises(crashedWorkerNodeKey, crashError)
     }
   }
 
