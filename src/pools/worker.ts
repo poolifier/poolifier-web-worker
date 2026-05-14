@@ -165,6 +165,11 @@ export interface WorkerInfo {
    */
   continuousStealing: boolean
   /**
+   * Crash handled flag.
+   * This flag is set to `true` when worker node crash has been handled.
+   */
+  crashHandled: boolean
+  /**
    * Back pressure stealing flag.
    * This flag is set to `true` when worker node is stealing one task from another back pressured worker node.
    */

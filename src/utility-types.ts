@@ -233,9 +233,9 @@ export interface PromiseResponseWrapper<Response = unknown> {
    */
   readonly reject: (reason?: unknown) => void
   /**
-   * The worker node key executing the task.
+   * The worker id executing the task.
    */
-  readonly workerNodeKey: number
+  workerId: `${string}-${string}-${string}-${string}-${string}` | undefined
 }
 
 /**
