@@ -8,11 +8,14 @@ and this project adheres to
 
 ## [0.6.4](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.3...v0.6.4) (2026-05-18)
 
-
 ### 🐞 Bug Fixes
 
-* **deps:** update all non-major dependencies ([#143](https://github.com/poolifier/poolifier-web-worker/issues/143)) ([ea0a3d2](https://github.com/poolifier/poolifier-web-worker/commit/ea0a3d2740dd261af48ade835f3ec9e734f7ba9f))
-* reject in-flight task promises when worker crashes ([#146](https://github.com/poolifier/poolifier-web-worker/issues/146)) ([74d9529](https://github.com/poolifier/poolifier-web-worker/commit/74d9529136e7af7b461af09ffb4f12dbf25183b5))
+- **deps:** update all non-major dependencies
+  ([#143](https://github.com/poolifier/poolifier-web-worker/issues/143))
+  ([ea0a3d2](https://github.com/poolifier/poolifier-web-worker/commit/ea0a3d2740dd261af48ade835f3ec9e734f7ba9f))
+- reject in-flight task promises when worker crashes
+  ([#146](https://github.com/poolifier/poolifier-web-worker/issues/146))
+  ([74d9529](https://github.com/poolifier/poolifier-web-worker/commit/74d9529136e7af7b461af09ffb4f12dbf25183b5))
 
 ## [0.6.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.2...v0.6.3) (2026-05-12)
 
