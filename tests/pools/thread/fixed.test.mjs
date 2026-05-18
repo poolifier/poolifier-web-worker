@@ -18,8 +18,7 @@ describe({
       echoPool,
       errorPool,
       asyncErrorPool,
-      asyncPool,
-      crashPool
+      asyncPool
 
     before(() => {
       pool = new FixedThreadPool(
@@ -69,18 +68,6 @@ describe({
         numberOfThreads,
         new URL('./../../worker-files/thread/asyncWorker.mjs', import.meta.url),
       )
-      crashPool = new FixedThreadPool(
-        1,
-        new URL(
-          './../../worker-files/thread/crashWorker.mjs',
-          import.meta.url,
-        ),
-        {
-          enableTasksQueue: true,
-          restartWorkerOnError: false,
-          tasksQueueOptions: { concurrency: 1 },
-        },
-      )
     })
 
     after(async () => {
@@ -91,7 +78,6 @@ describe({
       await asyncErrorPool.destroy()
       await emptyPool.destroy()
       await queuePool.destroy()
-      await crashPool.destroy()
     })
 
     it('Verify that the function is executed in a worker thread', async () => {
@@ -162,14 +148,7 @@ describe({
         expect(workerNode.usage.tasks.executing).toBeLessThanOrEqual(
           numberOfThreads * maxMultiplier,
         )
-        expect(workerNode.usage.tasks.executed).toBeGreaterThanOrEqual(
-          queuePool.opts.tasksQueueOptions.concurrency,
-        )
-        expect(workerNode.usage.tasks.executed).toBeLessThanOrEqual(
-          numberOfThreads *
-              (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency) +
-            queuePool.opts.tasksQueueOptions.concurrency,
-        )
+        expect(workerNode.usage.tasks.executed).toBe(maxMultiplier)
         expect(workerNode.usage.tasks.queued).toBe(0)
         expect(workerNode.usage.tasks.maxQueued).toBe(
           maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency,
@@ -178,21 +157,18 @@ describe({
           workerNode.usage.tasks.sequentiallyStolen,
         ).toBeGreaterThanOrEqual(0)
         expect(workerNode.usage.tasks.sequentiallyStolen).toBeLessThanOrEqual(
-          numberOfThreads *
-            (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency),
+          numberOfThreads * maxMultiplier,
         )
         expect(workerNode.usage.tasks.stolen).toBeGreaterThanOrEqual(0)
         expect(workerNode.usage.tasks.stolen).toBeLessThanOrEqual(
-          numberOfThreads *
-            (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency),
+          numberOfThreads * maxMultiplier,
         )
       }
       expect(queuePool.info.executedTasks).toBe(numberOfThreads * maxMultiplier)
       expect(queuePool.info.backPressure).toBe(false)
       expect(queuePool.info.stolenTasks).toBeGreaterThanOrEqual(0)
       expect(queuePool.info.stolenTasks).toBeLessThanOrEqual(
-        numberOfThreads *
-          (maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency),
+        numberOfThreads * maxMultiplier,
       )
     })
 
@@ -314,29 +290,6 @@ describe({
       expect(error).toBeInstanceOf(Error)
       expect(error.message).toBe('Task aborted')
       expect(error.stack).toBeDefined()
-    })
-
-    it('Verify that in-flight task promises reject on worker crash', async () => {
-      let poolError
-      const errorHandler = (e) => {
-        poolError = e
-      }
-      crashPool.eventTarget.addEventListener(PoolEvents.error, errorHandler, {
-        once: true,
-      })
-      const exitPromise = waitWorkerNodeEvents(crashPool, 'exit', 1)
-      let error
-      try {
-        await crashPool.execute()
-      } catch (e) {
-        error = e
-      }
-      expect(error).toBeInstanceOf(Error)
-      expect(error.message).toMatch(/Worker node crashed with error:/)
-      expect(error.message).toMatch(/Simulated worker crash/)
-      expect(poolError).toBeInstanceOf(ErrorEvent)
-      expect(poolError.message).toMatch(/Simulated worker crash/)
-      await exitPromise
     })
 
     it('Verify that async function is working properly', async () => {

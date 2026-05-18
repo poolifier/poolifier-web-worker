@@ -126,7 +126,6 @@ describe('Pool utils test suite', () => {
       backPressure: false,
       backPressureStealing: false,
       continuousStealing: false,
-      crashHandled: false,
       queuedTaskAbortion: false,
       dynamic: false,
       id: expect.any(String),

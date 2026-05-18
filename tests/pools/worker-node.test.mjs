@@ -236,7 +236,6 @@ describe('Worker node test suite', () => {
       stealing: false,
       stolen: false,
       continuousStealing: false,
-      crashHandled: false,
       backPressureStealing: false,
       backPressure: false,
       queuedTaskAbortion: false,
