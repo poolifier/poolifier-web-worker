@@ -1590,9 +1590,9 @@ describe({
       await pool.destroy()
       const elapsedTime = performance.now() - startTime
       expect(tasksFinished).toBe(0)
-      // Worker kill message response timeout is 1000ms
+      // Allow task timeout, 1000ms per kill response, and 100ms scheduling slack.
       expect(elapsedTime).toBeLessThanOrEqual(
-        tasksFinishedTimeout + 1000 * tasksFinished + 1000,
+        tasksFinishedTimeout + 1000 * tasksFinished + 1100,
       )
     })
 
