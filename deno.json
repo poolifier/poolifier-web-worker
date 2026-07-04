@@ -39,7 +39,7 @@
   },
   "imports": {
     "tinybench": "npm:tinybench@^6.0.2",
-    "@std/cli": "jsr:@std/cli@^1.0.31",
+    "@std/cli": "jsr:@std/cli@^1.0.32",
     "@std/expect": "jsr:@std/expect@^1.0.20",
     "@std/testing": "jsr:@std/testing@^1.0.19"
   },
