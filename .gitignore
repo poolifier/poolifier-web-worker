@@ -224,4 +224,5 @@ dist/LICENSE
 dist/README.md
 npm/
 coverage/
+.omo/
 .sisyphus/
