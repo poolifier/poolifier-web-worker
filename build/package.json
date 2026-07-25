@@ -1,0 +1,12 @@
+{
+  "name": "@poolifier/poolifier-web-worker-build",
+  "version": "0.0.0",
+  "description": "Build-only dependencies",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "bun-plugin-dts": "^0.4.0",
+    "dts-bundle-generator": "^9.5.1",
+    "typescript": "^5.9.3"
+  }
+}

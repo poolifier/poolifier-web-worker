@@ -3,6 +3,18 @@ import { baseBuildDir } from './build/config.ts'
 Deno.copyFileSync('LICENSE', `${baseBuildDir}/LICENSE`)
 Deno.copyFileSync('README.md', `${baseBuildDir}/README.md`)
 
+console.time('Bun install time')
+const bunInstall = new Deno.Command('bun', {
+  args: ['install', '--cwd', './build', '--no-progress', '--no-summary'],
+})
+const bunInstallCommandOutput = bunInstall.outputSync()
+if (bunInstallCommandOutput.success === false) {
+  const errMsg = new TextDecoder().decode(bunInstallCommandOutput.stderr)
+  console.error(errMsg)
+  throw new Error(`Bun install failed: ${errMsg}`)
+}
+console.timeEnd('Bun install time')
+
 console.time('Browser build time')
 const browserBuild = new Deno.Command('bun', {
   args: ['run', './build/browser-build.ts'],
