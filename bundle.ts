@@ -11,7 +11,7 @@ Deno.copyFileSync('README.md', `${baseBuildDir}/README.md`)
 // plugin, in particular ts.sys), breaking the .d.ts bundle step.
 console.time('Bun install time')
 const bunInstall = new Deno.Command('bun', {
-  args: ['install', '--cwd', './build', '--silent'],
+  args: ['install', '--cwd', './build', '--no-progress', '--no-summary'],
 })
 const bunInstallCommandOutput = bunInstall.outputSync()
 if (bunInstallCommandOutput.success === false) {
