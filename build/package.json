@@ -1,7 +1,6 @@
 {
   "name": "@poolifier/poolifier-web-worker-build",
   "version": "0.0.0",
-  "description": "Build-only dependencies for poolifier-web-worker (Bun bundle + .d.ts generation). Not published.",
   "private": true,
   "type": "module",
   "dependencies": {
