@@ -3,9 +3,6 @@ import { baseBuildDir } from './build/config.ts'
 Deno.copyFileSync('LICENSE', `${baseBuildDir}/LICENSE`)
 Deno.copyFileSync('README.md', `${baseBuildDir}/README.md`)
 
-// Install build-only dependencies with TypeScript pinned in ./build/package.json:
-// dts-bundle-generator needs the legacy TS JS API (ts.sys), absent from TS 7 which
-// Bun would otherwise resolve from its ">=5.0.2" range.
 console.time('Bun install time')
 const bunInstall = new Deno.Command('bun', {
   args: ['install', '--cwd', './build', '--no-progress', '--no-summary'],
