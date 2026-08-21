@@ -11,6 +11,9 @@
       },
     },
   },
+  "overrides": {
+    "typescript": "5.9.3",
+  },
   "packages": {
     "ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
 
