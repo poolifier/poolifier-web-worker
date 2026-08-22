@@ -14,7 +14,9 @@ jobs:
     if: github.repository == 'poolifier/poolifier-web-worker'
 
     permissions:
+      actions: write
       contents: write
+      issues: write
       pull-requests: write
 
     outputs:
@@ -26,6 +28,15 @@ jobs:
         with:
           config-file: .github/release-please/config.json
           manifest-file: .github/release-please/manifest.json
+
+      - name: Dispatch CI for release pull request
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_PR: ${{ steps.release.outputs.pr }}
+        run: |
+          gh workflow run ci.yml \
+            --ref "$(jq -r '.headBranchName' <<< "$RELEASE_PR")"
 
   build-release:
     needs: release-please
