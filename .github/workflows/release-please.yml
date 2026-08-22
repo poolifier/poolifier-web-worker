@@ -32,12 +32,19 @@ jobs:
       - name: Dispatch CI for release pull request
         if: ${{ steps.release.outputs.prs_created == 'true' }}
         env:
-          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           RELEASE_PR: ${{ steps.release.outputs.pr }}
         run: |
+          pull_request=$(jq -r '.number' <<< "$RELEASE_PR")
+          head_ref=$(jq -r '.headBranchName' <<< "$RELEASE_PR")
+          base_ref=$(jq -r '.baseBranchName' <<< "$RELEASE_PR")
+
           gh workflow run ci.yml \
-            --ref "$(jq -r '.headBranchName' <<< "$RELEASE_PR")"
+            --repo "${{ github.repository }}" \
+            --ref "$head_ref" \
+            --raw-field pull_request="$pull_request" \
+            --raw-field head_ref="$head_ref" \
+            --raw-field base_ref="$base_ref"
 
   build-release:
     needs: release-please
