@@ -7,6 +7,6 @@
   "dependencies": {
     "bun-plugin-dts": "^0.4.0",
     "dts-bundle-generator": "^9.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   }
 }
