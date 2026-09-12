@@ -23,12 +23,20 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
+          deno-version: latest
       - uses: bencherdev/bencher@main
       - name: Run benchmark
+        run: deno task benchmark:tinybench
+      - name: Publish benchmark
+        shell: bash
         run: |
+          args=()
+          if [[ "$GITHUB_REF" != refs/heads/master ]]; then
+            args+=(--dry-run)
+          fi
           bencher run \
-          --branch master \
+          "${args[@]}" \
+          --branch "$GITHUB_REF_NAME" \
           --threshold-measure latency \
           --threshold-test t_test \
           --threshold-max-sample-size 64 \
@@ -41,6 +49,4 @@ jobs:
           --threshold-upper-boundary _ \
           --thresholds-reset \
           --file benchmark-report.json \
-          --err \
-          --github-actions ${{ secrets.GITHUB_TOKEN }} \
-          "deno task benchmark:tinybench"
+          --err
