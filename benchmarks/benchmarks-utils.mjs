@@ -7,7 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
-import { Bench } from 'tinybench'
+import { Bench, mToNs } from 'tinybench'
 import {
   DynamicThreadPool,
   FixedThreadPool,
@@ -370,11 +370,9 @@ export const runPoolifierBenchmarkTinyBench = async (
       bmfResults[task.name] = {
         latency: {
           // Tinybench reports milliseconds; Bencher latency uses nanoseconds.
-          value: task.result.latency.mean * 1e6,
-          lower_value: (task.result.latency.mean - task.result.latency.sd) *
-            1e6,
-          upper_value: (task.result.latency.mean + task.result.latency.sd) *
-            1e6,
+          value: mToNs(task.result.latency.mean),
+          lower_value: mToNs(task.result.latency.mean - task.result.latency.sd),
+          upper_value: mToNs(task.result.latency.mean + task.result.latency.sd),
         },
         throughput: {
           value: task.result.throughput.mean,
