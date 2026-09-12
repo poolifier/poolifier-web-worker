@@ -7,7 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
-import { Bench } from 'tinybench'
+import { Bench, mToNs } from 'tinybench'
 import {
   DynamicThreadPool,
   FixedThreadPool,
@@ -292,7 +292,7 @@ export const runPoolifierBenchmarkTinyBench = async (
   const bmfResults = {}
   let pool
   try {
-    const bench = new Bench()
+    const bench = new Bench({ throws: true })
     pool = buildPoolifierPool(workerType, poolType, poolSize)
 
     for (const workerChoiceStrategy of Object.values(WorkerChoiceStrategies)) {
@@ -364,29 +364,23 @@ export const runPoolifierBenchmarkTinyBench = async (
     console.table(bench.table())
 
     for (const task of tasks) {
-      if (
-        task.result?.state === 'completed' ||
-        task.result?.state === 'aborted-with-statistics'
-      ) {
-        bmfResults[task.name] = {
-          latency: {
-            value: task.result.latency.mean,
-            lower_value: task.result.latency.mean - task.result.latency.sd,
-            upper_value: task.result.latency.mean + task.result.latency.sd,
-          },
-          throughput: {
-            value: task.result.throughput.mean,
-            lower_value: task.result.throughput.mean -
-              task.result.throughput.sd,
-            upper_value: task.result.throughput.mean +
-              task.result.throughput.sd,
-          },
-        }
+      if (task.result?.state !== 'completed') {
+        throw new Error(`Benchmark did not complete: ${task.name}`)
+      }
+      bmfResults[task.name] = {
+        latency: {
+          // Tinybench reports milliseconds; Bencher latency uses nanoseconds.
+          value: mToNs(task.result.latency.mean),
+          lower_value: mToNs(task.result.latency.mean - task.result.latency.sd),
+          upper_value: mToNs(task.result.latency.mean + task.result.latency.sd),
+        },
+        throughput: {
+          value: task.result.throughput.mean,
+          lower_value: task.result.throughput.mean - task.result.throughput.sd,
+          upper_value: task.result.throughput.mean + task.result.throughput.sd,
+        },
       }
     }
-    return bmfResults
-  } catch (error) {
-    console.error(error)
     return bmfResults
   } finally {
     if (pool != null) {

@@ -8,6 +8,12 @@
   ],
   "packageRules": [
     {
+      "matchDatasources": ["npm"],
+      "matchFileNames": ["**/deno.json"],
+      "minimumReleaseAge": "1 day",
+      "internalChecksFilter": "strict"
+    },
+    {
       "matchFileNames": ["**/package.json"],
       "matchDepTypes": [
         "dependencies",
