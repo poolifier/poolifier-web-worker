@@ -1306,18 +1306,21 @@ export abstract class AbstractPool<
       return
     }
     this.startingMinimumNumberOfWorkers = true
-    while (
-      this.workerNodes.reduce(
-        (accumulator, workerNode) =>
-          !workerNode.info.dynamic ? accumulator + 1 : accumulator,
-        0,
-      ) < this.minimumNumberOfWorkers
-    ) {
-      const workerNodeKey = this.createAndSetupWorkerNode()
-      initWorkerNodeUsage &&
-        this.initWorkerNodeUsage(this.workerNodes[workerNodeKey])
+    try {
+      while (
+        this.workerNodes.reduce(
+          (accumulator, workerNode) =>
+            !workerNode.info.dynamic ? accumulator + 1 : accumulator,
+          0,
+        ) < this.minimumNumberOfWorkers
+      ) {
+        const workerNodeKey = this.createAndSetupWorkerNode()
+        initWorkerNodeUsage &&
+          this.initWorkerNodeUsage(this.workerNodes[workerNodeKey])
+      }
+    } finally {
+      this.startingMinimumNumberOfWorkers = false
     }
-    this.startingMinimumNumberOfWorkers = false
   }
 
   /** @inheritdoc */
@@ -1332,9 +1335,12 @@ export abstract class AbstractPool<
       throw new Error('Cannot start a destroying pool')
     }
     this.starting = true
-    this.startMinimumNumberOfWorkers()
-    this.startTimestamp = performance.now()
-    this.starting = false
+    try {
+      this.startMinimumNumberOfWorkers()
+      this.startTimestamp = performance.now()
+    } finally {
+      this.starting = false
+    }
     this.started = true
   }
 
@@ -2362,7 +2368,9 @@ export abstract class AbstractPool<
       this.worker,
       this.specifier,
       {
-        workerOptions: this.opts.workerOptions,
+        workerOptions: Object.hasOwn(this.opts, 'workerOptions')
+          ? this.opts.workerOptions
+          : undefined,
         tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
           getDefaultTasksQueueOptions(
             this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,

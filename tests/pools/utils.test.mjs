@@ -3,6 +3,7 @@ import { describe, it } from '@std/testing/bdd'
 import { CircularBuffer } from '../../src/circular-buffer.ts'
 import { WorkerTypes } from '../../src/mod.ts'
 import {
+  buildWebWorkerOptions,
   checkValidWorkerNodeKeys,
   createWorker,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
@@ -33,6 +34,219 @@ describe('Pool utils test suite', () => {
       tasksStealingRatio: 0.6,
       taskStealing: true,
     })
+  })
+
+  it('builds web worker options from own properties', () => {
+    Object.defineProperties(Object.prototype, {
+      0: {
+        configurable: true,
+        enumerable: true,
+        value: 'file:///polluted-preload.ts',
+        writable: true,
+      },
+      name: {
+        configurable: true,
+        enumerable: true,
+        value: 'polluted',
+        writable: true,
+      },
+      read: {
+        configurable: true,
+        enumerable: true,
+        value: ['/'],
+        writable: true,
+      },
+    })
+    const preload = [
+      'file:///explicit-preload-zero.ts',
+      'file:///explicit-preload-one.ts',
+    ]
+    try {
+      const workerOptions = buildWebWorkerOptions({
+        credentials: 'omit',
+        deno: {
+          permissions: {
+            write: false,
+          },
+        },
+        preload,
+      })
+      expect(Object.getPrototypeOf(workerOptions)).toBeNull()
+      expect(workerOptions.type).toBe('module')
+      expect(workerOptions.credentials).toBe('omit')
+      expect(Object.hasOwn(workerOptions, 'name')).toBe(false)
+      expect(workerOptions.name).toBeUndefined()
+      expect(workerOptions.preload).not.toBe(preload)
+      expect(Object.hasOwn(workerOptions.preload, 0)).toBe(true)
+      expect(workerOptions.preload[0]).toBe(
+        'file:///explicit-preload-zero.ts',
+      )
+      expect(workerOptions.preload[1]).toBe(
+        'file:///explicit-preload-one.ts',
+      )
+      expect(Object.getPrototypeOf(workerOptions.deno)).toBeNull()
+      expect(Object.getPrototypeOf(workerOptions.deno.permissions)).toBeNull()
+      expect(workerOptions.deno.permissions.write).toBe(false)
+      expect(Object.hasOwn(workerOptions.deno.permissions, 'read')).toBe(false)
+      expect(workerOptions.deno.permissions.read).toBeUndefined()
+    } finally {
+      Reflect.deleteProperty(Object.prototype, '0')
+      Reflect.deleteProperty(Object.prototype, 'name')
+      Reflect.deleteProperty(Object.prototype, 'read')
+    }
+  })
+
+  it('normalizes Deno option dictionaries with custom prototypes', () => {
+    Object.defineProperty(Object.prototype, 'read', {
+      configurable: true,
+      enumerable: true,
+      value: true,
+      writable: true,
+    })
+    const permissions = Object.assign(Object.create({ run: true }), {
+      write: false,
+    })
+    const deno = Object.assign(Object.create({ namespace: true }), {
+      permissions,
+    })
+    try {
+      const workerOptions = buildWebWorkerOptions({ deno })
+      expect(Object.getPrototypeOf(workerOptions.deno)).toBeNull()
+      expect(Object.hasOwn(workerOptions.deno, 'namespace')).toBe(false)
+      expect(workerOptions.deno.namespace).toBeUndefined()
+      expect(Object.getPrototypeOf(workerOptions.deno.permissions)).toBeNull()
+      expect(workerOptions.deno.permissions.write).toBe(false)
+      expect(Object.hasOwn(workerOptions.deno.permissions, 'read')).toBe(false)
+      expect(workerOptions.deno.permissions.read).toBeUndefined()
+      expect(Object.hasOwn(workerOptions.deno.permissions, 'run')).toBe(false)
+      expect(workerOptions.deno.permissions.run).toBeUndefined()
+    } finally {
+      Reflect.deleteProperty(Object.prototype, 'read')
+    }
+  })
+
+  it('preserves non-enumerable own Deno permission options', () => {
+    const deno = {}
+    Object.defineProperty(deno, 'permissions', {
+      configurable: true,
+      value: 'none',
+    })
+    const explicitWorkerOptions = {}
+    Object.defineProperty(explicitWorkerOptions, 'deno', { value: deno })
+    const environment = {}
+    Object.defineProperty(explicitWorkerOptions, 'env', { value: environment })
+    Object.defineProperty(explicitWorkerOptions, 'type', { value: 'classic' })
+    const workerOptions = buildWebWorkerOptions(explicitWorkerOptions)
+    expect(Object.hasOwn(workerOptions.deno, 'permissions')).toBe(true)
+    expect(workerOptions.deno.permissions).toBe('none')
+    expect(Object.hasOwn(workerOptions, 'env')).toBe(true)
+    expect(workerOptions.env).toBe(environment)
+    expect(workerOptions.type).toBe('module')
+
+    const permissions = {}
+    Object.defineProperty(permissions, 'read', { value: false })
+    Object.defineProperty(deno, 'permissions', {
+      configurable: true,
+      value: permissions,
+    })
+    const workerOptionsWithPermissionDictionary = buildWebWorkerOptions(
+      explicitWorkerOptions,
+    )
+    expect(
+      Object.hasOwn(
+        workerOptionsWithPermissionDictionary.deno.permissions,
+        'read',
+      ),
+    ).toBe(true)
+    expect(
+      workerOptionsWithPermissionDictionary.deno.permissions.read,
+    ).toBe(false)
+  })
+
+  it('does not evaluate unknown Deno option accessors', () => {
+    let accessorCalls = 0
+    const permissions = {
+      get ignored() {
+        accessorCalls++
+        throw new Error('Unexpected permission option access')
+      },
+      read: false,
+    }
+    const deno = {
+      get ignored() {
+        accessorCalls++
+        throw new Error('Unexpected Deno option access')
+      },
+      permissions,
+    }
+    const explicitWorkerOptions = { deno }
+    Object.defineProperty(explicitWorkerOptions, 'ignored', {
+      get() {
+        accessorCalls++
+        throw new Error('Unexpected top-level option access')
+      },
+    })
+    const workerOptions = buildWebWorkerOptions(explicitWorkerOptions)
+    expect(workerOptions.deno.permissions.read).toBe(false)
+    expect(accessorCalls).toBe(0)
+  })
+
+  it('normalizes Bun worker option arrays from own slots', () => {
+    Object.defineProperty(Object.prototype, '0', {
+      configurable: true,
+      enumerable: true,
+      value: 'polluted',
+      writable: true,
+    })
+    const argv = new Array(2)
+    argv[1] = 'explicit'
+    const execArgv = ['--smol']
+    const transferable = new ArrayBuffer(8)
+    const transferList = new Array(2)
+    transferList[1] = transferable
+    try {
+      const workerOptions = buildWebWorkerOptions({
+        argv,
+        execArgv,
+        transferList,
+      })
+      expect(workerOptions.argv).not.toBe(argv)
+      expect(Object.hasOwn(workerOptions.argv, 0)).toBe(true)
+      expect(workerOptions.argv[0]).toBeUndefined()
+      expect(workerOptions.argv[1]).toBe('explicit')
+      expect(workerOptions.execArgv).not.toBe(execArgv)
+      expect(workerOptions.execArgv).toStrictEqual(execArgv)
+      expect(workerOptions.transferList).not.toBe(transferList)
+      expect(Object.hasOwn(workerOptions.transferList, 0)).toBe(true)
+      expect(workerOptions.transferList[0]).toBeUndefined()
+      expect(workerOptions.transferList[1]).toBe(transferable)
+    } finally {
+      Reflect.deleteProperty(Object.prototype, '0')
+    }
+  })
+
+  it('rejects sparse executable option arrays', () => {
+    Object.defineProperty(Object.prototype, '0', {
+      configurable: true,
+      enumerable: true,
+      value: 'file:///polluted-preload.ts',
+      writable: true,
+    })
+    try {
+      for (const optionName of ['execArgv', 'preload']) {
+        expect(() =>
+          buildWebWorkerOptions({
+            [optionName]: new Array(1),
+          })
+        ).toThrow(
+          new TypeError(
+            `Invalid workerOptions.${optionName}: must not be a sparse array`,
+          ),
+        )
+      }
+    } finally {
+      Reflect.deleteProperty(Object.prototype, '0')
+    }
   })
 
   it('Verify updateMeasurementStatistics() behavior', () => {
