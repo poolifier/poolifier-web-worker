@@ -8,24 +8,33 @@ and this project adheres to
 
 ## [0.6.4](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.3...v0.6.4) (2026-10-15)
 
-
 ### 🐞 Bug Fixes
 
-* **ci:** correct Bencher reporting and benchmark failures ([#176](https://github.com/poolifier/poolifier-web-worker/issues/176)) ([a25ef9e](https://github.com/poolifier/poolifier-web-worker/commit/a25ef9e2e7f102606d9eacf0bcee0e9ee1dcb7b0))
-* **deps:** update all non-major dependencies ([#143](https://github.com/poolifier/poolifier-web-worker/issues/143)) ([ea0a3d2](https://github.com/poolifier/poolifier-web-worker/commit/ea0a3d2740dd261af48ade835f3ec9e734f7ba9f))
-* prevent inherited worker launch options ([#185](https://github.com/poolifier/poolifier-web-worker/issues/185)) ([fd6ccce](https://github.com/poolifier/poolifier-web-worker/commit/fd6ccce86439d14329d111bfba3ece1dbc81f3a6))
-* reject in-flight task promises when worker crashes ([#146](https://github.com/poolifier/poolifier-web-worker/issues/146)) ([74d9529](https://github.com/poolifier/poolifier-web-worker/commit/74d9529136e7af7b461af09ffb4f12dbf25183b5))
-
+- **ci:** correct Bencher reporting and benchmark failures
+  ([#176](https://github.com/poolifier/poolifier-web-worker/issues/176))
+  ([a25ef9e](https://github.com/poolifier/poolifier-web-worker/commit/a25ef9e2e7f102606d9eacf0bcee0e9ee1dcb7b0))
+- **deps:** update all non-major dependencies
+  ([#143](https://github.com/poolifier/poolifier-web-worker/issues/143))
+  ([ea0a3d2](https://github.com/poolifier/poolifier-web-worker/commit/ea0a3d2740dd261af48ade835f3ec9e734f7ba9f))
+- prevent inherited worker launch options
+  ([#185](https://github.com/poolifier/poolifier-web-worker/issues/185))
+  ([fd6ccce](https://github.com/poolifier/poolifier-web-worker/commit/fd6ccce86439d14329d111bfba3ece1dbc81f3a6))
+- reject in-flight task promises when worker crashes
+  ([#146](https://github.com/poolifier/poolifier-web-worker/issues/146))
+  ([74d9529](https://github.com/poolifier/poolifier-web-worker/commit/74d9529136e7af7b461af09ffb4f12dbf25183b5))
 
 ### 🧪 Tests
 
-* relax destroy timeout assertion ([#154](https://github.com/poolifier/poolifier-web-worker/issues/154)) ([ae8cbbd](https://github.com/poolifier/poolifier-web-worker/commit/ae8cbbd4f4d7a73b4fc42ab17146643bb6a00ac0))
-
+- relax destroy timeout assertion
+  ([#154](https://github.com/poolifier/poolifier-web-worker/issues/154))
+  ([ae8cbbd](https://github.com/poolifier/poolifier-web-worker/commit/ae8cbbd4f4d7a73b4fc42ab17146643bb6a00ac0))
 
 ### 📚 Documentation
 
-* add format check to quality gates in copilot instructions ([f6bb312](https://github.com/poolifier/poolifier-web-worker/commit/f6bb3122751ccb0a47cbb06b043f3c8f356646de))
-* remove examples section from copilot instructions ([9b76ec5](https://github.com/poolifier/poolifier-web-worker/commit/9b76ec57c469f24d75cf2c287ddf64589f69e441))
+- add format check to quality gates in copilot instructions
+  ([f6bb312](https://github.com/poolifier/poolifier-web-worker/commit/f6bb3122751ccb0a47cbb06b043f3c8f356646de))
+- remove examples section from copilot instructions
+  ([9b76ec5](https://github.com/poolifier/poolifier-web-worker/commit/9b76ec57c469f24d75cf2c287ddf64589f69e441))
 
 ## [0.6.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.2...v0.6.3) (2026-05-12)
 
