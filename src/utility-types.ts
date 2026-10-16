@@ -2,6 +2,13 @@ import type { WorkerChoiceStrategy } from './pools/selection-strategies/selectio
 import type { KillBehavior } from './worker/worker-options.ts'
 
 /**
+ * UUID returned by the Web Crypto API.
+ *
+ * @internal
+ */
+export type UUID = `${string}-${string}-${string}-${string}-${string}`
+
+/**
  * Worker error.
  *
  * @typeParam Data - Type of data sent to the worker triggering an error. This can only be structured-cloneable data.
@@ -139,7 +146,7 @@ export interface Task<Data = unknown> {
   /**
    * Task UUID.
    */
-  readonly taskId?: `${string}-${string}-${string}-${string}-${string}`
+  readonly taskId?: UUID
 }
 
 /**

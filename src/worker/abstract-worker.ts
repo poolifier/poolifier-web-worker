@@ -3,6 +3,7 @@ import type {
   Task,
   TaskFunctionProperties,
   TaskPerformance,
+  UUID,
   WorkerStatistics,
 } from '../utility-types.ts'
 import {
@@ -77,10 +78,7 @@ export abstract class AbstractWorker<
   /**
    * Task abort functions processed by the worker when task operation 'abort' is received.
    */
-  protected taskAbortFunctions: Map<
-    `${string}-${string}-${string}-${string}-${string}`,
-    () => void
-  >
+  protected taskAbortFunctions: Map<UUID, () => void>
   /**
    * Handler id of the `activeInterval` worker activity check.
    */
@@ -103,10 +101,7 @@ export abstract class AbstractWorker<
       throw new Error('isMain parameter is mandatory')
     }
     this.checkTaskFunctions(taskFunctions)
-    this.taskAbortFunctions = new Map<
-      `${string}-${string}-${string}-${string}-${string}`,
-      () => void
-    >()
+    this.taskAbortFunctions = new Map<UUID, () => void>()
     this.checkWorkerOptions(this.opts)
     if (!this.isMain) {
       this.getMainWorker().addEventListener(
@@ -497,7 +492,7 @@ export abstract class AbstractWorker<
    */
   private getAbortableTaskFunction(
     name: string,
-    taskId: `${string}-${string}-${string}-${string}-${string}`,
+    taskId: UUID,
   ): TaskAsyncFunction<Data, Response> {
     return async (data?: Data): Promise<Response> =>
       await new Promise<Response>(
