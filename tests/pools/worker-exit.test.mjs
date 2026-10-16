@@ -5,29 +5,13 @@ import {
   FixedThreadPool,
   WorkerChoiceStrategies,
 } from '../../src/mod.ts'
+import { bounded, waitForMessage } from '../test-utils.mjs'
 
 const workerFile = new URL(
   '../worker-files/thread/crashWorker.mjs',
   import.meta.url,
 )
 const PoolClass = FixedThreadPool
-
-const bounded = async (promise) => {
-  let timeout
-  try {
-    return await Promise.race([
-      promise,
-      new Promise((_resolve, reject) => {
-        timeout = setTimeout(
-          () => reject(new Error('Task remained pending')),
-          5000,
-        )
-      }),
-    ])
-  } finally {
-    clearTimeout(timeout)
-  }
-}
 
 const once = (target, event) =>
   new Promise((resolve) => {
@@ -41,15 +25,7 @@ const listenOnce = (target, event, listener) => {
 const send = (workerNode, message) => workerNode.worker.postMessage(message)
 
 const started = (workerNode, id) =>
-  new Promise((resolve) => {
-    const listener = ({ data }) => {
-      if (data.started === id) {
-        workerNode.worker.removeEventListener('message', listener)
-        resolve()
-      }
-    }
-    workerNode.worker.addEventListener('message', listener)
-  })
+  waitForMessage(workerNode.worker, (message) => message.started === id)
 
 const preventWorkerError = (event) => event.preventDefault()
 
@@ -58,7 +34,9 @@ const cleanupRegressionPool = async (pool, capturedNodes = []) => {
   for (const node of new Set([...capturedNodes, ...pool.workerNodes])) {
     send(node, { releaseAll: true })
   }
-  if (pool.info.started) await bounded(pool.destroy())
+  if (pool.info.started) {
+    await bounded(pool.destroy(), 'Worker exit pool cleanup remained pending')
+  }
 }
 
 const createPool = async (size = 1, options = {}) => {
@@ -182,7 +160,10 @@ describe({
       })
       let destruction
       try {
-        await pool.execute({ warmup: true })
+        await bounded(
+          pool.execute({ warmup: true }),
+          'Exit redistribution warmup remained pending',
+        )
         const [source, destination] = pool.workerNodes
         const sourceStarted = started(source, 'source')
         const destinationStarted = started(destination, 'destination')
@@ -217,7 +198,10 @@ describe({
         },
       })
       try {
-        await pool.execute({ warmup: true })
+        await bounded(
+          pool.execute({ warmup: true }),
+          'Worker index shift warmup remained pending',
+        )
         const [failedNode, healthyNode] = pool.workerNodes
         const failedStarted = started(failedNode, 'failed')
         const healthyStarted = started(healthyNode, 'healthy')
@@ -429,7 +413,10 @@ describe({
         },
       })
       try {
-        await pool.execute({ warmup: true })
+        await bounded(
+          pool.execute({ warmup: true }),
+          'Stolen task warmup remained pending',
+        )
         const [source, destination] = pool.workerNodes
         const sourceStarted = started(source, 'source')
         const destinationStarted = started(destination, 'destination')
@@ -480,7 +467,10 @@ describe({
         },
       })
       try {
-        await bounded(pool.execute({ warmup: true }))
+        await bounded(
+          pool.execute({ warmup: true }),
+          'Redistribution abort warmup remained pending',
+        )
         const [source, destination] = pool.workerNodes
         const sourceStarted = started(source, 'source')
         const destinationStarted = started(destination, 'destination')
@@ -529,7 +519,10 @@ describe({
         },
       })
       try {
-        await pool.execute({ warmup: true })
+        await bounded(
+          pool.execute({ warmup: true }),
+          'Queued abort warmup remained pending',
+        )
         const [source, destination] = pool.workerNodes
         const sourceStarted = started(source, 'source')
         const destinationStarted = started(destination, 'destination')
@@ -615,7 +608,10 @@ describe({
 
       try {
         if (!pool.info.ready) await bounded(once(pool.eventTarget, 'ready'))
-        await bounded(pool.execute({ warmup: true }))
+        await bounded(
+          pool.execute({ warmup: true }),
+          'Redistribution abort warmup remained pending',
+        )
         const [source, destination] = pool.workerNodes
         const sourceStarted = started(source, 'source')
         const destinationStarted = started(destination, 'destination')
@@ -665,7 +661,10 @@ describe({
         },
       })
       try {
-        await pool.execute({ warmup: true })
+        await bounded(
+          pool.execute({ warmup: true }),
+          'Abort routing warmup remained pending',
+        )
         const [source, destination] = pool.workerNodes
         const sourceStarted = started(source, 'source')
         const destinationStarted = started(destination, 'destination')
@@ -717,7 +716,10 @@ describe({
     it('does not attribute intentionally terminated tasks to a later crashed worker', async () => {
       const pool = await createPool(2)
       try {
-        await pool.execute({ warmup: true })
+        await bounded(
+          pool.execute({ warmup: true }),
+          'Intentional termination warmup remained pending',
+        )
         const [removed, survivor] = pool.workerNodes
         const removedStarted = started(removed, 'removed')
         const survivorStarted = started(survivor, 'survivor')
@@ -781,7 +783,10 @@ describe({
           },
         })
         try {
-          await bounded(pool.execute({ warmup: true }))
+          await bounded(
+            pool.execute({ warmup: true }),
+            'Queued send failure warmup remained pending',
+          )
           const [source, destination] = pool.workerNodes
           const sourceStarted = started(source, 'source')
           const destinationStarted = started(destination, 'destination')
@@ -1252,26 +1257,17 @@ describe({
           if (node.info.taskFunctionsProperties?.length > 0) {
             return Promise.resolve()
           }
-          return new Promise((resolve) => {
-            const listener = ({ data }) => {
-              if (data.ready === true && data.taskFunctionsProperties != null) {
-                node.removeEventListener('message', listener)
-                resolve()
-              }
-            }
-            node.addEventListener('message', listener)
-          })
+          return waitForMessage(
+            node,
+            (message) =>
+              message.ready === true && message.taskFunctionsProperties != null,
+          )
         }
         const bootstrapReceived = (node) =>
-          new Promise((resolve) => {
-            const listener = ({ data }) => {
-              if (data.bootstrapReceived === true) {
-                node.worker.removeEventListener('message', listener)
-                resolve()
-              }
-            }
-            node.worker.addEventListener('message', listener)
-          })
+          waitForMessage(
+            node.worker,
+            (message) => message.bootstrapReceived === true,
+          )
         const configureSource = (node) =>
           send(node, {
             releaseBootstrap: { defaultPinned, workerNodeKeys: [sourceIndex] },

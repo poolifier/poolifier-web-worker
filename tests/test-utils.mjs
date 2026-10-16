@@ -2,6 +2,35 @@ import { TaskFunctions } from './test-types.mjs'
 
 export const isCI = Deno.env.get('CI') === 'true'
 
+export const bounded = async (
+  promise,
+  message = 'Task remained pending',
+  timeoutMs = 5000,
+) => {
+  let timeout
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error(message)), timeoutMs)
+      }),
+    ])
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+export const waitForMessage = (target, predicate) =>
+  new Promise((resolve) => {
+    const listener = ({ data }) => {
+      if (predicate(data)) {
+        target.removeEventListener('message', listener)
+        resolve(data)
+      }
+    }
+    target.addEventListener('message', listener)
+  })
+
 export const waitWorkerNodeEvents = async (
   pool,
   workerNodeEvent,

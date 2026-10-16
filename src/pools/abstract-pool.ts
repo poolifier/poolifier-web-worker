@@ -4,6 +4,7 @@ import type {
   PromiseResponseWrapper,
   Task,
   TaskFunctionProperties,
+  UUID,
 } from '../utility-types.ts'
 import {
   average,
@@ -88,13 +89,8 @@ export abstract class AbstractPool<
    *
    * When we receive a message from the worker, we get a map entry with the promise resolve/reject bound to the message id.
    */
-  protected promiseResponseMap: Map<
-    `${string}-${string}-${string}-${string}-${string}`,
-    PromiseResponseWrapper<Response>
-  > = new Map<
-    `${string}-${string}-${string}-${string}-${string}`,
-    PromiseResponseWrapper<Response>
-  >()
+  protected promiseResponseMap: Map<UUID, PromiseResponseWrapper<Response>> =
+    new Map<UUID, PromiseResponseWrapper<Response>>()
 
   /**
    * Worker choice strategies context referencing worker choice algorithms implementation.
@@ -695,7 +691,7 @@ export abstract class AbstractPool<
     for (const workerNodeKey of this.workerNodes.keys()) {
       this.workerNodes[workerNodeKey].addEventListener(
         'idle',
-        this.handleWorkerNodeIdleEvent as EventListener,
+        this.workerNodeIdleEventListener as EventListener,
       )
     }
   }
@@ -704,7 +700,7 @@ export abstract class AbstractPool<
     for (const workerNodeKey of this.workerNodes.keys()) {
       this.workerNodes[workerNodeKey].removeEventListener(
         'idle',
-        this.handleWorkerNodeIdleEvent as EventListener,
+        this.workerNodeIdleEventListener as EventListener,
       )
     }
   }
@@ -1003,7 +999,7 @@ export abstract class AbstractPool<
 
   private readonly getAbortError = (
     taskName: string,
-    taskId: `${string}-${string}-${string}-${string}-${string}`,
+    taskId: UUID,
   ): Error => {
     const abortError = this.promiseResponseMap.get(taskId)?.abortSignal
       ?.reason as Error | string
@@ -1511,7 +1507,9 @@ export abstract class AbstractPool<
       )
     }
     if (
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(task.name!) !=
         null
     ) {
@@ -1555,7 +1553,9 @@ export abstract class AbstractPool<
       needWorkerChoiceStrategiesUpdate = true
     }
     if (
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       message.taskPerformance?.name != null &&
       this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(
           message.taskPerformance.name,
@@ -1585,11 +1585,12 @@ export abstract class AbstractPool<
   /**
    * Whether the worker node shall update its task function worker usage or not.
    *
-   * @param workerNodeKey - The worker node key.
+   * @param workerInfo - The worker information.
    * @returns `true` if the worker node shall update its task function worker usage, `false` otherwise.
    */
-  private shallUpdateTaskFunctionWorkerUsage(workerNodeKey: number): boolean {
-    const workerInfo = this.getWorkerInfo(workerNodeKey)
+  private shallUpdateTaskFunctionWorkerUsage(
+    workerInfo: WorkerInfo | undefined,
+  ): boolean {
     return (
       workerInfo != null &&
       Array.isArray(workerInfo.taskFunctionsProperties) &&
@@ -1746,10 +1747,7 @@ export abstract class AbstractPool<
             !this.terminatingWorkerNodes.has(workerNode)
           workerNode.info.ready = false
           let workerNodeTasks:
-            | Map<
-              `${string}-${string}-${string}-${string}-${string}`,
-              PromiseResponseWrapper<Response>
-            >
+            | Map<UUID, PromiseResponseWrapper<Response>>
             | undefined
           if (settlingTasks) {
             const workerNodeKey = this.workerNodes.indexOf(workerNode)
@@ -1917,7 +1915,7 @@ export abstract class AbstractPool<
       if (this.opts.tasksQueueOptions?.taskStealing === true) {
         this.workerNodes[workerNodeKey].addEventListener(
           'idle',
-          this.handleWorkerNodeIdleEvent as EventListener,
+          this.workerNodeIdleEventListener as EventListener,
         )
       }
       if (this.opts.tasksQueueOptions?.tasksStealingOnBackPressure === true) {
@@ -2041,7 +2039,7 @@ export abstract class AbstractPool<
   }
 
   private rejectTask(
-    taskId: `${string}-${string}-${string}-${string}-${string}`,
+    taskId: UUID,
     promiseResponse: PromiseResponseWrapper<Response>,
     error: unknown,
   ): void {
@@ -2058,10 +2056,7 @@ export abstract class AbstractPool<
    * @param error - The worker failure.
    */
   private rejectWorkerNodeTasks(
-    workerNodeTasks: Map<
-      `${string}-${string}-${string}-${string}-${string}`,
-      PromiseResponseWrapper<Response>
-    >,
+    workerNodeTasks: Map<UUID, PromiseResponseWrapper<Response>>,
     error?: Error,
   ): void {
     for (const [taskId, promiseResponse] of workerNodeTasks) {
@@ -2101,7 +2096,9 @@ export abstract class AbstractPool<
       ++workerNode.usage.tasks.stolen
     }
     if (
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
       ++workerNode.getTaskFunctionWorkerUsage(taskName)!.tasks.stolen
@@ -2119,7 +2116,9 @@ export abstract class AbstractPool<
     }
     if (
       taskName != null &&
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
       const taskFunctionWorkerUsage = workerNode.getTaskFunctionWorkerUsage(
@@ -2148,7 +2147,9 @@ export abstract class AbstractPool<
     }
     if (
       taskName != null &&
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
       workerNode.getTaskFunctionWorkerUsage(
@@ -2207,11 +2208,17 @@ export abstract class AbstractPool<
     )
   }
 
-  private readonly handleWorkerNodeIdleEvent = (
+  private readonly workerNodeIdleEventListener = (
     event: CustomEvent<WorkerNodeEventDetail>,
+  ): void => {
+    this.handleWorkerNodeIdleEvent(event.detail)
+  }
+
+  private readonly handleWorkerNodeIdleEvent = (
+    eventDetail: WorkerNodeEventDetail,
     previousStolenTask?: Task<Data>,
   ): void => {
-    const { workerNodeKey } = event.detail
+    const { workerNodeKey } = eventDetail
     if (workerNodeKey == null) {
       throw new Error(
         "WorkerNode event detail 'workerNodeKey' property must be defined",
@@ -2250,9 +2257,18 @@ export abstract class AbstractPool<
     )
     sleep(exponentialDelay(workerNodeTasksUsage.sequentiallyStolen))
       .then(() => {
-        this.handleWorkerNodeIdleEvent(event, stolenTask)
+        // Worker nodes can be removed during the delay, shifting the keys.
+        const currentWorkerNodeKey = this.workerNodes.indexOf(workerNode)
+        if (currentWorkerNodeKey === -1) {
+          return undefined
+        }
+        this.handleWorkerNodeIdleEvent(
+          { ...eventDetail, workerNodeKey: currentWorkerNodeKey },
+          stolenTask,
+        )
+        return undefined
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         this.eventTarget?.dispatchEvent(
           new ErrorEvent(PoolEvents.error, { error }),
         )
@@ -2697,10 +2713,7 @@ export abstract class AbstractPool<
       if (workerNode.usage.tasks.executing > 0) {
         --workerNode.usage.tasks.executing
       }
-      if (
-        Array.isArray(workerNode.info.taskFunctionsProperties) &&
-        workerNode.info.taskFunctionsProperties.length > 2
-      ) {
+      if (this.shallUpdateTaskFunctionWorkerUsage(workerNode.info)) {
         const taskFunctionWorkerUsage = workerNode.getTaskFunctionWorkerUsage(
           task.name!,
         )
