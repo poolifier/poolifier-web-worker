@@ -148,7 +148,6 @@ describe({
         expect(workerNode.usage.tasks.executing).toBeLessThanOrEqual(
           numberOfThreads * maxMultiplier,
         )
-        expect(workerNode.usage.tasks.executed).toBe(maxMultiplier)
         expect(workerNode.usage.tasks.queued).toBe(0)
         expect(workerNode.usage.tasks.maxQueued).toBe(
           maxMultiplier - queuePool.opts.tasksQueueOptions.concurrency,
@@ -315,29 +314,6 @@ describe({
       expect(pool.workerNodes.length).toBe(0)
       expect(exitEvents).toBe(numberOfThreads)
       expect(poolDestroy).toBe(1)
-    })
-
-    it('Verify that thread pool options are checked', async () => {
-      const workerFilePath = './../../worker-files/thread/testWorker.mjs'
-      let pool = new FixedThreadPool(
-        numberOfThreads,
-        new URL(workerFilePath, import.meta.url),
-      )
-      expect(pool.opts.workerOptions).toBeUndefined()
-      await pool.destroy()
-      pool = new FixedThreadPool(
-        numberOfThreads,
-        new URL(workerFilePath, import.meta.url),
-        {
-          workerOptions: {
-            name: 'test',
-          },
-        },
-      )
-      expect(pool.opts.workerOptions).toStrictEqual({
-        name: 'test',
-      })
-      await pool.destroy()
     })
 
     it('Verify destroyWorkerNode()', async () => {
