@@ -1097,11 +1097,15 @@ describe({
     }
 
     for (const fail of [false, true]) {
-      it(`preserves a native response posted before the worker error (task failure: ${fail})`, async () => {
+      it(`settles a buffered response/error race without losing delivered responses (task failure: ${fail})`, async () => {
         const pool = await createPool()
         try {
           const source = pool.workerNodes[0]
           const exit = once(source, 'exit')
+          let responseReceived = false
+          source.addEventListener('message', ({ data: message }) => {
+            if (message.taskId != null) responseReceived = true
+          })
           const status = new Int32Array(new SharedArrayBuffer(4))
           const response = { completed: true }
           const result = pool.execute({
@@ -1114,7 +1118,12 @@ describe({
           Atomics.wait(status, 0, 0, 5000)
           expect(Atomics.load(status, 0)).toBe(1)
           const outcome = await bounded(result)
-          if (fail) {
+          if (!responseReceived) {
+            expect(outcome).toBeInstanceOf(Error)
+            expect(outcome.message).toContain(
+              'Worker crashed after task response',
+            )
+          } else if (fail) {
             expect(outcome).toBeInstanceOf(Error)
             expect(outcome.message).toBe('Task failed before worker crash')
           } else {
