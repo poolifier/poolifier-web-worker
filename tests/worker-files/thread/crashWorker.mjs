@@ -11,7 +11,8 @@ self.addEventListener('message', ({ data: message }) => {
     throw new Error('Worker crashed')
   }
   if (message.release != null) {
-    pendingTasks.get(message.release)?.()
+    const resolve = pendingTasks.get(message.release)
+    if (typeof resolve === 'function') resolve()
     pendingTasks.delete(message.release)
   }
   if (message.releaseAll === true) {

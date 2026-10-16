@@ -207,6 +207,8 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
 
   private closeMessageChannel(): void {
     if (this.messageChannel != null) {
+      this.messageChannel.port1.onmessage = null
+      this.messageChannel.port1.onmessageerror = null
       this.messageChannel.port1.close()
       this.messageChannel.port2.close()
       delete this.messageChannel
