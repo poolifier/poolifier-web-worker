@@ -450,7 +450,14 @@ describe({
           expect(pool.info.stolenTasks).toBe(1)
         } finally {
           Object.values(gates).forEach(release)
-          await finishTasksAndDestroy(pool, tasks)
+          try {
+            await bounded(Promise.all(tasks), 'Gated tasks did not finish')
+          } finally {
+            await bounded(
+              pool.destroy(),
+              'Idle retry pool cleanup remained pending',
+            )
+          }
         }
       })
     }

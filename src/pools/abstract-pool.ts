@@ -691,7 +691,7 @@ export abstract class AbstractPool<
     for (const workerNodeKey of this.workerNodes.keys()) {
       this.workerNodes[workerNodeKey].addEventListener(
         'idle',
-        this.handleWorkerNodeIdleEvent as EventListener,
+        this.workerNodeIdleEventListener as EventListener,
       )
     }
   }
@@ -700,7 +700,7 @@ export abstract class AbstractPool<
     for (const workerNodeKey of this.workerNodes.keys()) {
       this.workerNodes[workerNodeKey].removeEventListener(
         'idle',
-        this.handleWorkerNodeIdleEvent as EventListener,
+        this.workerNodeIdleEventListener as EventListener,
       )
     }
   }
@@ -1915,7 +1915,7 @@ export abstract class AbstractPool<
       if (this.opts.tasksQueueOptions?.taskStealing === true) {
         this.workerNodes[workerNodeKey].addEventListener(
           'idle',
-          this.handleWorkerNodeIdleEvent as EventListener,
+          this.workerNodeIdleEventListener as EventListener,
         )
       }
       if (this.opts.tasksQueueOptions?.tasksStealingOnBackPressure === true) {
@@ -2208,11 +2208,17 @@ export abstract class AbstractPool<
     )
   }
 
-  private readonly handleWorkerNodeIdleEvent = (
+  private readonly workerNodeIdleEventListener = (
     event: CustomEvent<WorkerNodeEventDetail>,
+  ): void => {
+    this.handleWorkerNodeIdleEvent(event.detail)
+  }
+
+  private readonly handleWorkerNodeIdleEvent = (
+    eventDetail: WorkerNodeEventDetail,
     previousStolenTask?: Task<Data>,
   ): void => {
-    const { workerNodeKey } = event.detail
+    const { workerNodeKey } = eventDetail
     if (workerNodeKey == null) {
       throw new Error(
         "WorkerNode event detail 'workerNodeKey' property must be defined",
@@ -2254,16 +2260,15 @@ export abstract class AbstractPool<
         // Worker nodes can be removed during the delay, shifting the keys.
         const currentWorkerNodeKey = this.workerNodes.indexOf(workerNode)
         if (currentWorkerNodeKey === -1) {
-          return
+          return undefined
         }
         this.handleWorkerNodeIdleEvent(
-          new CustomEvent<WorkerNodeEventDetail>(event.type, {
-            detail: { ...event.detail, workerNodeKey: currentWorkerNodeKey },
-          }),
+          { ...eventDetail, workerNodeKey: currentWorkerNodeKey },
           stolenTask,
         )
+        return undefined
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         this.eventTarget?.dispatchEvent(
           new ErrorEvent(PoolEvents.error, { error }),
         )
