@@ -361,7 +361,8 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
    */
   readonly deleteTask: (task: Task<Data>) => boolean
   /**
-   * Terminates the worker node.
+   * Terminates the worker node once.
+   * The node emits `exit` once on termination or a native worker `close` event when the runtime exposes one.
    */
   readonly terminate: () => void
   /**

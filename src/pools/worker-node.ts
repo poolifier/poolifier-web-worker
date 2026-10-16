@@ -43,6 +43,15 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   /** @inheritdoc */
   public tasksQueueBackPressureSize: number
   private readonly taskFunctionsUsage: Map<string, WorkerUsage>
+  private terminated = false
+  private readonly workerCloseHandler = (): void => {
+    if (this.terminated) {
+      return
+    }
+    this.terminated = true
+    this.closeMessageChannel()
+    this.dispatchEvent(new Event('exit'))
+  }
 
   /**
    * Constructs a new worker node.
@@ -64,6 +73,9 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
         : undefined,
     })
     this.info = initWorkerInfo(this.worker)
+    this.worker.addEventListener('close', this.workerCloseHandler, {
+      once: true,
+    })
     this.usage = this.initWorkerUsage()
     this.messageChannel = new MessageChannel()
     this.messageChannel.port1.onmessage = (
@@ -154,6 +166,11 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
 
   /** @inheritdoc */
   public terminate(): void {
+    if (this.terminated) {
+      return
+    }
+    this.terminated = true
+    this.worker.removeEventListener('close', this.workerCloseHandler)
     this.closeMessageChannel()
     this.worker.terminate()
     this.dispatchEvent(new Event('exit'))

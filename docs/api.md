@@ -55,6 +55,37 @@ implementation.
 This method is available on both pool implementations and returns a promise with
 the task function execution response.
 
+#### Task failures
+
+- If sending a task throws, its promise rejects with the original error, without
+  failing other tasks.
+- On a native worker error or an unexpected worker close notification,
+  unfinished dispatched tasks reject with an `Error` and are not retried.
+  Responses already received by the pool retain their result or task error.
+- Queued tasks are redistributed to ready workers respecting worker node
+  affinity, including while other workers initialize. Affinity uses current
+  worker node indices after removal and any replacement attempt. Tasks without
+  an eligible destination reject.
+- Eligible handoffs complete before `backPressureEnd` is emitted, including when
+  worker-removal event listeners disable task queues. Disabling queues from such
+  a listener dispatches eligible detached tasks directly instead of discarding
+  them.
+- Queued tasks aborted after worker removal and before reassignment reject with
+  the original abort reason if it is an `Error`, a new `Error` with that message
+  if it is a string, or a task-specific abort `Error` otherwise.
+- Native worker failures without an `Error` payload are wrapped in an `Error`
+  using the native error message and the original payload as `cause`. The pool's
+  `error` event preserves the native error payload.
+- Failure to construct a replacement worker does not prevent task settlement;
+  the construction error still propagates.
+
+Unexpected-failure handling does not apply to intentional pool or worker
+termination. Bun provides a native worker close notification. The standard Web
+Worker API used by Deno and browsers has no exit notification: a worker that
+silently closes without an error cannot be detected. Web MessagePorts have no
+synchronous receive API, so responses must reach the pool before failure cleanup
+closes the channel.
+
 ### `pool.mapExecute(data, name, abortSignals, transferList)`
 
 `data` An iterable of objects that you want to pass to your worker task function
@@ -70,6 +101,8 @@ worker implementation.
 This method is available on both pool implementations and returns a promise with
 the task function execution responses array.
 
+Task failures follow the same rules as [`pool.execute()`](#task-failures).
+
 ### `pool.start()`
 
 This method is available on both pool implementations and will start the minimum
@@ -77,8 +110,9 @@ number of workers.
 
 ### `pool.destroy()`
 
-This method is available on both pool implementations and will call the
-terminate method on each worker.
+This method is available on both pool implementations and returns a promise for
+pool destruction. Workers already removed after failure do not block
+destruction.
 
 ### `pool.hasTaskFunction(name)`
 
