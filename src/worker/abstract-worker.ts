@@ -46,10 +46,25 @@ const DEFAULT_WORKER_OPTIONS: Readonly<WorkerOptions> = Object.freeze({
   killHandler: EMPTY_FUNCTION,
 })
 
-const isPromiseLike = <T>(value: unknown): value is PromiseLike<T> =>
-  value != null &&
-  (typeof value === 'object' || typeof value === 'function') &&
-  'then' in value && typeof value.then === 'function'
+const toPromise = <T>(value: unknown): Promise<T> | undefined => {
+  if (
+    value == null ||
+    (typeof value !== 'object' && typeof value !== 'function') ||
+    !('then' in value)
+  ) return undefined
+  const then = value.then
+  if (typeof then !== 'function') return undefined
+  return new Promise<T>((resolve, reject) => {
+    // Assimilate the captured method asynchronously without reading it again.
+    queueMicrotask(() => {
+      try {
+        then.call(value, resolve, reject)
+      } catch (error) {
+        reject(error)
+      }
+    })
+  })
+}
 
 /**
  * Base class that implements some shared logic for all poolifier workers.
@@ -455,9 +470,9 @@ export abstract class AbstractWorker<
   ): void | Promise<void> {
     this.stopCheckActive()
     try {
-      const result = this.opts.killHandler?.()
-      if (isPromiseLike<void>(result)) {
-        return Promise.resolve(result).then(
+      const promise = toPromise<void>(this.opts.killHandler?.())
+      if (promise != null) {
+        return promise.then(
           () => {
             this.sendToMainWorker({ kill: 'success' })
           },
@@ -625,8 +640,9 @@ export abstract class AbstractWorker<
     try {
       let taskPerformance = this.beginTaskPerformance(name)
       const res = fn(data)
-      if (isPromiseLike<Response>(res)) {
-        this.completeTaskPromise(res, task, taskPerformance)
+      const promise = toPromise<Response>(res)
+      if (promise != null) {
+        this.completeTaskPromise(promise, task, taskPerformance)
         asynchronous = true
         return
       }

@@ -1,9 +1,10 @@
 import { ThreadWorker } from '../../../src/mod.ts'
+import { singleReadPromise } from './singleReadPromise.mjs'
 
 const params = new URL(import.meta.url).searchParams
 const mode = params.get('mode')
 const failure = params.get('failure') === 'true'
-const PromiseConstructor = mode === 'foreign'
+const PromiseConstructor = mode === 'foreign' || mode === 'foreign-decorated'
   ? (await import('node:vm')).runInNewContext('Promise')
   : Promise
 let state
@@ -56,6 +57,8 @@ const killHandlers = {
   async: asynchronous,
   promise: ordinaryPromise,
   foreign: ordinaryPromise,
+  decorated: () => singleReadPromise(ordinaryPromise()),
+  'foreign-decorated': () => singleReadPromise(ordinaryPromise()),
 }
 const killHandler = killHandlers[mode] ?? synchronous
 

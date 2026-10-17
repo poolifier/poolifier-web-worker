@@ -1,4 +1,5 @@
 import { ThreadWorker } from '../../../src/mod.ts'
+import { singleReadPromise as withSingleReadThen } from './singleReadPromise.mjs'
 
 const PromiseConstructor =
   new URL(import.meta.url).searchParams.get('realm') === 'foreign'
@@ -52,17 +53,7 @@ const ordinaryPromise = (data) => {
   })
 }
 
-const singleReadPromise = (data) => {
-  const promise = ordinaryPromise(data)
-  let reads = 0
-  Object.defineProperty(promise, 'then', {
-    get() {
-      if (++reads > 1) throw new Error('Promise then accessed more than once')
-      return PromiseConstructor.prototype.then
-    },
-  })
-  return promise
-}
+const singleReadPromise = (data) => withSingleReadThen(ordinaryPromise(data))
 
 const asynchronous = async (data) => {
   prepare(data)

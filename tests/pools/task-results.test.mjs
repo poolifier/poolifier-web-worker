@@ -79,31 +79,33 @@ describe({
     })
 
     for (const realm of ['local', 'foreign']) {
-      it(`settles abortable ${realm} Promises with a single-read then accessor`, async () => {
-        const url = new URL(workerFile)
-        url.searchParams.set('realm', realm)
-        const pool = new FixedThreadPool(1, url)
-        try {
-          await ready(pool)
-          expect(
-            await bounded(pool.execute(
-              { label: 'decorated result' },
+      for (const abortable of [false, true]) {
+        it(`settles ${abortable ? 'abortable' : 'non-abortable'} ${realm} Promises with a single-read then accessor`, async () => {
+          const url = new URL(workerFile)
+          url.searchParams.set('realm', realm)
+          const pool = new FixedThreadPool(1, url)
+          try {
+            await ready(pool)
+            expect(
+              await bounded(pool.execute(
+                { label: 'decorated result' },
+                'singleReadPromise',
+                abortable ? new AbortController().signal : undefined,
+              )),
+            ).toStrictEqual({ calls: 1, value: 'decorated result' })
+            await expect(bounded(pool.execute(
+              { label: 'decorated failure', fail: true },
               'singleReadPromise',
-              new AbortController().signal,
-            )),
-          ).toStrictEqual({ calls: 1, value: 'decorated result' })
-          await expect(bounded(pool.execute(
-            { label: 'decorated failure', fail: true },
-            'singleReadPromise',
-            new AbortController().signal,
-          ))).rejects.toThrow('decorated failure')
-          expect(pool.workerNodes[0].usage.tasks.executing).toBe(0)
-          expect(pool.workerNodes[0].usage.tasks.executed).toBe(1)
-          expect(pool.workerNodes[0].usage.tasks.failed).toBe(1)
-        } finally {
-          await destroy(pool)
-        }
-      })
+              abortable ? new AbortController().signal : undefined,
+            ))).rejects.toThrow('decorated failure')
+            expect(pool.workerNodes[0].usage.tasks.executing).toBe(0)
+            expect(pool.workerNodes[0].usage.tasks.executed).toBe(1)
+            expect(pool.workerNodes[0].usage.tasks.failed).toBe(1)
+          } finally {
+            await destroy(pool)
+          }
+        })
+      }
 
       for (const fail of [false, true]) {
         it(`keeps decorated ${realm} cancellation settled after late ${fail ? 'rejection' : 'fulfillment'}`, async () => {
@@ -369,7 +371,16 @@ describe({
       }
     })
 
-    for (const mode of ['sync', 'async', 'promise', 'foreign']) {
+    for (
+      const mode of [
+        'sync',
+        'async',
+        'promise',
+        'foreign',
+        'decorated',
+        'foreign-decorated',
+      ]
+    ) {
       for (const failure of [false, true]) {
         it(`acknowledges ${mode} cleanup ${failure ? 'failure' : 'success'} after completion`, async () => {
           const url = new URL(killWorkerFile)
@@ -378,7 +389,12 @@ describe({
           const state = new SharedArrayBuffer(8)
           const values = new Int32Array(state)
           const connection = await connect(url, { state })
+          let acknowledgedEarly = false
           try {
+            connection.port.postMessage({
+              workerId: connection.workerId,
+              statistics: { runTime: false },
+            })
             const started = waitForMessage(
               connection.worker,
               (message) => message.cleanup === 'started',
@@ -387,7 +403,10 @@ describe({
               connection.port,
               (message) =>
                 message.kill === 'success' || message.kill === 'failure',
-            ).then((message) => ({ message, state: Atomics.load(values, 0) }))
+            ).then((message) => {
+              acknowledgedEarly = true
+              return { message, state: Atomics.load(values, 0) }
+            })
             connection.port.postMessage({
               workerId: connection.workerId,
               kill: true,
@@ -395,6 +414,24 @@ describe({
             await bounded(started, 'Cleanup handler did not start')
             if (mode !== 'sync') {
               expect(Atomics.load(values, 0)).toBe(1)
+              const taskId = crypto.randomUUID()
+              const sentinel = waitForMessage(
+                connection.port,
+                (message) => message.taskId === taskId,
+              )
+              connection.port.postMessage({
+                workerId: connection.workerId,
+                taskId,
+                data: {},
+              })
+              expect(
+                (await bounded(
+                  sentinel,
+                  'Cleanup closed its channel before settlement',
+                )).data,
+              )
+                .toBe('ready')
+              expect(acknowledgedEarly).toBe(false)
               connection.worker.postMessage({ release: true })
             }
             const acknowledgment = await bounded(
