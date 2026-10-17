@@ -2,7 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "target": "ESNext",
-    "module": "Node16",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "lib": ["ESNext", "WebWorker"],
     "declaration": true,
     "emitDeclarationOnly": true,

@@ -54,7 +54,7 @@ const DEFAULT_WORKER_OPTIONS: Readonly<WorkerOptions> = Object.freeze({
  * @typeParam Response - Type of response the worker sends back to the main worker. This can only be structured-cloneable data.
  */
 export abstract class AbstractWorker<
-  MainWorker extends WorkerGlobalScope & typeof globalThis,
+  MainWorker extends Pick<EventTarget, 'addEventListener'>,
   Data = unknown,
   Response = unknown,
 > {
@@ -106,7 +106,7 @@ export abstract class AbstractWorker<
     if (!this.isMain) {
       this.getMainWorker().addEventListener(
         'message',
-        this.handleReadyMessageEvent.bind(this),
+        this.handleReadyMessageEvent.bind(this) as EventListener,
         {
           once: true,
         },
@@ -422,6 +422,7 @@ export abstract class AbstractWorker<
     const { status, error } = response
     this.sendToMainWorker({
       taskFunctionOperation,
+      taskFunctionOperationId: message.taskFunctionOperationId,
       taskFunctionOperationStatus: status,
       taskFunctionProperties,
       ...(!status &&
@@ -440,23 +441,25 @@ export abstract class AbstractWorker<
    *
    * @param _message - The kill message.
    */
-  protected handleKillMessage(_message: MessageValue<Data>): void {
+  protected handleKillMessage(
+    _message: MessageValue<Data>,
+  ): void | Promise<void> {
     this.stopCheckActive()
-    if (isAsyncFunction(this.opts.killHandler)) {
-      ;(this.opts.killHandler as () => Promise<void>)()
-        .then(() => {
-          this.sendToMainWorker({ kill: 'success' })
-        })
-        .catch(() => {
-          this.sendToMainWorker({ kill: 'failure' })
-        })
-    } else {
-      try {
-        ;(this.opts.killHandler as (() => void) | undefined)?.()
-        this.sendToMainWorker({ kill: 'success' })
-      } catch {
-        this.sendToMainWorker({ kill: 'failure' })
+    try {
+      const result = this.opts.killHandler?.()
+      if (result instanceof Promise) {
+        return result.then(
+          () => {
+            this.sendToMainWorker({ kill: 'success' })
+          },
+          () => {
+            this.sendToMainWorker({ kill: 'failure' })
+          },
+        )
       }
+      this.sendToMainWorker({ kill: 'success' })
+    } catch {
+      this.sendToMainWorker({ kill: 'failure' })
     }
   }
 
@@ -501,12 +504,11 @@ export abstract class AbstractWorker<
             reject(new AbortError(`Task '${name}' id '${taskId}' aborted`))
           })
           const taskFunction = this.taskFunctions.get(name)!.taskFunction
-          if (isAsyncFunction(taskFunction)) {
-            ;(taskFunction as TaskAsyncFunction<Data, Response>)(data)
-              .then(resolve)
-              .catch(reject)
+          const result = taskFunction(data)
+          if (result instanceof Promise) {
+            result.then(resolve, reject)
           } else {
-            resolve((taskFunction as TaskSyncFunction<Data, Response>)(data))
+            resolve(result)
           }
         },
       )
@@ -582,18 +584,13 @@ export abstract class AbstractWorker<
    * @param task - The task to execute.
    */
   protected readonly run = (task: Task<Data>): void => {
-    const { abortable, name, taskId, data } = task
+    const { abortable, name, taskId } = task
     const taskFunctionName = name ?? DEFAULT_TASK_NAME
     if (!this.taskFunctions.has(taskFunctionName)) {
-      this.sendToMainWorker({
-        workerError: {
-          aborted: false,
-          data,
-          error: new Error(`Task function '${taskFunctionName}' not found`),
-          name,
-        },
-        taskId,
-      })
+      this.sendTaskError(
+        task,
+        new Error(`Task function '${taskFunctionName}' not found`),
+      )
       return
     }
     let fn: TaskFunction<Data, Response>
@@ -610,7 +607,7 @@ export abstract class AbstractWorker<
   }
 
   /**
-   * Runs the given task function synchronously.
+   * Runs a task through the synchronous execution hook.
    *
    * @param fn - Task function that will be executed.
    * @param task - Input data for the task function.
@@ -619,10 +616,16 @@ export abstract class AbstractWorker<
     fn: TaskSyncFunction<Data, Response>,
     task: Task<Data>,
   ): void => {
-    const { abortable, name, taskId, data } = task
+    const { name, taskId, data } = task
+    let asynchronous = false
     try {
       let taskPerformance = this.beginTaskPerformance(name)
       const res = fn(data)
+      if (res instanceof Promise) {
+        this.completeTaskPromise(res, task, taskPerformance)
+        asynchronous = true
+        return
+      }
       taskPerformance = this.endTaskPerformance(taskPerformance)
       this.sendToMainWorker({
         data: res,
@@ -630,25 +633,16 @@ export abstract class AbstractWorker<
         taskId,
       })
     } catch (error) {
-      this.sendToMainWorker({
-        workerError: {
-          aborted: error instanceof AbortError,
-          data,
-          error: error as Error,
-          name,
-        },
-        taskId,
-      })
+      this.sendTaskError(task, error)
     } finally {
-      this.updateLastTaskTimestamp()
-      if (abortable === true) {
-        this.taskAbortFunctions.delete(taskId!)
+      if (!asynchronous) {
+        this.finishTask(task)
       }
     }
   }
 
   /**
-   * Runs the given task function asynchronously.
+   * Runs the given asynchronous task function.
    *
    * @param fn - Task function that will be executed.
    * @param task - Input data for the task function.
@@ -657,35 +651,70 @@ export abstract class AbstractWorker<
     fn: TaskAsyncFunction<Data, Response>,
     task: Task<Data>,
   ): void => {
-    const { abortable, name, taskId, data } = task
-    let taskPerformance = this.beginTaskPerformance(name)
-    fn(data)
+    try {
+      const taskPerformance = this.beginTaskPerformance(task.name)
+      this.completeTaskPromise(fn(task.data), task, taskPerformance)
+    } catch (error) {
+      try {
+        this.sendTaskError(task, error)
+      } finally {
+        this.finishTask(task)
+      }
+    }
+  }
+
+  private completeTaskPromise(
+    result: Promise<Response>,
+    task: Task<Data>,
+    taskPerformance: TaskPerformance,
+  ): void {
+    result
       .then((res) => {
         taskPerformance = this.endTaskPerformance(taskPerformance)
         this.sendToMainWorker({
           data: res,
           taskPerformance,
-          taskId,
+          taskId: task.taskId,
         })
       })
-      .catch((error) => {
-        this.sendToMainWorker({
-          workerError: {
-            aborted: error instanceof AbortError,
-            data,
-            error: error as Error,
-            name,
-          },
-          taskId,
-        })
+      .catch((error: unknown) => {
+        this.sendTaskError(task, error)
       })
       .finally(() => {
-        this.updateLastTaskTimestamp()
-        if (abortable === true) {
-          this.taskAbortFunctions.delete(taskId!)
-        }
+        this.finishTask(task)
       })
-      .catch(EMPTY_FUNCTION)
+  }
+
+  private sendTaskError(task: Task<Data>, error: unknown): void {
+    const { name, taskId, data } = task
+    const message = {
+      workerError: {
+        aborted: error instanceof AbortError,
+        data,
+        error: error as Error,
+        name,
+      },
+      taskId,
+    }
+    try {
+      this.sendToMainWorker(message)
+    } catch (sendError) {
+      if (
+        !(sendError instanceof Error) || sendError.name !== 'DataCloneError'
+      ) {
+        throw sendError
+      }
+      // Transferred input may no longer be cloneable without transferring it back.
+      const { data: _data, ...workerError } = message.workerError
+      this.sendToMainWorker({ workerError, taskId })
+    }
+  }
+
+  private finishTask(task: Task<Data>): void {
+    this.updateLastTaskTimestamp()
+    if (task.abortable === true) {
+      this.taskAbortFunctions.delete(task.taskId!)
+    }
   }
 
   private beginTaskPerformance(name?: string): TaskPerformance {

@@ -3,7 +3,9 @@ import { isWebWorker } from '../../utils.ts'
 import { AbstractPool } from '../abstract-pool.ts'
 import { type PoolOptions, type PoolType, PoolTypes } from '../pool.ts'
 import { messageListenerToEventListener } from '../utils.ts'
-import { type WorkerType, WorkerTypes } from '../worker.ts'
+import { type IWorkerNode, type WorkerType, WorkerTypes } from '../worker.ts'
+
+const workerMessageEventListeners = new WeakMap<object, EventListener>()
 
 /**
  * Options for a poolifier thread pool.
@@ -71,6 +73,17 @@ export class FixedThreadPool<
     )
   }
 
+  private getWorkerMessageEventListener<Message extends Data | Response>(
+    listener: (message: MessageValue<Message>) => void,
+  ): EventListener {
+    let eventListener = workerMessageEventListeners.get(listener)
+    if (eventListener == null) {
+      eventListener = messageListenerToEventListener(listener)
+      workerMessageEventListeners.set(listener, eventListener)
+    }
+    return eventListener
+  }
+
   /** @inheritDoc */
   protected registerWorkerMessageListener<Message extends Data | Response>(
     workerNodeKey: number,
@@ -78,7 +91,7 @@ export class FixedThreadPool<
   ): void {
     this.workerNodes[workerNodeKey]?.addEventListener(
       'message',
-      messageListenerToEventListener<Message>(listener),
+      this.getWorkerMessageEventListener(listener),
     )
   }
 
@@ -89,7 +102,7 @@ export class FixedThreadPool<
   ): void {
     this.workerNodes[workerNodeKey]?.addEventListener(
       'message',
-      messageListenerToEventListener<Message>(listener),
+      this.getWorkerMessageEventListener(listener),
       {
         once: true,
       },
@@ -101,10 +114,31 @@ export class FixedThreadPool<
     workerNodeKey: number,
     listener: (message: MessageValue<Message>) => void,
   ): void {
-    this.workerNodes[workerNodeKey]?.removeEventListener(
-      'message',
-      messageListenerToEventListener<Message>(listener),
-    )
+    const eventListener = workerMessageEventListeners.get(listener)
+    if (eventListener != null) {
+      this.workerNodes[workerNodeKey]?.removeEventListener(
+        'message',
+        eventListener,
+      )
+    }
+  }
+
+  /** @inheritDoc */
+  protected override deregisterWorkerNodeMessageListener<
+    Message extends Data | Response,
+  >(
+    workerNode: IWorkerNode<Worker, Data>,
+    listener: (message: MessageValue<Message>) => void,
+  ): void {
+    const workerNodeKey = this.workerNodes.indexOf(workerNode)
+    if (workerNodeKey >= 0) {
+      this.deregisterWorkerMessageListener(workerNodeKey, listener)
+      return
+    }
+    const eventListener = workerMessageEventListeners.get(listener)
+    if (eventListener != null) {
+      workerNode.removeEventListener('message', eventListener)
+    }
   }
 
   /** @inheritDoc */

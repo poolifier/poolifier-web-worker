@@ -22,7 +22,7 @@ export class ThreadWorker<
   Data = unknown,
   Response = unknown,
 > extends AbstractWorker<
-  WorkerGlobalScope & typeof globalThis,
+  typeof globalThis & Pick<EventTarget, 'addEventListener'>,
   Data,
   Response
 > {
@@ -73,8 +73,15 @@ export class ThreadWorker<
   }
 
   /** @inheritDoc */
-  protected override handleKillMessage(message: MessageValue<Data>): void {
-    super.handleKillMessage(message)
+  protected override handleKillMessage(
+    message: MessageValue<Data>,
+  ): void | Promise<void> {
+    const result = super.handleKillMessage(message)
+    if (result instanceof Promise) {
+      return result.finally(() => {
+        this.port?.close()
+      })
+    }
     this.port?.close()
   }
 

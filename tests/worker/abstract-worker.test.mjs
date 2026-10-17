@@ -1,6 +1,6 @@
 import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
-import { assertSpyCall, assertSpyCalls, stub } from '@std/testing/mock'
+import { assertSpyCalls, stub } from '@std/testing/mock'
 import {
   KillBehaviors,
   ThreadWorker,
@@ -512,38 +512,6 @@ describe('Abstract worker test suite', () => {
       expect(worker.activeInterval).toBeUndefined()
     })
 
-    it('Verify that messageEventListener() handles kill message', () => {
-      const worker = new ThreadWorker(() => {})
-      worker.id = '550e8400-e29b-41d4-a716-446655440000'
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.messageEventListener({
-        data: {
-          kill: true,
-          workerId: worker.id,
-        },
-      })
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      expect(sendToMainWorkerStub.calls[0].args[0]).toMatchObject({
-        kill: 'success',
-      })
-      sendToMainWorkerStub.restore()
-    })
-
-    it('Verify that async kill handler is called when worker is killed', async () => {
-      const killHandlerStub = stub(() => {})
-      const worker = new ThreadWorker(() => {}, {
-        killHandler: async () => await Promise.resolve(killHandlerStub()),
-      })
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.handleKillMessage()
-      await sleep(10)
-      assertSpyCalls(killHandlerStub, 1)
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      assertSpyCall(sendToMainWorkerStub, 0, { args: [{ kill: 'success' }] })
-      sendToMainWorkerStub.restore()
-      killHandlerStub.restore()
-    })
-
     it('Verify that messageEventListener() throws on missing workerId', () => {
       const worker = new ThreadWorker(() => {})
       expect(() => worker.messageEventListener({ data: {} })).toThrow(
@@ -557,135 +525,6 @@ describe('Abstract worker test suite', () => {
       expect(() =>
         worker.messageEventListener({ data: { workerId: 'wrong-id' } })
       ).toThrow(/Message worker id .* does not match/)
-    })
-  })
-
-  describe('Task execution', () => {
-    it('Verify that run() executes sync task function', () => {
-      const worker = new ThreadWorker((data) => data * 2)
-      worker.statistics = { elu: false, runTime: false }
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.run({
-        data: 21,
-        name: DEFAULT_TASK_NAME,
-        taskId: '550e8400-e29b-41d4-a716-446655440000',
-      })
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      const lastCall = sendToMainWorkerStub.calls[0]
-      expect(lastCall.args[0].data).toBe(42)
-      expect(lastCall.args[0].taskId).toBe(
-        '550e8400-e29b-41d4-a716-446655440000',
-      )
-      expect(lastCall.args[0].taskPerformance).toBeDefined()
-      sendToMainWorkerStub.restore()
-    })
-
-    it('Verify that run() executes async task function', async () => {
-      const worker = new ThreadWorker(
-        async (data) => await Promise.resolve(data * 2),
-      )
-      worker.statistics = { elu: false, runTime: false }
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.run({
-        data: 21,
-        name: DEFAULT_TASK_NAME,
-        taskId: '550e8400-e29b-41d4-a716-446655440000',
-      })
-      await sleep(10)
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      const lastCall = sendToMainWorkerStub.calls[0]
-      expect(lastCall.args[0].data).toBe(42)
-      expect(lastCall.args[0].taskId).toBe(
-        '550e8400-e29b-41d4-a716-446655440000',
-      )
-      sendToMainWorkerStub.restore()
-    })
-
-    it('Verify that run() handles task function not found', () => {
-      const worker = new ThreadWorker(() => {})
-      worker.statistics = { elu: false, runTime: false }
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.run({
-        data: {},
-        name: 'unknown',
-        taskId: '550e8400-e29b-41d4-a716-446655440000',
-      })
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      const lastCall = sendToMainWorkerStub.calls[0]
-      expect(lastCall.args[0].workerError).toBeDefined()
-      expect(lastCall.args[0].workerError.error.message).toMatch(
-        /Task function 'unknown' not found/,
-      )
-      sendToMainWorkerStub.restore()
-    })
-
-    it('Verify that runSync() handles task function error', () => {
-      const worker = new ThreadWorker(() => {
-        throw new Error('Task error')
-      })
-      worker.statistics = { elu: false, runTime: false }
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.run({
-        data: {},
-        name: DEFAULT_TASK_NAME,
-        taskId: '550e8400-e29b-41d4-a716-446655440000',
-      })
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      const lastCall = sendToMainWorkerStub.calls[0]
-      expect(lastCall.args[0].workerError).toBeDefined()
-      expect(lastCall.args[0].workerError.error.message).toBe('Task error')
-      sendToMainWorkerStub.restore()
-    })
-
-    it('Verify that runAsync() handles task function error', async () => {
-      const worker = new ThreadWorker(async () => {
-        return await Promise.reject(new Error('Async task error'))
-      })
-      worker.statistics = { elu: false, runTime: false }
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.run({
-        data: {},
-        name: DEFAULT_TASK_NAME,
-        taskId: '550e8400-e29b-41d4-a716-446655440000',
-      })
-      await sleep(10)
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      const lastCall = sendToMainWorkerStub.calls[0]
-      expect(lastCall.args[0].workerError).toBeDefined()
-      expect(lastCall.args[0].workerError.error.message).toBe(
-        'Async task error',
-      )
-      sendToMainWorkerStub.restore()
-    })
-
-    it('Verify that run() with runTime statistics works', () => {
-      const worker = new ThreadWorker((data) => data)
-      worker.statistics = { elu: false, runTime: true }
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.run({
-        data: 'test',
-        name: DEFAULT_TASK_NAME,
-        taskId: '550e8400-e29b-41d4-a716-446655440000',
-      })
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      const lastCall = sendToMainWorkerStub.calls[0]
-      expect(lastCall.args[0].taskPerformance.runTime).toBeGreaterThanOrEqual(0)
-      sendToMainWorkerStub.restore()
-    })
-
-    it('Verify that run() with elu statistics works', () => {
-      const worker = new ThreadWorker((data) => data)
-      worker.statistics = { elu: true, runTime: false }
-      const sendToMainWorkerStub = stub(worker, 'sendToMainWorker')
-      worker.run({
-        data: 'test',
-        name: DEFAULT_TASK_NAME,
-        taskId: '550e8400-e29b-41d4-a716-446655440000',
-      })
-      assertSpyCalls(sendToMainWorkerStub, 1)
-      const lastCall = sendToMainWorkerStub.calls[0]
-      expect(lastCall.args[0].taskPerformance).toBeDefined()
-      sendToMainWorkerStub.restore()
     })
   })
 

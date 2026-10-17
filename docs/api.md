@@ -70,14 +70,19 @@ the task function execution response.
   worker-removal event listeners disable task queues. Disabling queues from such
   a listener dispatches eligible detached tasks directly instead of discarding
   them.
-- Queued tasks aborted after worker removal and before reassignment reject with
-  the original abort reason if it is an `Error`, a new `Error` with that message
-  if it is a string, or a task-specific abort `Error` otherwise.
+- Aborted tasks reject with the original abort reason if it is an `Error`, a new
+  `Error` with that message if it is a string, or a task-specific abort `Error`
+  otherwise. This applies before dispatch, while queued and while executing.
+- An already-aborted signal rejects before worker selection, queuing or transfer
+  of input data.
 - Native worker failures without an `Error` payload are wrapped in an `Error`
   using the native error message and the original payload as `cause`. The pool's
   `error` event preserves the native error payload.
 - Failure to construct a replacement worker does not prevent task settlement;
   the construction error still propagates.
+- Task errors retain cloneable input data in the `taskError` event. Input that
+  cannot be cloned back after transfer is omitted from the error payload;
+  transferred objects remain owned by the worker.
 
 Unexpected-failure handling does not apply to intentional pool or worker
 termination. Bun provides a native worker close notification. The standard Web
@@ -103,6 +108,9 @@ the task function execution responses array.
 
 Task failures follow the same rules as [`pool.execute()`](#task-failures).
 
+Signal iterables are consumed once and validated before dispatch. They must
+contain one `AbortSignal` per input item.
+
 ### `pool.start()`
 
 This method is available on both pool implementations and will start the minimum
@@ -113,6 +121,11 @@ number of workers.
 This method is available on both pool implementations and returns a promise for
 pool destruction. Workers already removed after failure do not block
 destruction.
+
+Destruction waits for the worker's kill acknowledgment, up to 1000 milliseconds.
+A kill-handler failure emits the pool's `error` event and does not prevent
+native worker termination. A handler that exceeds this timeout can be
+interrupted.
 
 ### `pool.hasTaskFunction(name)`
 
@@ -141,9 +154,21 @@ affinity).
   targeting them is executed.
 - At execution time, if no specified worker is ready, selection retries until
   one becomes available or retries are exhausted.
+- Task stealing ignores worker node affinity, both on idle and under back
+  pressure. For strict placement, disable both `taskStealing` and
+  `tasksStealingOnBackPressure`. Initial worker selection and failure
+  redistribution still respect affinity.
 
 This method is available on both pool implementations and returns a boolean
 promise.
+
+Functions registered through this method are installed on newly created workers,
+including replacements for fixed and minimum workers.
+
+Pool-wide function mutations run in call order. Workers created during a pending
+mutation acknowledge it before it succeeds. An observed worker exit before its
+acknowledgment rejects the operation without blocking later mutations. Failures
+do not roll back changes already applied to other workers.
 
 ### `pool.removeTaskFunction(name)`
 
@@ -229,6 +254,10 @@ An object with these properties:
   Default: `{ runTime: { median: false }, waitTime: { median: false } }`
   <!-- `{ runTime: { median: false }, waitTime: { median: false }, elu: { median: false } }` -->
 
+  Importing the public API in Deno does not require environment or system
+  permissions. Computing default weights requires `--allow-sys=cpus`; supplying
+  explicit weights avoids reading CPU information.
+
 - `startWorkers` (optional) - Start the minimum number of workers at pool
   initialization.\
   Default: `true`
@@ -312,7 +341,8 @@ behavior.\
   Default: `60000`
 
 - `killHandler` (optional) - A function that will be called when a worker is
-  killed.\
+  killed. It can return a Promise, which settles before acknowledgment. See
+  [`pool.destroy()`](#pooldestroy) for timeout and failure handling.\
   Default: `() => {}`
 
 #### `YourWorker.hasTaskFunction(name)`

@@ -7,7 +7,7 @@ import {
   checkValidWorkerNodeKeys,
   createWorker,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  exportedUpdateMeasurementStatistics,
+  exportedUpdateMeasurementStatistics as updateMeasurementStatistics,
   getDefaultTasksQueueOptions,
   initWorkerInfo,
 } from '../../src/pools/utils.ts'
@@ -249,11 +249,11 @@ describe('Pool utils test suite', () => {
     }
   })
 
-  it('Verify updateMeasurementStatistics() behavior', () => {
+  it('aggregates extrema and switches between moving averages and medians', () => {
     const measurementStatistics = {
       history: new CircularBuffer(MeasurementHistorySize),
     }
-    exportedUpdateMeasurementStatistics(
+    updateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: false, median: false },
       0.01,
@@ -263,7 +263,7 @@ describe('Pool utils test suite', () => {
       maximum: 0.01,
       minimum: 0.01,
     })
-    exportedUpdateMeasurementStatistics(
+    updateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: false, median: false },
       0.02,
@@ -273,7 +273,7 @@ describe('Pool utils test suite', () => {
       maximum: 0.02,
       minimum: 0.01,
     })
-    exportedUpdateMeasurementStatistics(
+    updateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: true, median: false },
       0.001,
@@ -284,7 +284,7 @@ describe('Pool utils test suite', () => {
       minimum: 0.001,
       average: 0.0010000000474974513,
     })
-    exportedUpdateMeasurementStatistics(
+    updateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: true, median: false },
       0.003,
@@ -295,7 +295,7 @@ describe('Pool utils test suite', () => {
       minimum: 0.001,
       average: 0.0020000000367872417,
     })
-    exportedUpdateMeasurementStatistics(
+    updateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: false, median: true },
       0.006,
@@ -306,7 +306,7 @@ describe('Pool utils test suite', () => {
       minimum: 0.001,
       median: 0.003000000026077032,
     })
-    exportedUpdateMeasurementStatistics(
+    updateMeasurementStatistics(
       measurementStatistics,
       { aggregate: true, average: true, median: false },
       0.01,
