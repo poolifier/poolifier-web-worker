@@ -78,72 +78,78 @@ describe({
       }
     })
 
-    it('settles ordinary Promise results and invokes every task exactly once', async () => {
-      const pool = new FixedThreadPool(1, workerFile)
-      try {
-        await ready(pool)
-        expect(
-          await bounded(pool.execute(
-            { label: 'first' },
+    for (const realm of ['local', 'foreign']) {
+      it(`settles ${realm} Promise results and invokes every task exactly once`, async () => {
+        const url = new URL(workerFile)
+        url.searchParams.set('realm', realm)
+        const pool = new FixedThreadPool(1, url)
+        try {
+          await ready(pool)
+          expect(
+            await bounded(pool.execute(
+              { label: 'first' },
+              'ordinaryPromise',
+            )),
+          ).toStrictEqual({ calls: 1, value: 'first' })
+          await expect(bounded(pool.execute(
+            { fail: true, label: 'ordinary rejection' },
             'ordinaryPromise',
-          )),
-        ).toStrictEqual({ calls: 1, value: 'first' })
-        await expect(bounded(pool.execute(
-          { fail: true, label: 'ordinary rejection' },
-          'ordinaryPromise',
-        ))).rejects.toThrow('ordinary rejection')
-        expect(
-          await bounded(pool.execute(
-            { label: 'after rejection' },
-            'synchronous',
-          )),
-        ).toStrictEqual({ calls: 3, value: 'after rejection' })
-        expect(pool.workerNodes[0].usage.tasks.executing).toBe(0)
-        expect(pool.workerNodes[0].usage.tasks.executed).toBe(2)
-        expect(pool.workerNodes[0].usage.tasks.failed).toBe(1)
-      } finally {
-        await destroy(pool)
-      }
-    })
+          ))).rejects.toThrow('ordinary rejection')
+          expect(
+            await bounded(pool.execute(
+              { label: 'after rejection' },
+              'synchronous',
+            )),
+          ).toStrictEqual({ calls: 3, value: 'after rejection' })
+          expect(pool.workerNodes[0].usage.tasks.executing).toBe(0)
+          expect(pool.workerNodes[0].usage.tasks.executed).toBe(2)
+          expect(pool.workerNodes[0].usage.tasks.failed).toBe(1)
+        } finally {
+          await destroy(pool)
+        }
+      })
 
-    it('keeps a pending ordinary Promise abortable until it settles', async () => {
-      const pool = new FixedThreadPool(1, workerFile)
-      const label = 'pending ordinary promise'
-      let worker
-      try {
-        await ready(pool)
-        worker = pool.workerNodes[0].worker
-        const started = waitForMessage(
-          worker,
-          (message) => message.started === label,
-        )
-        const controller = new AbortController()
-        const task = pool.execute(
-          { label, wait: true },
-          'ordinaryPromise',
-          controller.signal,
-        ).then((value) => ({ value }), (error) => ({ error }))
-        await bounded(started, 'Ordinary Promise task did not start')
-        controller.abort()
-        const { error } = await bounded(
-          task,
-          'Ordinary Promise abort remained pending',
-        )
-        expect(error).toBeInstanceOf(Error)
-        expect(error.message).toContain('aborted')
-        expect(pool.workerNodes[0].usage.tasks.executing).toBe(0)
-        worker.postMessage({ release: label })
-        expect(
-          await bounded(pool.execute(
-            { label: 'after abort' },
+      it(`keeps a pending ${realm} Promise abortable until it settles`, async () => {
+        const url = new URL(workerFile)
+        url.searchParams.set('realm', realm)
+        const pool = new FixedThreadPool(1, url)
+        const label = 'pending ordinary promise'
+        let worker
+        try {
+          await ready(pool)
+          worker = pool.workerNodes[0].worker
+          const started = waitForMessage(
+            worker,
+            (message) => message.started === label,
+          )
+          const controller = new AbortController()
+          const task = pool.execute(
+            { label, wait: true },
             'ordinaryPromise',
-          )),
-        ).toStrictEqual({ calls: 2, value: 'after abort' })
-      } finally {
-        worker?.postMessage({ release: label })
-        await destroy(pool)
-      }
-    })
+            controller.signal,
+          ).then((value) => ({ value }), (error) => ({ error }))
+          await bounded(started, 'Ordinary Promise task did not start')
+          controller.abort()
+          const { error } = await bounded(
+            task,
+            'Ordinary Promise abort remained pending',
+          )
+          expect(error).toBeInstanceOf(Error)
+          expect(error.message).toContain('aborted')
+          expect(pool.workerNodes[0].usage.tasks.executing).toBe(0)
+          worker.postMessage({ release: label })
+          expect(
+            await bounded(pool.execute(
+              { label: 'after abort' },
+              'ordinaryPromise',
+            )),
+          ).toStrictEqual({ calls: 2, value: 'after abort' })
+        } finally {
+          worker?.postMessage({ release: label })
+          await destroy(pool)
+        }
+      })
+    }
 
     for (const taskName of ['synchronous', 'ordinaryPromise', 'asynchronous']) {
       for (const transferredPort of [false, true]) {
@@ -283,7 +289,7 @@ describe({
       }
     })
 
-    for (const mode of ['sync', 'async', 'promise']) {
+    for (const mode of ['sync', 'async', 'promise', 'foreign']) {
       for (const failure of [false, true]) {
         it(`acknowledges ${mode} cleanup ${failure ? 'failure' : 'success'} after completion`, async () => {
           const url = new URL(killWorkerFile)

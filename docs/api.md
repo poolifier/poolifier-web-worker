@@ -313,7 +313,8 @@ that you want to execute on the worker. Priority range is the same as Unix nice
 levels. `workerNodeKeys` is an array of worker node keys to restrict task
 execution to specific workers (worker node affinity). See
 [Worker Node Affinity Notes](#worker-node-affinity-notes) above for validation
-behavior.\
+behavior. Task functions can return Promises from another JavaScript realm;
+their settlement is awaited even when the function is not declared `async`.\
 `opts` (optional) An object with these properties:
 
 - `killBehavior` (optional) - Dictates if your worker will be deleted in case a

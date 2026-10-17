@@ -46,6 +46,11 @@ const DEFAULT_WORKER_OPTIONS: Readonly<WorkerOptions> = Object.freeze({
   killHandler: EMPTY_FUNCTION,
 })
 
+const isPromiseLike = <T>(value: unknown): value is PromiseLike<T> =>
+  value != null &&
+  (typeof value === 'object' || typeof value === 'function') &&
+  'then' in value && typeof value.then === 'function'
+
 /**
  * Base class that implements some shared logic for all poolifier workers.
  *
@@ -367,7 +372,11 @@ export abstract class AbstractWorker<
       }
     } else if (kill === true) {
       // Kill message received
-      this.handleKillMessage(messageData)
+      this.handleKillMessage(messageData)?.catch((error: unknown) => {
+        queueMicrotask(() => {
+          throw error
+        })
+      })
     }
   }
 
@@ -447,8 +456,8 @@ export abstract class AbstractWorker<
     this.stopCheckActive()
     try {
       const result = this.opts.killHandler?.()
-      if (result instanceof Promise) {
-        return result.then(
+      if (isPromiseLike<void>(result)) {
+        return Promise.resolve(result).then(
           () => {
             this.sendToMainWorker({ kill: 'success' })
           },
@@ -505,8 +514,8 @@ export abstract class AbstractWorker<
           })
           const taskFunction = this.taskFunctions.get(name)!.taskFunction
           const result = taskFunction(data)
-          if (result instanceof Promise) {
-            result.then(resolve, reject)
+          if (isPromiseLike<Response>(result)) {
+            Promise.resolve(result).then(resolve, reject)
           } else {
             resolve(result)
           }
@@ -621,7 +630,7 @@ export abstract class AbstractWorker<
     try {
       let taskPerformance = this.beginTaskPerformance(name)
       const res = fn(data)
-      if (res instanceof Promise) {
+      if (isPromiseLike<Response>(res)) {
         this.completeTaskPromise(res, task, taskPerformance)
         asynchronous = true
         return
@@ -664,11 +673,11 @@ export abstract class AbstractWorker<
   }
 
   private completeTaskPromise(
-    result: Promise<Response>,
+    result: PromiseLike<Response>,
     task: Task<Data>,
     taskPerformance: TaskPerformance,
   ): void {
-    result
+    Promise.resolve(result)
       .then((res) => {
         taskPerformance = this.endTaskPerformance(taskPerformance)
         this.sendToMainWorker({

@@ -3,6 +3,9 @@ import { ThreadWorker } from '../../../src/mod.ts'
 const params = new URL(import.meta.url).searchParams
 const mode = params.get('mode')
 const failure = params.get('failure') === 'true'
+const PromiseConstructor = mode === 'foreign'
+  ? (await import('node:vm')).runInNewContext('Promise')
+  : Promise
 let state
 let calls = 0
 
@@ -27,7 +30,7 @@ const begin = () => {
 
 const ordinaryPromise = () => {
   begin()
-  return new Promise((resolve, reject) => {
+  return new PromiseConstructor((resolve, reject) => {
     self.addEventListener('message', ({ data }) => {
       if (data.release !== true) return
       try {
@@ -49,10 +52,11 @@ const synchronous = () => {
   finish()
 }
 
-const killHandler = mode === 'async'
-  ? asynchronous
-  : mode === 'promise'
-  ? ordinaryPromise
-  : synchronous
+const killHandlers = {
+  async: asynchronous,
+  promise: ordinaryPromise,
+  foreign: ordinaryPromise,
+}
+const killHandler = killHandlers[mode] ?? synchronous
 
 export default new ThreadWorker(() => 'ready', { killHandler })

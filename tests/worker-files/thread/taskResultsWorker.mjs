@@ -1,5 +1,10 @@
 import { ThreadWorker } from '../../../src/mod.ts'
 
+const PromiseConstructor =
+  new URL(import.meta.url).searchParams.get('realm') === 'foreign'
+    ? (await import('node:vm')).runInNewContext('Promise')
+    : Promise
+
 let calls = 0
 
 const prepare = (data) => {
@@ -23,7 +28,7 @@ const synchronous = (data) => {
 
 const ordinaryPromise = (data) => {
   prepare(data)
-  return new Promise((resolve, reject) => {
+  return new PromiseConstructor((resolve, reject) => {
     const complete = () => {
       try {
         resolve(result(data))

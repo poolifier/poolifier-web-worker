@@ -1036,11 +1036,13 @@ export abstract class AbstractPool<
     abortReason: unknown = this.promiseResponseMap.get(taskId)?.abortSignal
       ?.reason,
   ): Error => {
-    return abortReason instanceof Error
-      ? abortReason
-      : typeof abortReason === 'string'
-      ? new Error(abortReason)
-      : new Error(`Task '${taskName}' id '${taskId}' aborted`)
+    if (abortReason instanceof Error) {
+      return abortReason
+    }
+    if (typeof abortReason === 'string') {
+      return new Error(abortReason)
+    }
+    return new Error(`Task '${taskName}' id '${taskId}' aborted`)
   }
 
   private getQueuedTasks(): number {
