@@ -100,6 +100,51 @@ describe({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: () => {
+    it('captures reused definitions and affinity arrays before queueing and replacement replay', async () => {
+      const pool = new FixedThreadPool(1, workerFile, {
+        errorEventHandler: (event) => event.preventDefault(),
+      })
+      try {
+        await ready(pool)
+        const keys = [0]
+        const definition = {
+          taskFunction: (data) => ({ revision: 1, value: data.value }),
+          workerNodeKeys: keys,
+        }
+        const first = pool.addTaskFunction('first', definition)
+        definition.taskFunction = (data) => ({ revision: 2, value: data.value })
+        const second = pool.addTaskFunction('second', definition)
+        definition.taskFunction = () => ({ revision: 3 })
+        definition.workerNodeKeys = [1]
+        keys[0] = 1
+        expect(await bounded(Promise.all([first, second]))).toStrictEqual([
+          true,
+          true,
+        ])
+        const execute = async (value) => {
+          expect(await bounded(pool.execute({ value }, 'first')))
+            .toStrictEqual({ revision: 1, value })
+          expect(await bounded(pool.execute({ value }, 'second')))
+            .toStrictEqual({ revision: 2, value })
+        }
+        await execute('before crash')
+        const original = pool.workerNodes[0]
+        const exited = once(original, 'exit')
+        original.worker.postMessage({ crash: true })
+        await bounded(exited)
+        const replacement = pool.workerNodes[0]
+        if (!replacement.info.ready) {
+          await bounded(
+            waitForMessage(replacement, (message) => message.ready === true),
+          )
+        }
+        expect(replacement).not.toBe(original)
+        await execute('after crash')
+      } finally {
+        await cleanup(pool)
+      }
+    })
+
     it('correlates concurrent single-worker success, delayed failure and following requests', async () => {
       const pool = new FixedThreadPool(1, workerFile)
       const submit = (operation, name) =>

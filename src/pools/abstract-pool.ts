@@ -951,28 +951,38 @@ export abstract class AbstractPool<
     if (typeof name === 'string' && name.trim().length === 0) {
       throw new TypeError('name argument must not be an empty string')
     }
-    if (typeof fn === 'function') {
-      fn = { taskFunction: fn } satisfies TaskFunctionObject<Data, Response>
-    }
-    if (typeof fn.taskFunction !== 'function') {
+    const taskFunction = typeof fn === 'function' ? fn : fn.taskFunction
+    if (typeof taskFunction !== 'function') {
       throw new TypeError('taskFunction property must be a function')
     }
-    checkValidPriority(fn.priority)
-    checkValidWorkerChoiceStrategy(fn.strategy)
+    const definition: TaskFunctionObject<Data, Response> = { taskFunction }
+    if (typeof fn !== 'function') {
+      const { priority, strategy, workerNodeKeys } = fn
+      if (priority !== undefined) definition.priority = priority
+      if (strategy !== undefined) definition.strategy = strategy
+      if (workerNodeKeys !== undefined) {
+        definition.workerNodeKeys = Array.isArray(workerNodeKeys)
+          ? [...workerNodeKeys]
+          : workerNodeKeys
+      }
+    }
+    checkValidPriority(definition.priority)
+    checkValidWorkerChoiceStrategy(definition.strategy)
     checkValidWorkerNodeKeys(
-      fn.workerNodeKeys,
+      definition.workerNodeKeys,
       this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
     )
+    const message: MessageValue<Data> = {
+      taskFunctionOperation: 'add',
+      taskFunctionProperties: buildTaskFunctionProperties(name, definition),
+      taskFunction: taskFunction.toString(),
+    }
     return await this.queueTaskFunctionOperation(() =>
       this.sendTaskFunctionOperationToWorkers(
-        {
-          taskFunctionOperation: 'add',
-          taskFunctionProperties: buildTaskFunctionProperties(name, fn),
-          taskFunction: fn.taskFunction.toString(),
-        },
+        message,
         undefined,
         () => {
-          this.taskFunctions.set(name, fn)
+          this.taskFunctions.set(name, definition)
           this.workerChoiceStrategiesContext?.syncWorkerChoiceStrategies(
             this.getWorkerChoiceStrategies(),
           )

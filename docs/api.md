@@ -162,6 +162,10 @@ affinity).
 This method is available on both pool implementations and returns a boolean
 promise.
 
+The function definition and its options, including the affinity array, are
+captured when this method is called. Later changes to the supplied definition do
+not alter pending registrations or their replay on replacement workers.
+
 Functions registered through this method are installed on newly created workers,
 including replacements for fixed and minimum workers.
 

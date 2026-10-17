@@ -41,6 +41,7 @@ const ordinaryPromise = (data) => {
         if (message.release === data.label) {
           self.removeEventListener('message', release)
           complete()
+          self.postMessage({ settled: data.label })
         }
       }
       self.addEventListener('message', release)
@@ -49,6 +50,18 @@ const ordinaryPromise = (data) => {
       complete()
     }
   })
+}
+
+const singleReadPromise = (data) => {
+  const promise = ordinaryPromise(data)
+  let reads = 0
+  Object.defineProperty(promise, 'then', {
+    get() {
+      if (++reads > 1) throw new Error('Promise then accessed more than once')
+      return PromiseConstructor.prototype.then
+    },
+  })
+  return promise
 }
 
 const asynchronous = async (data) => {
@@ -73,5 +86,6 @@ class HookedThreadWorker extends ThreadWorker {
 export default new HookedThreadWorker({
   synchronous,
   ordinaryPromise,
+  singleReadPromise,
   asynchronous,
 })

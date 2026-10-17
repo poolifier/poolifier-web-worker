@@ -79,6 +79,86 @@ describe({
     })
 
     for (const realm of ['local', 'foreign']) {
+      it(`settles abortable ${realm} Promises with a single-read then accessor`, async () => {
+        const url = new URL(workerFile)
+        url.searchParams.set('realm', realm)
+        const pool = new FixedThreadPool(1, url)
+        try {
+          await ready(pool)
+          expect(
+            await bounded(pool.execute(
+              { label: 'decorated result' },
+              'singleReadPromise',
+              new AbortController().signal,
+            )),
+          ).toStrictEqual({ calls: 1, value: 'decorated result' })
+          await expect(bounded(pool.execute(
+            { label: 'decorated failure', fail: true },
+            'singleReadPromise',
+            new AbortController().signal,
+          ))).rejects.toThrow('decorated failure')
+          expect(pool.workerNodes[0].usage.tasks.executing).toBe(0)
+          expect(pool.workerNodes[0].usage.tasks.executed).toBe(1)
+          expect(pool.workerNodes[0].usage.tasks.failed).toBe(1)
+        } finally {
+          await destroy(pool)
+        }
+      })
+
+      for (const fail of [false, true]) {
+        it(`keeps decorated ${realm} cancellation settled after late ${fail ? 'rejection' : 'fulfillment'}`, async () => {
+          const url = new URL(workerFile)
+          url.searchParams.set('realm', realm)
+          const pool = new FixedThreadPool(1, url)
+          const label = 'decorated pending result'
+          const responses = []
+          let worker
+          try {
+            await ready(pool)
+            const node = pool.workerNodes[0]
+            worker = node.worker
+            node.addEventListener('message', ({ data }) => {
+              if (data.taskId != null) responses.push(data)
+            })
+            const started = waitForMessage(
+              worker,
+              (message) => message.started === label,
+            )
+            const controller = new AbortController()
+            const reason = new Error('Consumer cancelled decorated Promise')
+            const outcome = pool.execute(
+              { label, wait: true, fail },
+              'singleReadPromise',
+              controller.signal,
+            ).then((value) => ({ value }), (error) => ({ error }))
+            await bounded(started)
+            controller.abort(reason)
+            expect((await bounded(outcome)).error).toBe(reason)
+            const settled = waitForMessage(
+              worker,
+              (message) => message.settled === label,
+            )
+            worker.postMessage({ release: label })
+            await bounded(settled)
+            expect(
+              await bounded(pool.execute(
+                { label: 'following task' },
+                'ordinaryPromise',
+              )),
+            ).toStrictEqual({ calls: 2, value: 'following task' })
+            expect(responses).toHaveLength(2)
+            expect(responses[0].workerError.aborted).toBe(true)
+            expect(responses[1].workerError).toBeUndefined()
+            expect(pool.workerNodes[0]).toBe(node)
+            expect(pool.promiseResponseMap.size).toBe(0)
+            expect(node.usage.tasks.executing).toBe(0)
+          } finally {
+            worker?.postMessage({ release: label })
+            await destroy(pool)
+          }
+        })
+      }
+
       it(`settles ${realm} Promise results and invokes every task exactly once`, async () => {
         const url = new URL(workerFile)
         url.searchParams.set('realm', realm)

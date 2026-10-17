@@ -513,12 +513,7 @@ export abstract class AbstractWorker<
             reject(new AbortError(`Task '${name}' id '${taskId}' aborted`))
           })
           const taskFunction = this.taskFunctions.get(name)!.taskFunction
-          const result = taskFunction(data)
-          if (isPromiseLike<Response>(result)) {
-            Promise.resolve(result).then(resolve, reject)
-          } else {
-            resolve(result)
-          }
+          Promise.resolve(taskFunction(data)).then(resolve, reject)
         },
       )
   }
