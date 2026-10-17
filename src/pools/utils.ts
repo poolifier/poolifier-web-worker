@@ -30,8 +30,6 @@ import {
   type WorkerUsage,
 } from './worker.ts'
 
-export { updateMeasurementStatistics as exportedUpdateMeasurementStatistics }
-
 /**
  * Default measurement statistics requirements.
  */
@@ -546,7 +544,7 @@ export const checkWorkerNodeArguments = (
  * @param measurementValue - The measurement value.
  * @internal
  */
-const updateMeasurementStatistics = (
+export const updateMeasurementStatistics = (
   measurementStatistics: MeasurementStatistics,
   measurementRequirements: MeasurementStatisticsRequirements | undefined,
   measurementValue: number | undefined,

@@ -7,9 +7,9 @@ import {
   checkValidWorkerNodeKeys,
   createWorker,
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
-  exportedUpdateMeasurementStatistics as updateMeasurementStatistics,
   getDefaultTasksQueueOptions,
   initWorkerInfo,
+  updateMeasurementStatistics,
 } from '../../src/pools/utils.ts'
 import { MeasurementHistorySize } from '../../src/pools/worker.ts'
 
