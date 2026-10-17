@@ -256,15 +256,22 @@ const isBun: boolean = !!(globalThis as any).Bun ||
 // deno-lint-ignore no-explicit-any
 const isDeno: boolean = !!(globalThis as any).Deno
 
+const windowConstructor = (globalThis as typeof globalThis & {
+  Window?: new () => object
+}).Window
+
 /**
  * Indicates if running in browser runtime.
  *
  * @internal
  */
-// deno-lint-ignore no-explicit-any
-const isBrowser: boolean = !!(globalThis as any).window &&
-  // deno-lint-ignore no-explicit-any
-  !!(globalThis as any).navigator
+const isBrowser: boolean = (
+  typeof windowConstructor === 'function' &&
+  globalThis instanceof windowConstructor
+) || (
+  typeof WorkerGlobalScope !== 'undefined' &&
+  globalThis instanceof WorkerGlobalScope
+)
 
 /**
  * JavaScript runtime environments enumeration.
@@ -299,27 +306,6 @@ const isMainThread: boolean | undefined = await (async (): Promise<
       // deno-lint-ignore ban-ts-comment
       // @ts-ignore
       return (await import('node:worker_threads')).isMainThread
-    },
-  }[runtime]()
-})()
-
-/**
- * The current environment name.
- *
- * @internal
- */
-export const environment: string = await (async (): Promise<string> => {
-  return await {
-    browser: () => 'production',
-    deno: () => {
-      // deno-lint-ignore ban-ts-comment
-      // @ts-ignore
-      return Deno.env.get('ENVIRONMENT') ?? 'production'
-    },
-    bun: async () => {
-      // deno-lint-ignore ban-ts-comment
-      // @ts-ignore
-      return (await import('node:process')).env.ENVIRONMENT ?? 'production'
     },
   }[runtime]()
 })()

@@ -17,6 +17,15 @@ Please do your PR on **master** branch.
 deno task test:coverage && deno task coverage
 ```
 
+**How to build and check the published declarations**
+
+```bash
+deno task bundle
+```
+
+The build checks DOM and Web Worker consumers in `tests/types/public-api.ts`,
+including the distinction between type-only and runtime exports.
+
 **How to check if your new code is standard JS style**
 
 ```bash
