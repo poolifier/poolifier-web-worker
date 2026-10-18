@@ -910,10 +910,13 @@ export abstract class AbstractPool<
     try {
       this.registerTaskFunctionOperationExitListener(workerNode, exitListener)
       this.registerWorkerMessageListener(workerNodeKey, listener)
-      this.sendToWorker(workerNodeKey, {
-        ...message,
-        taskFunctionOperationId,
-      })
+      workerNodeKey = this.workerNodes.indexOf(workerNode)
+      if (workerNodeKey !== -1) {
+        this.sendToWorker(workerNodeKey, {
+          ...message,
+          taskFunctionOperationId,
+        })
+      }
     } catch (error) {
       reject(error)
     }

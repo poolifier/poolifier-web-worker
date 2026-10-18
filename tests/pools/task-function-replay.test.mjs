@@ -624,6 +624,56 @@ describe({
       },
     )
 
+    for (const retirement of ['owner', 'earlier worker']) {
+      it(`keeps replay on its captured worker after registration retires the ${retirement}`, async () => {
+        class ReentrantReplayPool extends FixedThreadPool {
+          registerWorkerMessageListener(workerNodeKey, listener) {
+            super.registerWorkerMessageListener(workerNodeKey, listener)
+            if (
+              this.retireReplay &&
+              listener !== this.workerMessageListener &&
+              (retirement === 'owner' || workerNodeKey === 1)
+            ) {
+              this.retireReplay = false
+              this.workerNodes[retirement === 'owner' ? workerNodeKey : 0]
+                .terminate()
+            }
+          }
+        }
+        const size = retirement === 'owner' ? 1 : 2
+        const pool = new ReentrantReplayPool(
+          size,
+          new URL(
+            '../worker-files/thread/taskLifecycleWorker.mjs',
+            import.meta.url,
+          ),
+          {
+            startWorkers: false,
+            workerChoiceStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+          },
+        )
+        try {
+          const implementation = () => 42
+          implementation.toString = () =>
+            '(globalThis.replayEvaluations = (globalThis.replayEvaluations ?? 0) + 1, () => globalThis.replayEvaluations)'
+          await bounded(pool.addTaskFunction('runtime', implementation))
+          pool.retireReplay = true
+          pool.start()
+          expect(await bounded(pool.setDefaultTaskFunction('runtime')))
+            .toBe(true)
+          expect(await bounded(pool.mapExecute(Array(size).fill({}))))
+            .toStrictEqual(Array(size).fill(1))
+          expect(await bounded(pool.addTaskFunction('following', () => 43)))
+            .toBe(true)
+          expect(
+            await bounded(pool.mapExecute(Array(size).fill({}), 'following')),
+          ).toStrictEqual(Array(size).fill(43))
+        } finally {
+          await bounded(pool.destroy())
+        }
+      })
+    }
+
     it('propagates replay failure from a worker that is still alive', async () => {
       const pool = new FixedThreadPool(
         1,

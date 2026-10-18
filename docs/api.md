@@ -199,6 +199,8 @@ preserve only already-delivered results.
 New and replacement workers wait for ongoing task function changes. They accept
 tasks only after restoring successfully registered task functions, the selected
 default and scheduling options. Workers being terminated remain unavailable.
+Replay remains bound to its original worker when protected listener-registration
+hooks synchronously retire or reindex worker nodes.
 
 Custom worker subclasses that defer task function operations must echo the
 request's `taskFunctionOperationId` in their acknowledgement, or retain the
