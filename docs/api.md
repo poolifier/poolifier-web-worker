@@ -191,9 +191,10 @@ calls or undo changes already applied to workers.
 If workers are present when a change starts, each original target must respond
 or exit before the call settles. At least one successful result is required; any
 reported failure rejects the change. An unanswered target's exit does not reject
-a change with a successful peer. All targets exiting unanswered rejects the
-change. Deno and Bun preserve buffered operation results before an observed
-unexpected exit; browsers preserve only already-delivered results.
+a change with a successful peer, including synchronous exits from protected
+dispatch hooks. All targets exiting unanswered rejects the change. Deno and Bun
+preserve buffered operation results before an observed unexpected exit; browsers
+preserve only already-delivered results.
 
 New and replacement workers wait for ongoing task function changes. They accept
 tasks only after restoring successfully registered task functions, the selected

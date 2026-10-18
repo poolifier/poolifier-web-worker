@@ -279,6 +279,64 @@ describe({
       }
     })
 
+    for (
+      const [hook, retiredTarget] of [
+        ['send', 'later'],
+        ['registration', 'current'],
+        ['registration', 'later'],
+      ]
+    ) {
+      it(`settles a cohort when ${hook} retires its ${retiredTarget} target synchronously`, async () => {
+        class ReentrantExitPool extends FixedThreadPool {
+          retireTarget() {
+            if (this.retiringTarget != null) {
+              const node = this.retiringTarget
+              delete this.retiringTarget
+              node.terminate()
+            }
+          }
+
+          registerWorkerMessageListener(workerNodeKey, listener) {
+            super.registerWorkerMessageListener(workerNodeKey, listener)
+            if (hook === 'registration') this.retireTarget()
+          }
+
+          sendToWorker(workerNodeKey, message, transferList) {
+            if (hook === 'send' && message.taskFunctionOperation === 'add') {
+              this.retireTarget()
+            }
+            super.sendToWorker(workerNodeKey, message, transferList)
+          }
+        }
+        const pool = new ReentrantExitPool(2, workerFile, {
+          workerChoiceStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        })
+        try {
+          await ready(pool)
+          const original = [...pool.workerNodes]
+          pool.retiringTarget = original[retiredTarget === 'current' ? 0 : 1]
+          expect(await bounded(pool.addTaskFunction('runtime', () => 42)))
+            .toBe(true)
+          expect(await bounded(pool.mapExecute([{}, {}], 'runtime')))
+            .toStrictEqual([42, 42])
+          expect(await bounded(pool.addTaskFunction('following', () => 43)))
+            .toBe(true)
+          expect(await bounded(pool.mapExecute([{}, {}], 'following')))
+            .toStrictEqual([43, 43])
+          const survivor = original[retiredTarget === 'current' ? 1 : 0]
+          const replacement = pool.workerNodes.find(
+            (node) => !original.includes(node),
+          )
+          expect((await getRegistrationCounts(survivor)).get('runtime'))
+            .toBe(1)
+          expect((await getRegistrationCounts(replacement)).get('runtime'))
+            .toBe(1)
+        } finally {
+          await cleanup(pool)
+        }
+      })
+    }
+
     it('does not count duplicate native acknowledgements as another worker response', async () => {
       const pool = new FixedThreadPool(2, workerFile)
       try {

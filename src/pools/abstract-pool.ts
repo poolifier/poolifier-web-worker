@@ -1016,7 +1016,23 @@ export abstract class AbstractPool<
         }
         listeners.push({ cleanup, exitListener, workerNode })
         this.registerTaskFunctionOperationExitListener(workerNode, exitListener)
+      }
+      for (const { workerNode } of listeners) {
+        let workerNodeKey = this.workerNodes.indexOf(workerNode)
+        if (
+          workerNodeKey === -1 ||
+          !responsesReceived.has(workerNode.info.id)
+        ) {
+          continue
+        }
         this.registerWorkerMessageListener(workerNodeKey, listener)
+        workerNodeKey = this.workerNodes.indexOf(workerNode)
+        if (
+          workerNodeKey === -1 ||
+          !responsesReceived.has(workerNode.info.id)
+        ) {
+          continue
+        }
         this.sendToWorker(workerNodeKey, {
           ...message,
           taskFunctionOperationId,
