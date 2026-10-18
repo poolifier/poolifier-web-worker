@@ -885,11 +885,16 @@ export abstract class AbstractWorker<
     ) {
       return
     }
-    if (
-      (isPromise == null || isPromise(result)) &&
-      Object.getPrototypeOf(result) === Promise.prototype &&
-      !Object.hasOwn(result, 'then')
-    ) {
+    let nativePromise = false
+    try {
+      nativePromise = (isPromise == null || isPromise(result)) &&
+        Object.getPrototypeOf(result) === Promise.prototype &&
+        !Object.hasOwn(result, 'then')
+    } catch (error) {
+      // Browser candidate inspection is optional for ordinary thenables.
+      if (isPromise != null) throw error
+    }
+    if (nativePromise) {
       return isPromise != null
         ? result as Promise<Result>
         : Promise.resolve(result as Promise<Result>)

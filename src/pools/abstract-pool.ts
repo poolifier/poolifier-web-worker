@@ -3254,9 +3254,7 @@ export abstract class AbstractPool<
                       ? (this.defaultTaskFunctionName ??
                         taskFunctionsProperties[1]?.name)
                       : name
-                  const registration = taskFunctionName != null
-                    ? this.taskFunctions.get(taskFunctionName)
-                    : undefined
+                  const registration = this.taskFunctions.get(taskFunctionName)
                   const workerNodeKeys = registration != null
                     ? registration.taskFunctionProperties.workerNodeKeys
                     : this.getTaskFunctionWorkerNodeKeys(

@@ -78,6 +78,38 @@ describe({
       }
     })
 
+    for (const trap of ['prototype', 'descriptor']) {
+      for (const abortable of [false, true]) {
+        it(`settles thenables with opaque ${trap} inspection (abortable: ${abortable})`, async () => {
+          const pool = new FixedThreadPool(1, workerFile)
+          const signal = abortable ? new AbortController().signal : undefined
+          try {
+            await ready(pool)
+            expect(
+              await bounded(pool.execute(
+                { label: 'opaque result', trap },
+                'opaqueThenable',
+                signal,
+              )),
+            ).toStrictEqual({ calls: 1, value: 'opaque result' })
+            await expect(bounded(pool.execute(
+              { label: 'opaque failure', trap, fail: true },
+              'opaqueThenable',
+              signal,
+            ))).rejects.toThrow('opaque failure')
+            expect(
+              await bounded(pool.execute(
+                { label: 'worker remains usable' },
+                'synchronous',
+              )),
+            ).toStrictEqual({ calls: 3, value: 'worker remains usable' })
+          } finally {
+            await destroy(pool)
+          }
+        })
+      }
+    }
+
     for (const realm of ['local', 'foreign']) {
       for (const abortable of [false, true]) {
         it(`settles ${abortable ? 'abortable' : 'non-abortable'} ${realm} Promises with a single-read then accessor`, async () => {
@@ -379,6 +411,8 @@ describe({
         'foreign',
         'decorated',
         'foreign-decorated',
+        'opaque-prototype',
+        'opaque-descriptor',
       ]
     ) {
       for (const failure of [false, true]) {

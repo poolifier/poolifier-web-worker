@@ -1,4 +1,5 @@
 import { ThreadWorker } from '../../../src/mod.ts'
+import { opaqueThenable } from './opaqueThenable.mjs'
 import { singleReadPromise } from './singleReadPromise.mjs'
 
 const params = new URL(import.meta.url).searchParams
@@ -59,6 +60,8 @@ const killHandlers = {
   foreign: ordinaryPromise,
   decorated: () => singleReadPromise(ordinaryPromise()),
   'foreign-decorated': () => singleReadPromise(ordinaryPromise()),
+  'opaque-prototype': () => opaqueThenable(ordinaryPromise(), 'prototype'),
+  'opaque-descriptor': () => opaqueThenable(ordinaryPromise(), 'descriptor'),
 }
 const killHandler = killHandlers[mode] ?? synchronous
 

@@ -1,4 +1,5 @@
 import { ThreadWorker } from '../../../src/mod.ts'
+import { opaqueThenable } from './opaqueThenable.mjs'
 import { singleReadPromise as withSingleReadThen } from './singleReadPromise.mjs'
 
 const PromiseConstructor =
@@ -78,5 +79,6 @@ export default new HookedThreadWorker({
   synchronous,
   ordinaryPromise,
   singleReadPromise,
+  opaqueThenable: (data) => opaqueThenable(ordinaryPromise(data), data.trap),
   asynchronous,
 })

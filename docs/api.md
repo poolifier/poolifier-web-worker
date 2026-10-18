@@ -359,11 +359,12 @@ execution to specific workers (worker node affinity). See
 behavior. Task functions can return native promises, foreign promises, or custom
 promise-like results. Their settlement is awaited with or without an abort
 signal, even when the function is not declared `async`. Callable `then` getters
-are read once and invoked with the original result as receiver. In browsers,
-local promise candidates pass through `Promise.resolve()` for safe brand
-validation. A native promise with an exotic modified `constructor` can therefore
-invoke that constructor getter or require assimilation; Deno and Bun use native
-promise branding without this browser-specific step.\
+are read once and invoked with the original result as receiver. Custom thenables
+remain supported when their proxies reject prototype or own-property inspection.
+In browsers, local promise candidates pass through `Promise.resolve()` for safe
+brand validation. A native promise with an exotic modified `constructor` can
+therefore invoke that constructor getter or require assimilation; Deno and Bun
+use native promise branding without this browser-specific step.\
 `opts` (optional) An object with these properties:
 
 - `killBehavior` (optional) - Dictates if your worker will be deleted in case a
