@@ -80,6 +80,8 @@ export class WeightedRoundRobinWorkerChoiceStrategy<
       return undefined
     }
     if (!this.isWorkerNodeEligible(chosenWorkerNodeKey, workerNodeKeysSet)) {
+      this.nextWorkerNodeKey = this.getRoundRobinNextWorkerNodeKey()
+      this.workerNodeVirtualTaskExecutionTime = 0
       return undefined
     }
     return this.checkWorkerNodeKey(chosenWorkerNodeKey)

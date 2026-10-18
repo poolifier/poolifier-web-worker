@@ -261,8 +261,8 @@ describe({
             if (channel == null) {
               expect(error.data).toStrictEqual(data)
             } else {
-              expect(error).not.toHaveProperty('data')
-              // Omitting debug data must not transfer ownership back to the caller.
+              expect(error.data).toBe(data)
+              // Retaining the original input must not transfer ownership back to the caller.
               channel.port1.start()
               const echo = waitForMessage(
                 channel.port1,

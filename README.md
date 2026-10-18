@@ -59,7 +59,7 @@ Please consult our [general guidelines](#general-guidelines).
 - Support for multiple task functions:
   - Queuing priority ✔
   - Tasks distribution strategy ✔
-  - Worker node affinity ✔
+  - [Worker node affinity](./docs/api.md#worker-node-affinity-notes) ✔
   - [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
     operations at runtime ✔
 - General guidelines on pool choice ✔

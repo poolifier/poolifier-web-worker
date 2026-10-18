@@ -23,7 +23,7 @@ export type KillBehavior = keyof typeof KillBehaviors
 /**
  * Handler called when a worker is killed.
  */
-export type KillHandler = () => void | Promise<void>
+export type KillHandler = () => PromiseLike<void> | void
 
 /**
  * Options for workers.
@@ -55,6 +55,7 @@ export interface WorkerOptions {
   maxInactiveTime?: number
   /**
    * The function to call when a worker is killed.
+   * Promise-like results settle before the kill acknowledgement is sent.
    *
    * @defaultValue `() => {}`
    */

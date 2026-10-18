@@ -50,7 +50,8 @@ on the worker. Default: `'default'`\
 `abortSignal` (optional) An abort signal to abort the task function execution.\
 `transferList` (optional) An array of transferable objects that you want to
 transfer to your [`ThreadWorker`](#class-yourworker-extends-threadworker)
-implementation.
+implementation. The array is copied when this method is called; later changes do
+not affect submission. An empty array is treated as no transfer list.
 
 This method is available on both pool implementations and returns a promise with
 the task function execution response.
@@ -77,19 +78,27 @@ the task function execution response.
   of input data.
 - Native worker failures without an `Error` payload are wrapped in an `Error`
   using the native error message and the original payload as `cause`. The pool's
-  `error` event preserves the native error payload.
+  `error` event exposes that `Error`.
 - Failure to construct a replacement worker does not prevent task settlement;
   the construction error still propagates.
-- Task errors retain cloneable input data in the `taskError` event. Input that
-  cannot be cloned back after transfer is omitted from the error payload;
-  transferred objects remain owned by the worker.
+- Without transfers, task errors retain cloneable worker-side input data in the
+  `taskError` event, including worker mutations.
+- With a nonempty transfer list, `taskError.data` is the original input object.
+  This does not transfer ownership back; its transferred objects remain owned by
+  the worker. Raw worker error messages omit transferred input data.
+- A task error that cannot be reported causes an unexpected worker failure.
+  Unfinished tasks then follow the failure rules above.
 
-Unexpected-failure handling does not apply to intentional pool or worker
-termination. Bun provides a native worker close notification. The standard Web
-Worker API used by Deno and browsers has no exit notification: a worker that
-silently closes without an error cannot be detected. Web MessagePorts have no
-synchronous receive API, so responses must reach the pool before failure cleanup
-closes the channel.
+Intentional pool or worker termination alone does not guarantee rejection of
+unfinished tasks. Worker errors during termination still follow the failure
+rules. Bun provides a native worker close notification. The standard Web Worker
+API used by Deno and browsers has no exit notification: a worker that silently
+closes without an error cannot be detected. Deno and Bun preserve buffered task
+responses and task-function operation results sent before an observed unexpected
+exit, using their native synchronous port receiver. Exit consumers run before
+the private channel closes. Browsers have no standard synchronous port receiver:
+only responses already delivered to the pool retain their result. No browser
+queue-drain guarantee applies.
 
 ### `pool.mapExecute(data, name, abortSignals, transferList)`
 
@@ -111,6 +120,9 @@ Task failures follow the same rules as [`pool.execute()`](#task-failures).
 Signal iterables are consumed once and validated before dispatch. They must
 contain one `AbortSignal` per input item.
 
+The transfer list uses one array snapshot for the batch. Later caller mutations
+do not change queued tasks or transfer ownership before dispatch.
+
 ### `pool.start()`
 
 This method is available on both pool implementations and will start the minimum
@@ -122,10 +134,11 @@ This method is available on both pool implementations and returns a promise for
 pool destruction. Workers already removed after failure do not block
 destruction.
 
-Destruction waits for the worker's kill acknowledgment, up to 1000 milliseconds.
-A kill-handler failure emits the pool's `error` event and does not prevent
-native worker termination. A handler that exceeds this timeout can be
-interrupted.
+The pool waits up to 1000 milliseconds for each worker to confirm cleanup before
+terminating it. Cleanup failure or timeout does not prevent termination;
+unfinished cleanup can be interrupted. Reported cleanup failures emit the pool's
+`error` event when events are enabled. This timeout does not bound total pool
+destruction time.
 
 ### `pool.hasTaskFunction(name)`
 
@@ -137,8 +150,8 @@ This method is available on both pool implementations and returns a boolean.
 
 `name` (mandatory) The task function name.\
 `fn` (mandatory) The task function
-`(data?: Data) => Response | Promise<Response>` or task function object
-`{ taskFunction: (data?: Data) => Response | Promise<Response>, priority?: number, strategy?: WorkerChoiceStrategy, workerNodeKeys?: number[] }`.
+`(data?: Data) => Response | PromiseLike<Response>` or task function object
+`{ taskFunction: (data?: Data) => Response | PromiseLike<Response>, priority?: number, strategy?: WorkerChoiceStrategy, workerNodeKeys?: number[] }`.
 Priority range is the same as Unix nice levels. `workerNodeKeys` is an array of
 worker node keys to restrict task execution to specific workers (worker node
 affinity).
@@ -152,8 +165,10 @@ affinity).
 - In dynamic pools, you can reference worker node keys up to the maximum pool
   size. Workers that don't exist yet are automatically created when a task
   targeting them is executed.
-- At execution time, if no specified worker is ready, selection retries until
-  one becomes available or retries are exhausted.
+- At execution time, submissions wait for eligible workers restoring runtime
+  task functions. Initialization failures on ineligible workers do not reject
+  waiting tasks. Otherwise selection retries until a worker becomes available or
+  retries are exhausted.
 - Task stealing ignores worker node affinity, both on idle and under back
   pressure. For strict placement, disable both `taskStealing` and
   `tasksStealingOnBackPressure`. Initial worker selection and failure
@@ -169,10 +184,29 @@ not alter pending registrations or their replay on replacement workers.
 Functions registered through this method are installed on newly created workers,
 including replacements for fixed and minimum workers.
 
-Pool-wide function mutations run in call order. Workers created during a pending
-mutation acknowledge it before it succeeds. An observed worker exit before its
-acknowledgment rejects the operation without blocking later mutations. Failures
-do not roll back changes already applied to other workers.
+Pool-wide calls to `addTaskFunction()`, `removeTaskFunction()` and
+`setDefaultTaskFunction()` run in call order. A failed call does not block later
+calls or undo changes already applied to workers.
+
+If workers are present when a change starts, each original target must respond
+or exit before the call settles. At least one successful result is required; any
+reported failure rejects the change. An unanswered target's exit does not reject
+a change with a successful peer. All targets exiting unanswered rejects the
+change. Deno and Bun preserve buffered operation results before an observed
+unexpected exit; browsers preserve only already-delivered results.
+
+New and replacement workers wait for ongoing task function changes. They accept
+tasks only after restoring successfully registered task functions, the selected
+default and scheduling options. Workers being terminated remain unavailable.
+
+Custom worker subclasses that defer task function operations must echo the
+request's `taskFunctionOperationId` in their acknowledgement, or retain the
+original `taskFunctionProperties` object when using the standard transport. An
+acknowledgement without a recoverable UUID rejects the operation. Pool-wide
+changes still wait for all original targets to respond or exit. Status-only
+overrides that discard this correlation must be updated. Deno and Bun preserve
+incoming asynchronous context; browsers preserve only synchronous context.
+Deferred browser handlers must retain the UUID or original properties object.
 
 ### `pool.removeTaskFunction(name)`
 
@@ -192,6 +226,11 @@ the task function properties.
 
 This method is available on both pool implementations and returns a boolean
 promise.
+
+The last successfully acknowledged explicit default survives replacement and
+pool restart. With no workers, this method resolves to `true` without changing
+the default selection. A successful removal of that runtime function clears the
+selection; a failed removal does not.
 
 ### Pool options
 
@@ -312,14 +351,19 @@ An object with these properties:
 ### `class YourWorker extends ThreadWorker`
 
 `taskFunctions` (mandatory) The task function or task functions object
-`Record<string, (data?: Data) => Response | Promise<Response> | { taskFunction: (data?: Data) => Response | Promise<Response>, priority?: number, strategy?: WorkerChoiceStrategy, workerNodeKeys?: number[] }>`
+`Record<string, (data?: Data) => Response | PromiseLike<Response> | { taskFunction: (data?: Data) => Response | PromiseLike<Response>, priority?: number, strategy?: WorkerChoiceStrategy, workerNodeKeys?: number[] }>`
 that you want to execute on the worker. Priority range is the same as Unix nice
 levels. `workerNodeKeys` is an array of worker node keys to restrict task
 execution to specific workers (worker node affinity). See
 [Worker Node Affinity Notes](#worker-node-affinity-notes) above for validation
-behavior. Task functions can return Promises from another JavaScript realm;
-their settlement is awaited with or without an abort signal, even when the
-function is not declared `async`.\
+behavior. Task functions can return native promises, foreign promises, or custom
+promise-like results. Their settlement is awaited with or without an abort
+signal, even when the function is not declared `async`. Callable `then` getters
+are read once and invoked with the original result as receiver. In browsers,
+local promise candidates pass through `Promise.resolve()` for safe brand
+validation. A native promise with an exotic modified `constructor` can therefore
+invoke that constructor getter or require assimilation; Deno and Bun use native
+promise branding without this browser-specific step.\
 `opts` (optional) An object with these properties:
 
 - `killBehavior` (optional) - Dictates if your worker will be deleted in case a
@@ -347,8 +391,9 @@ function is not declared `async`.\
   Default: `60000`
 
 - `killHandler` (optional) - A function that will be called when a worker is
-  killed. It can return a Promise, which settles before acknowledgment. See
-  [`pool.destroy()`](#pooldestroy) for timeout and failure handling.\
+  killed. It can return a promise-like result, which settles before
+  acknowledgment. See [`pool.destroy()`](#pooldestroy) for timeout and failure
+  handling.\
   Default: `() => {}`
 
 #### `YourWorker.hasTaskFunction(name)`
@@ -362,8 +407,8 @@ This method is available on both worker implementations and returns
 
 `name` (mandatory) The task function name.\
 `fn` (mandatory) The task function
-`(data?: Data) => Response | Promise<Response>` or task function object
-`{ taskFunction: (data?: Data) => Response | Promise<Response>, priority?: number, strategy?: WorkerChoiceStrategy, workerNodeKeys?: number[] }`.
+`(data?: Data) => Response | PromiseLike<Response>` or task function object
+`{ taskFunction: (data?: Data) => Response | PromiseLike<Response>, priority?: number, strategy?: WorkerChoiceStrategy, workerNodeKeys?: number[] }`.
 Priority range is the same as Unix nice levels. `workerNodeKeys` is an array of
 worker node keys to restrict task execution to specific workers (worker node
 affinity). See [Worker Node Affinity Notes](#worker-node-affinity-notes) above

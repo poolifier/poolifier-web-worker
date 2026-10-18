@@ -338,14 +338,12 @@ describe({
         await bounded(exited)
         expect(pool.workerNodes[0]).toBe(shifted)
         const replacement = pool.workerNodes[1]
-        if (!replacement.info.ready) {
-          await bounded(
-            waitForMessage(replacement, (message) => message.ready === true),
-          )
-        }
+        expect(replacement.info.ready).toBe(false)
         expect(settled).toBe(false)
         await release(shifted, operations[1])
         expect(await bounded(operation)).toBe(true)
+        await bounded(pool.waitForWorkerTaskFunctionBootstraps())
+        expect(replacement.info.ready).toBe(true)
 
         const shiftedInvalidQueued = queued(shifted)
         const replacementInvalidAck = waitForMessage(
@@ -373,7 +371,7 @@ describe({
       }
     })
 
-    it('keeps newer definitions ordered when an older request enrolls a replacement', async () => {
+    it('keeps newer definitions ordered while a replacement waits for the original cohort', async () => {
       const pool = new FixedThreadPool(2, workerFile, {
         errorEventHandler: (event) => event.preventDefault(),
         workerChoiceStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
@@ -393,9 +391,7 @@ describe({
         first.worker.postMessage({ crash: true })
         await bounded(exited)
         const replacement = pool.workerNodes[1]
-        if (!replacement.info.ready) {
-          await bounded(waitForMessage(replacement, (message) => message.ready))
-        }
+        expect(replacement.info.ready).toBe(false)
         const newerQueued = queued(shifted)
         const newer = pool.addTaskFunction(
           'runtime',
@@ -452,7 +448,7 @@ describe({
       }
     })
 
-    it('rejects an unacknowledged native exit and permits the next mutation', async () => {
+    it('waits for the surviving original target after an unanswered exit', async () => {
       const pool = new FixedThreadPool(2, workerFile, {
         errorEventHandler: (event) => event.preventDefault(),
         workerChoiceStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
@@ -462,19 +458,21 @@ describe({
         const [first, shifted] = pool.workerNodes
         await Promise.all([configure(first), configure(shifted)])
         const waiting = [queued(first), queued(shifted)]
+        let settled = false
         const interrupted = pool.addTaskFunction('runtime', (data) => data)
-          .catch((error) => error)
-        await bounded(Promise.all(waiting))
+          .then((value) => {
+            settled = true
+            return value
+          })
+        const operations = await bounded(Promise.all(waiting))
         const exited = once(first, 'exit')
         first.worker.postMessage({ crash: true })
         await bounded(exited)
-        expect(
-          await bounded(
-            interrupted,
-            'Operation ignored an unacknowledged exit',
-            1000,
-          ),
-        ).toBeInstanceOf(Error)
+        expect(settled).toBe(false)
+        expect(pool.workerNodes[1].info.ready).toBe(false)
+        await release(shifted, operations[1])
+        expect(await bounded(interrupted)).toBe(true)
+        await bounded(pool.waitForWorkerTaskFunctionBootstraps())
         const followingQueued = queued(shifted)
         const following = pool.addTaskFunction(
           'following',
@@ -525,27 +523,16 @@ describe({
           first.worker.postMessage({ crash: true })
           await bounded(exited)
           const replacement = pool.workerNodes[1]
-          if (!replacement.info.ready) {
-            await bounded(
-              waitForMessage(replacement, (message) => message.ready),
-            )
-          }
-          if (
-            mutation === 'remove' &&
-            !replacement.info.taskFunctionsProperties?.some(
-              ({ name }) => name === 'runtime',
-            )
-          ) {
-            await bounded(waitForMessage(
-              replacement,
-              (message) =>
-                message.taskFunctionsProperties?.some(
-                  ({ name }) => name === 'runtime',
-                ),
-            ))
-          }
+          expect(replacement.info.ready).toBe(false)
           await release(shifted, operations[1])
           expect(await bounded(operation)).toBe(true)
+          await bounded(pool.waitForWorkerTaskFunctionBootstraps())
+          if (!replacement.info.ready) {
+            await bounded(
+              waitForMessage(replacement, (message) => message.ready === true),
+            )
+          }
+          expect(replacement.info.ready).toBe(true)
           const outcomes = await bounded(Promise.all(
             [{ value: 'one' }, { value: 'two' }].map((data) =>
               pool.execute(data, 'runtime').catch((error) => error)

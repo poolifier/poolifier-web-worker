@@ -49,8 +49,13 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       return
     }
     this.terminated = true
-    this.closeMessageChannel()
-    this.dispatchEvent(new Event('exit'))
+    this.worker.removeEventListener('close', this.workerCloseHandler)
+    try {
+      this.dispatchEvent(new Event('exit'))
+    } finally {
+      this.closeMessageChannel()
+      delete this.messageChannel
+    }
   }
 
   /**
@@ -171,9 +176,16 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
     }
     this.terminated = true
     this.worker.removeEventListener('close', this.workerCloseHandler)
-    this.closeMessageChannel()
-    this.worker.terminate()
-    this.dispatchEvent(new Event('exit'))
+    try {
+      this.worker.terminate()
+    } finally {
+      try {
+        this.dispatchEvent(new Event('exit'))
+      } finally {
+        this.closeMessageChannel()
+        delete this.messageChannel
+      }
+    }
   }
 
   /** @inheritdoc */
@@ -211,7 +223,6 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
       this.messageChannel.port1.onmessageerror = null
       this.messageChannel.port1.close()
       this.messageChannel.port2.close()
-      delete this.messageChannel
     }
   }
 

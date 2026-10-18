@@ -686,7 +686,7 @@ describe({
         await bounded(exit)
         const reason = new Error('Cancel redistributed task')
         controller.abort(reason)
-        expect(await bounded(queued)).toBeInstanceOf(Error)
+        expect(await bounded(queued)).toBe(reason)
         send(destination, { release: 'destination' })
         expect(await bounded(destinationResult)).toStrictEqual(destinationData)
         expect(destination.tasksQueue.size).toBe(0)
@@ -1102,15 +1102,11 @@ describe({
     }
 
     for (const fail of [false, true]) {
-      it(`settles a buffered response/error race without losing delivered responses (task failure: ${fail})`, async () => {
+      it(`preserves a buffered native task outcome before worker error (task failure: ${fail})`, async () => {
         const pool = await createPool()
         try {
           const source = pool.workerNodes[0]
           const exit = once(source, 'exit')
-          let responseReceived = false
-          source.addEventListener('message', ({ data: message }) => {
-            if (message.taskId != null) responseReceived = true
-          })
           const status = new Int32Array(new SharedArrayBuffer(4))
           const response = { completed: true }
           const result = pool.execute({
@@ -1118,17 +1114,11 @@ describe({
             fail,
             response,
           }).catch((error) => error)
-          // Hold the main loop until both the private response and native error
-          // are posted. Web Workers have no receiveMessageOnPort drain API.
+          // Keep real task and error messages queued until the native drain can read them.
           Atomics.wait(status, 0, 0, 5000)
           expect(Atomics.load(status, 0)).toBe(1)
           const outcome = await bounded(result)
-          if (!responseReceived) {
-            expect(outcome).toBeInstanceOf(Error)
-            expect(outcome.message).toContain(
-              'Worker crashed after task response',
-            )
-          } else if (fail) {
+          if (fail) {
             expect(outcome).toBeInstanceOf(Error)
             expect(outcome.message).toBe('Task failed before worker crash')
           } else {

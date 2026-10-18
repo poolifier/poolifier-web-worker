@@ -130,11 +130,6 @@ export class FixedThreadPool<
     workerNode: IWorkerNode<Worker, Data>,
     listener: (message: MessageValue<Message>) => void,
   ): void {
-    const workerNodeKey = this.workerNodes.indexOf(workerNode)
-    if (workerNodeKey >= 0) {
-      this.deregisterWorkerMessageListener(workerNodeKey, listener)
-      return
-    }
     const eventListener = workerMessageEventListeners.get(listener)
     if (eventListener != null) {
       workerNode.removeEventListener('message', eventListener)

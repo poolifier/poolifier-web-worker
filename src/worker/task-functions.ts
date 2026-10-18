@@ -29,14 +29,14 @@ export type TaskAsyncFunction<Data = unknown, Response = unknown> = (
 
 /**
  * Task function that can be executed.
- * This function can be synchronous or asynchronous.
+ * This function can return a response or a promise-like response.
  *
  * @typeParam Data - Type of data sent to the worker. This can only be structured-cloneable data.
  * @typeParam Response - Type of execution response. This can only be structured-cloneable data.
  */
-export type TaskFunction<Data = unknown, Response = unknown> =
-  | TaskSyncFunction<Data, Response>
-  | TaskAsyncFunction<Data, Response>
+export type TaskFunction<Data = unknown, Response = unknown> = (
+  data?: Data,
+) => PromiseLike<Response> | Response
 
 /**
  * Task function object.
@@ -59,7 +59,7 @@ export interface TaskFunctionObject<Data = unknown, Response = unknown> {
   strategy?: WorkerChoiceStrategy
   /**
    * Task function worker node keys affinity.
-   * Restricts task execution to specified worker nodes by their indices.
+   * Restricts initial task dispatch to specified worker nodes by their indices.
    * Task stealing ignores affinity.
    * Must contain valid indices within [0, pool max size - 1].
    * If undefined, task can execute on any worker node.

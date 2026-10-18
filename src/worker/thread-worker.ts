@@ -73,27 +73,18 @@ export class ThreadWorker<
   }
 
   /** @inheritDoc */
-  protected override handleKillMessage(
-    message: MessageValue<Data>,
-  ): void | Promise<void> {
-    const result = super.handleKillMessage(message)
-    if (result instanceof Promise) {
-      return result.finally(() => {
-        this.port?.close()
-      })
-    }
-    this.port?.close()
-  }
-
-  /** @inheritDoc */
   protected readonly sendToMainWorker = (
     message: MessageValue<Response>,
   ): void => {
-    this.port?.postMessage(
-      {
-        ...message,
-        workerId: this.id,
-      } satisfies MessageValue<Response>,
-    )
+    const response = { ...message, workerId: this.id }
+    if (response.taskFunctionOperationStatus != null) {
+      response.taskFunctionOperationId ??= this.getTaskFunctionOperationId(
+        response,
+      )
+    }
+    this.port?.postMessage(response)
+    if (message.kill === 'success' || message.kill === 'failure') {
+      this.port?.close()
+    }
   }
 }
