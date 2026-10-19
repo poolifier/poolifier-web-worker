@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.4...v0.7.0) (2026-10-19)
+
+### ⚠ BREAKING CHANGES
+
+- deferred task function operation handlers must retain taskFunctionOperationId
+  or the original taskFunctionProperties reference. Replies without recoverable
+  identity reject after the original cohort settles.
+
+### 🐞 Bug Fixes
+
+- align task lifecycle and runtime contracts
+  ([#196](https://github.com/poolifier/poolifier-web-worker/issues/196))
+  ([bf36bca](https://github.com/poolifier/poolifier-web-worker/commit/bf36bca457e0cfc3bd54f175bb6aaa45d1ca9d4b))
+- **pool:** keep idle stealing retries on their worker
+  ([#188](https://github.com/poolifier/poolifier-web-worker/issues/188))
+  ([b246ef3](https://github.com/poolifier/poolifier-web-worker/commit/b246ef37ae59a591686df92a135f8d53f595d8e7))
+- **pool:** settle tasks after worker failures
+  ([#186](https://github.com/poolifier/poolifier-web-worker/issues/186))
+  ([cca8fbb](https://github.com/poolifier/poolifier-web-worker/commit/cca8fbb2f1a783864fb0b02ec2ac450a675dc39f))
+
 ## [0.6.4](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.3...v0.6.4) (2026-10-15)
 
 ### 🐞 Bug Fixes
