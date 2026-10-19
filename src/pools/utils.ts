@@ -5,7 +5,6 @@ import {
 import type { MessageValue, Task } from '../utility-types.ts'
 import {
   average,
-  environment,
   isPlainObject,
   JSRuntime,
   max,
@@ -30,13 +29,6 @@ import {
   WorkerTypes,
   type WorkerUsage,
 } from './worker.ts'
-
-let exportedUpdateMeasurementStatistics: (
-  measurementStatistics: MeasurementStatistics,
-  measurementRequirements: MeasurementStatisticsRequirements | undefined,
-  measurementValue: number | undefined,
-) => void
-export { exportedUpdateMeasurementStatistics }
 
 /**
  * Default measurement statistics requirements.
@@ -552,7 +544,7 @@ export const checkWorkerNodeArguments = (
  * @param measurementValue - The measurement value.
  * @internal
  */
-const updateMeasurementStatistics = (
+export const updateMeasurementStatistics = (
   measurementStatistics: MeasurementStatistics,
   measurementRequirements: MeasurementStatisticsRequirements | undefined,
   measurementValue: number | undefined,
@@ -590,9 +582,6 @@ const updateMeasurementStatistics = (
       }
     }
   }
-}
-if (environment === 'test') {
-  exportedUpdateMeasurementStatistics = updateMeasurementStatistics
 }
 
 export const updateWaitTimeWorkerUsage = <

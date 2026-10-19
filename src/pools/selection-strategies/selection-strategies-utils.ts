@@ -29,10 +29,14 @@ const estimatedCpuSpeed = (): number => {
   return Math.trunc(runs / duration / 1000) // in MHz
 }
 
-const buildCpusInfo = async (): Promise<{ speed: number }[]> => {
+// Browser builds must not load the platform-specific Node.js OS module.
+const readCpus: (() => { speed: number }[]) | undefined = runtime === 'browser'
+  ? undefined
   // deno-lint-ignore ban-ts-comment
   // @ts-ignore
-  const cpus: { speed: number }[] = (await import('node:os')).cpus()
+  : (await import('node:os')).cpus
+
+const buildCpusInfo = (cpus: { speed: number }[]): { speed: number }[] => {
   let estCpuSpeed: number | undefined
   if (cpus.every((cpu) => cpu.speed == null || cpu.speed === 0)) {
     estCpuSpeed = estimatedCpuSpeed()
@@ -60,31 +64,31 @@ const cpusCycleTimeWeight = (cpus: { speed: number }[]): number => {
   return Math.round(cpusCycleTimeWeight / cpus.length)
 }
 
-const computedDefaultWorkerWeight: number =
-  await (async (): Promise<number> => {
-    return await {
-      browser: () => {
-        const estCpuSpeed = estimatedCpuSpeed()
-        return cpusCycleTimeWeight(
-          Array(availableParallelism()).fill({
-            speed: estCpuSpeed,
-          }),
-        )
-      },
-      deno: async () => {
-        return cpusCycleTimeWeight(await buildCpusInfo())
-      },
-      bun: async () => {
-        return cpusCycleTimeWeight(await buildCpusInfo())
-      },
-    }[runtime]()
-  })()
+let computedDefaultWorkerWeight: number | undefined
+
+const getComputedDefaultWorkerWeight = (): number => {
+  if (computedDefaultWorkerWeight == null) {
+    if (readCpus != null) {
+      computedDefaultWorkerWeight = cpusCycleTimeWeight(
+        buildCpusInfo(readCpus()),
+      )
+    } else {
+      const estCpuSpeed = estimatedCpuSpeed()
+      computedDefaultWorkerWeight = cpusCycleTimeWeight(
+        Array(availableParallelism()).fill({
+          speed: estCpuSpeed,
+        }),
+      )
+    }
+  }
+  return computedDefaultWorkerWeight
+}
 
 const getDefaultWeights = (
   poolMaxSize: number,
   defaultWorkerWeight?: number,
 ): Record<number, number> => {
-  defaultWorkerWeight = defaultWorkerWeight ?? computedDefaultWorkerWeight
+  defaultWorkerWeight = defaultWorkerWeight ?? getComputedDefaultWorkerWeight()
   const weights: Record<number, number> = {}
   for (let workerNodeKey = 0; workerNodeKey < poolMaxSize; workerNodeKey++) {
     weights[workerNodeKey] = defaultWorkerWeight
@@ -100,10 +104,9 @@ export const getWorkerChoiceStrategiesRetries = <
   pool: IPool<Worker, Data, Response>,
   opts?: WorkerChoiceStrategyOptions,
 ): number => {
-  return (
-    pool.info.maxSize +
-    Object.keys(opts?.weights ?? getDefaultWeights(pool.info.maxSize)).length
-  )
+  const weights = opts?.weights
+  return pool.info.maxSize +
+    (weights != null ? Object.keys(weights).length : pool.info.maxSize)
 }
 
 export const buildWorkerChoiceStrategyOptions = <

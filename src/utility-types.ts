@@ -20,6 +20,8 @@ export interface WorkerError<Data = unknown> {
   readonly aborted: boolean
   /**
    * Data triggering the error.
+   * Transferred task errors expose the original pool input without returning ownership.
+   * Worker-side errors omit transferred input data.
    */
   readonly data?: Data
   /**
@@ -99,7 +101,8 @@ export interface TaskFunctionProperties {
   readonly strategy?: WorkerChoiceStrategy
   /**
    * Task function worker node keys affinity.
-   * Restricts task execution to specified worker nodes by their indices.
+   * Restricts initial task dispatch to specified worker nodes by their indices.
+   * Task stealing ignores affinity.
    * Must contain valid indices within [0, pool max size - 1].
    * If undefined, task can execute on any worker node.
    */
@@ -182,6 +185,10 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
    */
   readonly taskFunctionOperation?: 'add' | 'remove' | 'default'
   /**
+   * Task function operation request UUID.
+   */
+  readonly taskFunctionOperationId?: UUID
+  /**
    * Whether the task function operation is successful or not.
    */
   readonly taskFunctionOperationStatus?: boolean
@@ -227,6 +234,10 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
  * @internal
  */
 export interface PromiseResponseWrapper<Response = unknown> {
+  /**
+   * Original task input retained when its transfer list is nonempty.
+   */
+  readonly originalData?: unknown
   /**
    * The task abort signal.
    */

@@ -131,5 +131,9 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Check JSR publication
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: deno publish --dry-run --allow-dirty
+
       - name: Bundle
         run: deno task bundle
