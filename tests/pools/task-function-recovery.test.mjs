@@ -1,0 +1,676 @@
+import { expect } from '@std/expect'
+import { describe, it } from '@std/testing/bdd'
+import {
+  DynamicThreadPool,
+  FixedThreadPool,
+  PoolEvents,
+  WorkerChoiceStrategies,
+} from '../../src/mod.ts'
+import { each, once } from '../contract-test-utils.mjs'
+import { bounded, waitForMessage } from '../test-utils.mjs'
+
+const workerFile = new URL(
+  '../worker-files/thread/taskFunctionRecoveryWorker.mjs',
+  import.meta.url,
+)
+
+const outcome = (promise) =>
+  promise.then(
+    (value) => ({ value }),
+    (error) => ({ error }),
+  )
+
+const identify = function (data) {
+  return { ...data, workerId: this.id }
+}
+
+describe({
+  name: 'Task function recovery',
+  sanitizeOps: false,
+  sanitizeResources: false,
+  fn: () => {
+    const control = async (node, message) => {
+      const acknowledged = waitForMessage(
+        node.worker,
+        (response) => response.control === message.control,
+      )
+      message = { ...message, workerId: node.info.id }
+      node.worker.postMessage(message)
+      await bounded(acknowledged)
+    }
+
+    it('uses captured affinity when an ineligible worker rejects replay', async () => {
+      const pool = new DynamicThreadPool(0, 3, workerFile)
+      const errors = []
+      pool.eventTarget.addEventListener(
+        PoolEvents.error,
+        ({ error }) => errors.push(error),
+      )
+      const send = pool.sendToWorker.bind(pool)
+      let injected = false
+      pool.sendToWorker = (key, message) => {
+        if (
+          !injected &&
+          key === 0 &&
+          message.taskFunctionOperation === 'add' &&
+          message.taskFunctionProperties.name === 'runtime'
+        ) {
+          injected = true
+          message = {
+            ...message,
+            taskFunctionProperties: {
+              ...message.taskFunctionProperties,
+              priority: 1000,
+            },
+          }
+        }
+        send(key, message)
+      }
+      let execution
+      try {
+        await bounded(
+          pool.addTaskFunction('runtime', {
+            taskFunction: identify,
+            workerNodeKeys: [2],
+          }),
+        )
+        const failed = once(pool.eventTarget, PoolEvents.error)
+        execution = outcome(pool.execute({ input: 42 }, 'runtime'))
+        const result = await bounded(execution)
+        await bounded(failed)
+        expect(result).toEqual({
+          value: expect.objectContaining({ input: 42 }),
+        })
+        expect(pool.workerNodes).toHaveLength(3)
+        expect(result.value.workerId).toBe(pool.workerNodes[2].info.id)
+        expect(pool.workerNodes[0].info.ready).toBe(false)
+        expect(errors).toEqual([expect.any(Error)])
+      } finally {
+        await bounded(pool.destroy())
+        await bounded(Promise.allSettled([execution]))
+      }
+    })
+
+    it('uses captured default affinity when only an unready worker has metadata', async () => {
+      const pool = new DynamicThreadPool(1, 3, workerFile)
+      const errors = []
+      pool.eventTarget.addEventListener(
+        PoolEvents.error,
+        ({ error }) => errors.push(error),
+      )
+      try {
+        await bounded(once(pool.eventTarget, PoolEvents.ready))
+        await bounded(
+          pool.addTaskFunction('runtime', {
+            taskFunction: identify,
+            workerNodeKeys: [2],
+          }),
+        )
+        await bounded(pool.setDefaultTaskFunction('runtime'))
+        await bounded(pool.destroy())
+        const send = pool.sendToWorker.bind(pool)
+        let injected = false
+        pool.sendToWorker = (key, message) => {
+          if (
+            !injected && key === 0 && message.taskFunctionOperation === 'add'
+          ) {
+            injected = true
+            message = {
+              ...message,
+              taskFunctionProperties: {
+                ...message.taskFunctionProperties,
+                priority: 1000,
+              },
+            }
+          }
+          send(key, message)
+        }
+        const failed = once(pool.eventTarget, PoolEvents.error)
+        pool.start()
+        await bounded(failed)
+        expect(pool.workerNodes[0].info.ready).toBe(false)
+        expect(await bounded(pool.execute({ input: 42 }))).toEqual({
+          input: 42,
+          workerId: pool.workerNodes[2].info.id,
+        })
+        expect(pool.workerNodes).toHaveLength(3)
+        expect(errors).toEqual([expect.any(Error)])
+      } finally {
+        if (pool.info.started) await bounded(pool.destroy())
+      }
+    })
+
+    it('corrects invalid captured source and restores every desired function', async () => {
+      const pool = new FixedThreadPool(1, workerFile, { startWorkers: false })
+      const errors = []
+      pool.eventTarget.addEventListener(
+        PoolEvents.error,
+        ({ error }) => errors.push(error),
+      )
+      try {
+        const invalid = (data) => data + 1
+        invalid.toString = () => 'null'
+        await bounded(pool.addTaskFunction('runtime', invalid))
+        await bounded(pool.addTaskFunction('later', (data) => data + 2))
+        const failed = once(pool.eventTarget, PoolEvents.error)
+        pool.start()
+        const node = pool.workerNodes[0]
+        await bounded(failed)
+        expect(node.info.ready).toBe(false)
+        expect(
+          await bounded(pool.addTaskFunction('runtime', (data) => data + 1)),
+        ).toBe(true)
+        expect(await bounded(pool.execute(42, 'runtime'))).toBe(43)
+        expect(await bounded(pool.execute(42, 'later'))).toBe(44)
+        expect(pool.workerNodes[0]).toBe(node)
+        expect(node.info.ready).toBe(true)
+        expect(errors).toEqual([expect.any(Error)])
+      } finally {
+        await bounded(pool.destroy())
+      }
+    })
+
+    each([
+      ['acknowledgement', 2],
+      ['failure', 2],
+      ['exit', 2],
+      ['acknowledgement', 3],
+      ['failure', 3],
+      ['exit', 3],
+    ])(
+      'keeps earlier sent mutations pending until their %s with %i workers',
+      async (completion, size) => {
+        const pool = new FixedThreadPool(size, workerFile, {
+          workerChoiceStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+        })
+        const errors = []
+        pool.eventTarget.addEventListener(
+          PoolEvents.error,
+          ({ error }) => errors.push(error),
+        )
+        const originalError = new Error('Injected pre-dispatch send failure')
+        let removal
+        let addition
+        let heldNode
+        try {
+          await bounded(once(pool.eventTarget, PoolEvents.ready))
+          await bounded(pool.addTaskFunction('runtime', () => 'old'))
+          if (size === 3) {
+            await bounded(
+              pool.addTaskFunction('inspect', {
+                taskFunction: function () {
+                  return this.hasTaskFunction('runtime').status
+                },
+                workerNodeKeys: [2],
+              }),
+            )
+          }
+          heldNode = pool.workerNodes[0]
+          if (completion === 'failure') {
+            await bounded(
+              pool.sendTaskFunctionOperationToWorker(0, {
+                taskFunctionOperation: 'default',
+                taskFunctionProperties: { name: 'runtime' },
+              }),
+            )
+          }
+          await control(heldNode, {
+            control: 'hold',
+            name: 'runtime',
+            operation: 'remove',
+          })
+          const held = waitForMessage(
+            heldNode.worker,
+            (message) => message.heldOperation === 'remove',
+          )
+          const send = pool.sendToWorker.bind(pool)
+          let injected = false
+          pool.sendToWorker = (key, message) => {
+            if (
+              !injected &&
+              key === 1 &&
+              message.taskFunctionOperation === 'remove'
+            ) {
+              injected = true
+              throw originalError
+            }
+            send(key, message)
+          }
+          let settled = false
+          removal = outcome(pool.removeTaskFunction('runtime')).then(
+            (result) => {
+              settled = true
+              return result
+            },
+          )
+          addition = outcome(pool.addTaskFunction('runtime', () => 'new'))
+          await bounded(held)
+          expect(await bounded(pool.execute({}, 'runtime'))).toBe('old')
+          expect(settled).toBe(false)
+          if (size === 3) {
+            expect(await bounded(pool.execute({}, 'inspect'))).toBe(true)
+          }
+          if (completion === 'exit') {
+            await bounded(heldNode.terminate())
+          } else {
+            await control(heldNode, { control: 'release' })
+          }
+          expect((await bounded(removal)).error).toBe(originalError)
+          expect(await bounded(addition)).toEqual({ value: true })
+          for (let i = 0; i < size; ++i) {
+            expect(await bounded(pool.execute({}, 'runtime'))).toBe('new')
+          }
+          expect(errors).toEqual([])
+        } finally {
+          if (heldNode != null && pool.workerNodes.includes(heldNode)) {
+            await control(heldNode, { control: 'release' })
+          }
+          await bounded(pool.destroy())
+          await bounded(Promise.allSettled([removal, addition]))
+        }
+      },
+    )
+
+    it('preserves an undefined send error when no target was contacted', async () => {
+      const pool = new FixedThreadPool(1, workerFile)
+      try {
+        await bounded(once(pool.eventTarget, PoolEvents.ready))
+        await bounded(pool.addTaskFunction('runtime', () => 'old'))
+        const send = pool.sendToWorker.bind(pool)
+        const originalError = undefined
+        let injected = false
+        pool.sendToWorker = (key, message) => {
+          if (!injected && message.taskFunctionOperation === 'remove') {
+            injected = true
+            throw originalError
+          }
+          send(key, message)
+        }
+        expect(
+          await bounded(outcome(pool.removeTaskFunction('runtime'))),
+        ).toEqual({
+          error: originalError,
+        })
+        expect(await bounded(pool.addTaskFunction('runtime', () => 'new')))
+          .toBe(
+            true,
+          )
+        expect(await bounded(pool.execute({}, 'runtime'))).toBe('new')
+      } finally {
+        await bounded(pool.destroy())
+      }
+    })
+
+    it('uses live worker defaults after a pool-wide default changes locally', async () => {
+      const pool = new FixedThreadPool(2, workerFile, {
+        workerChoiceStrategy: WorkerChoiceStrategies.ROUND_ROBIN,
+      })
+      try {
+        await bounded(once(pool.eventTarget, PoolEvents.ready))
+        await bounded(
+          pool.addTaskFunction('first', {
+            taskFunction: identify,
+            workerNodeKeys: [0],
+          }),
+        )
+        await bounded(
+          pool.addTaskFunction('second', {
+            taskFunction: identify,
+            workerNodeKeys: [1],
+          }),
+        )
+        await bounded(
+          pool.addTaskFunction('select', function (name) {
+            return this.setDefaultTaskFunction(name).status
+          }),
+        )
+        await bounded(pool.setDefaultTaskFunction('first'))
+        expect(await bounded(pool.execute({ before: true }))).toEqual({
+          before: true,
+          workerId: pool.workerNodes[0].info.id,
+        })
+        for (let i = 0; i < 2; ++i) {
+          expect(await bounded(pool.execute('second', 'select'))).toBe(true)
+        }
+        expect(await bounded(pool.execute({ after: true }))).toEqual({
+          after: true,
+          workerId: pool.workerNodes[1].info.id,
+        })
+      } finally {
+        await bounded(pool.destroy())
+      }
+    })
+
+    each(['add', 'remove', 'default'])(
+      'restores the full state before completing a corrective %s',
+      async (operation) => {
+        const pool = new FixedThreadPool(1, workerFile)
+        const errors = []
+        pool.eventTarget.addEventListener(
+          PoolEvents.error,
+          ({ error }) => errors.push(error),
+        )
+        let node
+        const pending = []
+        try {
+          await bounded(once(pool.eventTarget, PoolEvents.ready))
+          await bounded(pool.addTaskFunction('runtime', () => 'runtime'))
+          await bounded(
+            pool.addTaskFunction('later', {
+              priority: -10,
+              strategy: WorkerChoiceStrategies.FAIR_SHARE,
+              taskFunction: () => 'later',
+            }),
+          )
+          await bounded(pool.setDefaultTaskFunction('later'))
+          await bounded(pool.destroy())
+          const send = pool.sendToWorker.bind(pool)
+          let injected = false
+          pool.sendToWorker = (key, message) => {
+            if (
+              !injected &&
+              message.taskFunctionOperation === 'add' &&
+              message.taskFunctionProperties.name === 'later'
+            ) {
+              injected = true
+              message = {
+                ...message,
+                taskFunctionProperties: {
+                  ...message.taskFunctionProperties,
+                  priority: 1000,
+                },
+              }
+            }
+            send(key, message)
+          }
+          const failed = once(pool.eventTarget, PoolEvents.error)
+          pool.start()
+          node = pool.workerNodes[0]
+          await bounded(failed)
+          await control(node, {
+            control: 'hold',
+            name: 'later',
+            operation: 'add',
+          })
+          const held = waitForMessage(
+            node.worker,
+            (message) => message.heldOperation === 'add',
+          )
+          let corrected = false
+          const correction = outcome(
+            operation === 'add'
+              ? pool.addTaskFunction('runtime', () => 'updated')
+              : operation === 'remove'
+              ? pool.removeTaskFunction('runtime')
+              : pool.setDefaultTaskFunction('runtime'),
+          ).then((result) => {
+            corrected = true
+            return result
+          })
+          let queuedDone = false
+          const queued = outcome(
+            pool.addTaskFunction('queued', () => 'queued'),
+          ).then((result) => {
+            queuedDone = true
+            return result
+          })
+          pending.push(correction, queued)
+          await bounded(held)
+          expect(node.info.ready).toBe(false)
+          expect(corrected).toBe(false)
+          expect(queuedDone).toBe(false)
+          await control(node, { control: 'release' })
+          expect(await bounded(correction)).toEqual({ value: true })
+          expect(await bounded(queued)).toEqual({ value: true })
+          expect(pool.workerNodes[0]).toBe(node)
+          expect(node.info.ready).toBe(true)
+          expect(await bounded(pool.execute({}, 'later'))).toBe('later')
+          expect(await bounded(pool.execute({}))).toBe(
+            operation === 'default' ? 'runtime' : 'later',
+          )
+          expect(await bounded(pool.execute({}, 'queued'))).toBe('queued')
+          if (operation === 'remove') {
+            await expect(bounded(pool.execute({}, 'runtime'))).rejects.toThrow(
+              "Task function 'runtime' not found",
+            )
+          } else {
+            expect(await bounded(pool.execute({}, 'runtime'))).toBe(
+              operation === 'add' ? 'updated' : 'runtime',
+            )
+          }
+          expect(pool.listTaskFunctionsProperties()).toContainEqual({
+            name: 'later',
+            priority: -10,
+            strategy: WorkerChoiceStrategies.FAIR_SHARE,
+          })
+          expect(errors).toEqual([expect.any(Error)])
+        } finally {
+          if (node != null && pool.workerNodes.includes(node)) {
+            await control(node, { control: 'release' })
+          }
+          await bounded(pool.destroy())
+          await bounded(Promise.allSettled(pending))
+        }
+      },
+    )
+
+    it('keeps repeated replay failures recoverable without becoming ready early', async () => {
+      const pool = new FixedThreadPool(1, workerFile, { startWorkers: false })
+      const errors = []
+      pool.eventTarget.addEventListener(
+        PoolEvents.error,
+        ({ error }) => errors.push(error),
+      )
+      try {
+        const invalid = () => 'invalid'
+        invalid.toString = () => 'null'
+        await bounded(pool.addTaskFunction('first', invalid))
+        await bounded(pool.addTaskFunction('second', invalid))
+        await bounded(pool.addTaskFunction('later', () => 'later'))
+        let failed = once(pool.eventTarget, PoolEvents.error)
+        pool.start()
+        const node = pool.workerNodes[0]
+        await bounded(failed)
+        failed = once(pool.eventTarget, PoolEvents.error)
+        expect(await bounded(pool.addTaskFunction('first', () => 'first')))
+          .toBe(
+            true,
+          )
+        await bounded(failed)
+        expect(node.info.ready).toBe(false)
+        expect(
+          await bounded(pool.addTaskFunction('second', () => 'second')),
+        ).toBe(true)
+        expect(pool.workerNodes[0]).toBe(node)
+        expect(node.info.ready).toBe(true)
+        expect(await bounded(pool.execute({}, 'first'))).toBe('first')
+        expect(await bounded(pool.execute({}, 'second'))).toBe('second')
+        expect(await bounded(pool.execute({}, 'later'))).toBe('later')
+        expect(errors).toEqual([expect.any(Error), expect.any(Error)])
+      } finally {
+        await bounded(pool.destroy())
+      }
+    })
+
+    each(['exit', 'destroy'])(
+      'settles corrective registration when %s interrupts recovery',
+      async (transition) => {
+        const pool = new FixedThreadPool(1, workerFile, { startWorkers: false })
+        const errors = []
+        pool.eventTarget.addEventListener(
+          PoolEvents.error,
+          ({ error }) => errors.push(error),
+        )
+        let node
+        let correction
+        try {
+          const invalid = () => 'invalid'
+          invalid.toString = () => 'null'
+          await bounded(pool.addTaskFunction('runtime', invalid))
+          await bounded(pool.addTaskFunction('later', () => 'later'))
+          const failed = once(pool.eventTarget, PoolEvents.error)
+          pool.start()
+          node = pool.workerNodes[0]
+          await bounded(failed)
+          await control(node, {
+            control: 'hold',
+            name: 'later',
+            operation: 'add',
+          })
+          const held = waitForMessage(
+            node.worker,
+            (message) => message.heldOperation === 'add',
+          )
+          correction = outcome(
+            pool.addTaskFunction('runtime', () => 'corrected'),
+          )
+          await bounded(held)
+          expect(node.info.ready).toBe(false)
+          if (transition === 'exit') await bounded(node.terminate())
+          else await bounded(pool.destroy())
+          expect(await bounded(correction)).toEqual({ value: true })
+          if (transition === 'exit') {
+            expect(pool.workerNodes[0]).not.toBe(node)
+            expect(await bounded(pool.execute({}, 'runtime'))).toBe('corrected')
+            expect(await bounded(pool.execute({}, 'later'))).toBe('later')
+          } else {
+            expect(pool.info.started).toBe(false)
+            expect(pool.workerNodes).toEqual([])
+          }
+          expect(errors).toEqual([expect.any(Error)])
+        } finally {
+          if (node != null && pool.workerNodes.includes(node)) {
+            await control(node, { control: 'release' })
+          }
+          if (pool.info.started) await bounded(pool.destroy())
+          await bounded(Promise.allSettled([correction]))
+        }
+      },
+    )
+
+    it('keeps a failed bootstrap unavailable when native readiness arrives later', async () => {
+      const pool = new FixedThreadPool(1, workerFile, { startWorkers: false })
+      const errors = []
+      pool.eventTarget.addEventListener(
+        PoolEvents.error,
+        ({ error }) => errors.push(error),
+      )
+      try {
+        await bounded(pool.addTaskFunction('runtime', () => 'runtime'))
+        const send = pool.sendToWorker.bind(pool)
+        let injected = false
+        pool.sendToWorker = (key, message) => {
+          if (!injected && message.taskFunctionOperation === 'add') {
+            injected = true
+            throw new Error(
+              'Injected replay send failure before native readiness',
+            )
+          }
+          send(key, message)
+        }
+        const failed = once(pool.eventTarget, PoolEvents.error)
+        pool.start()
+        const node = pool.workerNodes[0]
+        const nativeReady = waitForMessage(
+          node.messageChannel?.port1 ?? node.worker,
+          (message) => message.ready === true,
+        )
+        await bounded(failed)
+        await bounded(nativeReady)
+        expect(node.info.ready).toBe(false)
+        expect(
+          await bounded(pool.addTaskFunction('runtime', () => 'corrected')),
+        ).toBe(true)
+        expect(pool.workerNodes[0]).toBe(node)
+        expect(node.info.ready).toBe(true)
+        expect(await bounded(pool.execute({}, 'runtime'))).toBe('corrected')
+        expect(errors).toEqual([expect.any(Error)])
+      } finally {
+        await bounded(pool.destroy())
+      }
+    })
+
+    it('preserves the send error when its hook synchronously retires every target', async () => {
+      const pool = new FixedThreadPool(2, workerFile)
+      const originalError = new Error(
+        'Send failed after synchronous cohort retirement',
+      )
+      try {
+        await bounded(once(pool.eventTarget, PoolEvents.ready))
+        await bounded(pool.addTaskFunction('runtime', () => 'old'))
+        const send = pool.sendToWorker.bind(pool)
+        let injected = false
+        pool.sendToWorker = (key, message) => {
+          if (!injected && message.taskFunctionOperation === 'remove') {
+            injected = true
+            for (const node of [...pool.workerNodes]) node.terminate()
+            throw originalError
+          }
+          send(key, message)
+        }
+        expect(await bounded(outcome(pool.removeTaskFunction('runtime'))))
+          .toEqual({ error: originalError })
+        expect(await bounded(pool.addTaskFunction('runtime', () => 'new')))
+          .toBe(true)
+        expect(await bounded(pool.execute({}, 'runtime'))).toBe('new')
+      } finally {
+        await bounded(pool.destroy())
+      }
+    })
+
+    it('waits for contacted targets when a throwing hook synchronously retires an unsent peer', async () => {
+      const pool = new FixedThreadPool(3, workerFile)
+      const originalError = new Error(
+        'Send failed after unsent peer retirement',
+      )
+      let heldNode
+      let removal
+      let addition
+      try {
+        await bounded(once(pool.eventTarget, PoolEvents.ready))
+        await bounded(pool.addTaskFunction('runtime', () => 'old'))
+        heldNode = pool.workerNodes[0]
+        await control(heldNode, {
+          control: 'hold',
+          name: 'runtime',
+          operation: 'remove',
+        })
+        const held = waitForMessage(
+          heldNode.worker,
+          (message) => message.heldOperation === 'remove',
+        )
+        const send = pool.sendToWorker.bind(pool)
+        let injected = false
+        pool.sendToWorker = (key, message) => {
+          if (
+            !injected && key === 1 && message.taskFunctionOperation === 'remove'
+          ) {
+            injected = true
+            pool.workerNodes[2].terminate()
+            throw originalError
+          }
+          send(key, message)
+        }
+        let settled = false
+        removal = outcome(pool.removeTaskFunction('runtime')).then((result) => {
+          settled = true
+          return result
+        })
+        addition = outcome(pool.addTaskFunction('runtime', () => 'new'))
+        await bounded(held)
+        expect(await bounded(pool.execute({}, 'runtime'))).toBe('old')
+        expect(settled).toBe(false)
+        await control(heldNode, { control: 'release' })
+        expect((await bounded(removal)).error).toBe(originalError)
+        expect(await bounded(addition)).toEqual({ value: true })
+        expect(await bounded(pool.execute({}, 'runtime'))).toBe('new')
+      } finally {
+        if (heldNode != null && pool.workerNodes.includes(heldNode)) {
+          await control(heldNode, { control: 'release' })
+        }
+        await bounded(pool.destroy())
+        await bounded(Promise.allSettled([removal, addition]))
+      }
+    })
+  },
+})
