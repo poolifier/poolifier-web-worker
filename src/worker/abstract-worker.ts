@@ -132,6 +132,12 @@ export abstract class AbstractWorker<
   protected activeInterval?: ReturnType<typeof setInterval>
 
   /**
+   * The base removal result and name that confirm absence for the current operation.
+   */
+  private missingTaskFunctionRemoval?: TaskFunctionOperationResult
+  private missingTaskFunctionRemovalName?: string
+
+  /**
    * Correlation of task function operations across protected handler overrides.
    */
   protected readonly taskFunctionOperationContext:
@@ -308,7 +314,12 @@ export abstract class AbstractWorker<
       }
       const deleteStatus = this.taskFunctions.delete(name)
       this.sendTaskFunctionsPropertiesToMainWorker()
-      return { status: deleteStatus }
+      const response = { status: deleteStatus }
+      if (!deleteStatus) {
+        this.missingTaskFunctionRemoval = response
+        this.missingTaskFunctionRemovalName = name
+      }
+      return response
     } catch (error) {
       return { status: false, error: error as Error }
     }
@@ -466,6 +477,7 @@ export abstract class AbstractWorker<
         'Cannot handle task function operation message without task function properties',
       )
     }
+    let taskFunctionOperationNotFound = false
     let response: TaskFunctionOperationResult
     switch (taskFunctionOperation) {
       case 'add':
@@ -493,7 +505,19 @@ export abstract class AbstractWorker<
         response = this.setDefaultTaskFunction(taskFunctionProperties.name)
         break
       case 'remove':
-        response = this.removeTaskFunction(taskFunctionProperties.name)
+        this.missingTaskFunctionRemoval = undefined
+        this.missingTaskFunctionRemovalName = undefined
+        try {
+          const name = taskFunctionProperties.name
+          response = this.removeTaskFunction(name)
+          taskFunctionOperationNotFound = !response.status &&
+            response.error == null &&
+            Object.is(response, this.missingTaskFunctionRemoval) &&
+            Object.is(name, this.missingTaskFunctionRemovalName)
+        } finally {
+          this.missingTaskFunctionRemoval = undefined
+          this.missingTaskFunctionRemovalName = undefined
+        }
         break
       default:
         response = {
@@ -510,6 +534,7 @@ export abstract class AbstractWorker<
       taskFunctionOperationId: this.getTaskFunctionOperationId(message),
       taskFunctionOperationStatus: status,
       taskFunctionProperties,
+      ...(taskFunctionOperationNotFound && { taskFunctionOperationNotFound }),
       ...(!status &&
         error != null && {
         workerError: {
