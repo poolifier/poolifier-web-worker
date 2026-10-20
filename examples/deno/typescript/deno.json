@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@poolifier/poolifier-web-worker": "jsr:@poolifier/poolifier-web-worker@^0.7.0"
+    "@poolifier/poolifier-web-worker": "jsr:@poolifier/poolifier-web-worker@^0.7.1"
   },
   "tasks": {
     "start": "deno run -A ./pool.ts"
