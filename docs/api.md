@@ -190,12 +190,12 @@ later calls or undo changes already applied to workers.
 
 Workers contacted by a change must respond or exit before the call settles,
 including when a later send fails. Send failures preserve the original error;
-otherwise, at least one successful response is required and any failed response
-rejects the change. Without a send failure, an unanswered target's exit does not
-reject a change with a successful peer, including synchronous exits from
-protected dispatch hooks. All targets exiting unanswered rejects the change.
-Deno and Bun preserve buffered operation results before an observed unexpected
-exit; browsers preserve only already-delivered results.
+otherwise, at least one accepted response is required and any other failed
+response rejects the change. Without a send failure, an unanswered target's exit
+does not reject a change with a successful peer, including synchronous exits
+from protected dispatch hooks. All targets exiting unanswered rejects the
+change. Deno and Bun preserve buffered operation results before an observed
+unexpected exit; browsers preserve only already-delivered results.
 
 New and replacement workers wait for ongoing task function changes. They accept
 tasks only after restoring successfully registered task functions, the selected
@@ -210,12 +210,13 @@ are enabled.
 
 Custom worker subclasses that defer task function operations must echo the
 request's `taskFunctionOperationId` in their acknowledgement, or retain the
-original `taskFunctionProperties` object when using the standard transport. An
-acknowledgement without a recoverable UUID rejects the operation. Pool-wide
-changes still wait for all contacted workers to respond or exit. Status-only
-overrides that discard this correlation must be updated. Deno and Bun preserve
-incoming asynchronous context; browsers preserve only synchronous context.
-Deferred browser handlers must retain the UUID or original properties object.
+original `taskFunctionProperties` object when using the standard transport.
+Preserve result metadata when forwarding acknowledgements. An acknowledgement
+without a recoverable UUID rejects the operation. Pool-wide changes still wait
+for all contacted workers to respond or exit. Status-only overrides that discard
+this correlation must be updated. Deno and Bun preserve incoming asynchronous
+context; browsers preserve only synchronous context. Deferred browser handlers
+must retain the UUID or original properties object.
 
 ### `pool.removeTaskFunction(name)`
 
@@ -223,6 +224,10 @@ Deferred browser handlers must retain the UUID or original properties object.
 
 This method is available on both pool implementations and returns a boolean
 promise.
+
+For workers whose initialization failed, confirmed absence of the requested
+function also counts as successful removal. Other removal errors still reject
+the call.
 
 ### `pool.listTaskFunctionsProperties()`
 
