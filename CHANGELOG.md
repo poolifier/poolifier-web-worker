@@ -8,11 +8,14 @@ and this project adheres to
 
 ## [0.7.1](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.0...v0.7.1) (2026-10-20)
 
-
 ### 🐞 Bug Fixes
 
-* **pool:** recover runtime task function operations ([#202](https://github.com/poolifier/poolifier-web-worker/issues/202)) ([ecbadb8](https://github.com/poolifier/poolifier-web-worker/commit/ecbadb82c2ead4a56da1069e397115bbd8d2b024))
-* **pool:** remove failed bootstrap registrations ([#204](https://github.com/poolifier/poolifier-web-worker/issues/204)) ([5cda2d5](https://github.com/poolifier/poolifier-web-worker/commit/5cda2d5fbb78f438862e882d169f2c9f6567b6fc))
+- **pool:** recover runtime task function operations
+  ([#202](https://github.com/poolifier/poolifier-web-worker/issues/202))
+  ([ecbadb8](https://github.com/poolifier/poolifier-web-worker/commit/ecbadb82c2ead4a56da1069e397115bbd8d2b024))
+- **pool:** remove failed bootstrap registrations
+  ([#204](https://github.com/poolifier/poolifier-web-worker/issues/204))
+  ([5cda2d5](https://github.com/poolifier/poolifier-web-worker/commit/5cda2d5fbb78f438862e882d169f2c9f6567b6fc))
 
 ## [0.7.0](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.4...v0.7.0) (2026-10-19)
 
