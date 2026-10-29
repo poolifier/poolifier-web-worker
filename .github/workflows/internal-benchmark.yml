@@ -19,12 +19,12 @@ jobs:
       BENCHER_TESTBED: self-hosted
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
           deno-version: latest
-      - uses: bencherdev/bencher@main
+      - uses: bencherdev/bencher@b67e6668c5983e6c8a3db76796d250fe7b4faf41 # main
       - name: Run benchmark
         run: deno task benchmark:tinybench
       - name: Publish benchmark
