@@ -334,9 +334,11 @@ An object with these properties:
     worker before flagging it as back pressured. It must be a positive integer.
   - `concurrency` (optional) - The maximum number of tasks that can be executed
     concurrently on a worker. It must be a positive integer.
-  - `taskStealing` (optional) - Task stealing enablement on idle. Delayed
-    stealing retries follow the original worker when worker node indices shift
-    and stop if that worker leaves the pool.
+  - `taskStealing` (optional) - Task stealing enablement on idle, including
+    workers that have not executed a task. Queued work and worker readiness
+    activate stealing after a short delay. Delayed stealing retries follow the
+    original worker when worker node indices shift and stop when stealing is
+    disabled, that worker leaves the pool or the pool is destroyed.
   - `tasksStealingOnBackPressure` (optional) - Tasks stealing enablement under
     back pressure.
   - `tasksStealingRatio` (optional) - The ratio of worker nodes that can steal
