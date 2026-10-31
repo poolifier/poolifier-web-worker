@@ -8,16 +8,20 @@ and this project adheres to
 
 ## [0.7.2](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.1...v0.7.2) (2026-10-31)
 
-
 ### 🚀 Features
 
-* **pool:** start task stealing on unused workers ([#216](https://github.com/poolifier/poolifier-web-worker/issues/216)) ([5d30de9](https://github.com/poolifier/poolifier-web-worker/commit/5d30de980a69aea6140bbd94636c7648e5601693))
-
+- **pool:** start task stealing on unused workers
+  ([#216](https://github.com/poolifier/poolifier-web-worker/issues/216))
+  ([5d30de9](https://github.com/poolifier/poolifier-web-worker/commit/5d30de980a69aea6140bbd94636c7648e5601693))
 
 ### 🐞 Bug Fixes
 
-* **deps:** update dependency poolifier-web-worker to ^0.7.1 ([#205](https://github.com/poolifier/poolifier-web-worker/issues/205)) ([52cdc79](https://github.com/poolifier/poolifier-web-worker/commit/52cdc795e61d0dfb22322db28580a483ce6b441d))
-* **deps:** update dependency typescript to v7 ([#155](https://github.com/poolifier/poolifier-web-worker/issues/155)) ([ec8e999](https://github.com/poolifier/poolifier-web-worker/commit/ec8e999ae9c9ef94445efafb619907de2317f397))
+- **deps:** update dependency poolifier-web-worker to ^0.7.1
+  ([#205](https://github.com/poolifier/poolifier-web-worker/issues/205))
+  ([52cdc79](https://github.com/poolifier/poolifier-web-worker/commit/52cdc795e61d0dfb22322db28580a483ce6b441d))
+- **deps:** update dependency typescript to v7
+  ([#155](https://github.com/poolifier/poolifier-web-worker/issues/155))
+  ([ec8e999](https://github.com/poolifier/poolifier-web-worker/commit/ec8e999ae9c9ef94445efafb619907de2317f397))
 
 ## [0.7.1](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.0...v0.7.1) (2026-10-20)
 
