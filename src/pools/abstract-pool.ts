@@ -20,6 +20,7 @@ import {
   min,
   round,
   runtime,
+  unrefTimer,
 } from '../utils.ts'
 import type {
   TaskFunction,
@@ -2698,13 +2699,7 @@ export abstract class AbstractPool<
         )
       }
     }, exponentialDelay())
-    if (runtime === JSRuntime.deno) {
-      ;(globalThis as unknown as {
-        Deno: { unrefTimer: (timeout: ReturnType<typeof setTimeout>) => void }
-      }).Deno.unrefTimer(timeout)
-    } else if (runtime === JSRuntime.bun) {
-      ;(timeout as unknown as { unref: () => void }).unref()
-    }
+    unrefTimer(timeout)
     this.taskStealingRetries ??= new Map()
     this.taskStealingRetries.set(workerNode, {
       taskName: stolenTaskName,
@@ -3251,13 +3246,7 @@ export abstract class AbstractPool<
         )
       }
     }, exponentialDelay())
-    if (runtime === JSRuntime.deno) {
-      ;(globalThis as unknown as {
-        Deno: { unrefTimer: (timeout: ReturnType<typeof setTimeout>) => void }
-      }).Deno.unrefTimer(this.taskStealingTimeout)
-    } else if (runtime === JSRuntime.bun) {
-      ;(this.taskStealingTimeout as unknown as { unref: () => void }).unref()
-    }
+    unrefTimer(this.taskStealingTimeout)
   }
 
   private dequeueTask(workerNodeKey: number): Task<Data> | undefined {

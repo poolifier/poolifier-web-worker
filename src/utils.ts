@@ -42,6 +42,33 @@ export const exponentialDelay = (
 }
 
 /**
+ * Allows the runtime to exit while a timer is pending, when supported.
+ *
+ * @param timer - The timer to unreference.
+ * @internal
+ */
+export const unrefTimer = (timer: ReturnType<typeof setTimeout>): void => {
+  if (
+    timer !== null &&
+    (typeof timer === 'object' || typeof timer === 'function')
+  ) {
+    const handle = timer as { unref?: unknown }
+    if (typeof handle.unref === 'function') {
+      handle.unref()
+      return
+    }
+  }
+  if (typeof timer === 'number') {
+    const deno = (globalThis as typeof globalThis & {
+      Deno?: { unrefTimer?: (timer: number) => void }
+    }).Deno
+    if (typeof deno?.unrefTimer === 'function') {
+      deno.unrefTimer(timer)
+    }
+  }
+}
+
+/**
  * Computes the average of the given data set.
  *
  * @param dataSet - Data set.

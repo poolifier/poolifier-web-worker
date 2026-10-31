@@ -146,3 +146,40 @@ describe('Runtime permission boundaries', () => {
     expect(result.first[0]).toBe(result.first[1])
   })
 })
+
+describe('Unreferenced timers', () => {
+  it('does not keep the runtime alive with a pending timer', async () => {
+    const result = await runDeno(`
+      const { unrefTimer } = await import(${JSON.stringify(utilsUrl)})
+      unrefTimer(setTimeout(() => {
+        throw new Error('Unreferenced timer kept the runtime alive')
+      }, 60_000))
+      console.log(JSON.stringify({ scheduled: true }))
+    `)
+    expect(result).toStrictEqual({ scheduled: true })
+  })
+
+  it('still fires while referenced work keeps the runtime alive', async () => {
+    const result = await runDeno(`
+      const { unrefTimer } = await import(${JSON.stringify(utilsUrl)})
+      let fired = false
+      unrefTimer(setTimeout(() => { fired = true }, 0))
+      await new Promise(resolve => setTimeout(resolve, 50))
+      console.log(JSON.stringify({ fired }))
+    `)
+    expect(result).toStrictEqual({ fired: true })
+  })
+
+  it('preserves cancellation with the original timer handle', async () => {
+    const result = await runDeno(`
+      const { unrefTimer } = await import(${JSON.stringify(utilsUrl)})
+      let fired = false
+      const timer = setTimeout(() => { fired = true }, 0)
+      unrefTimer(timer)
+      clearTimeout(timer)
+      await new Promise(resolve => setTimeout(resolve, 50))
+      console.log(JSON.stringify({ fired }))
+    `)
+    expect(result).toStrictEqual({ fired: false })
+  })
+})
