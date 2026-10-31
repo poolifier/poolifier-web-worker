@@ -1,12 +1,14 @@
+import { setTimeout as delay } from 'node:timers/promises'
 import { expect } from '@std/expect'
 import { describe, it } from '@std/testing/bdd'
+import { FakeTime } from '@std/testing/time'
 import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
   WorkerChoiceStrategies,
 } from '../../src/mod.ts'
-import { bounded, sleep, waitForMessage } from '../test-utils.mjs'
+import { bounded, waitForMessage } from '../test-utils.mjs'
 
 const workerFile = new URL(
   '../worker-files/thread/taskAccountingWorker.mjs',
@@ -29,7 +31,7 @@ const waitUntil = async (predicate, message, timeoutMs = 5000) => {
   const deadline = performance.now() + timeoutMs
   while (!predicate()) {
     if (performance.now() >= deadline) throw new Error(message)
-    await sleep(5)
+    await delay(5)
   }
 }
 
@@ -343,12 +345,13 @@ describe({
             tasksQueueOptions: {
               concurrency: 1,
               tasksStealingOnBackPressure: false,
-              taskStealing: true,
+              taskStealing: false,
             },
             workerChoiceStrategy: WorkerChoiceStrategies.LEAST_USED,
           },
         )
         const tasks = []
+        let clock
         const execute = (gate, label, name) => {
           trackTask(tasks, pool.execute({ gate, label }, name))
         }
@@ -380,6 +383,8 @@ describe({
             message.label === 'kill-handler' &&
             message.workerId === retiree.info.id
           )
+          clock = new FakeTime()
+          pool.setTasksQueueOptions({ taskStealing: true })
           expect(pool.workerNodes.indexOf(retrying)).toBe(2)
           release(gates.anchor)
           const stolenMessage = await waitForReceived((message) =>
@@ -403,9 +408,10 @@ describe({
             const stolenTaskIndex = stolenMessage.label === 'loader-1' ? 1 : 2
             expect((await bounded(tasks[stolenTaskIndex])).error)
               .toBeInstanceOf(Error)
-            // One successful steal schedules a real 200–240ms exponential delay.
-            // There is no owner left whose retry completion could be awaited.
-            await sleep(300)
+            // Advance past the cancelled retry after its real owner leaves.
+            await clock.tickAsync(240)
+            clock.restore()
+            clock = undefined
             expect(wrongTarget.usage.tasks.stolen).toBe(0)
             expect(wrongTarget.usage.tasks.queued).toBe(0)
             expect(wrongTarget.usage.tasks.executing).toBe(1)
@@ -436,6 +442,10 @@ describe({
           expect(retrying.info.continuousStealing).toBe(true)
           expect(wrongTarget.usage.tasks.stolen).toBe(0)
 
+          await clock.tickAsync(240)
+          clock.restore()
+          clock = undefined
+
           await waitUntil(
             () =>
               retrying.usage.tasks.sequentiallyStolen === 0 ||
@@ -449,6 +459,7 @@ describe({
           expect(retrying.usage.tasks.sequentiallyStolen).toBe(0)
           expect(pool.info.stolenTasks).toBe(1)
         } finally {
+          clock?.restore()
           Object.values(gates).forEach(release)
           try {
             await bounded(Promise.all(tasks), 'Gated tasks did not finish')
