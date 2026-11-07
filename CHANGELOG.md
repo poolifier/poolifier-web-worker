@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.2...v0.7.3) (2026-11-07)
+
+
+### 🐞 Bug Fixes
+
+* **build:** align TypeScript dependency and lockfile ([#218](https://github.com/poolifier/poolifier-web-worker/issues/218)) ([3e4afef](https://github.com/poolifier/poolifier-web-worker/commit/3e4afef599c9dd539cd9170b19a08273dd2b0844))
+* **deps:** update all non-major dependencies ([#221](https://github.com/poolifier/poolifier-web-worker/issues/221)) ([bf5f2bd](https://github.com/poolifier/poolifier-web-worker/commit/bf5f2bd1e6aea39bee8d060b069ae2b64964f26f))
+
 ## [0.7.2](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.1...v0.7.2) (2026-10-31)
 
 ### 🚀 Features
