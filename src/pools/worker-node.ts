@@ -43,6 +43,20 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
   /** @inheritdoc */
   public tasksQueueBackPressureSize: number
   private readonly taskFunctionsUsage: Map<string, WorkerUsage>
+  private terminated = false
+  private readonly workerCloseHandler = (): void => {
+    if (this.terminated) {
+      return
+    }
+    this.terminated = true
+    this.worker.removeEventListener('close', this.workerCloseHandler)
+    try {
+      this.dispatchEvent(new Event('exit'))
+    } finally {
+      this.closeMessageChannel()
+      delete this.messageChannel
+    }
+  }
 
   /**
    * Constructs a new worker node.
@@ -59,9 +73,14 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
     super()
     checkWorkerNodeArguments(type, specifier, opts)
     this.worker = createWorker<Worker>(type, specifier, {
-      workerOptions: opts.workerOptions,
+      workerOptions: Object.hasOwn(opts, 'workerOptions')
+        ? opts.workerOptions
+        : undefined,
     })
     this.info = initWorkerInfo(this.worker)
+    this.worker.addEventListener('close', this.workerCloseHandler, {
+      once: true,
+    })
     this.usage = this.initWorkerUsage()
     this.messageChannel = new MessageChannel()
     this.messageChannel.port1.onmessage = (
@@ -152,9 +171,21 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
 
   /** @inheritdoc */
   public terminate(): void {
-    this.closeMessageChannel()
-    this.worker.terminate()
-    this.dispatchEvent(new Event('exit'))
+    if (this.terminated) {
+      return
+    }
+    this.terminated = true
+    this.worker.removeEventListener('close', this.workerCloseHandler)
+    try {
+      this.worker.terminate()
+    } finally {
+      try {
+        this.dispatchEvent(new Event('exit'))
+      } finally {
+        this.closeMessageChannel()
+        delete this.messageChannel
+      }
+    }
   }
 
   /** @inheritdoc */
@@ -188,9 +219,10 @@ export class WorkerNode<Worker extends IWorker, Data = unknown>
 
   private closeMessageChannel(): void {
     if (this.messageChannel != null) {
+      this.messageChannel.port1.onmessage = null
+      this.messageChannel.port1.onmessageerror = null
       this.messageChannel.port1.close()
       this.messageChannel.port2.close()
-      delete this.messageChannel
     }
   }
 

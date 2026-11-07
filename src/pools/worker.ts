@@ -1,6 +1,6 @@
 import type { CircularBuffer } from '../circular-buffer.ts'
 import type { PriorityQueue } from '../queues/priority-queue.ts'
-import type { Task, TaskFunctionProperties } from '../utility-types.ts'
+import type { Task, TaskFunctionProperties, UUID } from '../utility-types.ts'
 
 /**
  * Callback invoked if the worker has received a message event.
@@ -361,7 +361,8 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
    */
   readonly deleteTask: (task: Task<Data>) => boolean
   /**
-   * Terminates the worker node.
+   * Terminates the worker node once.
+   * The node emits `exit` once on termination or a native worker `close` event when the runtime exposes one.
    */
   readonly terminate: () => void
   /**
@@ -386,7 +387,7 @@ export interface IWorkerNode<Worker extends IWorker, Data = unknown>
  * @internal
  */
 export interface WorkerNodeEventDetail {
-  taskId?: `${string}-${string}-${string}-${string}-${string}`
+  taskId?: UUID
   workerId?: `${string}-${string}-${string}-${string}-${string}`
   workerNodeKey?: number
 }

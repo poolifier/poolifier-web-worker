@@ -2,6 +2,13 @@ import type { WorkerChoiceStrategy } from './pools/selection-strategies/selectio
 import type { KillBehavior } from './worker/worker-options.ts'
 
 /**
+ * UUID returned by the Web Crypto API.
+ *
+ * @internal
+ */
+export type UUID = `${string}-${string}-${string}-${string}-${string}`
+
+/**
  * Worker error.
  *
  * @typeParam Data - Type of data sent to the worker triggering an error. This can only be structured-cloneable data.
@@ -13,6 +20,8 @@ export interface WorkerError<Data = unknown> {
   readonly aborted: boolean
   /**
    * Data triggering the error.
+   * Transferred task errors expose the original pool input without returning ownership.
+   * Worker-side errors omit transferred input data.
    */
   readonly data?: Data
   /**
@@ -92,7 +101,8 @@ export interface TaskFunctionProperties {
   readonly strategy?: WorkerChoiceStrategy
   /**
    * Task function worker node keys affinity.
-   * Restricts task execution to specified worker nodes by their indices.
+   * Restricts initial task dispatch to specified worker nodes by their indices.
+   * Task stealing ignores affinity.
    * Must contain valid indices within [0, pool max size - 1].
    * If undefined, task can execute on any worker node.
    */
@@ -139,7 +149,7 @@ export interface Task<Data = unknown> {
   /**
    * Task UUID.
    */
-  readonly taskId?: `${string}-${string}-${string}-${string}-${string}`
+  readonly taskId?: UUID
 }
 
 /**
@@ -174,6 +184,14 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
    * - `'default'` - Set a task function as default.
    */
   readonly taskFunctionOperation?: 'add' | 'remove' | 'default'
+  /**
+   * Task function operation request UUID.
+   */
+  readonly taskFunctionOperationId?: UUID
+  /**
+   * Whether removal confirmed that the requested task function was absent.
+   */
+  readonly taskFunctionOperationNotFound?: boolean
   /**
    * Whether the task function operation is successful or not.
    */
@@ -221,6 +239,10 @@ export interface MessageValue<Data = unknown, ErrorData = unknown>
  */
 export interface PromiseResponseWrapper<Response = unknown> {
   /**
+   * Original task input retained when its transfer list is nonempty.
+   */
+  readonly originalData?: unknown
+  /**
    * The task abort signal.
    */
   readonly abortSignal?: AbortSignal
@@ -233,9 +255,9 @@ export interface PromiseResponseWrapper<Response = unknown> {
    */
   readonly reject: (reason?: unknown) => void
   /**
-   * The worker node key executing the task.
+   * The worker node key owning the task, or -1 after its removal.
    */
-  readonly workerNodeKey: number
+  workerNodeKey: number
 }
 
 /**

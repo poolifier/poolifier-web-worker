@@ -59,7 +59,7 @@ Please consult our [general guidelines](#general-guidelines).
 - Support for multiple task functions:
   - Queuing priority ✔
   - Tasks distribution strategy ✔
-  - Worker node affinity ✔
+  - [Worker node affinity](./docs/api.md#worker-node-affinity-notes) ✔
   - [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
     operations at runtime ✔
 - General guidelines on pool choice ✔
@@ -151,7 +151,7 @@ for more details**:
 
 ```js
 <script type="module"> 
-  import {ThreadWorker} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.6.3/browser/mod.js'
+  import {ThreadWorker} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.7.2/browser/mod.js'
 </script>
 ```
 
@@ -162,7 +162,7 @@ import {
   DynamicThreadPool,
   FixedThreadPool,
   PoolEvents,
-} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.6.3/browser/mod.js'
+} from 'https://cdn.jsdelivr.net/npm/poolifier-web-worker@0.7.2/browser/mod.js'
 </script>
 ```
 

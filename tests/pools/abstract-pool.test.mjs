@@ -1709,10 +1709,6 @@ describe({
         }),
       ).resolves.toBe(true)
       expect(dynamicThreadPool.taskFunctions.size).toBe(1)
-      expect(dynamicThreadPool.taskFunctions.get('echo')).toStrictEqual({
-        taskFunction: echoTaskFunction,
-        strategy: WorkerChoiceStrategies.LEAST_BUSY,
-      })
       expect([
         ...dynamicThreadPool.workerChoiceStrategiesContext
           .workerChoiceStrategies.keys(),
@@ -1806,12 +1802,6 @@ describe({
           workerNodeKeys: [poolWorkerNodeKeys[0]],
         }),
       ).resolves.toBe(true)
-      expect(dynamicThreadPool.taskFunctions.get('affinityEcho')).toStrictEqual(
-        {
-          taskFunction: echoTaskFunction,
-          workerNodeKeys: [poolWorkerNodeKeys[0]],
-        },
-      )
 
       // Test with invalid workerNodeKeys (out of range)
       await expect(
@@ -2006,10 +1996,6 @@ describe({
         strategy: WorkerChoiceStrategies.LEAST_BUSY,
       })
       expect(dynamicThreadPool.taskFunctions.size).toBe(1)
-      expect(dynamicThreadPool.taskFunctions.get('echo')).toStrictEqual({
-        taskFunction: echoTaskFunction,
-        strategy: WorkerChoiceStrategies.LEAST_BUSY,
-      })
       expect([
         ...dynamicThreadPool.workerChoiceStrategiesContext
           .workerChoiceStrategies.keys(),

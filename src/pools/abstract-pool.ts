@@ -4,6 +4,7 @@ import type {
   PromiseResponseWrapper,
   Task,
   TaskFunctionProperties,
+  UUID,
 } from '../utility-types.ts'
 import {
   average,
@@ -13,11 +14,13 @@ import {
   exponentialDelay,
   isKillBehavior,
   isPlainObject,
+  JSRuntime,
   max,
   median,
   min,
   round,
-  sleep,
+  runtime,
+  unrefTimer,
 } from '../utils.ts'
 import type {
   TaskFunction,
@@ -63,6 +66,17 @@ import type {
 } from './worker.ts'
 import { WorkerNode } from './worker-node.ts'
 
+// Browsers do not provide the native compatibility module.
+type ReceiveMessageOnPort = (
+  port: MessagePort,
+) => { message: unknown } | undefined
+const receiveMessageOnPort: ReceiveMessageOnPort | undefined =
+  runtime !== JSRuntime.browser
+    // @ts-ignore Node.js compatibility modules are not public declaration dependencies.
+    ? (await import('node:worker_threads'))
+      .receiveMessageOnPort as unknown as ReceiveMessageOnPort
+    : undefined
+
 /**
  * Base class that implements some shared logic for all poolifier pools.
  *
@@ -88,13 +102,8 @@ export abstract class AbstractPool<
    *
    * When we receive a message from the worker, we get a map entry with the promise resolve/reject bound to the message id.
    */
-  protected promiseResponseMap: Map<
-    `${string}-${string}-${string}-${string}-${string}`,
-    PromiseResponseWrapper<Response>
-  > = new Map<
-    `${string}-${string}-${string}-${string}-${string}`,
-    PromiseResponseWrapper<Response>
-  >()
+  protected promiseResponseMap: Map<UUID, PromiseResponseWrapper<Response>> =
+    new Map<UUID, PromiseResponseWrapper<Response>>()
 
   /**
    * Worker choice strategies context referencing worker choice algorithms implementation.
@@ -121,12 +130,47 @@ export abstract class AbstractPool<
   /**
    * The task functions added at runtime map:
    * - `key`: The task function name.
-   * - `value`: The task function object.
+   * - `value`: The captured task function registration message.
    */
   private readonly taskFunctions: Map<
     string,
-    TaskFunctionObject<Data, Response>
+    Required<
+      Pick<
+        MessageValue<Data>,
+        'taskFunction' | 'taskFunctionOperation' | 'taskFunctionProperties'
+      >
+    >
   >
+
+  /**
+   * Queue tail for pool-wide task function mutations.
+   */
+  private taskFunctionOperationsQueue?: Promise<void>
+
+  /**
+   * The last explicit default acknowledged by an operation's worker cohort.
+   */
+  private defaultTaskFunctionName?: string
+
+  /**
+   * Failed bootstraps retain native readiness outside active waits.
+   */
+  private readonly failedWorkerTaskFunctionBootstraps = new Map<
+    IWorkerNode<Worker, Data>,
+    boolean
+  >()
+
+  private pendingTaskFunctionOperations = 0
+  private resolveTaskFunctionOperations?: (value: undefined) => void
+  private taskFunctionOperationsFinished?: Promise<undefined>
+  private readonly workerTaskFunctionBootstraps = new Map<
+    IWorkerNode<Worker, Data>,
+    { promise?: Promise<void>; ready: boolean }
+  >()
+  private readonly workerTaskFunctionOperationExitListeners = new Map<
+    IWorkerNode<Worker, Data>,
+    Set<() => void>
+  >()
 
   /**
    * Whether the minimum number of workers is starting or not.
@@ -148,6 +192,25 @@ export abstract class AbstractPool<
    * The start timestamp of the pool.
    */
   private startTimestamp?: number
+
+  /**
+   * Whether task dequeuing events are deferred until worker exit handoffs finish.
+   */
+  private taskDequeuingEventsDeferred = false
+
+  private taskStealingRetries?: Map<
+    IWorkerNode<Worker, Data>,
+    { taskName?: string; timeout: ReturnType<typeof setTimeout> }
+  >
+
+  private taskStealingTimeout?: ReturnType<typeof setTimeout>
+
+  /**
+   * Worker nodes whose termination was requested by the pool.
+   */
+  private readonly terminatingWorkerNodes = new WeakSet<
+    IWorkerNode<Worker, Data>
+  >()
 
   /**
    * Constructs a new poolifier pool.
@@ -192,7 +255,7 @@ export abstract class AbstractPool<
 
     this.setupHook()
 
-    this.taskFunctions = new Map<string, TaskFunctionObject<Data, Response>>()
+    this.taskFunctions = new Map()
 
     this.started = false
     this.starting = false
@@ -683,18 +746,29 @@ export abstract class AbstractPool<
     for (const workerNodeKey of this.workerNodes.keys()) {
       this.workerNodes[workerNodeKey].addEventListener(
         'idle',
-        this.handleWorkerNodeIdleEvent as EventListener,
+        this.workerNodeIdleEventListener as EventListener,
       )
     }
+    this.scheduleTaskStealing()
   }
 
   private unsetTaskStealing(): void {
+    clearTimeout(this.taskStealingTimeout)
+    delete this.taskStealingTimeout
     for (const workerNodeKey of this.workerNodes.keys()) {
-      this.workerNodes[workerNodeKey].removeEventListener(
+      const workerNode = this.workerNodes[workerNodeKey]
+      const taskName = this.clearTaskStealingRetry(workerNode)
+      workerNode.info.continuousStealing = false
+      this.resetTaskSequentiallyStolenStatisticsWorkerUsage(
+        workerNodeKey,
+        taskName,
+      )
+      workerNode.removeEventListener(
         'idle',
-        this.handleWorkerNodeIdleEvent as EventListener,
+        this.workerNodeIdleEventListener as EventListener,
       )
     }
+    delete this.taskStealingRetries
   }
 
   private setTasksStealingOnBackPressure(): void {
@@ -795,111 +869,270 @@ export abstract class AbstractPool<
     )
   }
 
+  private queueTaskFunctionOperation(
+    operation: () => Promise<boolean>,
+  ): Promise<boolean> {
+    const result = (this.taskFunctionOperationsQueue ?? Promise.resolve()).then(
+      async () => {
+        const result = await operation()
+        await this.retryFailedWorkerTaskFunctionBootstraps()
+        return result
+      },
+    )
+    this.taskFunctionOperationsQueue = result.then(
+      EMPTY_FUNCTION,
+      EMPTY_FUNCTION,
+    )
+    return result
+  }
+
   private async sendTaskFunctionOperationToWorker(
     workerNodeKey: number,
     message: MessageValue<Data>,
   ): Promise<boolean> {
-    let taskFunctionOperationListener:
-      | ((message: MessageValue<Response>) => void)
-      | undefined
-    try {
-      return await new Promise<boolean>((resolve, reject) => {
-        taskFunctionOperationListener = (
-          message: MessageValue<Response>,
-        ): void => {
-          this.checkMessageWorkerId(message)
-          const workerId = this.getWorkerInfo(workerNodeKey)?.id
-          if (
-            message.taskFunctionOperationStatus != null &&
-            message.workerId === workerId
-          ) {
-            if (message.taskFunctionOperationStatus) {
-              resolve(true)
-              return
-            }
-            reject(
-              new Error(
-                `Task function operation '${message.taskFunctionOperation?.toString()}' failed on worker ${message.workerId?.toString()} with error: '${message.workerError?.error.message}'`,
-              ),
-            )
-          }
+    const workerNode = this.workerNodes[workerNodeKey]
+    const workerId = this.getWorkerInfo(workerNodeKey)?.id
+    const taskFunctionOperationId = crypto.randomUUID()
+    const { promise, reject, resolve } = Promise.withResolvers<boolean>()
+    const listener = (message: MessageValue<Response>): void => {
+      if (
+        message.taskFunctionOperationStatus != null &&
+        message.workerId === workerId &&
+        (message.taskFunctionOperationId == null ||
+          message.taskFunctionOperationId === taskFunctionOperationId)
+      ) {
+        this.checkMessageWorkerId(message)
+        if (message.taskFunctionOperationId == null) {
+          reject(
+            this.getTaskFunctionOperationAcknowledgementError(message.workerId),
+          )
+          return
         }
-        this.registerWorkerMessageListener(
-          workerNodeKey,
-          taskFunctionOperationListener,
-        )
-        this.sendToWorker(workerNodeKey, message)
-      })
-    } finally {
-      if (taskFunctionOperationListener != null) {
-        this.deregisterWorkerMessageListener(
-          workerNodeKey,
-          taskFunctionOperationListener,
+        if (message.taskFunctionOperationStatus) {
+          resolve(true)
+          return
+        }
+        reject(
+          new Error(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `Task function operation '${message.taskFunctionOperation?.toString()}' failed on worker ${message.workerId?.toString()} with error: '${
+              // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+              message.workerError?.error?.message}'`,
+          ),
         )
       }
+    }
+    const cleanup = this.createWorkerMessageListenerCleanup(
+      workerNode,
+      listener,
+    )
+    const exitListener = (): void => {
+      cleanup()
+      reject(
+        new Error(
+          `Worker ${
+            String(workerId)
+          } exited before acknowledging task function operation '${
+            message.taskFunctionOperation ?? 'unknown'
+          }'`,
+        ),
+      )
+    }
+    try {
+      this.registerTaskFunctionOperationExitListener(workerNode, exitListener)
+      this.registerWorkerMessageListener(workerNodeKey, listener)
+      workerNodeKey = this.workerNodes.indexOf(workerNode)
+      if (workerNodeKey !== -1) {
+        this.sendToWorker(workerNodeKey, {
+          ...message,
+          taskFunctionOperationId,
+        })
+      }
+    } catch (error) {
+      reject(error)
+    }
+    try {
+      return await promise
+    } finally {
+      this.deregisterTaskFunctionOperationExitListener(workerNode, exitListener)
+      cleanup()
     }
   }
 
   private async sendTaskFunctionOperationToWorkers(
     message: MessageValue<Data>,
   ): Promise<boolean> {
-    const targetWorkerNodeCount = this.workerNodes.length
-    if (targetWorkerNodeCount === 0) {
+    if (this.workerNodes.length === 0) {
       return true
     }
-    const responsesReceived: MessageValue<Response>[] = []
-    const taskFunctionOperationsListener = (
-      message: MessageValue<Response>,
-      resolve: (value: boolean | PromiseLike<boolean>) => void,
-      reject: (reason?: unknown) => void,
-    ): void => {
-      this.checkMessageWorkerId(message)
-      const workerNodeKey = this.getWorkerNodeKeyByWorkerId(message.workerId)
-      if (
-        message.taskFunctionOperationStatus != null &&
-        workerNodeKey >= 0 &&
-        workerNodeKey < targetWorkerNodeCount
-      ) {
-        responsesReceived.push(message)
-        if (responsesReceived.length >= targetWorkerNodeCount) {
-          if (
-            responsesReceived.every(
-              (msg) => msg.taskFunctionOperationStatus === true,
-            )
-          ) {
-            resolve(true)
-          } else {
-            const errorResponse = responsesReceived.find(
-              (msg) => msg.taskFunctionOperationStatus === false,
-            )
-            reject(
-              new Error(
-                `Task function operation '${message.taskFunctionOperation}' failed on worker ${errorResponse?.workerId?.toString()} with error: '${
-                  errorResponse?.workerError?.error?.message ?? 'Unknown error'
-                }'`,
-              ),
-            )
-          }
-        }
+    const { taskFunctionOperation } = message
+    const taskFunctionOperationId = crypto.randomUUID()
+    const responsesReceived = new Map<
+      WorkerInfo['id'] | undefined,
+      MessageValue<Response> | undefined
+    >()
+    for (const workerNode of this.workerNodes) {
+      responsesReceived.set(workerNode.info.id, undefined)
+    }
+    let remainingResponses = responsesReceived.size
+    let errorResponse: MessageValue<Response> | undefined
+    let protocolError: Error | undefined
+    let sendError: unknown
+    let sendFailed = false
+    // Web exit hooks can settle targets synchronously before a send throws.
+    let dispatching = true
+    const { promise, reject, resolve } = Promise.withResolvers<boolean>()
+    const listeners: {
+      cleanup: () => void
+      exitListener: () => void
+      workerNode: IWorkerNode<Worker, Data>
+    }[] = []
+    const complete = (): void => {
+      if (dispatching || remainingResponses !== 0) return
+      if (sendFailed) {
+        reject(sendError)
+      } else if (protocolError != null) {
+        reject(protocolError)
+      } else if (errorResponse != null) {
+        reject(
+          new Error(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `Task function operation '${message
+              .taskFunctionOperation as string}' failed on worker ${errorResponse.workerId?.toString()} with error: '${
+              errorResponse.workerError?.error?.message ?? 'Unknown error'
+            }'`,
+          ),
+        )
+      } else if (responsesReceived.size === 0) {
+        reject(
+          new Error(
+            `All targets exited before acknowledging task function operation '${
+              message.taskFunctionOperation ?? 'unknown'
+            }'`,
+          ),
+        )
+      } else {
+        resolve(true)
       }
     }
-    let listener: ((message: MessageValue<Response>) => void) | undefined
-    const workerNodeKeys = [...this.workerNodes.keys()]
+    const listener = (message: MessageValue<Response>): void => {
+      if (
+        message.taskFunctionOperationStatus != null &&
+        (message.taskFunctionOperationId == null ||
+          message.taskFunctionOperationId === taskFunctionOperationId) &&
+        responsesReceived.has(message.workerId) &&
+        responsesReceived.get(message.workerId) == null
+      ) {
+        this.checkMessageWorkerId(message)
+        responsesReceived.set(message.workerId, message)
+        --remainingResponses
+        if (message.taskFunctionOperationId == null) {
+          protocolError ??= this.getTaskFunctionOperationAcknowledgementError(
+            message.workerId,
+          )
+        } else if (
+          !message.taskFunctionOperationStatus &&
+          !(
+            taskFunctionOperation === 'remove' &&
+            message.taskFunctionOperationNotFound === true &&
+            message.workerError == null &&
+            this.failedWorkerTaskFunctionBootstraps.has(
+              this.workerNodes[
+                this.getWorkerNodeKeyByWorkerId(message.workerId)
+              ],
+            )
+          )
+        ) {
+          errorResponse ??= message
+        }
+        complete()
+      }
+    }
     try {
-      return await new Promise<boolean>((resolve, reject) => {
-        listener = (message: MessageValue<Response>) => {
-          taskFunctionOperationsListener(message, resolve, reject)
+      for (const workerId of responsesReceived.keys()) {
+        const workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
+        const workerNode = this.workerNodes[workerNodeKey]
+        const cleanup = this.createWorkerMessageListenerCleanup(
+          workerNode,
+          listener,
+        )
+        const exitListener = (): void => {
+          cleanup()
+          if (
+            responsesReceived.has(workerId) &&
+            responsesReceived.get(workerId) == null
+          ) {
+            responsesReceived.delete(workerId)
+            --remainingResponses
+            complete()
+          }
         }
-        for (const workerNodeKey of workerNodeKeys) {
+        listeners.push({ cleanup, exitListener, workerNode })
+        this.registerTaskFunctionOperationExitListener(workerNode, exitListener)
+      }
+      const workerListeners = listeners.values()
+      for (const { workerNode } of workerListeners) {
+        const workerId = workerNode.info.id
+        try {
+          let workerNodeKey = this.workerNodes.indexOf(workerNode)
+          if (
+            workerNodeKey === -1 ||
+            !responsesReceived.has(workerNode.info.id)
+          ) {
+            continue
+          }
           this.registerWorkerMessageListener(workerNodeKey, listener)
-          this.sendToWorker(workerNodeKey, message)
+          workerNodeKey = this.workerNodes.indexOf(workerNode)
+          if (
+            workerNodeKey === -1 ||
+            !responsesReceived.has(workerNode.info.id)
+          ) {
+            continue
+          }
+          this.sendToWorker(workerNodeKey, {
+            ...message,
+            taskFunctionOperationId,
+          })
+        } catch (error) {
+          sendError = error
+          sendFailed = true
+          // Retain listeners for requests already sent, but retire unsent targets.
+          if (
+            responsesReceived.has(workerId) &&
+            responsesReceived.get(workerId) == null
+          ) {
+            --remainingResponses
+          }
+          responsesReceived.delete(workerId)
+          for (const { workerNode: unsentWorkerNode } of workerListeners) {
+            const unsentWorkerId = unsentWorkerNode.info.id
+            if (
+              responsesReceived.has(unsentWorkerId) &&
+              responsesReceived.get(unsentWorkerId) == null
+            ) {
+              --remainingResponses
+            }
+            responsesReceived.delete(unsentWorkerId)
+          }
+          complete()
+          break
         }
-      })
+      }
+    } catch (error) {
+      reject(error)
     } finally {
-      if (listener != null) {
-        for (const workerNodeKey of workerNodeKeys) {
-          this.deregisterWorkerMessageListener(workerNodeKey, listener)
-        }
+      dispatching = false
+      complete()
+    }
+    try {
+      return await promise
+    } finally {
+      for (const { cleanup, exitListener, workerNode } of listeners) {
+        this.deregisterTaskFunctionOperationExitListener(
+          workerNode,
+          exitListener,
+        )
+        cleanup()
       }
     }
   }
@@ -922,84 +1155,112 @@ export abstract class AbstractPool<
     if (typeof name === 'string' && name.trim().length === 0) {
       throw new TypeError('name argument must not be an empty string')
     }
-    if (typeof fn === 'function') {
-      fn = { taskFunction: fn } satisfies TaskFunctionObject<Data, Response>
-    }
-    if (typeof fn.taskFunction !== 'function') {
+    const taskFunction = typeof fn === 'function' ? fn : fn.taskFunction
+    if (typeof taskFunction !== 'function') {
       throw new TypeError('taskFunction property must be a function')
     }
-    checkValidPriority(fn.priority)
-    checkValidWorkerChoiceStrategy(fn.strategy)
+    const definition: TaskFunctionObject<Data, Response> = { taskFunction }
+    if (typeof fn !== 'function') {
+      const { priority, strategy, workerNodeKeys } = fn
+      if (priority !== undefined) definition.priority = priority
+      if (strategy !== undefined) definition.strategy = strategy
+      if (workerNodeKeys !== undefined) {
+        definition.workerNodeKeys = Array.isArray(workerNodeKeys)
+          ? [...workerNodeKeys]
+          : workerNodeKeys
+      }
+    }
+    checkValidPriority(definition.priority)
+    checkValidWorkerChoiceStrategy(definition.strategy)
     checkValidWorkerNodeKeys(
-      fn.workerNodeKeys,
+      definition.workerNodeKeys,
       this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
     )
-    const opResult = await this.sendTaskFunctionOperationToWorkers({
+    const message = {
+      taskFunction: taskFunction.toString(),
       taskFunctionOperation: 'add',
-      taskFunctionProperties: buildTaskFunctionProperties(name, fn),
-      taskFunction: fn.taskFunction.toString(),
+      taskFunctionProperties: buildTaskFunctionProperties(name, definition),
+    } satisfies MessageValue<Data>
+    return await this.queueTaskFunctionOperation(async () => {
+      while (this.workerTaskFunctionBootstraps.size > 0) {
+        await this.waitForWorkerTaskFunctionBootstraps()
+      }
+      this.beginTaskFunctionOperation()
+      try {
+        const opResult = await this.sendTaskFunctionOperationToWorkers(message)
+        this.taskFunctions.set(name, message)
+        this.workerChoiceStrategiesContext?.syncWorkerChoiceStrategies(
+          this.getWorkerChoiceStrategies(),
+        )
+        for (const workerNodeKey of this.workerNodes.keys()) {
+          this.sendStatisticsMessageToWorker(workerNodeKey)
+        }
+        return opResult
+      } finally {
+        this.endTaskFunctionOperation()
+      }
     })
-    this.taskFunctions.set(name, fn)
-    this.workerChoiceStrategiesContext?.syncWorkerChoiceStrategies(
-      this.getWorkerChoiceStrategies(),
-    )
-    for (const workerNodeKey of this.workerNodes.keys()) {
-      this.sendStatisticsMessageToWorker(workerNodeKey)
-    }
-    return opResult
   }
 
   /** @inheritDoc */
   public async removeTaskFunction(name: string): Promise<boolean> {
-    if (!this.taskFunctions.has(name)) {
-      throw new Error(
-        'Cannot remove a task function not handled on the pool side',
-      )
-    }
-    const opResult = await this.sendTaskFunctionOperationToWorkers({
-      taskFunctionOperation: 'remove',
-      taskFunctionProperties: buildTaskFunctionProperties(
-        name,
-        this.taskFunctions.get(name),
-      ),
+    return await this.queueTaskFunctionOperation(async () => {
+      if (!this.taskFunctions.has(name)) {
+        throw new Error(
+          'Cannot remove a task function not handled on the pool side',
+        )
+      }
+      while (this.workerTaskFunctionBootstraps.size > 0) {
+        await this.waitForWorkerTaskFunctionBootstraps()
+      }
+      this.beginTaskFunctionOperation()
+      try {
+        const opResult = await this.sendTaskFunctionOperationToWorkers({
+          taskFunctionOperation: 'remove',
+          taskFunctionProperties: this.taskFunctions.get(name)
+            ?.taskFunctionProperties ?? { name },
+        })
+        for (const workerNode of this.workerNodes) {
+          workerNode.deleteTaskFunctionWorkerUsage(name)
+        }
+        this.taskFunctions.delete(name)
+        if (this.defaultTaskFunctionName === name) {
+          this.defaultTaskFunctionName = undefined
+        }
+        this.workerChoiceStrategiesContext?.syncWorkerChoiceStrategies(
+          this.getWorkerChoiceStrategies(),
+        )
+        for (const workerNodeKey of this.workerNodes.keys()) {
+          this.sendStatisticsMessageToWorker(workerNodeKey)
+        }
+        return opResult
+      } finally {
+        this.endTaskFunctionOperation()
+      }
     })
-    for (const workerNode of this.workerNodes) {
-      workerNode.deleteTaskFunctionWorkerUsage(name)
-    }
-    this.taskFunctions.delete(name)
-    this.workerChoiceStrategiesContext?.syncWorkerChoiceStrategies(
-      this.getWorkerChoiceStrategies(),
-    )
-    for (const workerNodeKey of this.workerNodes.keys()) {
-      this.sendStatisticsMessageToWorker(workerNodeKey)
-    }
-    return opResult
   }
 
   /** @inheritDoc */
   public listTaskFunctionsProperties(): TaskFunctionProperties[] {
-    for (const workerNode of this.workerNodes) {
-      if (
-        Array.isArray(workerNode.info.taskFunctionsProperties) &&
-        workerNode.info.taskFunctionsProperties.length > 0
-      ) {
-        return workerNode.info.taskFunctionsProperties
-      }
-    }
-    return []
+    return (
+      this.getTaskFunctionsPropertiesWorkerNode()?.info
+        .taskFunctionsProperties ?? []
+    )
   }
 
   private readonly getAbortError = (
     taskName: string,
-    taskId: `${string}-${string}-${string}-${string}-${string}`,
+    taskId: undefined | UUID,
+    abortSignal?: AbortSignal,
   ): Error => {
-    const abortError = this.promiseResponseMap.get(taskId)?.abortSignal
-      ?.reason as Error | string
+    const abortError = abortSignal?.reason as Error | string
     return abortError instanceof Error
       ? abortError
       : typeof abortError === 'string'
       ? new Error(abortError)
-      : new Error(`Task '${taskName}' id '${taskId}' aborted`)
+      : new Error(
+        `Task '${taskName}' id '${taskId ?? crypto.randomUUID()}' aborted`,
+      )
   }
 
   private getQueuedTasks(): number {
@@ -1063,24 +1324,51 @@ export abstract class AbstractPool<
     )?.strategy
   }
 
-  /**
-   * Gets task function worker node keys affinity set, if any.
-   * @param name - The task function name.
-   * @returns The task function worker node keys affinity set, or `undefined` if not defined.
-   */
-  private readonly getTaskFunctionWorkerNodeKeysSet = (
-    name?: string,
-  ): ReadonlySet<number> | undefined => {
-    name = name ?? DEFAULT_TASK_NAME
-    const taskFunctionsProperties = this.listTaskFunctionsProperties()
-    if (name === DEFAULT_TASK_NAME) {
-      name = taskFunctionsProperties[1]?.name
+  private getTaskFunctionsPropertiesWorkerNode():
+    | IWorkerNode<Worker, Data>
+    | undefined {
+    let fallback: IWorkerNode<Worker, Data> | undefined
+    for (const workerNode of this.workerNodes) {
+      const properties = workerNode.info.taskFunctionsProperties
+      if (Array.isArray(properties) && properties.length > 0) {
+        if (workerNode.info.ready) return workerNode
+        fallback ??= workerNode
+      }
     }
-    const workerNodeKeys = taskFunctionsProperties.find(
-      (taskFunctionProperties: TaskFunctionProperties) =>
-        taskFunctionProperties.name === name,
-    )?.workerNodeKeys
-    return workerNodeKeys != null ? new Set(workerNodeKeys) : undefined
+    return fallback
+  }
+
+  /**
+   * Gets task function worker node keys affinity array, if any.
+   * @param name - The task function name.
+   * @param taskFunctionsProperties - The task function properties used to resolve affinity.
+   * @returns The task function worker node keys affinity array, or `undefined` if not defined.
+   */
+  private readonly getTaskFunctionWorkerNodeKeys = (
+    name?: string,
+    taskFunctionsProperties?: readonly TaskFunctionProperties[],
+  ): readonly number[] | undefined => {
+    name = name ?? DEFAULT_TASK_NAME
+    const propertiesWorkerNode =
+      taskFunctionsProperties == null || name === DEFAULT_TASK_NAME
+        ? this.getTaskFunctionsPropertiesWorkerNode()
+        : undefined
+    taskFunctionsProperties ??=
+      propertiesWorkerNode?.info.taskFunctionsProperties ?? []
+    if (name === DEFAULT_TASK_NAME) {
+      name = propertiesWorkerNode?.info.ready === true
+        ? (taskFunctionsProperties[1]?.name ?? this.defaultTaskFunctionName)
+        : (this.defaultTaskFunctionName ?? taskFunctionsProperties[1]?.name)
+    }
+    // Keep the affinity lookup free of iterator allocation.
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let i = 0; i < taskFunctionsProperties.length; i++) {
+      const taskFunctionProperties = taskFunctionsProperties[i]
+      if (taskFunctionProperties.name === name) {
+        return taskFunctionProperties.workerNodeKeys
+      }
+    }
+    return this.taskFunctions.get(name)?.taskFunctionProperties.workerNodeKeys
   }
 
   /**
@@ -1113,30 +1401,43 @@ export abstract class AbstractPool<
    *
    * @returns The worker choice strategies.
    */
-  private readonly getWorkerChoiceStrategies = (): Set<
-    WorkerChoiceStrategy
-  > => {
+  private readonly getWorkerChoiceStrategies = (
+    taskFunctionsProperties: readonly TaskFunctionProperties[] = this
+      .listTaskFunctionsProperties(),
+  ): Set<WorkerChoiceStrategy> => {
     return new Set([
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.opts.workerChoiceStrategy!,
-      ...(this.listTaskFunctionsProperties()
+      ...taskFunctionsProperties
         .map(
           (taskFunctionProperties: TaskFunctionProperties) =>
             taskFunctionProperties.strategy,
         )
         .filter(
-          (strategy: WorkerChoiceStrategy | undefined) => strategy != null,
-        ) as WorkerChoiceStrategy[]),
+          (strategy: undefined | WorkerChoiceStrategy) => strategy != null,
+        ),
     ])
   }
 
   /** @inheritDoc */
   public async setDefaultTaskFunction(name: string): Promise<boolean> {
-    return await this.sendTaskFunctionOperationToWorkers({
-      taskFunctionOperation: 'default',
-      taskFunctionProperties: buildTaskFunctionProperties(
-        name,
-        this.taskFunctions.get(name),
-      ),
+    return await this.queueTaskFunctionOperation(async () => {
+      while (this.workerTaskFunctionBootstraps.size > 0) {
+        await this.waitForWorkerTaskFunctionBootstraps()
+      }
+      this.beginTaskFunctionOperation()
+      try {
+        const hadTargets = this.workerNodes.length > 0
+        const opResult = await this.sendTaskFunctionOperationToWorkers({
+          taskFunctionOperation: 'default',
+          taskFunctionProperties: this.taskFunctions.get(name)
+            ?.taskFunctionProperties ?? { name },
+        })
+        if (hadTargets) this.defaultTaskFunctionName = name
+        return opResult
+      } finally {
+        this.endTaskFunctionOperation()
+      }
     })
   }
 
@@ -1154,9 +1455,22 @@ export abstract class AbstractPool<
     abortSignal?: AbortSignal,
     transferList?: readonly Transferable[],
   ): Promise<Response> {
+    this.throwIfTaskAborted(name, abortSignal)
+    const timestamp = performance.now()
+    let chosenWorkerNodeKey = this.chooseWorkerNode(name)
+    while (chosenWorkerNodeKey == null) {
+      await this.waitForWorkerTaskFunctionBootstraps(abortSignal, name, 'first')
+      this.throwIfTaskAborted(name, abortSignal)
+      if (!this.started) {
+        throw new Error('Cannot execute a task on not started pool')
+      }
+      if (this.destroying) {
+        throw new Error('Cannot execute a task on destroying pool')
+      }
+      chosenWorkerNodeKey = this.chooseWorkerNode(name)
+    }
+    const workerNodeKey = chosenWorkerNodeKey
     return await new Promise<Response>((resolve, reject) => {
-      const timestamp = performance.now()
-      const workerNodeKey = this.chooseWorkerNode(name)
       const task: Task<Data> = {
         abortable: abortSignal != null,
         name: name ?? DEFAULT_TASK_NAME,
@@ -1170,26 +1484,35 @@ export abstract class AbstractPool<
         timestamp,
         taskId: crypto.randomUUID(),
       }
-      abortSignal?.addEventListener(
-        'abort',
-        () => {
-          this.workerNodes[workerNodeKey]?.dispatchEvent(
-            new CustomEvent<WorkerNodeEventDetail>('abortTask', {
-              detail: {
-                taskId: task.taskId,
-                workerId: this.getWorkerInfo(workerNodeKey)!.id!,
-              },
-            }),
-          )
-        },
-        { once: true },
-      )
-      this.promiseResponseMap.set(task.taskId!, {
+      const promiseResponse: PromiseResponseWrapper<Response> = {
         reject,
         resolve,
         workerNodeKey,
         abortSignal,
-      })
+        ...(transferList != null && transferList.length > 0 && {
+          originalData: task.data,
+        }),
+      }
+      this.promiseResponseMap.set(task.taskId!, promiseResponse)
+      abortSignal?.addEventListener(
+        'abort',
+        () => {
+          const workerNodeKey = this.promiseResponseMap.get(task.taskId!)
+            ?.workerNodeKey
+          if (workerNodeKey != null) {
+            const workerNode = this.workerNodes[workerNodeKey]
+            workerNode?.dispatchEvent(
+              new CustomEvent<WorkerNodeEventDetail>('abortTask', {
+                detail: {
+                  taskId: task.taskId,
+                  workerId: workerNode.info.id,
+                },
+              }),
+            )
+          }
+        },
+        { once: true },
+      )
       if (
         this.opts.enableTasksQueue === false ||
         (this.opts.enableTasksQueue === true &&
@@ -1227,6 +1550,9 @@ export abstract class AbstractPool<
     if (transferList != null && !Array.isArray(transferList)) {
       throw new TypeError('transferList argument must be an array')
     }
+    transferList = transferList != null && transferList.length > 0
+      ? Array.from(transferList)
+      : undefined
     return await this.internalExecute(data, name, abortSignal, transferList)
   }
 
@@ -1262,15 +1588,15 @@ export abstract class AbstractPool<
       if (typeof abortSignals[Symbol.iterator] !== 'function') {
         throw new TypeError('abortSignals argument must be an iterable')
       }
+      if (!Array.isArray(abortSignals)) {
+        abortSignals = [...abortSignals]
+      }
       for (const abortSignal of abortSignals) {
         if (!(abortSignal instanceof AbortSignal)) {
           throw new TypeError(
             'abortSignals argument must be an iterable of AbortSignal',
           )
         }
-      }
-      if (!Array.isArray(abortSignals)) {
-        abortSignals = [...abortSignals]
       }
       if ((data as Data[]).length !== (abortSignals as AbortSignal[]).length) {
         throw new Error(
@@ -1281,6 +1607,9 @@ export abstract class AbstractPool<
     if (transferList != null && !Array.isArray(transferList)) {
       throw new TypeError('transferList argument must be an array')
     }
+    transferList = transferList != null && transferList.length > 0
+      ? Array.from(transferList)
+      : undefined
     const tasks: [Data, AbortSignal | undefined][] = Array.from(
       { length: (data as Data[]).length },
       (_, i) => [
@@ -1306,18 +1635,21 @@ export abstract class AbstractPool<
       return
     }
     this.startingMinimumNumberOfWorkers = true
-    while (
-      this.workerNodes.reduce(
-        (accumulator, workerNode) =>
-          !workerNode.info.dynamic ? accumulator + 1 : accumulator,
-        0,
-      ) < this.minimumNumberOfWorkers
-    ) {
-      const workerNodeKey = this.createAndSetupWorkerNode()
-      initWorkerNodeUsage &&
-        this.initWorkerNodeUsage(this.workerNodes[workerNodeKey])
+    try {
+      while (
+        this.workerNodes.reduce(
+          (accumulator, workerNode) =>
+            !workerNode.info.dynamic ? accumulator + 1 : accumulator,
+          0,
+        ) < this.minimumNumberOfWorkers
+      ) {
+        const workerNodeKey = this.createAndSetupWorkerNode()
+        initWorkerNodeUsage &&
+          this.initWorkerNodeUsage(this.workerNodes[workerNodeKey])
+      }
+    } finally {
+      this.startingMinimumNumberOfWorkers = false
     }
-    this.startingMinimumNumberOfWorkers = false
   }
 
   /** @inheritdoc */
@@ -1332,9 +1664,12 @@ export abstract class AbstractPool<
       throw new Error('Cannot start a destroying pool')
     }
     this.starting = true
-    this.startMinimumNumberOfWorkers()
-    this.startTimestamp = performance.now()
-    this.starting = false
+    try {
+      this.startMinimumNumberOfWorkers()
+      this.startTimestamp = performance.now()
+    } finally {
+      this.starting = false
+    }
     this.started = true
   }
 
@@ -1350,6 +1685,7 @@ export abstract class AbstractPool<
       throw new Error('Cannot destroy an already destroying pool')
     }
     this.destroying = true
+    this.unsetTaskStealing()
     try {
       await Promise.allSettled(
         this.workerNodes.map(async (_, workerNodeKey) => {
@@ -1379,6 +1715,8 @@ export abstract class AbstractPool<
     workerNodeKey: number,
     timeout = 1000,
   ): Promise<void> {
+    const workerNode = this.workerNodes[workerNodeKey]
+    const workerId = this.getWorkerInfo(workerNodeKey)?.id
     let timeoutHandle: ReturnType<typeof setTimeout> | undefined
     let killMessageListener:
       | ((message: MessageValue<Response>) => void)
@@ -1391,11 +1729,7 @@ export abstract class AbstractPool<
           }, timeout)
           : undefined
         killMessageListener = (message: MessageValue<Response>): void => {
-          if (
-            this.workerNodes.length === 0 ||
-            this.workerNodes[workerNodeKey] == null
-          ) {
-            resolve()
+          if (message.workerId !== workerId) {
             return
           }
           if (message.kill === 'success') {
@@ -1415,8 +1749,11 @@ export abstract class AbstractPool<
       if (timeoutHandle != null) {
         clearTimeout(timeoutHandle)
       }
-      if (killMessageListener != null) {
-        this.deregisterWorkerMessageListener(workerNodeKey, killMessageListener)
+      if (killMessageListener != null && workerNode != null) {
+        this.createWorkerMessageListenerCleanup(
+          workerNode,
+          killMessageListener,
+        )()
       }
     }
   }
@@ -1427,9 +1764,10 @@ export abstract class AbstractPool<
    * @param workerNodeKey - The worker node key.
    */
   protected async destroyWorkerNode(workerNodeKey: number): Promise<void> {
+    const workerNode = this.workerNodes[workerNodeKey]
+    this.terminatingWorkerNodes.add(workerNode)
     this.flagWorkerNodeAsNotReady(workerNodeKey)
     const flushedTasks = this.flushTasksQueue(workerNodeKey)
-    const workerNode = this.workerNodes[workerNodeKey]
     await waitWorkerNodeEvents(
       workerNode,
       'taskFinished',
@@ -1440,8 +1778,14 @@ export abstract class AbstractPool<
         ).tasksFinishedTimeout,
       false,
     )
-    await this.sendKillMessageToWorker(workerNodeKey)
-    workerNode.terminate()
+    try {
+      const currentWorkerNodeKey = this.workerNodes.indexOf(workerNode)
+      if (currentWorkerNodeKey !== -1) {
+        await this.sendKillMessageToWorker(currentWorkerNodeKey)
+      }
+    } finally {
+      workerNode.terminate()
+    }
   }
 
   /**
@@ -1482,7 +1826,9 @@ export abstract class AbstractPool<
       )
     }
     if (
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(task.name!) !=
         null
     ) {
@@ -1499,10 +1845,10 @@ export abstract class AbstractPool<
   }
 
   /**
-   * Hook executed after the worker task execution.
+   * Hook executed after task execution for a live worker node.
    * Can be overridden.
    *
-   * @param workerNodeKey - The worker node key.
+   * @param workerNodeKey - The live worker node key.
    * @param message - The received message.
    */
   protected afterTaskExecutionHook(
@@ -1526,7 +1872,9 @@ export abstract class AbstractPool<
       needWorkerChoiceStrategiesUpdate = true
     }
     if (
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       message.taskPerformance?.name != null &&
       this.workerNodes[workerNodeKey].getTaskFunctionWorkerUsage(
           message.taskPerformance.name,
@@ -1556,11 +1904,12 @@ export abstract class AbstractPool<
   /**
    * Whether the worker node shall update its task function worker usage or not.
    *
-   * @param workerNodeKey - The worker node key.
+   * @param workerInfo - The worker information.
    * @returns `true` if the worker node shall update its task function worker usage, `false` otherwise.
    */
-  private shallUpdateTaskFunctionWorkerUsage(workerNodeKey: number): boolean {
-    const workerInfo = this.getWorkerInfo(workerNodeKey)
+  private shallUpdateTaskFunctionWorkerUsage(
+    workerInfo: WorkerInfo | undefined,
+  ): boolean {
     return (
       workerInfo != null &&
       Array.isArray(workerInfo.taskFunctionsProperties) &&
@@ -1574,12 +1923,12 @@ export abstract class AbstractPool<
    * @param name - The task function name.
    * @returns The chosen worker node key.
    */
-  private chooseWorkerNode(name?: string): number {
-    const workerNodeKeysSet = this.getTaskFunctionWorkerNodeKeysSet(name)
-    if (workerNodeKeysSet != null) {
+  private chooseWorkerNode(name?: string): number | undefined {
+    const workerNodeKeys = this.getTaskFunctionWorkerNodeKeys(name)
+    if (workerNodeKeys != null) {
       const maxPoolSize = this.maximumNumberOfWorkers ??
         this.minimumNumberOfWorkers
-      const targetSize = max(...workerNodeKeysSet) + 1
+      const targetSize = max(...workerNodeKeys) + 1
       while (
         this.started &&
         !this.destroying &&
@@ -1592,14 +1941,37 @@ export abstract class AbstractPool<
       const workerNodeKey = this.createAndSetupDynamicWorkerNode()
       if (
         this.workerChoiceStrategiesContext?.getPolicy().dynamicWorkerUsage ===
-          true
+          true &&
+        !this.workerTaskFunctionBootstraps.has(this.workerNodes[workerNodeKey])
       ) {
         return workerNodeKey
       }
     }
+    const eligibleWorkerNodeKeys = workerNodeKeys != null
+      ? new Set(workerNodeKeys)
+      : undefined
+    if (this.workerTaskFunctionBootstraps.size > 0) {
+      let readyWorkerFound = false
+      for (
+        let workerNodeKey = 0;
+        workerNodeKey < this.workerNodes.length;
+        ++workerNodeKey
+      ) {
+        if (
+          this.workerNodes[workerNodeKey].info.ready &&
+          (eligibleWorkerNodeKeys == null ||
+            eligibleWorkerNodeKeys.has(workerNodeKey))
+        ) {
+          readyWorkerFound = true
+          break
+        }
+      }
+      if (!readyWorkerFound) return
+    }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.workerChoiceStrategiesContext!.execute(
       this.getTaskFunctionWorkerChoiceStrategy(name),
-      workerNodeKeysSet,
+      eligibleWorkerNodeKeys,
     )
   }
 
@@ -1664,6 +2036,8 @@ export abstract class AbstractPool<
    */
   protected createAndSetupWorkerNode(): number {
     const workerNode = this.createWorkerNode()
+    let workerError: Error | undefined
+    let taskResponses: MessageValue<Response>[] | undefined
     workerNode.worker.onmessage = this.opts.messageEventHandler ??
       EMPTY_FUNCTION
     workerNode.worker.onmessageerror = (messageEvent) => {
@@ -1672,23 +2046,36 @@ export abstract class AbstractPool<
       )
     }
     workerNode.worker.onerror = (errorEvent) => {
-      workerNode.info.ready = false
-      this.eventTarget?.dispatchEvent(
-        new ErrorEvent(PoolEvents.error, errorEvent),
+      const rawWorkerError: unknown = errorEvent.error
+      workerError = rawWorkerError instanceof Error
+        ? rawWorkerError
+        : new Error(
+          typeof rawWorkerError === 'string'
+            ? rawWorkerError
+            : errorEvent.message || 'Worker failed with a non-Error value',
+          { cause: rawWorkerError },
+        )
+      taskResponses = this.captureTaskResponses(
+        workerNode,
+        receiveMessageOnPort != null ? taskResponses ??= [] : taskResponses,
       )
-      if (this.started && !this.destroying) {
-        if (this.opts.restartWorkerOnError === true) {
-          if (workerNode.info.dynamic) {
-            this.createAndSetupDynamicWorkerNode()
-          } else if (!this.startingMinimumNumberOfWorkers) {
-            this.startMinimumNumberOfWorkers(true)
+      workerNode.info.ready = false
+      try {
+        this.eventTarget?.dispatchEvent(
+          new ErrorEvent(PoolEvents.error, { error: workerError }),
+        )
+        if (this.started && !this.destroying) {
+          if (this.opts.restartWorkerOnError === true) {
+            if (workerNode.info.dynamic) {
+              this.createAndSetupDynamicWorkerNode()
+            } else if (!this.startingMinimumNumberOfWorkers) {
+              this.startMinimumNumberOfWorkers(true)
+            }
           }
         }
-        if (this.opts.enableTasksQueue === true) {
-          this.redistributeQueuedTasks(this.workerNodes.indexOf(workerNode))
-        }
+      } finally {
+        workerNode.terminate()
       }
-      workerNode?.terminate()
     }
     workerNode.worker.addEventListener(
       'messageerror',
@@ -1701,18 +2088,93 @@ export abstract class AbstractPool<
     workerNode.addEventListener(
       'exit',
       () => {
-        this.removeWorkerNode(workerNode)
-        if (
-          this.started &&
-          !this.startingMinimumNumberOfWorkers &&
-          !this.destroying
-        ) {
-          this.startMinimumNumberOfWorkers(true)
+        const taskDequeuingEventsDeferred = this.taskDequeuingEventsDeferred
+        try {
+          const settlingTasks = workerError != null ||
+            !this.terminatingWorkerNodes.has(workerNode)
+          workerNode.info.ready = false
+          const lifecycleCleanups = this.workerLifecycleMessageListenerCleanups
+            .get(workerNode)
+          if (lifecycleCleanups != null) {
+            this.workerLifecycleMessageListenerCleanups.delete(workerNode)
+            for (const cleanup of lifecycleCleanups) cleanup()
+          }
+          // Native Web exit dispatch is synchronous and closes the port afterwards.
+          // Preserve dedicated cleanup ACKs even during intentional retirement.
+          taskResponses = this.captureTaskResponses(
+            workerNode,
+            receiveMessageOnPort != null ? taskResponses ??= [] : taskResponses,
+          )
+          const operationExitListeners = this
+            .workerTaskFunctionOperationExitListeners.get(workerNode)
+          if (operationExitListeners != null) {
+            this.workerTaskFunctionOperationExitListeners.delete(workerNode)
+            // Settle in dispatch order before removal or fallible replacement setup.
+            for (const listener of operationExitListeners) listener()
+          }
+          let workerNodeTasks:
+            | Map<UUID, PromiseResponseWrapper<Response>>
+            | undefined
+          if (settlingTasks) {
+            const workerNodeKey = this.workerNodes.indexOf(workerNode)
+            for (const [taskId, promiseResponse] of this.promiseResponseMap) {
+              if (promiseResponse.workerNodeKey === workerNodeKey) {
+                ;(workerNodeTasks ??= new Map()).set(taskId, promiseResponse)
+              }
+            }
+            this.taskDequeuingEventsDeferred = true
+          }
+          this.removeWorkerNode(workerNode)
+          try {
+            if (
+              this.started &&
+              !this.startingMinimumNumberOfWorkers &&
+              !this.destroying
+            ) {
+              this.startMinimumNumberOfWorkers(true)
+            }
+          } finally {
+            try {
+              if (settlingTasks) {
+                this.redistributeQueuedTasks(workerNode)
+              }
+            } finally {
+              if (settlingTasks) {
+                workerNode.clearTasksQueue()
+                this.taskDequeuingEventsDeferred = taskDequeuingEventsDeferred
+                this.checkAndEmitTaskDequeuingEvents()
+              }
+              if (settlingTasks && taskResponses != null) {
+                for (const message of taskResponses) {
+                  this.handleTaskExecutionResponse(message)
+                }
+              }
+              if (workerNodeTasks != null) {
+                this.rejectWorkerNodeTasks(workerNodeTasks, workerError)
+              }
+              this.checkAndEmitTaskExecutionFinishedEvents()
+            }
+          }
+        } finally {
+          this.taskDequeuingEventsDeferred = taskDequeuingEventsDeferred
         }
       },
       { once: true },
     )
     const workerNodeKey = this.addWorkerNode(workerNode)
+    if (
+      this.pendingTaskFunctionOperations > 0 ||
+      this.taskFunctions.size > 0 ||
+      this.defaultTaskFunctionName != null
+    ) {
+      this.startWorkerTaskFunctionBootstrap(workerNode).catch(
+        (error: unknown) => {
+          this.eventTarget?.dispatchEvent(
+            new ErrorEvent(PoolEvents.error, { error }),
+          )
+        },
+      )
+    }
     this.afterWorkerNodeSetup(workerNodeKey)
     return workerNodeKey
   }
@@ -1724,8 +2186,13 @@ export abstract class AbstractPool<
    */
   protected createAndSetupDynamicWorkerNode(): number {
     const workerNodeKey = this.createAndSetupWorkerNode()
-    this.registerWorkerMessageListener(workerNodeKey, (message) => {
-      if (this.destroying) {
+    this.registerWorkerLifecycleMessageListener(workerNodeKey, (message) => {
+      if (
+        this.destroying ||
+        message.kill === 'success' ||
+        message.kill === 'failure' ||
+        message.taskFunctionOperationStatus != null
+      ) {
         return
       }
       this.checkMessageWorkerId(message)
@@ -1749,27 +2216,12 @@ export abstract class AbstractPool<
     this.sendToWorker(workerNodeKey, {
       checkActive: true,
     })
-    if (this.taskFunctions.size > 0) {
-      for (const [taskFunctionName, taskFunctionObject] of this.taskFunctions) {
-        this.sendTaskFunctionOperationToWorker(workerNodeKey, {
-          taskFunctionOperation: 'add',
-          taskFunctionProperties: buildTaskFunctionProperties(
-            taskFunctionName,
-            taskFunctionObject,
-          ),
-          taskFunction: taskFunctionObject.taskFunction.toString(),
-        }).catch((error) => {
-          this.eventTarget?.dispatchEvent(
-            new ErrorEvent(PoolEvents.error, { error }),
-          )
-        })
-      }
-    }
     const workerNode = this.workerNodes[workerNodeKey]
     workerNode.info.dynamic = true
     if (
       this.workerChoiceStrategiesContext?.getPolicy().dynamicWorkerReady ===
-        true
+        true &&
+      !this.workerTaskFunctionBootstraps.has(workerNode)
     ) {
       workerNode.info.ready = true
     }
@@ -1805,7 +2257,7 @@ export abstract class AbstractPool<
   ): void
 
   /**
-   * Deregisters a listener callback on the worker given its worker node key.
+   * Deregisters a listener callback on a worker node.
    *
    * @param workerNodeKey - The worker node key.
    * @param listener - The message listener callback.
@@ -1818,6 +2270,24 @@ export abstract class AbstractPool<
   ): void
 
   /**
+   * Deregisters a listener using its original worker node.
+   *
+   * @param workerNode - The original worker node.
+   * @param listener - The message listener callback.
+   */
+  protected deregisterWorkerNodeMessageListener<
+    Message extends Data | Response,
+  >(
+    workerNode: IWorkerNode<Worker, Data>,
+    listener: (message: MessageValue<Message>) => void,
+  ): void {
+    const workerNodeKey = this.workerNodes.indexOf(workerNode)
+    if (workerNodeKey >= 0) {
+      this.deregisterWorkerMessageListener(workerNodeKey, listener)
+    }
+  }
+
+  /**
    * Method hooked up after a worker node has been newly created.
    * Can be overridden.
    *
@@ -1825,7 +2295,7 @@ export abstract class AbstractPool<
    */
   protected afterWorkerNodeSetup(workerNodeKey: number): void {
     // Listen to worker messages.
-    this.registerWorkerMessageListener(
+    this.registerWorkerLifecycleMessageListener(
       workerNodeKey,
       this.workerMessageListener,
     )
@@ -1837,7 +2307,7 @@ export abstract class AbstractPool<
       if (this.opts.tasksQueueOptions?.taskStealing === true) {
         this.workerNodes[workerNodeKey].addEventListener(
           'idle',
-          this.handleWorkerNodeIdleEvent as EventListener,
+          this.workerNodeIdleEventListener as EventListener,
         )
       }
       if (this.opts.tasksQueueOptions?.tasksStealingOnBackPressure === true) {
@@ -1885,6 +2355,17 @@ export abstract class AbstractPool<
     )
   }
 
+  private canStartTaskStealing(workerNodeKey: number): boolean {
+    const workerNode = this.workerNodes[workerNodeKey]
+    return (
+      this.isWorkerNodeIdle(workerNodeKey) &&
+      !workerNode.info.continuousStealing &&
+      !this.workerTaskFunctionBootstraps.has(workerNode) &&
+      !this.failedWorkerTaskFunctionBootstraps.has(workerNode) &&
+      !this.terminatingWorkerNodes.has(workerNode)
+    )
+  }
+
   private handleTask(workerNodeKey: number, task: Task<Data>): void {
     if (this.shallExecuteTask(workerNodeKey)) {
       this.executeTask(workerNodeKey, task)
@@ -1893,33 +2374,123 @@ export abstract class AbstractPool<
     }
   }
 
-  private redistributeQueuedTasks(sourceWorkerNodeKey: number): void {
-    if (sourceWorkerNodeKey === -1 || this.cannotStealTask()) {
+  private redistributeQueuedTasks(
+    sourceWorkerNode: IWorkerNode<Worker, Data>,
+  ): void {
+    while (sourceWorkerNode.tasksQueue.size > 0) {
+      const task = sourceWorkerNode.dequeueTask()!
+      const { taskId } = task
+      if (taskId == null) {
+        continue
+      }
+      const promiseResponse = this.promiseResponseMap.get(taskId)
+      if (promiseResponse == null) {
+        continue
+      }
+      if (promiseResponse.abortSignal?.aborted === true) {
+        this.rejectTask(
+          taskId,
+          promiseResponse,
+          this.getAbortError(
+            task.name ?? DEFAULT_TASK_NAME,
+            taskId,
+            promiseResponse.abortSignal,
+          ),
+        )
+        continue
+      }
+      if (!this.started || this.destroying) {
+        continue
+      }
+      const liveTaskFunctionsProperties = this.listTaskFunctionsProperties()
+      const workerNodeKeys = this.getTaskFunctionWorkerNodeKeys(
+        task.name,
+        liveTaskFunctionsProperties.length > 0
+          ? liveTaskFunctionsProperties
+          : (sourceWorkerNode.info.taskFunctionsProperties ??
+            liveTaskFunctionsProperties),
+      )
+      const candidateCount = workerNodeKeys?.length ?? this.workerNodes.length
+      let destinationWorkerNodeKey = -1
+      let minimumQueuedTasks = Number.POSITIVE_INFINITY
+      for (let i = 0; i < candidateCount; i++) {
+        const candidateWorkerNodeKey = workerNodeKeys == null
+          ? i
+          : workerNodeKeys[i]
+        if (candidateWorkerNodeKey >= this.workerNodes.length) {
+          continue
+        }
+        const candidateWorkerNode = this.workerNodes[candidateWorkerNodeKey]
+        if (!candidateWorkerNode.info.ready) {
+          continue
+        }
+        const queuedTasks = candidateWorkerNode.usage.tasks.queued
+        if (
+          queuedTasks < minimumQueuedTasks ||
+          (queuedTasks === minimumQueuedTasks &&
+            candidateWorkerNodeKey < destinationWorkerNodeKey)
+        ) {
+          destinationWorkerNodeKey = candidateWorkerNodeKey
+          minimumQueuedTasks = queuedTasks
+        }
+      }
+      if (destinationWorkerNodeKey === -1) {
+        continue
+      }
+      if (this.opts.enableTasksQueue === true) {
+        this.handleTask(destinationWorkerNodeKey, task)
+      } else {
+        this.executeTask(destinationWorkerNodeKey, task)
+      }
+    }
+  }
+
+  private rejectTask(
+    taskId: UUID,
+    promiseResponse: PromiseResponseWrapper<Response>,
+    error: unknown,
+  ): void {
+    if (this.promiseResponseMap.get(taskId) !== promiseResponse) {
       return
     }
-    while (this.tasksQueueSize(sourceWorkerNodeKey) > 0) {
-      const destinationWorkerNodeKey = this.workerNodes.reduce(
-        (minWorkerNodeKey, workerNode, workerNodeKey, workerNodes) => {
-          if (workerNodeKey === sourceWorkerNodeKey || !workerNode.info.ready) {
-            return minWorkerNodeKey
-          }
-          if (minWorkerNodeKey === -1) {
-            return workerNodeKey
-          }
-          return workerNode.usage.tasks.queued <
-              workerNodes[minWorkerNodeKey].usage.tasks.queued
-            ? workerNodeKey
-            : minWorkerNodeKey
-        },
-        -1,
-      )
-      if (destinationWorkerNodeKey === -1) {
-        break
+    this.promiseResponseMap.delete(taskId)
+    promiseResponse.reject(error)
+  }
+
+  /**
+   * Rejects tasks still owned by a worker that cannot complete them.
+   * @param workerNodeTasks - The task wrappers owned by the failed worker node.
+   * @param error - The worker failure.
+   */
+  private rejectWorkerNodeTasks(
+    workerNodeTasks: Map<UUID, PromiseResponseWrapper<Response>>,
+    error?: Error,
+  ): void {
+    for (const [taskId, promiseResponse] of workerNodeTasks) {
+      if (
+        this.promiseResponseMap.get(taskId) === promiseResponse &&
+        promiseResponse.workerNodeKey === -1
+      ) {
+        error ??= new Error('Worker exited before completing the task')
+        this.rejectTask(taskId, promiseResponse, error)
       }
-      this.handleTask(
-        destinationWorkerNodeKey,
-        this.dequeueTask(sourceWorkerNodeKey)!,
-      )
+    }
+  }
+
+  /**
+   * Updates task ownership before dispatch or synchronous queue events.
+   * @param workerNodeKey - The destination worker node key.
+   * @param task - The task being moved.
+   */
+  private updateTaskWorkerNodeKey(
+    workerNodeKey: number,
+    task: Task<Data>,
+  ): void {
+    if (task.taskId != null) {
+      const promiseResponse = this.promiseResponseMap.get(task.taskId)
+      if (promiseResponse != null) {
+        promiseResponse.workerNodeKey = workerNodeKey
+      }
     }
   }
 
@@ -1932,7 +2503,9 @@ export abstract class AbstractPool<
       ++workerNode.usage.tasks.stolen
     }
     if (
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
       ++workerNode.getTaskFunctionWorkerUsage(taskName)!.tasks.stolen
@@ -1950,7 +2523,9 @@ export abstract class AbstractPool<
     }
     if (
       taskName != null &&
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
       const taskFunctionWorkerUsage = workerNode.getTaskFunctionWorkerUsage(
@@ -1979,7 +2554,9 @@ export abstract class AbstractPool<
     }
     if (
       taskName != null &&
-      this.shallUpdateTaskFunctionWorkerUsage(workerNodeKey) &&
+      this.shallUpdateTaskFunctionWorkerUsage(
+        this.getWorkerInfo(workerNodeKey),
+      ) &&
       workerNode.getTaskFunctionWorkerUsage(taskName) != null
     ) {
       workerNode.getTaskFunctionWorkerUsage(
@@ -2038,11 +2615,28 @@ export abstract class AbstractPool<
     )
   }
 
-  private readonly handleWorkerNodeIdleEvent = (
+  private clearTaskStealingRetry(
+    workerNode: IWorkerNode<Worker, Data>,
+  ): string | undefined {
+    const retry = this.taskStealingRetries?.get(workerNode)
+    if (retry != null) {
+      clearTimeout(retry.timeout)
+      this.taskStealingRetries?.delete(workerNode)
+    }
+    return retry?.taskName
+  }
+
+  private readonly workerNodeIdleEventListener = (
     event: CustomEvent<WorkerNodeEventDetail>,
-    previousStolenTask?: Task<Data>,
   ): void => {
-    const { workerNodeKey } = event.detail
+    this.handleWorkerNodeIdleEvent(event.detail)
+  }
+
+  private readonly handleWorkerNodeIdleEvent = (
+    eventDetail: WorkerNodeEventDetail,
+    previousTaskName?: string,
+  ): void => {
+    const { workerNodeKey } = eventDetail
     if (workerNodeKey == null) {
       throw new Error(
         "WorkerNode event detail 'workerNodeKey' property must be defined",
@@ -2052,24 +2646,29 @@ export abstract class AbstractPool<
     if (workerNode == null) {
       return
     }
-    if (
-      !workerNode.info.continuousStealing &&
-      (this.cannotStealTask() || this.isStealingRatioReached())
-    ) {
-      return
-    }
+    previousTaskName = this.clearTaskStealingRetry(workerNode) ??
+      previousTaskName
     const workerNodeTasksUsage = workerNode.usage.tasks
     if (
-      workerNode.info.continuousStealing &&
-      !this.isWorkerNodeIdle(workerNodeKey)
+      this.opts.enableTasksQueue !== true ||
+      this.opts.tasksQueueOptions?.taskStealing !== true ||
+      this.opts.tasksQueueOptions.tasksStealingRatio === 0 ||
+      this.cannotStealTask() ||
+      !this.isWorkerNodeIdle(workerNodeKey) ||
+      this.workerTaskFunctionBootstraps.has(workerNode) ||
+      this.failedWorkerTaskFunctionBootstraps.has(workerNode) ||
+      this.terminatingWorkerNodes.has(workerNode)
     ) {
       workerNode.info.continuousStealing = false
       if (workerNodeTasksUsage.sequentiallyStolen > 0) {
         this.resetTaskSequentiallyStolenStatisticsWorkerUsage(
           workerNodeKey,
-          previousStolenTask?.name,
+          previousTaskName,
         )
       }
+      return
+    }
+    if (!workerNode.info.continuousStealing && this.isStealingRatioReached()) {
       return
     }
     workerNode.info.continuousStealing = true
@@ -2077,17 +2676,35 @@ export abstract class AbstractPool<
     this.updateTaskSequentiallyStolenStatisticsWorkerUsage(
       workerNodeKey,
       stolenTask?.name,
-      previousStolenTask?.name,
+      previousTaskName,
     )
-    sleep(exponentialDelay(workerNodeTasksUsage.sequentiallyStolen))
-      .then(() => {
-        this.handleWorkerNodeIdleEvent(event, stolenTask)
-      })
-      .catch((error) => {
+    const stolenTaskName = stolenTask?.name
+    const timeout = setTimeout(() => {
+      if (this.taskStealingRetries?.get(workerNode)?.timeout !== timeout) {
+        return
+      }
+      this.taskStealingRetries.delete(workerNode)
+      try {
+        // Worker nodes can be removed during the delay, shifting the keys.
+        const currentWorkerNodeKey = this.workerNodes.indexOf(workerNode)
+        if (currentWorkerNodeKey !== -1) {
+          this.handleWorkerNodeIdleEvent(
+            { workerNodeKey: currentWorkerNodeKey },
+            stolenTaskName,
+          )
+        }
+      } catch (error) {
         this.eventTarget?.dispatchEvent(
           new ErrorEvent(PoolEvents.error, { error }),
         )
-      })
+      }
+    }, exponentialDelay())
+    unrefTimer(timeout)
+    this.taskStealingRetries ??= new Map()
+    this.taskStealingRetries.set(workerNode, {
+      taskName: stolenTaskName,
+      timeout,
+    })
   }
 
   private readonly workerNodeStealTask = (
@@ -2157,7 +2774,9 @@ export abstract class AbstractPool<
 
   private setTasksQueuePriority(workerNodeKey: number): void {
     this.workerNodes[workerNodeKey].setTasksQueuePriority(
-      this.getTasksQueuePriority(),
+      this.getTasksQueuePriority(
+        this.workerNodes[workerNodeKey].info.taskFunctionsProperties,
+      ),
     )
   }
 
@@ -2175,8 +2794,8 @@ export abstract class AbstractPool<
     if (this.destroying && workerReadyMessage) {
       return
     }
-    // Kill messages responses are handled in dedicated listeners
-    if (kill != null) {
+    // Kill and task-function operation responses have dedicated listeners.
+    if (kill != null || message.taskFunctionOperationStatus != null) {
       return
     }
     this.checkMessageWorkerId(message)
@@ -2208,8 +2827,9 @@ export abstract class AbstractPool<
   }
 
   private handleWorkerReadyResponse(message: MessageValue<Response>): void {
-    const { workerId, ready, taskFunctionsProperties } = message
+    const { ready, taskFunctionsProperties, workerId } = message
     if (ready == null || !ready) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       throw new Error(`Worker ${workerId?.toString()} failed to initialize`)
     }
     const maxPoolSize = this.maximumNumberOfWorkers ??
@@ -2222,51 +2842,98 @@ export abstract class AbstractPool<
     }
     const workerNodeKey = this.getWorkerNodeKeyByWorkerId(workerId)
     const workerNode = this.workerNodes[workerNodeKey]
-    workerNode.info.ready = ready
+    const bootstrap = this.workerTaskFunctionBootstraps.get(workerNode)
+    const failedBootstrap = this.failedWorkerTaskFunctionBootstraps.has(
+      workerNode,
+    )
+    if (bootstrap != null) bootstrap.ready = ready
+    else if (failedBootstrap) {
+      this.failedWorkerTaskFunctionBootstraps.set(workerNode, ready)
+    }
+    workerNode.info.ready = bootstrap == null && !failedBootstrap
     workerNode.info.taskFunctionsProperties = taskFunctionsProperties
     this.sendStatisticsMessageToWorker(workerNodeKey)
     this.setTasksQueuePriority(workerNodeKey)
     this.checkAndEmitReadyEvent()
+    this.scheduleTaskStealing()
   }
 
   private handleTaskExecutionResponse(message: MessageValue<Response>): void {
-    const { name, taskId, workerError, data } = message
+    const { name, taskId, data } = message
+    let { workerError } = message
     const promiseResponse = this.promiseResponseMap.get(taskId!)
     if (promiseResponse != null) {
       const { resolve, reject, workerNodeKey } = promiseResponse
+      if (
+        workerError != null && Object.hasOwn(promiseResponse, 'originalData')
+      ) {
+        workerError = { ...workerError, data: promiseResponse.originalData }
+      }
       const workerNode = this.workerNodes[workerNodeKey]
+      let error: Error | undefined
+      if (workerError != null) {
+        error = workerError.aborted
+          ? this.getAbortError(
+            workerError.name ?? name ?? DEFAULT_TASK_NAME,
+            taskId!,
+            promiseResponse.abortSignal,
+          )
+          : workerError.error
+      }
+      this.promiseResponseMap.delete(taskId!)
       if (workerError != null) {
         this.eventTarget?.dispatchEvent(
           new ErrorEvent(PoolEvents.taskError, { error: workerError }),
         )
-        const { aborted, error } = workerError
-        let wError: Error = error
-        if (aborted) {
-          wError = this.getAbortError(name!, taskId!)
-        }
-        reject(wError)
+        reject(error)
       } else {
         resolve(data!)
       }
-      this.afterTaskExecutionHook(workerNodeKey, message)
+      if (workerNode != null) {
+        this.afterTaskExecutionHook(workerNodeKey, message)
+      }
       queueMicrotask(() => {
+        let currentWorkerNodeKey =
+          this.workerNodes[workerNodeKey] === workerNode
+            ? workerNodeKey
+            : this.workerNodes.indexOf(workerNode)
         workerNode?.dispatchEvent(new Event('taskFinished'))
-        this.promiseResponseMap.delete(taskId!)
         this.checkAndEmitTaskExecutionFinishedEvents()
-        if (this.opts.enableTasksQueue === true && !this.destroying) {
-          if (
-            !this.isWorkerNodeBusy(workerNodeKey) &&
-            this.tasksQueueSize(workerNodeKey) > 0
+        if (currentWorkerNodeKey === -1 || !workerNode.info.ready) {
+          return
+        }
+        if (
+          this.started &&
+          this.opts.enableTasksQueue === true &&
+          !this.destroying
+        ) {
+          while (
+            !this.isWorkerNodeBusy(currentWorkerNodeKey) &&
+            this.tasksQueueSize(currentWorkerNodeKey) > 0
           ) {
-            this.executeTask(
-              workerNodeKey,
-              this.dequeueTask(workerNodeKey) as Task<Data>,
-            )
+            if (
+              this.executeTask(
+                currentWorkerNodeKey,
+                this.dequeueTask(currentWorkerNodeKey)!,
+              )
+            ) {
+              break
+            }
+            currentWorkerNodeKey = this.workerNodes.indexOf(workerNode)
+            if (
+              currentWorkerNodeKey === -1 ||
+              !this.started ||
+              this.destroying ||
+              !workerNode.info.ready ||
+              !this.opts.enableTasksQueue
+            ) {
+              return
+            }
           }
-          if (this.isWorkerNodeIdle(workerNodeKey)) {
+          if (this.isWorkerNodeIdle(currentWorkerNodeKey)) {
             workerNode.dispatchEvent(
               new CustomEvent<WorkerNodeEventDetail>('idle', {
-                detail: { workerNodeKey },
+                detail: { workerNodeKey: currentWorkerNodeKey },
               }),
             )
           }
@@ -2315,6 +2982,7 @@ export abstract class AbstractPool<
     if (
       this.eventTarget != null &&
       this.backPressureEventEmitted &&
+      !this.taskDequeuingEventsDeferred &&
       !this.backPressure
     ) {
       this.eventTarget.dispatchEvent(
@@ -2346,8 +3014,11 @@ export abstract class AbstractPool<
     return this.workerNodes[workerNodeKey]?.info
   }
 
-  private getTasksQueuePriority(): boolean {
-    return this.listTaskFunctionsProperties().some(
+  private getTasksQueuePriority(
+    taskFunctionsProperties: readonly TaskFunctionProperties[] = this
+      .listTaskFunctionsProperties(),
+  ): boolean {
+    return taskFunctionsProperties.some(
       (taskFunctionProperties) => taskFunctionProperties.priority != null,
     )
   }
@@ -2362,7 +3033,9 @@ export abstract class AbstractPool<
       this.worker,
       this.specifier,
       {
-        workerOptions: this.opts.workerOptions,
+        workerOptions: Object.hasOwn(this.opts, 'workerOptions')
+          ? this.opts.workerOptions
+          : undefined,
         tasksQueueBackPressureSize: this.opts.tasksQueueOptions?.size ??
           getDefaultTasksQueueOptions(
             this.maximumNumberOfWorkers ?? this.minimumNumberOfWorkers,
@@ -2387,11 +3060,14 @@ export abstract class AbstractPool<
       return
     }
     const { taskId, workerId } = event.detail
-    const promiseResponse = this.promiseResponseMap.get(taskId!)
+    if (taskId == null) {
+      return
+    }
+    const promiseResponse = this.promiseResponseMap.get(taskId)
     if (promiseResponse == null) {
       return
     }
-    const { abortSignal, reject } = promiseResponse
+    const { abortSignal } = promiseResponse
     if (abortSignal?.aborted === false) {
       return
     }
@@ -2406,9 +3082,13 @@ export abstract class AbstractPool<
         if (taskId === task.taskId && abortable === true) {
           workerNode.info.queuedTaskAbortion = true
           workerNode.deleteTask(task)
-          this.promiseResponseMap.delete(taskId!)
           workerNode.info.queuedTaskAbortion = false
-          reject(this.getAbortError(name!, taskId!))
+
+          this.rejectTask(
+            taskId,
+            promiseResponse,
+            this.getAbortError(name ?? DEFAULT_TASK_NAME, taskId, abortSignal),
+          )
           return
         }
       }
@@ -2438,9 +3118,24 @@ export abstract class AbstractPool<
    * @param workerNode - The worker node.
    */
   protected removeWorkerNode(workerNode: IWorkerNode<Worker, Data>): void {
+    this.workerTaskFunctionBootstraps.delete(workerNode)
+    this.failedWorkerTaskFunctionBootstraps.delete(workerNode)
     const workerNodeKey = this.workerNodes.indexOf(workerNode)
     if (workerNodeKey !== -1) {
+      const taskName = this.clearTaskStealingRetry(workerNode)
+      workerNode.info.continuousStealing = false
+      this.resetTaskSequentiallyStolenStatisticsWorkerUsage(
+        workerNodeKey,
+        taskName,
+      )
       this.workerNodes.splice(workerNodeKey, 1)
+      for (const promiseResponse of this.promiseResponseMap.values()) {
+        if (promiseResponse.workerNodeKey === workerNodeKey) {
+          promiseResponse.workerNodeKey = -1
+        } else if (promiseResponse.workerNodeKey > workerNodeKey) {
+          --promiseResponse.workerNodeKey
+        }
+      }
       this.workerChoiceStrategiesContext?.remove(workerNodeKey)
       workerNode.info.dynamic &&
         this.checkAndEmitDynamicWorkerDestructionEvents()
@@ -2477,18 +3172,81 @@ export abstract class AbstractPool<
    *
    * @param workerNodeKey - The worker node key.
    * @param task - The task to execute.
+   * @returns Whether the worker accepted the task.
    */
-  private executeTask(workerNodeKey: number, task: Task<Data>): void {
+  private executeTask(workerNodeKey: number, task: Task<Data>): boolean {
+    this.updateTaskWorkerNodeKey(workerNodeKey, task)
+    const workerNode = this.workerNodes[workerNodeKey]
     const { transferList } = task
     this.beforeTaskExecutionHook(workerNodeKey, task)
-    this.sendToWorker(workerNodeKey, task, transferList)
+    try {
+      this.sendToWorker(workerNodeKey, task, transferList)
+    } catch (error) {
+      if (workerNode.usage.tasks.executing > 0) {
+        --workerNode.usage.tasks.executing
+      }
+      if (this.shallUpdateTaskFunctionWorkerUsage(workerNode.info)) {
+        const taskFunctionWorkerUsage = workerNode.getTaskFunctionWorkerUsage(
+          task.name!,
+        )
+        if (
+          taskFunctionWorkerUsage != null &&
+          taskFunctionWorkerUsage.tasks.executing > 0
+        ) {
+          --taskFunctionWorkerUsage.tasks.executing
+        }
+      }
+      if (task.taskId != null) {
+        const promiseResponse = this.promiseResponseMap.get(task.taskId)
+        if (promiseResponse != null) {
+          this.rejectTask(task.taskId, promiseResponse, error)
+        }
+      }
+      return false
+    }
     this.checkAndEmitTaskExecutionEvents()
+    return true
   }
 
   private enqueueTask(workerNodeKey: number, task: Task<Data>): number {
+    this.updateTaskWorkerNodeKey(workerNodeKey, task)
     const tasksQueueSize = this.workerNodes[workerNodeKey].enqueueTask(task)
     this.checkAndEmitTaskQueuingEvents()
+    this.scheduleTaskStealing()
     return tasksQueueSize
+  }
+
+  private scheduleTaskStealing(): void {
+    if (
+      this.taskStealingTimeout != null ||
+      this.opts.enableTasksQueue !== true ||
+      this.opts.tasksQueueOptions?.taskStealing !== true ||
+      this.opts.tasksQueueOptions.tasksStealingRatio === 0 ||
+      this.cannotStealTask()
+    ) {
+      return
+    }
+    this.taskStealingTimeout = setTimeout(() => {
+      delete this.taskStealingTimeout
+      try {
+        if (this.cannotStealTask()) return
+        for (const workerNodeKey of this.workerNodes.keys()) {
+          if (!this.canStartTaskStealing(workerNodeKey)) continue
+          this.handleWorkerNodeIdleEvent({ workerNodeKey })
+          if (this.cannotStealTask()) return
+          if (this.canStartTaskStealing(workerNodeKey)) {
+            // Retry admission when another worker relinquishes its stealing slot.
+            this.scheduleTaskStealing()
+            return
+          }
+        }
+      } catch (error) {
+        this.eventTarget?.dispatchEvent(
+          new ErrorEvent(PoolEvents.error, { error }),
+        )
+      }
+    }, exponentialDelay())
+    unrefTimer(this.taskStealingTimeout)
   }
 
   private dequeueTask(workerNodeKey: number): Task<Data> | undefined {
@@ -2508,11 +3266,14 @@ export abstract class AbstractPool<
   protected flushTasksQueue(workerNodeKey: number): number {
     let flushedTasks = 0
     while (this.tasksQueueSize(workerNodeKey) > 0) {
-      this.executeTask(
-        workerNodeKey,
-        this.dequeueTask(workerNodeKey) as Task<Data>,
-      )
-      ++flushedTasks
+      if (
+        this.executeTask(
+          workerNodeKey,
+          this.dequeueTask(workerNodeKey) as Task<Data>,
+        )
+      ) {
+        ++flushedTasks
+      }
     }
     this.workerNodes[workerNodeKey].clearTasksQueue()
     return flushedTasks
@@ -2522,5 +3283,343 @@ export abstract class AbstractPool<
     for (const workerNodeKey of this.workerNodes.keys()) {
       this.flushTasksQueue(workerNodeKey)
     }
+  }
+
+  private beginTaskFunctionOperation(): void {
+    if (this.pendingTaskFunctionOperations++ === 0) {
+      const { promise, resolve } = Promise.withResolvers<undefined>()
+      this.taskFunctionOperationsFinished = promise
+      this.resolveTaskFunctionOperations = resolve
+    }
+  }
+
+  private endTaskFunctionOperation(): void {
+    if (--this.pendingTaskFunctionOperations === 0) {
+      const resolve = this.resolveTaskFunctionOperations
+      delete this.taskFunctionOperationsFinished
+      delete this.resolveTaskFunctionOperations
+      resolve?.(undefined)
+    }
+  }
+
+  private deregisterTaskFunctionOperationExitListener(
+    workerNode: IWorkerNode<Worker, Data>,
+    listener: () => void,
+  ): void {
+    const listeners = this.workerTaskFunctionOperationExitListeners.get(
+      workerNode,
+    )
+    if (listeners != null) {
+      listeners.delete(listener)
+      if (listeners.size === 0) {
+        this.workerTaskFunctionOperationExitListeners.delete(workerNode)
+      }
+    }
+  }
+
+  private registerTaskFunctionOperationExitListener(
+    workerNode: IWorkerNode<Worker, Data>,
+    listener: () => void,
+  ): void {
+    let listeners = this.workerTaskFunctionOperationExitListeners.get(
+      workerNode,
+    )
+    if (listeners == null) {
+      listeners = new Set()
+      this.workerTaskFunctionOperationExitListeners.set(workerNode, listeners)
+    }
+    listeners.add(listener)
+  }
+
+  private async replayTaskFunctions(workerNodeKey: number): Promise<void> {
+    if (this.taskFunctions.size === 0) return
+    const workerNode = this.workerNodes[workerNodeKey]
+    for (const message of this.taskFunctions.values()) {
+      const currentWorkerNodeKey = this.getWorkerNodeKeyForBootstrap(workerNode)
+      if (currentWorkerNodeKey === -1) return
+      await this.sendTaskFunctionOperationToWorker(
+        currentWorkerNodeKey,
+        message,
+      )
+    }
+  }
+
+  private async replayTaskFunctionsAfterOperations(
+    workerNode: IWorkerNode<Worker, Data>,
+    bootstrap: { ready: boolean },
+  ): Promise<void> {
+    try {
+      // Publish the bootstrap promise before sending replay requests.
+      do {
+        await this.taskFunctionOperationsFinished
+      } while (this.taskFunctionOperationsFinished != null)
+      let workerNodeKey = this.getWorkerNodeKeyForBootstrap(workerNode)
+      if (workerNodeKey === -1) return
+      await this.replayTaskFunctions(workerNodeKey)
+      workerNodeKey = this.getWorkerNodeKeyForBootstrap(workerNode)
+      if (workerNodeKey === -1) return
+      if (this.defaultTaskFunctionName != null) {
+        await this.sendTaskFunctionOperationToWorker(workerNodeKey, {
+          taskFunctionOperation: 'default',
+          taskFunctionProperties: this.taskFunctions.get(
+            this.defaultTaskFunctionName,
+          )?.taskFunctionProperties ?? { name: this.defaultTaskFunctionName },
+        })
+        workerNodeKey = this.getWorkerNodeKeyForBootstrap(workerNode)
+        if (workerNodeKey === -1) return
+      }
+      // Keep strategies needed by ready peers while this worker becomes selectable.
+      const workerChoiceStrategies = this.getWorkerChoiceStrategies(
+        workerNode.info.taskFunctionsProperties ?? [],
+      )
+      for (const readyWorkerNode of this.workerNodes) {
+        if (
+          readyWorkerNode === workerNode ||
+          !readyWorkerNode.info.ready ||
+          this.terminatingWorkerNodes.has(readyWorkerNode)
+        ) {
+          continue
+        }
+        const taskFunctionsProperties =
+          readyWorkerNode.info.taskFunctionsProperties
+        if (taskFunctionsProperties != null) {
+          for (const { strategy } of taskFunctionsProperties) {
+            if (strategy != null) workerChoiceStrategies.add(strategy)
+          }
+        }
+      }
+      this.workerChoiceStrategiesContext?.syncWorkerChoiceStrategies(
+        workerChoiceStrategies,
+      )
+      this.sendStatisticsMessageToWorker(workerNodeKey)
+      workerNode.info.ready = bootstrap.ready
+      this.checkAndEmitReadyEvent()
+      this.scheduleTaskStealing()
+    } catch (error) {
+      // Retired bootstraps no longer block waiting submissions.
+      if (this.workerNodes.includes(workerNode)) {
+        if (!this.destroying && !this.terminatingWorkerNodes.has(workerNode)) {
+          this.failedWorkerTaskFunctionBootstraps.set(
+            workerNode,
+            bootstrap.ready,
+          )
+        }
+        throw error
+      }
+    } finally {
+      this.workerTaskFunctionBootstraps.delete(workerNode)
+    }
+  }
+
+  private getWorkerNodeKeyForBootstrap(
+    workerNode: IWorkerNode<Worker, Data>,
+  ): number {
+    if (this.destroying || this.terminatingWorkerNodes.has(workerNode)) {
+      return -1
+    }
+    return this.workerNodes.indexOf(workerNode)
+  }
+
+  private async retryFailedWorkerTaskFunctionBootstraps(): Promise<void> {
+    if (this.destroying || this.failedWorkerTaskFunctionBootstraps.size === 0) {
+      return
+    }
+    const promises: Promise<void>[] = []
+    for (const [workerNode, ready] of this.failedWorkerTaskFunctionBootstraps) {
+      if (this.getWorkerNodeKeyForBootstrap(workerNode) !== -1) {
+        const promise = this.startWorkerTaskFunctionBootstrap(workerNode, ready)
+        promise.catch((error: unknown) => {
+          this.eventTarget?.dispatchEvent(
+            new ErrorEvent(PoolEvents.error, { error }),
+          )
+        })
+        promises.push(promise)
+      }
+    }
+    await Promise.allSettled(promises)
+  }
+
+  private startWorkerTaskFunctionBootstrap(
+    workerNode: IWorkerNode<Worker, Data>,
+    ready = false,
+  ): Promise<void> {
+    const bootstrap: { promise?: Promise<void>; ready: boolean } = { ready }
+    workerNode.info.ready = false
+    this.failedWorkerTaskFunctionBootstraps.delete(workerNode)
+    this.workerTaskFunctionBootstraps.set(workerNode, bootstrap)
+    const promise = this.replayTaskFunctionsAfterOperations(
+      workerNode,
+      bootstrap,
+    )
+    bootstrap.promise = promise
+    return promise
+  }
+
+  private async waitForWorkerTaskFunctionBootstraps(
+    abortSignal?: AbortSignal,
+    name?: string,
+    waitMode: 'all' | 'first' = 'all',
+  ): Promise<void> {
+    let abortPromise: Promise<undefined> | undefined
+    let abortListener: (() => void) | undefined
+    if (abortSignal != null) {
+      this.throwIfTaskAborted(name, abortSignal)
+      const { promise, reject } = Promise.withResolvers<undefined>()
+      abortPromise = promise
+      abortListener = () => {
+        reject(
+          this.getAbortError(name ?? DEFAULT_TASK_NAME, undefined, abortSignal),
+        )
+      }
+      abortSignal.addEventListener('abort', abortListener, { once: true })
+    }
+    try {
+      while (this.workerTaskFunctionBootstraps.size > 0) {
+        if (waitMode === 'first') {
+          const promises: Promise<void>[] = []
+          for (
+            const [workerNode, bootstrap] of this
+              .workerTaskFunctionBootstraps
+          ) {
+            if (bootstrap.promise != null) {
+              promises.push(
+                bootstrap.promise.catch((error: unknown) => {
+                  const workerNodeKey = this.workerNodes.indexOf(workerNode)
+                  if (workerNodeKey === -1) return
+                  const taskFunctionsProperties = this
+                    .listTaskFunctionsProperties()
+                  const taskFunctionName =
+                    name == null || name === DEFAULT_TASK_NAME
+                      ? (this.defaultTaskFunctionName ??
+                        taskFunctionsProperties[1]?.name)
+                      : name
+                  const registration = this.taskFunctions.get(taskFunctionName)
+                  const workerNodeKeys = registration != null
+                    ? registration.taskFunctionProperties.workerNodeKeys
+                    : this.getTaskFunctionWorkerNodeKeys(
+                      taskFunctionName,
+                      taskFunctionsProperties,
+                    )
+                  // Ineligible failures still wake selection without rejecting the task.
+                  if (
+                    workerNodeKeys == null ||
+                    workerNodeKeys.includes(workerNodeKey)
+                  ) {
+                    throw error
+                  }
+                }),
+              )
+            }
+          }
+          if (promises.length === 0) return
+          if (abortPromise != null) promises.push(abortPromise)
+          await Promise.race(promises)
+          return
+        }
+        for (const bootstrap of this.workerTaskFunctionBootstraps.values()) {
+          if (bootstrap.promise != null) {
+            if (abortPromise != null) {
+              await Promise.race([bootstrap.promise, abortPromise])
+            } else {
+              await bootstrap.promise
+            }
+          }
+        }
+      }
+    } finally {
+      if (abortListener != null) {
+        abortSignal?.removeEventListener('abort', abortListener)
+      }
+    }
+  }
+
+  private throwIfTaskAborted(name?: string, abortSignal?: AbortSignal): void {
+    if (abortSignal?.aborted === true) {
+      throw this.getAbortError(
+        name ?? DEFAULT_TASK_NAME,
+        undefined,
+        abortSignal,
+      )
+    }
+  }
+
+  /**
+   * Builds the error for a task function operation acknowledgement without a UUID.
+   * @param workerId - The worker id that sent the acknowledgement.
+   * @returns The task function operation acknowledgement error.
+   */
+  private readonly getTaskFunctionOperationAcknowledgementError = (
+    workerId?: WorkerInfo['id'],
+  ): Error =>
+    new Error(
+      `Task function operation acknowledgement from worker ${
+        String(workerId)
+      } is missing taskFunctionOperationId`,
+    )
+
+  private readonly workerLifecycleMessageListenerCleanups = new Map<
+    IWorkerNode<Worker, Data>,
+    Set<() => void>
+  >()
+
+  private registerWorkerLifecycleMessageListener(
+    workerNodeKey: number,
+    listener: (message: MessageValue<Response>) => void,
+  ): void {
+    const workerNode = this.workerNodes[workerNodeKey]
+    const cleanup = this.createWorkerMessageListenerCleanup(
+      workerNode,
+      listener,
+    )
+    let cleanups = this.workerLifecycleMessageListenerCleanups.get(workerNode)
+    if (cleanups == null) {
+      cleanups = new Set()
+      this.workerLifecycleMessageListenerCleanups.set(workerNode, cleanups)
+    }
+    cleanups.add(cleanup)
+    this.registerWorkerMessageListener(workerNodeKey, listener)
+  }
+
+  private createWorkerMessageListenerCleanup(
+    workerNode: IWorkerNode<Worker, Data>,
+    listener: (message: MessageValue<Response>) => void,
+  ): () => void {
+    let cleaned = false
+    return () => {
+      if (cleaned) return
+      cleaned = true
+      try {
+        const workerNodeKey = this.workerNodes.indexOf(workerNode)
+        if (workerNodeKey !== -1) {
+          this.deregisterWorkerMessageListener(workerNodeKey, listener)
+        }
+      } finally {
+        this.deregisterWorkerNodeMessageListener(workerNode, listener)
+      }
+    }
+  }
+
+  private captureTaskResponses(
+    workerNode: IWorkerNode<Worker, Data>,
+    taskResponses: MessageValue<Response>[] | undefined,
+  ): MessageValue<Response>[] | undefined {
+    // Capture before termination closes the thread's private channel.
+    while (receiveMessageOnPort != null && workerNode.messageChannel != null) {
+      const response = receiveMessageOnPort(workerNode.messageChannel.port1)
+      if (response == null) {
+        break
+      }
+      const message = response.message as MessageValue<Response>
+      if (message.taskId != null) {
+        this.checkMessageWorkerId(message)
+        ;(taskResponses ??= []).push(message)
+      } else if (
+        message.taskFunctionOperationStatus != null ||
+        message.kill === 'success' || message.kill === 'failure'
+      ) {
+        workerNode.dispatchEvent(new MessageEvent('message', { data: message }))
+      }
+    }
+    return taskResponses
   }
 }

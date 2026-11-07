@@ -2,6 +2,39 @@ import { TaskFunctions } from './test-types.mjs'
 
 export const isCI = Deno.env.get('CI') === 'true'
 
+// Native worker deadlines must keep running when tests freeze global timers.
+const { setTimeout: realSetTimeout, clearTimeout: realClearTimeout } =
+  globalThis
+
+export const bounded = async (
+  promise,
+  message = 'Task remained pending',
+  timeoutMs = 5000,
+) => {
+  let timeout
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_resolve, reject) => {
+        timeout = realSetTimeout(() => reject(new Error(message)), timeoutMs)
+      }),
+    ])
+  } finally {
+    realClearTimeout(timeout)
+  }
+}
+
+export const waitForMessage = (target, predicate) =>
+  new Promise((resolve) => {
+    const listener = ({ data }) => {
+      if (predicate(data)) {
+        target.removeEventListener('message', listener)
+        resolve(data)
+      }
+    }
+    target.addEventListener('message', listener)
+  })
+
 export const waitWorkerNodeEvents = async (
   pool,
   workerNodeEvent,

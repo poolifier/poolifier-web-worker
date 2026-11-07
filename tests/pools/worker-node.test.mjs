@@ -289,6 +289,31 @@ describe('Worker node test suite', () => {
     expect(threadWorkerNode.taskFunctionsUsage).toBeInstanceOf(Map)
   })
 
+  it('Worker node terminate() is idempotent and reentrant', () => {
+    const workerNode = new WorkerNode(
+      WorkerTypes.web,
+      new URL('./../worker-files/thread/testWorker.mjs', import.meta.url),
+      {
+        tasksQueueBackPressureSize: 12,
+        tasksQueueBucketSize: 6,
+        tasksQueuePriority: true,
+      },
+    )
+    let exits = 0
+    workerNode.addEventListener('exit', () => {
+      ++exits
+      workerNode.terminate()
+    })
+    try {
+      workerNode.terminate()
+      workerNode.terminate()
+      expect(exits).toBe(1)
+      expect(workerNode.messageChannel).toBeUndefined()
+    } finally {
+      workerNode.worker.terminate()
+    }
+  })
+
   it('Worker node getTaskFunctionWorkerUsage()', () => {
     expect(() =>
       threadWorkerNode.getTaskFunctionWorkerUsage('invalidTaskFunction')

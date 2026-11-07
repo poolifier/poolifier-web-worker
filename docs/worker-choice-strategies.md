@@ -13,6 +13,9 @@ All duration or timestamp are expressed in milliseconds.
 
 ## Strategies
 
+[Worker node affinity](./api.md#worker-node-affinity-notes) restricts initial
+worker selection. Task stealing ignores affinity.
+
 ### Fair share
 
 Its goal is to distribute the load evenly across all workers. To achieve this,
@@ -29,8 +32,8 @@ loop utilization (ELU) active time instead. -->
 
 The worker weights are maximum tasks execution time. Once the worker has reached
 its maximum tasks execution time, the next task is assigned to the next worker.
-The default worker weight is the same for each and computed given the CPU cores
-speed and theirs numbers.
+Workers that are not ready are skipped. The default worker weight is the same
+for each and computed given the CPU cores speed and theirs numbers.
 
 ### Interleaved weighted round robin (experimental)
 

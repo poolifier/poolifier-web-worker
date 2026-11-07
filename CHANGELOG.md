@@ -6,6 +6,84 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.1...v0.7.2) (2026-10-31)
+
+### 🚀 Features
+
+- **pool:** start task stealing on unused workers
+  ([#216](https://github.com/poolifier/poolifier-web-worker/issues/216))
+  ([5d30de9](https://github.com/poolifier/poolifier-web-worker/commit/5d30de980a69aea6140bbd94636c7648e5601693))
+
+### 🐞 Bug Fixes
+
+- **deps:** update dependency poolifier-web-worker to ^0.7.1
+  ([#205](https://github.com/poolifier/poolifier-web-worker/issues/205))
+  ([52cdc79](https://github.com/poolifier/poolifier-web-worker/commit/52cdc795e61d0dfb22322db28580a483ce6b441d))
+- **deps:** update dependency typescript to v7
+  ([#155](https://github.com/poolifier/poolifier-web-worker/issues/155))
+  ([ec8e999](https://github.com/poolifier/poolifier-web-worker/commit/ec8e999ae9c9ef94445efafb619907de2317f397))
+
+## [0.7.1](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.0...v0.7.1) (2026-10-20)
+
+### 🐞 Bug Fixes
+
+- **pool:** recover runtime task function operations
+  ([#202](https://github.com/poolifier/poolifier-web-worker/issues/202))
+  ([ecbadb8](https://github.com/poolifier/poolifier-web-worker/commit/ecbadb82c2ead4a56da1069e397115bbd8d2b024))
+- **pool:** remove failed bootstrap registrations
+  ([#204](https://github.com/poolifier/poolifier-web-worker/issues/204))
+  ([5cda2d5](https://github.com/poolifier/poolifier-web-worker/commit/5cda2d5fbb78f438862e882d169f2c9f6567b6fc))
+
+## [0.7.0](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.4...v0.7.0) (2026-10-19)
+
+### ⚠ BREAKING CHANGES
+
+- deferred task function operation handlers must retain taskFunctionOperationId
+  or the original taskFunctionProperties reference. Replies without recoverable
+  identity reject after the original cohort settles.
+
+### 🐞 Bug Fixes
+
+- align task lifecycle and runtime contracts
+  ([#196](https://github.com/poolifier/poolifier-web-worker/issues/196))
+  ([bf36bca](https://github.com/poolifier/poolifier-web-worker/commit/bf36bca457e0cfc3bd54f175bb6aaa45d1ca9d4b))
+- **pool:** keep idle stealing retries on their worker
+  ([#188](https://github.com/poolifier/poolifier-web-worker/issues/188))
+  ([b246ef3](https://github.com/poolifier/poolifier-web-worker/commit/b246ef37ae59a591686df92a135f8d53f595d8e7))
+- **pool:** settle tasks after worker failures
+  ([#186](https://github.com/poolifier/poolifier-web-worker/issues/186))
+  ([cca8fbb](https://github.com/poolifier/poolifier-web-worker/commit/cca8fbb2f1a783864fb0b02ec2ac450a675dc39f))
+
+## [0.6.4](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.3...v0.6.4) (2026-10-15)
+
+### 🐞 Bug Fixes
+
+- **ci:** correct Bencher reporting and benchmark failures
+  ([#176](https://github.com/poolifier/poolifier-web-worker/issues/176))
+  ([a25ef9e](https://github.com/poolifier/poolifier-web-worker/commit/a25ef9e2e7f102606d9eacf0bcee0e9ee1dcb7b0))
+- **deps:** update all non-major dependencies
+  ([#143](https://github.com/poolifier/poolifier-web-worker/issues/143))
+  ([ea0a3d2](https://github.com/poolifier/poolifier-web-worker/commit/ea0a3d2740dd261af48ade835f3ec9e734f7ba9f))
+- prevent inherited worker launch options
+  ([#185](https://github.com/poolifier/poolifier-web-worker/issues/185))
+  ([fd6ccce](https://github.com/poolifier/poolifier-web-worker/commit/fd6ccce86439d14329d111bfba3ece1dbc81f3a6))
+- reject in-flight task promises when worker crashes
+  ([#146](https://github.com/poolifier/poolifier-web-worker/issues/146))
+  ([74d9529](https://github.com/poolifier/poolifier-web-worker/commit/74d9529136e7af7b461af09ffb4f12dbf25183b5))
+
+### 🧪 Tests
+
+- relax destroy timeout assertion
+  ([#154](https://github.com/poolifier/poolifier-web-worker/issues/154))
+  ([ae8cbbd](https://github.com/poolifier/poolifier-web-worker/commit/ae8cbbd4f4d7a73b4fc42ab17146643bb6a00ac0))
+
+### 📚 Documentation
+
+- add format check to quality gates in copilot instructions
+  ([f6bb312](https://github.com/poolifier/poolifier-web-worker/commit/f6bb3122751ccb0a47cbb06b043f3c8f356646de))
+- remove examples section from copilot instructions
+  ([9b76ec5](https://github.com/poolifier/poolifier-web-worker/commit/9b76ec57c469f24d75cf2c287ddf64589f69e441))
+
 ## [0.6.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.6.2...v0.6.3) (2026-05-12)
 
 ### 🐞 Bug Fixes

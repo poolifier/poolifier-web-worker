@@ -5,7 +5,6 @@ import {
 import type { MessageValue, Task } from '../utility-types.ts'
 import {
   average,
-  environment,
   isPlainObject,
   JSRuntime,
   max,
@@ -31,13 +30,6 @@ import {
   type WorkerUsage,
 } from './worker.ts'
 
-let exportedUpdateMeasurementStatistics: (
-  measurementStatistics: MeasurementStatistics,
-  measurementRequirements: MeasurementStatisticsRequirements | undefined,
-  measurementValue: number | undefined,
-) => void
-export { exportedUpdateMeasurementStatistics }
-
 /**
  * Default measurement statistics requirements.
  */
@@ -48,6 +40,222 @@ export const DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS: Readonly<
   average: false,
   median: false,
 })
+
+/**
+ * Copies own enumerable properties into an object without a prototype.
+ *
+ * @param sources - Objects to copy properties from.
+ * @returns A new object without a prototype.
+ * @internal
+ */
+export const withNullPrototype = <T extends object>(
+  ...sources: (Partial<T> | undefined)[]
+): T => {
+  const target = Object.create(null) as T
+  Object.assign(target, ...sources)
+  return target
+}
+
+const defineEnumerableDataProperty = (
+  target: object,
+  key: PropertyKey,
+  value: unknown,
+): void => {
+  const descriptor = Object.create(null) as PropertyDescriptor
+  descriptor.configurable = true
+  descriptor.enumerable = true
+  descriptor.value = value
+  descriptor.writable = true
+  Object.defineProperty(target, key, descriptor)
+}
+
+const cloneOwnPropertiesWithNullPrototype = (
+  source: object,
+  materializedKeys: readonly PropertyKey[],
+  materializeEnumerableProperties = false,
+  omittedKeys: readonly PropertyKey[] = [],
+): Record<PropertyKey, unknown> => {
+  const clone = Object.create(null) as Record<PropertyKey, unknown>
+  for (const key of Reflect.ownKeys(source)) {
+    const descriptor = Object.getOwnPropertyDescriptor(source, key)
+    if (descriptor == null) {
+      continue
+    }
+    if (omittedKeys.includes(key)) {
+      if (materializeEnumerableProperties && descriptor.enumerable === true) {
+        Reflect.get(source, key)
+      }
+      continue
+    }
+    if (
+      materializedKeys.includes(key) ||
+      (materializeEnumerableProperties && descriptor.enumerable === true)
+    ) {
+      defineEnumerableDataProperty(clone, key, Reflect.get(source, key))
+    } else {
+      Object.setPrototypeOf(descriptor, null)
+      Object.defineProperty(clone, key, descriptor)
+    }
+  }
+  return clone
+}
+
+const materializeArray = <T>(values: readonly T[]): (T | undefined)[] => {
+  const clone = new Array<T | undefined>(values.length)
+  for (let index = 0; index < values.length; index++) {
+    defineEnumerableDataProperty(
+      clone,
+      index,
+      Object.hasOwn(values, index) ? values[index] : undefined,
+    )
+  }
+  return clone
+}
+
+const cloneDenseStringArray = (
+  values: readonly string[],
+  optionName: string,
+): string[] => {
+  const clone = new Array<string>(values.length)
+  for (let index = 0; index < values.length; index++) {
+    if (!Object.hasOwn(values, index)) {
+      throw new TypeError(
+        `Invalid ${optionName}: must not be a sparse array`,
+      )
+    }
+    defineEnumerableDataProperty(clone, index, values[index])
+  }
+  return clone
+}
+
+const denoPermissionOptionKeys: readonly PropertyKey[] = [
+  'env',
+  'ffi',
+  'import',
+  'net',
+  'read',
+  'run',
+  'sys',
+  'write',
+]
+const denoWorkerOptionKeys: readonly PropertyKey[] = [
+  'namespace',
+  'permissions',
+]
+const runtimeWorkerOptionKeys: readonly PropertyKey[] = [
+  'argv',
+  'credentials',
+  'data',
+  'deno',
+  'env',
+  'eval',
+  'execArgv',
+  'name',
+  'preload',
+  'ref',
+  'shareEnv',
+  'smol',
+  'transferList',
+  'workerData',
+]
+const forcedWorkerOptionKeys: readonly PropertyKey[] = ['type']
+
+const isObjectLike = (value: unknown): value is object =>
+  (typeof value === 'object' && value !== null) || typeof value === 'function'
+
+interface RuntimeWorkerOptions extends WorkerOptions {
+  argv?: unknown[]
+  execArgv?: string[]
+  preload?: string | string[]
+  ref?: boolean
+  smol?: boolean
+  transferList?: unknown[]
+}
+
+const normalizeDenoWorkerOptions = (
+  workerOptions: RuntimeWorkerOptions,
+): void => {
+  if (!Object.hasOwn(workerOptions, 'deno')) {
+    return
+  }
+  const deno = Reflect.get(workerOptions, 'deno') as unknown
+  if (!isObjectLike(deno)) {
+    return
+  }
+  const normalizedDeno = cloneOwnPropertiesWithNullPrototype(
+    deno,
+    denoWorkerOptionKeys,
+  )
+  const permissions = normalizedDeno.permissions
+  if (
+    Object.hasOwn(normalizedDeno, 'permissions') &&
+    isObjectLike(permissions)
+  ) {
+    const normalizedPermissions = cloneOwnPropertiesWithNullPrototype(
+      permissions,
+      denoPermissionOptionKeys,
+    )
+    for (const key of denoPermissionOptionKeys) {
+      const value = normalizedPermissions[key]
+      if (Array.isArray(value)) {
+        normalizedPermissions[key] = materializeArray(value)
+      }
+    }
+    normalizedDeno.permissions = normalizedPermissions
+  }
+  Reflect.set(workerOptions, 'deno', normalizedDeno)
+}
+
+/**
+ * Builds options for a web worker launch.
+ *
+ * @param workerOptions - Explicit worker options.
+ * @returns Normalized worker options.
+ * @internal
+ */
+export const buildWebWorkerOptions = (
+  workerOptions: WorkerOptions | undefined,
+): WorkerOptions => {
+  const normalizedWorkerOptions = workerOptions == null
+    ? withNullPrototype<RuntimeWorkerOptions>()
+    : cloneOwnPropertiesWithNullPrototype(
+      workerOptions,
+      runtimeWorkerOptionKeys,
+      true,
+      forcedWorkerOptionKeys,
+    ) as RuntimeWorkerOptions
+  if (
+    runtime === JSRuntime.bun &&
+    !Object.hasOwn(normalizedWorkerOptions, 'smol')
+  ) {
+    defineEnumerableDataProperty(normalizedWorkerOptions, 'smol', true)
+  }
+  defineEnumerableDataProperty(normalizedWorkerOptions, 'type', 'module')
+  if (Array.isArray(normalizedWorkerOptions.argv)) {
+    normalizedWorkerOptions.argv = materializeArray(
+      normalizedWorkerOptions.argv,
+    )
+  }
+  if (Array.isArray(normalizedWorkerOptions.execArgv)) {
+    normalizedWorkerOptions.execArgv = cloneDenseStringArray(
+      normalizedWorkerOptions.execArgv,
+      'workerOptions.execArgv',
+    )
+  }
+  if (Array.isArray(normalizedWorkerOptions.preload)) {
+    normalizedWorkerOptions.preload = cloneDenseStringArray(
+      normalizedWorkerOptions.preload,
+      'workerOptions.preload',
+    )
+  }
+  if (Array.isArray(normalizedWorkerOptions.transferList)) {
+    normalizedWorkerOptions.transferList = materializeArray(
+      normalizedWorkerOptions.transferList,
+    )
+  }
+  normalizeDenoWorkerOptions(normalizedWorkerOptions)
+  return normalizedWorkerOptions
+}
 
 export const getDefaultTasksQueueOptions = (
   poolMaxSize: number,
@@ -336,7 +544,7 @@ export const checkWorkerNodeArguments = (
  * @param measurementValue - The measurement value.
  * @internal
  */
-const updateMeasurementStatistics = (
+export const updateMeasurementStatistics = (
   measurementStatistics: MeasurementStatistics,
   measurementRequirements: MeasurementStatisticsRequirements | undefined,
   measurementValue: number | undefined,
@@ -374,9 +582,6 @@ const updateMeasurementStatistics = (
       }
     }
   }
-}
-if (environment === 'test') {
-  exportedUpdateMeasurementStatistics = updateMeasurementStatistics
 }
 
 export const updateWaitTimeWorkerUsage = <
@@ -487,11 +692,12 @@ export const createWorker = <Worker extends IWorker>(
 ): Worker => {
   switch (type) {
     case WorkerTypes.web:
-      return new Worker(specifier, {
-        ...(runtime === JSRuntime.bun && { smol: true }),
-        ...opts.workerOptions,
-        type: 'module',
-      }) as Worker
+      return new Worker(
+        specifier,
+        buildWebWorkerOptions(
+          Object.hasOwn(opts, 'workerOptions') ? opts.workerOptions : undefined,
+        ),
+      ) as Worker
     default:
       throw new Error(`Unknown worker type '${type}'`)
   }

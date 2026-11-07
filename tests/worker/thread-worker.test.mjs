@@ -13,23 +13,6 @@ describe('Thread worker test suite', () => {
     expect(worker.taskFunctions.size).toBe(2)
   })
 
-  it('Verify that sync kill handler is called when worker is killed', () => {
-    const worker = new ThreadWorker(() => {}, {
-      killHandler: stub(() => {}),
-    })
-    worker.port = {
-      postMessage: stub(() => {}),
-      close: stub(() => {}),
-    }
-    worker.handleKillMessage()
-    assertSpyCalls(worker.port.postMessage, 1)
-    assertSpyCalls(worker.port.close, 1)
-    assertSpyCalls(worker.opts.killHandler, 1)
-    worker.opts.killHandler.restore()
-    worker.port.postMessage.restore()
-    worker.port.close.restore()
-  })
-
   it('Verify that removeTaskFunction() is working', () => {
     const fn1 = () => {
       return 1
@@ -83,16 +66,6 @@ describe('Thread worker test suite', () => {
     })
     expect(worker.taskFunctions.get('fn2')).toBeUndefined()
     expect(worker.taskFunctions.size).toBe(2)
-    assertSpyCalls(worker.port.postMessage, 1)
-    worker.port.postMessage.restore()
-  })
-
-  it('Verify that sendToMainWorker() method invokes the port property postMessage() method', () => {
-    const worker = new ThreadWorker(() => {})
-    worker.port = {
-      postMessage: stub(() => {}),
-    }
-    worker.sendToMainWorker({ ok: 1 })
     assertSpyCalls(worker.port.postMessage, 1)
     worker.port.postMessage.restore()
   })

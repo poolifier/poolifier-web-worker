@@ -25,19 +25,6 @@ export const availableParallelism = (): number => {
 }
 
 /**
- * Sleeps for the given amount of milliseconds.
- *
- * @param ms - The amount of milliseconds to sleep.
- * @returns A promise that resolves after the given amount of milliseconds.
- * @internal
- */
-export const sleep = async (ms: number): Promise<void> => {
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
-
-/**
  * Computes the retry delay in milliseconds using an exponential back off algorithm.
  *
  * @param retryNumber - The number of retries that have already been attempted
@@ -52,6 +39,33 @@ export const exponentialDelay = (
   const delay = 2 ** retryNumber * delayFactor
   const randomSum = delay * 0.2 * secureRandom() // 0-20% of the delay
   return delay + randomSum
+}
+
+/**
+ * Allows the runtime to exit while a timer is pending, when supported.
+ *
+ * @param timer - The timer to unreference.
+ * @internal
+ */
+export const unrefTimer = (timer: ReturnType<typeof setTimeout>): void => {
+  if (
+    timer !== null &&
+    (typeof timer === 'object' || typeof timer === 'function')
+  ) {
+    const handle = timer as { unref?: unknown }
+    if (typeof handle.unref === 'function') {
+      handle.unref()
+      return
+    }
+  }
+  if (typeof timer === 'number') {
+    const deno = (globalThis as typeof globalThis & {
+      Deno?: { unrefTimer?: (timer: number) => void }
+    }).Deno
+    if (typeof deno?.unrefTimer === 'function') {
+      deno.unrefTimer(timer)
+    }
+  }
 }
 
 /**
@@ -256,15 +270,22 @@ const isBun: boolean = !!(globalThis as any).Bun ||
 // deno-lint-ignore no-explicit-any
 const isDeno: boolean = !!(globalThis as any).Deno
 
+const windowConstructor = (globalThis as typeof globalThis & {
+  Window?: new () => object
+}).Window
+
 /**
  * Indicates if running in browser runtime.
  *
  * @internal
  */
-// deno-lint-ignore no-explicit-any
-const isBrowser: boolean = !!(globalThis as any).window &&
-  // deno-lint-ignore no-explicit-any
-  !!(globalThis as any).navigator
+const isBrowser: boolean = (
+  typeof windowConstructor === 'function' &&
+  globalThis instanceof windowConstructor
+) || (
+  typeof WorkerGlobalScope !== 'undefined' &&
+  globalThis instanceof WorkerGlobalScope
+)
 
 /**
  * JavaScript runtime environments enumeration.
@@ -299,27 +320,6 @@ const isMainThread: boolean | undefined = await (async (): Promise<
       // deno-lint-ignore ban-ts-comment
       // @ts-ignore
       return (await import('node:worker_threads')).isMainThread
-    },
-  }[runtime]()
-})()
-
-/**
- * The current environment name.
- *
- * @internal
- */
-export const environment: string = await (async (): Promise<string> => {
-  return await {
-    browser: () => 'production',
-    deno: () => {
-      // deno-lint-ignore ban-ts-comment
-      // @ts-ignore
-      return Deno.env.get('ENVIRONMENT') ?? 'production'
-    },
-    bun: async () => {
-      // deno-lint-ignore ban-ts-comment
-      // @ts-ignore
-      return (await import('node:process')).env.ENVIRONMENT ?? 'production'
     },
   }[runtime]()
 })()
