@@ -27,6 +27,12 @@
     {
       "matchFileNames": ["**/deno.json"],
       "rangeStrategy": "bump"
+    },
+    {
+      "description": "Keep the build on the JavaScript compiler API; TypeScript 7 is not API-compatible.",
+      "matchFileNames": ["build/package.json"],
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
     }
   ],
   "ignorePaths": [
