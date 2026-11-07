@@ -5,15 +5,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "typescript": "^7.0.2"
-  },
-  "overrides": {
-    "typescript": "^5.9.3"
-  },
-  "overrides": {
-    "typescript": "^5.9.3"
-  },
-  "overrides": {
-    "typescript": "^7.0.0"
+    "typescript": "^6.0.3"
   }
 }

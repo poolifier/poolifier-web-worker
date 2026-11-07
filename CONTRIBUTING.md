@@ -26,6 +26,11 @@ deno task bundle
 The build checks DOM and Web Worker consumers in `tests/types/public-api.ts`,
 including the distinction between type-only and runtime exports.
 
+Declaration generation requires TypeScript's JavaScript compiler API. The build
+uses TypeScript 6; TypeScript 7's native API is not a drop-in replacement. This
+restriction does not limit the TypeScript versions supported by library
+consumers.
+
 **How to check if your new code is standard JS style**
 
 ```bash
