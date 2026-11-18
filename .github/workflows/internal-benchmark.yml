@@ -24,7 +24,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: latest
-      - uses: bencherdev/bencher@b2484bc6734c8e6da4fad141bd13527a11da3988 # main
+      - uses: bencherdev/bencher@a39a1f4fb7d2a0bffcfc2d4d044852072ce98358 # main
       - name: Run benchmark
         run: deno task benchmark:tinybench
       - name: Publish benchmark
