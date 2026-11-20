@@ -1,17 +1,10 @@
+import type { CircularBuffer } from '../circular-buffer.ts'
 import {
   defaultAgingFactor,
   defaultLoadExponent,
 } from '../queues/queue-types.ts'
 import type { MessageValue, Task } from '../utility-types.ts'
-import {
-  average,
-  isPlainObject,
-  JSRuntime,
-  max,
-  median,
-  min,
-  runtime,
-} from '../utils.ts'
+import { isPlainObject, JSRuntime, max, min, runtime } from '../utils.ts'
 import type { TasksQueueOptions } from './pool.ts'
 import {
   type MeasurementStatisticsRequirements,
@@ -537,6 +530,203 @@ export const checkWorkerNodeArguments = (
 }
 
 /**
+ * Reusable snapshot buffer for measurement history statistics.
+ * The main thread computes statistics sequentially, one history at a time.
+ */
+let measurementSnapshot = new Float32Array(0)
+
+/**
+ * Snapshots the given measurement history, in logical order, into the shared
+ * snapshot buffer.
+ *
+ * @param history - Measurement history to snapshot.
+ * @returns The number of snapshot values.
+ */
+const snapshotMeasurementHistory = (history: CircularBuffer): number => {
+  const size = history.size
+  if (measurementSnapshot.length < size) {
+    measurementSnapshot = new Float32Array(size)
+  }
+  history.copyTo(measurementSnapshot)
+  return size
+}
+
+/**
+ * Computes the average of the given measurement history.
+ * Bit-for-bit equivalent to `average(history.toArray())`: same values, same
+ * summation order, no allocation.
+ *
+ * @param history - Measurement history.
+ * @returns The average of the history values.
+ */
+const averageMeasurementHistory = (history: CircularBuffer): number => {
+  const size = history.size
+  if (size === 0) {
+    return 0
+  }
+  if (size === 1) {
+    // Return the raw element instead of `sum()`: accumulating `0 + value`
+    // would fold `- 0` into `+ 0`, while `average()` returned `dataSet[0]`
+    // as is.
+    snapshotMeasurementHistory(history)
+    return measurementSnapshot[0]
+  }
+  return history.sum() / size
+}
+
+/**
+ * Swaps two elements of the given array.
+ *
+ * @param data - Array whose elements are swapped.
+ * @param i - Index of the first element.
+ * @param j - Index of the second element.
+ */
+const swap = (data: Float32Array, i: number, j: number): void => {
+  if (i !== j) {
+    const value = data[i]
+    data[i] = data[j]
+    data[j] = value
+  }
+}
+
+/**
+ * Width under which rank selection sorts its slice instead of partitioning.
+ */
+const SELECTION_INSERTION_CUTOFF = 12
+/**
+ * Maximum number of quickselect partitions, as a factor of the slice height,
+ * before rank selection falls back to a native sort.
+ */
+const SELECTION_DEPTH_FACTOR = 2
+
+/**
+ * Selects the value at rank `k` of `data[0, size)` in place (partial sort).
+ * Quickselect with median-of-three pivot, insertion cutoff and a depth limit
+ * falling back to native sort, keeping the worst case at O(size log size).
+ *
+ * @param data - Data to partially sort.
+ * @param size - Number of leading elements to consider.
+ * @param k - Rank to select.
+ * @returns The value at rank `k`.
+ */
+const selectAtRank = (data: Float32Array, size: number, k: number): number => {
+  let left = 0
+  let right = size - 1
+  let depthLeft = SELECTION_DEPTH_FACTOR * Math.ceil(Math.log2(size + 1))
+  for (;;) {
+    const width = right - left + 1
+    if (width <= SELECTION_INSERTION_CUTOFF) {
+      for (let i = left + 1; i <= right; i++) {
+        const value = data[i]
+        let j = i - 1
+        while (j >= left && data[j] > value) {
+          data[j + 1] = data[j]
+          --j
+        }
+        data[j + 1] = value
+      }
+      return data[k]
+    }
+    if (--depthLeft < 0) {
+      data.subarray(left, right + 1).sort()
+      return data[k]
+    }
+    // Median-of-three pivot, stashed at the right end.
+    const middle = (left + right) >> 1
+    if (data[middle] < data[left]) swap(data, middle, left)
+    if (data[right] < data[middle]) {
+      swap(data, middle, right)
+      if (data[middle] < data[left]) swap(data, middle, left)
+    }
+    const pivot = data[middle]
+    swap(data, middle, right)
+    let lessEnd = left
+    for (let i = left; i < right; i++) {
+      if (data[i] < pivot) {
+        swap(data, i, lessEnd)
+        ++lessEnd
+      }
+    }
+    let equalEnd = lessEnd
+    for (let i = lessEnd; i < right; i++) {
+      if (data[i] === pivot) {
+        swap(data, i, equalEnd)
+        ++equalEnd
+      }
+    }
+    swap(data, right, equalEnd)
+    if (k < lessEnd) {
+      right = lessEnd - 1
+    } else if (k > equalEnd) {
+      left = equalEnd + 1
+    } else {
+      return pivot
+    }
+  }
+}
+
+/**
+ * Computes the median of the given measurement history.
+ * Returns the same two middle values as `median(history.toArray())` for
+ * finite inputs: the middle values are selected elements, not interpolated
+ * ones. Inputs no measurement producer can emit (`- 0`, `NaN`) may pick a
+ * different occurrence among equal-comparing values than the comparator
+ * based sort did.
+ *
+ * @param history - Measurement history.
+ * @returns The median of the history values.
+ */
+const medianMeasurementHistory = (history: CircularBuffer): number => {
+  const size = snapshotMeasurementHistory(history)
+  if (size === 0) {
+    return 0
+  }
+  if (size === 1) {
+    return measurementSnapshot[0]
+  }
+  const upperRank = size >> 1
+  const lowerRank = (size - 1) >> 1
+  const upper = selectAtRank(measurementSnapshot, size, upperRank)
+  // After the first selection, the leading `upperRank` elements are the
+  // smallest ones, so the lower middle value is selected within that prefix.
+  const lower = lowerRank === upperRank
+    ? upper
+    : selectAtRank(measurementSnapshot, upperRank, lowerRank)
+  return (lower + upper) / 2
+}
+/**
+ * Selects the worker node to steal a task from: the one with the highest
+ * number of queued tasks among the other non-empty ones. Ties are broken by
+ * the lowest worker node key order, identical to selecting the first element
+ * of a stable sort by decreasing queued tasks count.
+ *
+ * @param workerNodes - The worker nodes to select from.
+ * @param stealingWorkerNode - The worker node requesting the task to steal.
+ * @returns The worker node to steal a task from, if any.
+ * @internal
+ */
+const selectStealSourceWorkerNode = <Node extends { usage: WorkerUsage }>(
+  workerNodes: Node[],
+  stealingWorkerNode: Node,
+): Node | undefined => {
+  let sourceWorkerNode: Node | undefined
+  for (const candidateWorkerNode of workerNodes) {
+    if (
+      candidateWorkerNode !== stealingWorkerNode &&
+      candidateWorkerNode.usage.tasks.queued > 0 &&
+      (sourceWorkerNode === undefined ||
+        candidateWorkerNode.usage.tasks.queued >
+          sourceWorkerNode.usage.tasks.queued)
+    ) {
+      sourceWorkerNode = candidateWorkerNode
+    }
+  }
+  return sourceWorkerNode
+}
+
+export { selectStealSourceWorkerNode }
+
+/**
  * Updates the given measurement statistics.
  *
  * @param measurementStatistics - The measurement statistics to update.
@@ -567,15 +757,15 @@ export const updateMeasurementStatistics = (
     if (measurementRequirements.average || measurementRequirements.median) {
       measurementStatistics.history.put(measurementValue)
       if (measurementRequirements.average) {
-        measurementStatistics.average = average(
-          measurementStatistics.history.toArray(),
+        measurementStatistics.average = averageMeasurementHistory(
+          measurementStatistics.history,
         )
       } else if (measurementStatistics.average != null) {
         measurementStatistics.average = undefined
       }
       if (measurementRequirements.median) {
-        measurementStatistics.median = median(
-          measurementStatistics.history.toArray(),
+        measurementStatistics.median = medianMeasurementHistory(
+          measurementStatistics.history,
         )
       } else if (measurementStatistics.median != null) {
         measurementStatistics.median = undefined
