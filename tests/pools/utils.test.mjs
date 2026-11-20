@@ -9,6 +9,7 @@ import {
   DEFAULT_MEASUREMENT_STATISTICS_REQUIREMENTS,
   getDefaultTasksQueueOptions,
   initWorkerInfo,
+  selectStealSourceWorkerNode,
   updateMeasurementStatistics,
 } from '../../src/pools/utils.ts'
 import { MeasurementHistorySize } from '../../src/pools/worker.ts'
@@ -319,6 +320,102 @@ describe('Pool utils test suite', () => {
     })
   })
 
+  it('Verify updateMeasurementStatistics() is bit-for-bit equivalent to a naive reference implementation', () => {
+    const referenceAverage = (values) => {
+      if (values.length === 0) return 0
+      if (values.length === 1) return values[0]
+      let sum = 0
+      for (const value of values) sum += value
+      return sum / values.length
+    }
+    const referenceMedian = (values) => {
+      if (values.length === 0) return 0
+      if (values.length === 1) return values[0]
+      const sorted = [...values].sort((a, b) => a - b)
+      return (sorted[(values.length - 1) >> 1] + sorted[values.length >> 1]) / 2
+    }
+    let seed = 0x2f6e2b1
+    const random = () => {
+      seed ^= seed << 13
+      seed >>>= 0
+      seed ^= seed >>> 17
+      seed ^= seed << 5
+      seed >>>= 0
+      return seed / 0x100000000
+    }
+    const sizes = [
+      2,
+      3,
+      5,
+      MeasurementHistorySize,
+      MeasurementHistorySize + 7,
+    ]
+    for (const size of sizes) {
+      for (
+        const flags of [
+          { average: true, median: false },
+          { average: false, median: true },
+          { average: true, median: true },
+        ]
+      ) {
+        const requirements = { aggregate: true, ...flags }
+        const measurementStatistics = {
+          history: new CircularBuffer(size),
+        }
+        const reference = []
+        const iterations = size + 50
+        for (let i = 0; i < iterations; i++) {
+          // Mixed distribution: duplicated values to exercise median ties,
+          // plain noise, and large-dynamics values that make the float64
+          // summation order observable.
+          const value = Math.fround(
+            i % 7 === 0
+              ? 1 + (i % 4)
+              : i % 7 === 1
+              ? 10 ** (random() * 16 - 8)
+              : random() * 100,
+          )
+          updateMeasurementStatistics(
+            measurementStatistics,
+            requirements,
+            value,
+          )
+          reference.push(value)
+          if (reference.length > size) reference.shift()
+          if (flags.average) {
+            expect(
+              Object.is(
+                measurementStatistics.average,
+                referenceAverage(reference),
+              ),
+            ).toBe(true)
+          }
+          if (flags.median) {
+            expect(
+              Object.is(
+                measurementStatistics.median,
+                referenceMedian(reference),
+              ),
+            ).toBe(true)
+          }
+        }
+      }
+    }
+  })
+
+  it('Verify updateMeasurementStatistics() preserves negative zero as the reference implementations do', () => {
+    const measurementStatistics = {
+      history: new CircularBuffer(MeasurementHistorySize),
+    }
+    updateMeasurementStatistics(
+      measurementStatistics,
+      { aggregate: true, average: true, median: true },
+      -0,
+    )
+    expect(Object.is(measurementStatistics.average, -0)).toBe(true)
+    expect(Object.is(measurementStatistics.median, -0)).toBe(true)
+  })
+
   it('Verify createWorker() behavior', () => {
     const worker = createWorker(
       WorkerTypes.web,
@@ -440,5 +537,40 @@ describe('Pool utils test suite', () => {
         'Cannot add a task function with invalid worker node keys: 999. Valid keys are: 0..3',
       ),
     )
+  })
+
+  it('Verify selectStealSourceWorkerNode() matches a stable sort by decreasing queued tasks count', () => {
+    const referenceSelect = (workerNodes, stealingWorkerNode) =>
+      workerNodes
+        .slice()
+        .sort(
+          (workerNodeA, workerNodeB) =>
+            workerNodeB.usage.tasks.queued - workerNodeA.usage.tasks.queued,
+        )
+        .find(
+          (sourceWorkerNode) =>
+            sourceWorkerNode !== stealingWorkerNode &&
+            sourceWorkerNode.usage.tasks.queued > 0,
+        )
+    let seed = 0x51ed7
+    const random = (n) => {
+      seed ^= seed << 13
+      seed >>>= 0
+      seed ^= seed >>> 17
+      seed ^= seed << 5
+      seed >>>= 0
+      return seed % n
+    }
+    for (let test = 0; test < 10_000; test++) {
+      const length = 1 + random(12)
+      const workerNodes = Array.from({ length }, (_, id) => ({
+        id,
+        usage: { tasks: { queued: random(4) } },
+      }))
+      const stealingWorkerNode = workerNodes[random(length)]
+      expect(
+        selectStealSourceWorkerNode(workerNodes, stealingWorkerNode),
+      ).toBe(referenceSelect(workerNodes, stealingWorkerNode))
+    }
   })
 })
