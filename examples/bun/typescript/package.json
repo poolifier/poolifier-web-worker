@@ -6,10 +6,10 @@
     "start": "bun pool.ts"
   },
   "dependencies": {
-    "poolifier-web-worker": "^0.7.2"
+    "poolifier-web-worker": "^0.7.3"
   },
   "devDependencies": {
-    "@types/bun": "1.4.4"
+    "@types/bun": "1.4.5"
   },
   "peerDependencies": {
     "typescript": "^5.9.3 || ^6.0.0 || ^7.0.0"
