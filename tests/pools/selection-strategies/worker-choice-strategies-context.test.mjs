@@ -530,6 +530,55 @@ describe('Worker choice strategies context test suite', () => {
     workerChoiceStrategy.choose.restore()
   })
 
+  for (
+    const [operation, firstResult] of [
+      ['remove', false],
+      ['update', false],
+    ]
+  ) {
+    it(`Verify that ${operation}() visits every strategy when the first returns ${firstResult}`, () => {
+      const workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
+        fixedPool,
+        [
+          WorkerChoiceStrategies.LEAST_USED,
+          WorkerChoiceStrategies.ROUND_ROBIN,
+        ],
+      )
+      const calls = []
+      const first = stub(
+        workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          WorkerChoiceStrategies.LEAST_USED,
+        ),
+        operation,
+        (workerNodeKey) => {
+          calls.push(['first', workerNodeKey])
+          return firstResult
+        },
+      )
+      const second = stub(
+        workerChoiceStrategiesContext.workerChoiceStrategies.get(
+          WorkerChoiceStrategies.ROUND_ROBIN,
+        ),
+        operation,
+        (workerNodeKey) => {
+          calls.push(['second', workerNodeKey])
+          return true
+        },
+      )
+      const workerNodeKey = 1
+
+      expect(workerChoiceStrategiesContext[operation](workerNodeKey)).toBe(
+        firstResult,
+      )
+      expect(calls).toStrictEqual([
+        ['first', workerNodeKey],
+        ['second', workerNodeKey],
+      ])
+      first.restore()
+      second.restore()
+    })
+  }
+
   it('Verify that execute() with workerNodeKeys affinity filters worker selection', () => {
     const workerChoiceStrategiesContext = new WorkerChoiceStrategiesContext(
       fixedPool,
