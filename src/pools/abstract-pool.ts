@@ -1255,13 +1255,13 @@ export abstract class AbstractPool<
     abortSignal?: AbortSignal,
   ): Error => {
     const abortError = abortSignal?.reason as Error | string
-    return abortError instanceof Error
+    if (abortError instanceof Error) {
+      return abortError
+    }
+    const message = typeof abortError === 'string'
       ? abortError
-      : typeof abortError === 'string'
-      ? new Error(abortError)
-      : new Error(
-        `Task '${taskName}' id '${taskId ?? crypto.randomUUID()}' aborted`,
-      )
+      : `Task '${taskName}' id '${taskId ?? crypto.randomUUID()}' aborted`
+    return new Error(message)
   }
 
   private getQueuedTasks(): number {
@@ -2057,14 +2057,14 @@ export abstract class AbstractPool<
     }
     workerNode.worker.onerror = (errorEvent) => {
       const rawWorkerError: unknown = errorEvent.error
-      workerError = rawWorkerError instanceof Error
-        ? rawWorkerError
-        : new Error(
-          typeof rawWorkerError === 'string'
-            ? rawWorkerError
-            : errorEvent.message || 'Worker failed with a non-Error value',
-          { cause: rawWorkerError },
-        )
+      if (rawWorkerError instanceof Error) {
+        workerError = rawWorkerError
+      } else {
+        const message = typeof rawWorkerError === 'string'
+          ? rawWorkerError
+          : errorEvent.message || 'Worker failed with a non-Error value'
+        workerError = new Error(message, { cause: rawWorkerError })
+      }
       taskResponses = this.captureTaskResponses(
         workerNode,
         receiveMessageOnPort != null ? taskResponses ??= [] : taskResponses,
@@ -2129,7 +2129,8 @@ export abstract class AbstractPool<
             const workerNodeKey = this.workerNodes.indexOf(workerNode)
             for (const [taskId, promiseResponse] of this.promiseResponseMap) {
               if (promiseResponse.workerNodeKey === workerNodeKey) {
-                ;(workerNodeTasks ??= new Map()).set(taskId, promiseResponse)
+                workerNodeTasks ??= new Map()
+                workerNodeTasks.set(taskId, promiseResponse)
               }
             }
             this.taskDequeuingEventsDeferred = true
@@ -3615,7 +3616,8 @@ export abstract class AbstractPool<
       const message = response.message as MessageValue<Response>
       if (message.taskId != null) {
         this.checkMessageWorkerId(message)
-        ;(taskResponses ??= []).push(message)
+        taskResponses ??= []
+        taskResponses.push(message)
       } else if (
         message.taskFunctionOperationStatus != null ||
         message.kill === 'success' || message.kill === 'failure'

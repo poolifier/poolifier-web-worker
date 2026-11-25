@@ -120,11 +120,9 @@ export const buildWorkerChoiceStrategyOptions = <
   opts = structuredClone(opts ?? {})
   opts.weights = opts.weights ?? getDefaultWeights(pool.info.maxSize)
   return {
-    ...{
-      runTime: { median: false },
-      waitTime: { median: false },
-      elu: { median: false },
-    },
+    runTime: { median: false },
+    waitTime: { median: false },
+    elu: { median: false },
     ...opts,
   }
 }
