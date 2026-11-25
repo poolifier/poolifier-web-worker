@@ -534,6 +534,8 @@ describe('Worker choice strategies context test suite', () => {
     const [operation, firstResult] of [
       ['remove', false],
       ['update', false],
+      ['remove', true],
+      ['update', true],
     ]
   ) {
     it(`Verify that ${operation}() visits every strategy when the first returns ${firstResult}`, () => {
