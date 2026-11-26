@@ -606,7 +606,7 @@ describe('Abstract worker test suite', () => {
       )
     })
 
-    for (const taskFunctionFields of [{}]) {
+    for (const taskFunctionFields of [{}, { taskFunction: 1 }]) {
       it(`rejects an add message without a string task function (${JSON.stringify(taskFunctionFields)})`, () => {
         const worker = new ThreadWorker(() => {})
         const handleAdd = () =>
