@@ -1270,7 +1270,7 @@ export abstract class AbstractPool<
     }, 0)
   }
 
-  private hasReadyWorkerNode(
+  private hasEligibleWorkerNode(
     eligibleWorkerNodeKeys: ReadonlySet<number> | undefined,
   ): boolean {
     for (
@@ -1981,7 +1981,7 @@ export abstract class AbstractPool<
       : undefined
     if (
       this.workerTaskFunctionBootstraps.size > 0 &&
-      !this.hasReadyWorkerNode(eligibleWorkerNodeKeys)
+      !this.hasEligibleWorkerNode(eligibleWorkerNodeKeys)
     ) {
       return
     }
