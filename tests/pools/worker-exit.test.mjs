@@ -1370,5 +1370,83 @@ describe({
         }
       })
     }
+
+    for (
+      const [title, disableQueue, expectedIdleEvents] of [
+        [
+          'does not emit idle when a queued send failure disables the queue',
+          true,
+          0,
+        ],
+        [
+          'emits idle when a queued send failure leaves the queue enabled',
+          false,
+          1,
+        ],
+      ]
+    ) {
+      it(title, async () => {
+        const pool = await createPool(1, {
+          enableStatistics: false,
+          enableTasksQueue: true,
+          tasksQueueOptions: {
+            concurrency: 1,
+            tasksStealingOnBackPressure: false,
+            taskStealing: false,
+          },
+        })
+        const queuedSendFailure = new Error('Queued send failed')
+        let idleEvents = 0
+        let queueDisableFailure
+        let port
+        let originalPostMessage
+        try {
+          const workerNode = pool.workerNodes[0]
+          const runningStarted = started(workerNode, 'running')
+          const running = pool
+            .execute({ id: 'running', wait: true })
+            .catch((error) => error)
+          await bounded(runningStarted)
+          workerNode.addEventListener('idle', () => {
+            ++idleEvents
+          })
+          const queued = pool.execute({ id: 'queued' }).catch((error) => error)
+          expect(pool.tasksQueueSize(0)).toBe(1)
+          port = workerNode.messageChannel.port1
+          originalPostMessage = port.postMessage.bind(port)
+          port.postMessage = (message, transfer) => {
+            if (message?.taskId != null) {
+              if (disableQueue) {
+                try {
+                  pool.enableTasksQueue(false)
+                } catch (error) {
+                  queueDisableFailure = { error }
+                }
+              }
+              throw queuedSendFailure
+            }
+            return originalPostMessage(message, transfer)
+          }
+          send(workerNode, { releaseAll: true })
+          expect(await bounded(running)).toMatchObject({ id: 'running' })
+          expect(await bounded(queued)).toBe(queuedSendFailure)
+          await bounded(
+            new Promise((resolve) => {
+              setTimeout(resolve, 0)
+            }),
+            'Idle dispatch did not settle after the queued send failure',
+          )
+          expect(queueDisableFailure).toBeUndefined()
+          expect(pool.opts.enableTasksQueue).toBe(!disableQueue)
+          expect(idleEvents).toBe(expectedIdleEvents)
+          expect(pool.promiseResponseMap.size).toBe(0)
+        } finally {
+          if (port != null) {
+            port.postMessage = originalPostMessage
+          }
+          await cleanupRegressionPool(pool)
+        }
+      })
+    }
   },
 })
