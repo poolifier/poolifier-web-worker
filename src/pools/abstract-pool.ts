@@ -2862,91 +2862,105 @@ export abstract class AbstractPool<
     this.scheduleTaskStealing()
   }
 
+  private dispatchQueuedTaskAfterCompletion(
+    workerNode: IWorkerNode<Worker, Data>,
+    workerNodeKey: number,
+  ): number | undefined {
+    while (
+      !this.isWorkerNodeBusy(workerNodeKey) &&
+      this.tasksQueueSize(workerNodeKey) > 0
+    ) {
+      if (
+        this.executeTask(
+          workerNodeKey,
+          this.dequeueTask(workerNodeKey)!,
+        )
+      ) {
+        break
+      }
+      // Rejection callbacks can synchronously change pool and worker state.
+      workerNodeKey = this.workerNodes.indexOf(workerNode)
+      if (
+        workerNodeKey === -1 ||
+        !this.started ||
+        this.destroying ||
+        !workerNode.info.ready ||
+        !this.opts.enableTasksQueue
+      ) {
+        return
+      }
+    }
+    return workerNodeKey
+  }
+
   private handleTaskExecutionResponse(message: MessageValue<Response>): void {
     const { name, taskId, data } = message
     let { workerError } = message
     const promiseResponse = this.promiseResponseMap.get(taskId!)
-    if (promiseResponse != null) {
-      const { resolve, reject, workerNodeKey } = promiseResponse
-      if (
-        workerError != null && Object.hasOwn(promiseResponse, 'originalData')
-      ) {
-        workerError = { ...workerError, data: promiseResponse.originalData }
-      }
-      const workerNode = this.workerNodes[workerNodeKey]
-      let error: Error | undefined
-      if (workerError != null) {
-        error = workerError.aborted
-          ? this.getAbortError(
-            workerError.name ?? name ?? DEFAULT_TASK_NAME,
-            taskId!,
-            promiseResponse.abortSignal,
-          )
-          : workerError.error
-      }
-      this.promiseResponseMap.delete(taskId!)
-      if (workerError != null) {
-        this.eventTarget?.dispatchEvent(
-          new ErrorEvent(PoolEvents.taskError, { error: workerError }),
+    if (promiseResponse == null) {
+      return
+    }
+    const { resolve, reject, workerNodeKey } = promiseResponse
+    if (workerError != null && Object.hasOwn(promiseResponse, 'originalData')) {
+      workerError = { ...workerError, data: promiseResponse.originalData }
+    }
+    const workerNode = this.workerNodes[workerNodeKey]
+    let error: Error | undefined
+    if (workerError != null) {
+      error = workerError.aborted
+        ? this.getAbortError(
+          workerError.name ?? name ?? DEFAULT_TASK_NAME,
+          taskId!,
+          promiseResponse.abortSignal,
         )
-        reject(error)
-      } else {
-        resolve(data!)
+        : workerError.error
+    }
+    this.promiseResponseMap.delete(taskId!)
+    if (workerError != null) {
+      this.eventTarget?.dispatchEvent(
+        new ErrorEvent(PoolEvents.taskError, { error: workerError }),
+      )
+      reject(error)
+    } else {
+      resolve(data!)
+    }
+    if (workerNode != null) {
+      this.afterTaskExecutionHook(workerNodeKey, message)
+    }
+    queueMicrotask(() => {
+      const currentWorkerNodeKey =
+        this.workerNodes[workerNodeKey] === workerNode
+          ? workerNodeKey
+          : this.workerNodes.indexOf(workerNode)
+      workerNode?.dispatchEvent(new Event('taskFinished'))
+      this.checkAndEmitTaskExecutionFinishedEvents()
+      if (currentWorkerNodeKey === -1 || !workerNode.info.ready) {
+        return
       }
-      if (workerNode != null) {
-        this.afterTaskExecutionHook(workerNodeKey, message)
-      }
-      queueMicrotask(() => {
-        let currentWorkerNodeKey =
-          this.workerNodes[workerNodeKey] === workerNode
-            ? workerNodeKey
-            : this.workerNodes.indexOf(workerNode)
-        workerNode?.dispatchEvent(new Event('taskFinished'))
-        this.checkAndEmitTaskExecutionFinishedEvents()
-        if (currentWorkerNodeKey === -1 || !workerNode.info.ready) {
+      if (
+        this.started &&
+        this.opts.enableTasksQueue === true &&
+        !this.destroying
+      ) {
+        const dispatchWorkerNodeKey = this.dispatchQueuedTaskAfterCompletion(
+          workerNode,
+          currentWorkerNodeKey,
+        )
+        if (dispatchWorkerNodeKey == null) {
           return
         }
-        if (
-          this.started &&
-          this.opts.enableTasksQueue === true &&
-          !this.destroying
-        ) {
-          while (
-            !this.isWorkerNodeBusy(currentWorkerNodeKey) &&
-            this.tasksQueueSize(currentWorkerNodeKey) > 0
-          ) {
-            if (
-              this.executeTask(
-                currentWorkerNodeKey,
-                this.dequeueTask(currentWorkerNodeKey)!,
-              )
-            ) {
-              break
-            }
-            currentWorkerNodeKey = this.workerNodes.indexOf(workerNode)
-            if (
-              currentWorkerNodeKey === -1 ||
-              !this.started ||
-              this.destroying ||
-              !workerNode.info.ready ||
-              !this.opts.enableTasksQueue
-            ) {
-              return
-            }
-          }
-          if (this.isWorkerNodeIdle(currentWorkerNodeKey)) {
-            workerNode.dispatchEvent(
-              new CustomEvent<WorkerNodeEventDetail>('idle', {
-                detail: { workerNodeKey: currentWorkerNodeKey },
-              }),
-            )
-          }
+        if (this.isWorkerNodeIdle(dispatchWorkerNodeKey)) {
+          workerNode.dispatchEvent(
+            new CustomEvent<WorkerNodeEventDetail>('idle', {
+              detail: { workerNodeKey: dispatchWorkerNodeKey },
+            }),
+          )
         }
-        if (this.shallCreateDynamicWorker()) {
-          this.createAndSetupDynamicWorkerNode()
-        }
-      })
-    }
+      }
+      if (this.shallCreateDynamicWorker()) {
+        this.createAndSetupDynamicWorkerNode()
+      }
+    })
   }
 
   private checkAndEmitTaskExecutionEvents(): void {
