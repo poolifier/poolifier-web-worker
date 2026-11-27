@@ -1270,6 +1270,25 @@ export abstract class AbstractPool<
     }, 0)
   }
 
+  private hasReadyWorkerNode(
+    eligibleWorkerNodeKeys: ReadonlySet<number> | undefined,
+  ): boolean {
+    for (
+      let workerNodeKey = 0;
+      workerNodeKey < this.workerNodes.length;
+      ++workerNodeKey
+    ) {
+      if (
+        this.workerNodes[workerNodeKey].info.ready &&
+        (eligibleWorkerNodeKeys == null ||
+          eligibleWorkerNodeKeys.has(workerNodeKey))
+      ) {
+        return true
+      }
+    }
+    return false
+  }
+
   private hasQueuedTasks(): boolean {
     for (const workerNode of this.workerNodes) {
       if (workerNode.usage.tasks.queued > 0) {
@@ -1960,23 +1979,11 @@ export abstract class AbstractPool<
     const eligibleWorkerNodeKeys = workerNodeKeys != null
       ? new Set(workerNodeKeys)
       : undefined
-    if (this.workerTaskFunctionBootstraps.size > 0) {
-      let readyWorkerFound = false
-      for (
-        let workerNodeKey = 0;
-        workerNodeKey < this.workerNodes.length;
-        ++workerNodeKey
-      ) {
-        if (
-          this.workerNodes[workerNodeKey].info.ready &&
-          (eligibleWorkerNodeKeys == null ||
-            eligibleWorkerNodeKeys.has(workerNodeKey))
-        ) {
-          readyWorkerFound = true
-          break
-        }
-      }
-      if (!readyWorkerFound) return
+    if (
+      this.workerTaskFunctionBootstraps.size > 0 &&
+      !this.hasReadyWorkerNode(eligibleWorkerNodeKeys)
+    ) {
+      return
     }
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.workerChoiceStrategiesContext!.execute(
