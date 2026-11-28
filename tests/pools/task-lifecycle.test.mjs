@@ -230,5 +230,43 @@ describe({
         await bounded(pool.destroy())
       }
     })
+
+    it('honors batch cancellation even when a subclass uses the helper name', async () => {
+      class CustomPool extends FixedThreadPool {
+        normalizeMapExecuteAbortSignals() {
+          return []
+        }
+      }
+      const pool = new CustomPool(1, workerFile)
+      const reason = new Error('Cancelled before batch submission')
+      try {
+        await ready(pool)
+        await expect(bounded(pool.mapExecute(
+          [{ value: 'first' }],
+          'echo',
+          [AbortSignal.abort(reason)],
+        ))).rejects.toBe(reason)
+      } finally {
+        await bounded(pool.destroy())
+      }
+    })
+
+    it('rejects an invalid batch signal before checking the batch length', async () => {
+      const pool = new FixedThreadPool(1, workerFile)
+      try {
+        await ready(pool)
+        const { error } = await pool.mapExecute(
+          [{ value: 'first' }],
+          'echo',
+          [new AbortController().signal, undefined],
+        ).then(() => ({ error: undefined }), (error) => ({ error }))
+        expect(error).toBeInstanceOf(TypeError)
+        expect(error.message).toBe(
+          'abortSignals argument must be an iterable of AbortSignal',
+        )
+      } finally {
+        await bounded(pool.destroy())
+      }
+    })
   },
 })
