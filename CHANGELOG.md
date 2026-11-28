@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.4](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.3...v0.7.4) (2026-11-28)
+
+
+### 🐞 Bug Fixes
+
+* **deps:** update all non-major dependencies ([#232](https://github.com/poolifier/poolifier-web-worker/issues/232)) ([ca9854b](https://github.com/poolifier/poolifier-web-worker/commit/ca9854b37c0728b25bee5edbe53af7ce68e45c5b))
+
+
+### ✨ Polish
+
+* **pools:** address Sonar maintainability findings ([#235](https://github.com/poolifier/poolifier-web-worker/issues/235)) ([bc0d3f1](https://github.com/poolifier/poolifier-web-worker/commit/bc0d3f15968550fe42d8bfe505c590147fce278d))
+* **pools:** isolate batch abort signal validation ([#243](https://github.com/poolifier/poolifier-web-worker/issues/243)) ([d7aca9e](https://github.com/poolifier/poolifier-web-worker/commit/d7aca9e89e7a64d5202d0582aab6e9a00cc3cc5b))
+* **pools:** simplify option validation ([#236](https://github.com/poolifier/poolifier-web-worker/issues/236)) ([06cc1a6](https://github.com/poolifier/poolifier-web-worker/commit/06cc1a69e3f9570f940e2cf57d57452d19ce0e90))
+* **pools:** simplify task completion handling ([#240](https://github.com/poolifier/poolifier-web-worker/issues/240)) ([9926768](https://github.com/poolifier/poolifier-web-worker/commit/99267681c6fc2c71c8fef30b0050ca2770571b6f))
+* **pools:** simplify worker readiness selection ([#241](https://github.com/poolifier/poolifier-web-worker/issues/241)) ([c9e3190](https://github.com/poolifier/poolifier-web-worker/commit/c9e3190a968462659f00b2ffc02e027fe55c06b8))
+* **worker:** simplify task function validation ([#237](https://github.com/poolifier/poolifier-web-worker/issues/237)) ([8fd8a91](https://github.com/poolifier/poolifier-web-worker/commit/8fd8a9140f8438693353dc96e962ec8076820628))
+
 ## [0.7.3](https://github.com/poolifier/poolifier-web-worker/compare/v0.7.2...v0.7.3) (2026-11-20)
 
 ### 🐞 Bug Fixes
