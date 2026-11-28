@@ -265,6 +265,31 @@ export const getDefaultTasksQueueOptions = (
   })
 }
 
+export const normalizeMapExecuteAbortSignals = (
+  abortSignals: Iterable<unknown>,
+  data: readonly unknown[],
+): readonly AbortSignal[] => {
+  if (typeof abortSignals[Symbol.iterator] !== 'function') {
+    throw new TypeError('abortSignals argument must be an iterable')
+  }
+  const signals: readonly unknown[] = Array.isArray(abortSignals)
+    ? abortSignals
+    : [...abortSignals]
+  for (const signal of signals) {
+    if (!(signal instanceof AbortSignal)) {
+      throw new TypeError(
+        'abortSignals argument must be an iterable of AbortSignal',
+      )
+    }
+  }
+  if (data.length !== signals.length) {
+    throw new Error(
+      'data and abortSignals arguments must have the same length',
+    )
+  }
+  return signals as readonly AbortSignal[]
+}
+
 export const checkSpecifier = (specifier: URL | string | undefined): void => {
   if (specifier == null) {
     throw new TypeError('The worker specifier must be defined')
